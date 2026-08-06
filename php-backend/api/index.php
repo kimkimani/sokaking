@@ -1,7 +1,7 @@
 <?php
 /**
  * SOKA Predictions - Standalone PHP REST API Router
- * Host Path: cheerplex.com/soka_king
+ * Host Path: cheerplex.co.ke/soka_king
  * Database: cheerple_soka_king (MariaDB/MySQL)
  */
 
@@ -17,7 +17,7 @@ $pdo = Database::getConnection();
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Handle subfolder routing on cheerplex.com/soka_king
+// Handle subfolder routing on cheerplex.co.ke/soka_king
 $path = $uri;
 if (strpos($path, '/soka_king/api') !== false) {
     $path = substr($path, strpos($path, '/soka_king/api') + strlen('/soka_king/api'));
@@ -233,7 +233,7 @@ if ($path === '' || $path === '/' || $path === '/health') {
     jsonResponse([
         'status' => 'online',
         'service' => 'SOKA Predictions PHP MySQL Backend Server',
-        'host' => 'cheerplex.com/soka_king',
+        'host' => 'cheerplex.co.ke/soka_king',
         'database' => 'cheerple_soka_king',
         'timestamp' => date('Y-m-d H:i:s'),
         'endpoints' => [
@@ -915,6 +915,61 @@ if ($path === '/partners') {
 
         jsonResponse(['success' => true, 'message' => 'Partner added successfully', 'id' => $pdo->lastInsertId()]);
     }
+}
+
+// 16. Dynamic Sitemap Route GET /api/sitemap.xml or /api/sitemap
+if ($path === '/sitemap.xml' || $path === '/sitemap') {
+    header('Content-Type: application/xml; charset=utf-8');
+    $baseUrl = 'https://sokaking.com';
+    $routes = [
+        '/',
+        '/football-predictions-today',
+        '/football-predictions-yesterday',
+        '/football-predictions-tomorrow',
+        '/football-predictions-over-1-5-goals',
+        '/football-predictions-btts-gg',
+        '/football-predictions-1x2-home-win',
+        '/football-predictions-over-2-5-goals',
+        '/football-predictions-double-chance',
+        '/254-sure-tips',
+        '/cheerplex-predictions-and-tips-today',
+        '/liobet-predictions-and-tips',
+        '/sunpel-free-football-betting-tips-and-soccer-predictions',
+        '/jackpot-tips',
+        '/free-sportpesa-mega-jackpot-predictions-and-analysis',
+        '/free-betika-midweek-jackpot-predictions-and-analysis',
+        '/free-mozzart-grand-jackpot-predictions-and-analysis',
+        '/free-mozzart-super-daily-jackpot-predictions-and-analysis',
+        '/free-sportpesa-midweek-jackpot-predictions-and-analysis',
+        '/free-sportybet-jackpot-predictions-and-analysis',
+        '/free-betpawa-pick-jackpot-predictions-and-analysis',
+        '/free-odibet-laki-tatu-jackpot-predictions-and-analysis',
+        '/vip-packages',
+        '/about-us',
+        '/partners',
+        '/responsible-gambling',
+        '/privacy-policy',
+        '/terms-of-use',
+        '/contact-us'
+    ];
+
+    $now = date('c');
+    echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+    foreach ($routes as $p) {
+        $loc = $p === '/' ? $baseUrl : $baseUrl . $p;
+        $isJackpot = strpos($p, 'jackpot') !== false || strpos($p, 'prediction') !== false || $p === '/';
+        $freq = $isJackpot ? 'daily' : 'weekly';
+        $prio = $p === '/' ? '1.0' : ($isJackpot ? '0.8' : '0.5');
+        echo "  <url>\n";
+        echo "    <loc>{$loc}</loc>\n";
+        echo "    <lastmod>{$now}</lastmod>\n";
+        echo "    <changefreq>{$freq}</changefreq>\n";
+        echo "    <priority>{$prio}</priority>\n";
+        echo "  </url>\n";
+    }
+    echo '</urlset>';
+    exit;
 }
 
 // Fallback: 404 Route Not Found

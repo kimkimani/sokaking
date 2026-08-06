@@ -2,11 +2,12 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
+import { generateSitemapXml, getAllSitemapRoutes, BASE_URL } from './src/utils/sitemapGenerator.js';
 
 async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
-  const PHP_BACKEND_URL = (process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'https://cheerplex.com/soka_king').replace(/\/$/, '');
+  const PHP_BACKEND_URL = (process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'https://cheerplex.co.ke/soka_king').replace(/\/$/, '');
 
   app.use(express.json());
 
@@ -24,6 +25,40 @@ async function startServer() {
   });
 
   console.log(`[SOKA King Frontend Server] Connected to PHP Backend at: ${PHP_BACKEND_URL}`);
+
+  // Sitemap & Robots.txt Routes
+  app.get(['/sitemap.xml', '/sitemap', '/api/sitemap.xml'], (_req, res) => {
+    try {
+      const xml = generateSitemapXml();
+      res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+      return res.status(200).send(xml);
+    } catch (err: any) {
+      console.error('Error serving sitemap:', err);
+      return res.status(500).send('<?xml version="1.0" encoding="UTF-8"?><error>Failed to generate sitemap</error>');
+    }
+  });
+
+  app.get('/sitemap.json', (_req, res) => {
+    try {
+      const routes = getAllSitemapRoutes();
+      return res.json({
+        baseUrl: BASE_URL,
+        count: routes.length,
+        routes: routes.map(r => r === '/' ? BASE_URL : `${BASE_URL}${r}`)
+      });
+    } catch (err: any) {
+      return res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get('/robots.txt', (_req, res) => {
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    return res.status(200).send(`User-agent: *
+Allow: /
+
+Sitemap: https://sokaking.com/sitemap.xml
+`);
+  });
 
   // Proxy /api requests to PHP Backend Server
   app.all('/api/*', async (req, res) => {
@@ -61,7 +96,7 @@ async function startServer() {
         error: 'PHP Backend Service Unavailable',
         message: error.message,
         targetUrl,
-        phpBackendGuide: 'Ensure php-backend files are uploaded to cheerplex.com/soka_king'
+        phpBackendGuide: 'Ensure php-backend files are uploaded to cheerplex.co.ke/soka_king'
       });
     }
   });

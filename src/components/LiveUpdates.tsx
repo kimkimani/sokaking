@@ -62,8 +62,8 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures }: Live
     const avgConf = total > 0 ? (dbFixtures.reduce((sum, f) => sum + (f.confidence || 75), 0) / total).toFixed(1) : '83.5';
 
     return [
-      { label: "Database Win Rate", value: `${winRate}%`, trend: `${won} won out of ${settled.length || total} settled`, color: "text-emerald-600 dark:text-emerald-400" },
-      { label: "DB Fixture Pool", value: `${total || 45}`, trend: "Calculated from database", color: "text-[var(--primary)]" },
+      { label: "Verified Win Accuracy", value: `${winRate}%`, trend: `${won} won out of ${settled.length || total} settled`, color: "text-emerald-600 dark:text-emerald-400" },
+      { label: "Active Fixture Pool", value: `${total || 45}`, trend: "Daily analyzed matches", color: "text-[var(--primary)]" },
       { label: "High Confidence", value: `${highConf}%`, trend: "Confidence rating ≥ 80%", color: "text-amber-600 dark:text-amber-400" },
       { label: "Avg Model Score", value: `${avgConf}%`, trend: "Poisson distribution index", color: "text-emerald-600 dark:text-emerald-400" },
     ];

@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 
 import { designIterations } from './data';
+import { jackpotsData } from './jackpotsData';
 import { DesignIteration, Fixture, VipPackage, OddsPack } from './types';
 import { getMarkdownContent, getDynamicUrlMaps } from './content/markdownLoader';
 
@@ -1059,7 +1060,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
 
                       <div className="relative z-10 max-w-2xl space-y-4">
                         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--primary)] text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
-                          <Sparkles className="w-3.5 h-3.5 text-white animate-pulse" /> Live Database Integration Connected
+                          <Sparkles className="w-3.5 h-3.5 text-white animate-pulse" /> Real-Time Analytics & Verified Predictions
                         </div>
                         <h1 
                           className="text-2xl md:text-4xl font-extrabold tracking-tight leading-[1.1] text-[var(--text)]"
@@ -1367,7 +1368,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
               </span>
             </div>
             <p className="leading-relaxed text-[11px]">
-              Kenya's elite database-driven soccer analytics portal. We turn raw sporting indices into mathematically calibrated outcomes.
+              Kenya's premier football prediction & jackpot analytics portal. Powered by advanced statistical algorithms and Poisson goal distribution models.
             </p>
             <div className="flex flex-wrap items-center gap-2 pt-1">
               {siteContacts.whatsapp && (
@@ -1499,7 +1500,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
         {/* Lower row */}
         <div className="max-w-7xl mx-auto px-4 border-t border-[var(--border)] mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-400">
           <div>
-            © 2026 SOKA KING. Built with Real-Time Database Sync. All rights reserved.
+            © 2026 SOKA KING. Kenya's #1 Data-Driven Football Predictions & Jackpot Portal. All rights reserved.
           </div>
           <div className="flex gap-4 font-mono font-semibold">
             <button onClick={() => handleSelectPage('privacy-policy')} className="hover:text-[var(--primary)] bg-transparent border-none cursor-pointer text-[10px] text-slate-400">Privacy</button>
@@ -1507,6 +1508,8 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
             <button onClick={() => handleSelectPage('terms-of-use')} className="hover:text-[var(--primary)] bg-transparent border-none cursor-pointer text-[10px] text-slate-400">Terms</button>
             <span>•</span>
             <button onClick={() => handleSelectPage('responsible-gambling')} className="hover:text-[var(--primary)] bg-transparent border-none cursor-pointer text-[10px] text-slate-400">Responsibility</button>
+            <span>•</span>
+            <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--primary)] text-[10px] text-slate-400 no-underline">XML Sitemap</a>
           </div>
         </div>
       </footer>
