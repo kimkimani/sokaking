@@ -7,7 +7,7 @@ import { generateSitemapXml, getAllSitemapRoutes, BASE_URL } from './src/utils/s
 async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
-  const PHP_BACKEND_URL = (process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'https://cheerplex.co.ke/soka_king').replace(/\/$/, '');
+  const PHP_BACKEND_URL = 'https://cheerplex.co.ke/soka_king';
 
   app.use(express.json());
 

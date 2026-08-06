@@ -21,11 +21,8 @@ This guide covers deploying **Soka King** to **Cloudflare Pages**.
      - **Build output directory**: `dist`
   4. Click **Save** and trigger a new deployment.
 
-### 3. API & Database Data Loading on Deployed Site (`https://sokaking.com` / `*.pages.dev`)
-- **Root Cause**: When deployed as a static frontend on Cloudflare Pages, relative client fetch requests (like `/api/predictions` or `/api/jackpots`) were attempting to fetch from Cloudflare Pages static web server (`https://sokaking.com/api/predictions`), which returned a 404 HTML page instead of querying your remote MySQL PHP backend at `https://cheerplex.co.ke/soka_king`.
-- **Fix Applied**:
-  1. `getApiBaseUrl()` and `apiFetch()` have been updated across the frontend app (`App.tsx`, `StaticPages.tsx`, `VotePoll.tsx`, `LiveUpdates.tsx`, `dataStore.ts`) to automatically direct API requests to `https://cheerplex.co.ke/soka_king` when running on Cloudflare Pages.
-  2. `vite.config.ts` has been configured with `define` to inject `NEXT_PUBLIC_BACKEND_URL` during `bun run build`.
+### 3. Direct Backend Connectivity (Zero Environment Variables Needed)
+- **Zero Config**: The frontend code (`src/lib/getApiBaseUrl.ts`) is configured to directly query `https://cheerplex.co.ke/soka_king` when running on Cloudflare Pages or custom domains, without requiring any environment variables in Cloudflare settings.
 
 ---
 
@@ -34,14 +31,9 @@ This guide covers deploying **Soka King** to **Cloudflare Pages**.
 ### 1. Configure Cloudflare Pages
 - **Build command**: `bun run build`
 - **Build output directory**: `dist`
-- **Node.js / Bun version**: Bun v1.2+ (automatically detected via `bun.lock`)
+- **Environment Variables**: None required! (The backend URL `https://cheerplex.co.ke/soka_king` is built directly into the application).
 
-### 2. Environment Variables
-Under **Settings** → **Environment Variables**, add:
-- `BACKEND_URL`: `https://cheerplex.co.ke/soka_king`
-- `NEXT_PUBLIC_BACKEND_URL`: `https://cheerplex.co.ke/soka_king`
-
-### 3. Custom Domain Setup (`sokaking.com`)
+### 2. Custom Domain Setup (`sokaking.com`)
 1. In Cloudflare Pages → **Custom Domains** → Click **Set up a custom domain**.
 2. Enter `sokaking.com` (and `www.sokaking.com`).
 3. Cloudflare will automatically provision SSL certificates and update DNS records.

@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-function getApiBaseUrl(): string {
-  return process.env.BACKEND_URL || process.env.APP_URL || 'http://127.0.0.1:3000';
-}
+import { getApiBaseUrl } from '../../../lib/getApiBaseUrl';
 
 export async function GET(req: NextRequest) {
   try {
