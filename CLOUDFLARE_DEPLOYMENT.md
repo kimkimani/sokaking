@@ -21,6 +21,12 @@ This guide covers deploying **Soka King** to **Cloudflare Pages**.
      - **Build output directory**: `dist`
   4. Click **Save** and trigger a new deployment.
 
+### 3. API & Database Data Loading on Deployed Site (`https://sokaking.com` / `*.pages.dev`)
+- **Root Cause**: When deployed as a static frontend on Cloudflare Pages, relative client fetch requests (like `/api/predictions` or `/api/jackpots`) were attempting to fetch from Cloudflare Pages static web server (`https://sokaking.com/api/predictions`), which returned a 404 HTML page instead of querying your remote MySQL PHP backend at `https://cheerplex.co.ke/soka_king`.
+- **Fix Applied**:
+  1. `getApiBaseUrl()` and `apiFetch()` have been updated across the frontend app (`App.tsx`, `StaticPages.tsx`, `VotePoll.tsx`, `LiveUpdates.tsx`, `dataStore.ts`) to automatically direct API requests to `https://cheerplex.co.ke/soka_king` when running on Cloudflare Pages.
+  2. `vite.config.ts` has been configured with `define` to inject `NEXT_PUBLIC_BACKEND_URL` during `bun run build`.
+
 ---
 
 ## 🚀 Full Cloudflare Pages Deployment Steps

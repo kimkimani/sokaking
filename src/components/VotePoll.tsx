@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Users, CheckCircle, Sparkles } from 'lucide-react';
+import { getApiBaseUrl } from '../lib/getApiBaseUrl';
 
 interface VoteStats {
   fixtureId: string;
@@ -39,7 +40,8 @@ export default function VotePoll({ fixtureId }: VotePollProps) {
     let active = true;
     const fetchStats = async () => {
       try {
-        const res = await fetch(`/api/predictions/vote?fixtureId=${fixtureId}&userId=${visitorId}`);
+        const baseUrl = getApiBaseUrl();
+        const res = await fetch(`${baseUrl}/api/predictions/vote?fixtureId=${fixtureId}&userId=${visitorId}`);
         if (res.ok) {
           const data = await res.json();
           if (active) {
@@ -66,7 +68,8 @@ export default function VotePoll({ fixtureId }: VotePollProps) {
     if (voting) return; // Prevent double trigger
     setVoting(option);
     try {
-      const res = await fetch('/api/predictions/vote', {
+      const baseUrl = getApiBaseUrl();
+      const res = await fetch(`${baseUrl}/api/predictions/vote`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { getApiBaseUrl } from '../lib/getApiBaseUrl';
 import { motion } from 'motion/react';
 import { 
   Trophy,
@@ -25,7 +26,8 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures }: Live
     if (propFixtures && propFixtures.length > 0) {
       setDbFixtures(propFixtures);
     } else {
-      fetch('/api/predictions')
+      const baseUrl = getApiBaseUrl();
+      fetch(`${baseUrl}/api/predictions`)
         .then(r => r.ok ? r.json() : [])
         .then(data => {
           if (Array.isArray(data)) setDbFixtures(data);

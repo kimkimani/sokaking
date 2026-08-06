@@ -1,4 +1,5 @@
 import { auth } from '../lib/firebase-client.ts';
+import { getApiBaseUrl } from '../lib/getApiBaseUrl';
 
 async function getAuthHeader() {
   const user = auth.currentUser;
@@ -24,7 +25,12 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
     ...authHeader,
   };
 
-  const response = await fetch(endpoint, {
+  const baseUrl = getApiBaseUrl();
+  const url = endpoint.startsWith('http://') || endpoint.startsWith('https://')
+    ? endpoint
+    : `${baseUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+
+  const response = await fetch(url, {
     ...options,
     headers,
   });

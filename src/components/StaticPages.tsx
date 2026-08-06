@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getApiBaseUrl } from '../lib/getApiBaseUrl';
 import { 
   ArrowLeft, 
   ShieldCheck, 
@@ -190,7 +191,8 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
   });
 
   useEffect(() => {
-    fetch('/api/site-settings')
+    const baseUrl = getApiBaseUrl();
+    fetch(`${baseUrl}/api/site-settings`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data) {
@@ -204,7 +206,8 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
   const [dbPartners, setDbPartners] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('/api/partners')
+    const baseUrl = getApiBaseUrl();
+    fetch(`${baseUrl}/api/partners`)
       .then(res => res.ok ? res.json() : [])
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
@@ -230,7 +233,8 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
     
     setSubmitting(true);
     try {
-      await fetch('/api/contact', {
+      const baseUrl = getApiBaseUrl();
+      await fetch(`${baseUrl}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

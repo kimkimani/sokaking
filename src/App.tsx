@@ -39,6 +39,7 @@ import { getMarkdownContent, getDynamicUrlMaps } from './content/markdownLoader'
 import { auth, googleProvider, signInWithPopup, signOut } from './lib/firebase-client.ts';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { apiFetch } from './utils/api.ts';
+import { getApiBaseUrl } from './lib/getApiBaseUrl';
 import { PredictionCategory, getCategoryCountText } from './utils/predictionGenerator';
 
 // Import subcomponents
@@ -296,7 +297,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
         try {
           // Sync user to PostgreSQL database
           const token = await currentUser.getIdToken();
-          await fetch('/api/users/sync', {
+          await apiFetch('/api/users/sync', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -336,7 +337,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
 
           try {
             // Sync guest user to Postgres DB
-            await fetch('/api/users/sync', {
+            await apiFetch('/api/users/sync', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -385,12 +386,13 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
   const loadDatabaseData = async () => {
     try {
       setLoadingDb(true);
+      const baseUrl = getApiBaseUrl();
       const [jackpotsRes, vipRes, oddsRes, allPredictionsRes, settingsRes] = await Promise.all([
-        fetch('/api/jackpots').then(r => r.ok ? r.json() : []).catch(() => []),
-        fetch('/api/vip-packages').then(r => r.ok ? r.json() : []).catch(() => []),
-        fetch('/api/odds-packs').then(r => r.ok ? r.json() : []).catch(() => []),
-        fetch('/api/predictions').then(r => r.ok ? r.json() : []).catch(() => []),
-        fetch('/api/settings').then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch(`${baseUrl}/api/jackpots`).then(r => r.ok ? r.json() : []).catch(() => []),
+        fetch(`${baseUrl}/api/vip-packages`).then(r => r.ok ? r.json() : []).catch(() => []),
+        fetch(`${baseUrl}/api/odds-packs`).then(r => r.ok ? r.json() : []).catch(() => []),
+        fetch(`${baseUrl}/api/predictions`).then(r => r.ok ? r.json() : []).catch(() => []),
+        fetch(`${baseUrl}/api/site-settings`).then(r => r.ok ? r.json() : null).catch(() => null),
       ]);
 
       if (settingsRes) {
@@ -444,7 +446,8 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
         !dbPredictions[activePage]) {
       const fetchCategoryPredictions = async () => {
         try {
-          const preds = await fetch(`/api/predictions?category=${activePage}`)
+          const baseUrl = getApiBaseUrl();
+          const preds = await fetch(`${baseUrl}/api/predictions?category=${activePage}`)
             .then(r => r.ok ? r.json() : [])
             .catch(() => []);
           setDbPredictions(prev => ({
@@ -635,7 +638,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
       
       const result = await signInWithPopup(auth, googleProvider);
       const token = await result.user.getIdToken();
-      await fetch('/api/users/sync', {
+      await apiFetch('/api/users/sync', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -677,7 +680,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
       setUser(mockUser);
       
       // Sync guest user to Postgres DB
-      await fetch('/api/users/sync', {
+      await apiFetch('/api/users/sync', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
