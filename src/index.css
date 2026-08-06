@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+/* Define the custom global themes and variables as premium light modes */
+:root {
+  /* Default variables matching Emerald Light Mode */
+  --background: #f0f7f4;
+  --text: #062c1e;
+  --text-muted: #4d6e61;
+  --primary: #059669; /* Emerald Green */
+  --primary-rgb: 5, 150, 105;
+  --secondary: #0ea5e9; /* Sky blue */
+  --accent: #b45309; /* Warm bronze */
+  --card: #ffffff;
+  --border: #d1e2db;
+  --shadow: 0 10px 30px rgba(6, 44, 30, 0.05);
+  --radius: 14px;
+  --backdrop: none;
+}
+
+/* 1. EMERALD PROFESSIONAL (Chosen Primary Light Mode) */
+.theme-emerald {
+  --background: #f0f7f4;
+  --text: #062c1e;
+  --text-muted: #4d6e61;
+  --primary: #059669; /* Emerald Green */
+  --primary-rgb: 5, 150, 105;
+  --secondary: #0ea5e9; /* Sky blue */
+  --accent: #b45309; /* Warm bronze */
+  --card: #ffffff;
+  --border: #d1e2db;
+  --shadow: 0 10px 30px rgba(6, 44, 30, 0.05);
+  --radius: 14px;
+  --backdrop: none;
+}
+
+/* 2. ATHLETIC MIDNIGHT (Alternative Midnight Light Mode) */
+.theme-midnight {
+  --background: #f3f5f9;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --primary: #4f46e5; /* Indigo/Midnight Blue */
+  --primary-rgb: 79, 70, 229;
+  --secondary: #06b6d4; /* Neon Cyan */
+  --accent: #dc2626; /* Sports Red */
+  --card: #ffffff;
+  --border: #cbd5e1;
+  --shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  --radius: 10px;
+  --backdrop: none;
+}
+
+/* Base style resets and scrollbars */
+html, body {
+  background: var(--background);
+  color: var(--text);
+  font-family: var(--font-sans);
+  transition: background-color 0.4s ease, color 0.4s ease;
+  scroll-behavior: smooth;
+}
+
+/* Global scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* Custom design accents */
+.badge-glow {
+  box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.35);
+}
+
+/* Animations */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.glow-glow {
+  animation: pulseGlow 3s infinite ease-in-out;
+}

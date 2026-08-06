@@ -1,0 +1,17 @@
+# Apache Rewrite Rules for SOKA Predictions PHP REST API on cheerplex.com/soka_king
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /soka_king/api/
+
+    # Handle Authorization Header in Apache
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Send all requests to index.php unless file exists
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+# Options
+Options -Indexes
