@@ -73,7 +73,7 @@ export function generateSitemapXml(): string {
     const fullUrl = p === '/' ? BASE_URL : `${BASE_URL}${p}`;
     const isJackpotOrPred = p.includes('jackpot') || p.includes('prediction') || p.includes('tips') || p === '/';
     const changeFreq = isJackpotOrPred ? 'daily' : 'weekly';
-    const priority = p === '/' ? '1.0' : isJackpotOrPred ? '0.8' : '0.5';
+    const priority = p === '/' ? '1.0' : isJackpotOrPred ? '0.8' : '0.8';
 
     return `  <url>
     <loc>${fullUrl}</loc>
