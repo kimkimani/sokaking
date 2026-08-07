@@ -108,6 +108,9 @@ export default function FaqSection({
               >
                 <button
                   onClick={() => toggleItem(idx)}
+                  aria-expanded={isOpen}
+                  aria-controls={`faq-answer-${idx}`}
+                  aria-label={`Toggle answer for question: ${item.question}`}
                   className="w-full p-4 flex items-center justify-between gap-3 text-left bg-transparent border-none cursor-pointer transition-colors"
                 >
                   <div className="flex items-start gap-2.5 min-w-0">
@@ -122,7 +125,12 @@ export default function FaqSection({
                 </button>
 
                 {isOpen && (
-                  <div className="px-4 pb-4 pt-0 text-xs text-[var(--text-muted)] leading-relaxed border-t border-[var(--border)] border-dashed mt-1 pt-3">
+                  <div 
+                    id={`faq-answer-${idx}`}
+                    role="region"
+                    aria-label={`Answer for ${item.question}`}
+                    className="px-4 pb-4 text-xs text-[var(--text-muted)] leading-relaxed border-t border-[var(--border)] border-dashed mt-1 pt-3"
+                  >
                     <MarkdownRenderer content={item.answer} />
                   </div>
                 )}

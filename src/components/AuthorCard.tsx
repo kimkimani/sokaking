@@ -22,7 +22,11 @@ export const AuthorCard: React.FC<AuthorCardProps> = ({
         {avatar ? (
           <img 
             src={avatar} 
-            alt={name} 
+            alt={`Author photo of ${name}`}
+            width={56}
+            height={56}
+            loading="lazy"
+            decoding="async" 
             className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border-2 border-[var(--primary)] shrink-0"
             referrerPolicy="no-referrer"
           />

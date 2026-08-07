@@ -216,6 +216,7 @@ export default function PaymentModal({
         <button 
           onClick={onClose}
           id="modalClose"
+          aria-label="Close payment modal"
           className="absolute top-4 right-4 p-1.5 rounded-full bg-[var(--background)] hover:bg-opacity-80 border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors cursor-pointer z-10"
         >
           <X className="w-4 h-4" />
@@ -269,10 +270,11 @@ export default function PaymentModal({
                 {/* Form Inputs */}
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-[10px] text-[var(--text-muted)] font-mono font-bold uppercase mb-1.5">
+                    <label htmlFor="mPesaPhoneNumber" className="block text-[10px] text-[var(--text-muted)] font-mono font-bold uppercase mb-1.5">
                       M-Pesa Mobile Number
                     </label>
                     <input 
+                      id="mPesaPhoneNumber"
                       type="text"
                       placeholder="e.g. 0712345678 or 0112345678"
                       value={phoneNumber}
@@ -283,10 +285,11 @@ export default function PaymentModal({
                   </div>
 
                   <div>
-                    <label className="block text-[10px] text-[var(--text-muted)] font-mono font-bold uppercase mb-1.5">
+                    <label htmlFor="subscriberName" className="block text-[10px] text-[var(--text-muted)] font-mono font-bold uppercase mb-1.5">
                       Subscriber Name / Alias
                     </label>
                     <input 
+                      id="subscriberName"
                       type="text"
                       placeholder="e.g. Samuel Kamau"
                       value={accountName}
@@ -395,9 +398,11 @@ export default function PaymentModal({
 
                       <form onSubmit={handlePinSubmit} className="space-y-3">
                         <input 
+                          id="stkPin"
                           type="password"
                           maxLength={4}
                           placeholder="••••"
+                          aria-label="Enter M-Pesa PIN"
                           value={pin}
                           onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
                           disabled={isSubmitting}

@@ -93,6 +93,7 @@ export default function Sidebar({
 
             <button 
               onClick={onClose}
+              aria-label="Close menu drawer"
               className="p-1 rounded-md text-[var(--text-muted)] hover:text-[var(--text)] bg-[var(--background)] border border-[var(--border)] cursor-pointer"
             >
               <X className="w-4 h-4" />

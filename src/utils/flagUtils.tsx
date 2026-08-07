@@ -128,6 +128,10 @@ export function FlagImage({ flag, countryName, countryFlag }: { flag?: string; c
       <img
         src={flagUrl}
         alt={countryName || 'Country flag'}
+        width={16}
+        height={12}
+        loading="lazy"
+        decoding="async"
         className="w-4 h-3 object-cover rounded-2xs inline-block shrink-0 shadow-2xs border border-slate-200/60 dark:border-slate-700/60"
         onError={() => setHasError(true)}
       />

@@ -888,8 +888,9 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                          <label className="text-[10px] font-mono font-bold text-slate-400 uppercase">Your Name</label>
+                          <label htmlFor="contactName" className="text-[10px] font-mono font-bold text-slate-400 uppercase">Your Name</label>
                           <input 
+                            id="contactName"
                             type="text" 
                             required
                             placeholder="Joseph Kima"
@@ -899,8 +900,9 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-[10px] font-mono font-bold text-slate-400 uppercase">Your Email Address</label>
+                          <label htmlFor="contactEmail" className="text-[10px] font-mono font-bold text-slate-400 uppercase">Your Email Address</label>
                           <input 
+                            id="contactEmail"
                             type="email" 
                             required
                             placeholder="kima@gmail.com"
@@ -912,8 +914,9 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-mono font-bold text-slate-400 uppercase">Subject Topic</label>
+                        <label htmlFor="contactSubject" className="text-[10px] font-mono font-bold text-slate-400 uppercase">Subject Topic</label>
                         <input 
+                          id="contactSubject"
                           type="text" 
                           placeholder="M-Pesa payment not unlocked, Jackpot inquiries, etc."
                           value={formData.subject}
@@ -923,8 +926,9 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-mono font-bold text-slate-400 uppercase">Message Body</label>
+                        <label htmlFor="contactMessage" className="text-[10px] font-mono font-bold text-slate-400 uppercase">Message Body</label>
                         <textarea 
+                          id="contactMessage"
                           rows={4}
                           required
                           placeholder="Provide as many details as possible, including transaction codes if inquiring about an M-Pesa STK payment..."

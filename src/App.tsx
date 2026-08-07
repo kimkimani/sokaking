@@ -519,6 +519,14 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text)] font-sans antialiased selection:bg-[var(--primary)] selection:text-white transition-colors duration-500 pb-16">
       
+      {/* Skip to Content Link for Screen Readers */}
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[var(--primary)] focus:text-white focus:rounded-md font-bold focus:shadow-lg"
+      >
+        Skip to main content
+      </a>
+
       {/* 1. MAIN HEADER & DESKTOP TOOLBAR */}
       <header className="w-full border-b border-[var(--border)] bg-[var(--card)] backdrop-blur-[var(--backdrop)] sticky top-0 z-40 transition-all">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -527,14 +535,16 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setSidebarOpen(true)}
+              aria-label="Open navigation menu"
               className="lg:hidden p-1.5 rounded-lg bg-white bg-opacity-5 border border-[var(--border)] text-[var(--text)] cursor-pointer"
             >
               <Menu className="w-5 h-5 text-[var(--primary)]" />
             </button>
             
-            <div 
+            <button 
               onClick={() => handleSelectPage('home')}
-              className="flex items-center gap-2 cursor-pointer"
+              aria-label="Soka King Home"
+              className="flex items-center gap-2 cursor-pointer bg-transparent border-none p-0 text-left"
             >
               <div className="w-8 h-8 rounded-lg bg-[var(--primary)] flex items-center justify-center text-white font-black text-xs select-none">
                 SK
@@ -545,11 +555,11 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
               >
                 SOKA <span className="text-[var(--primary)]">KING</span>
               </span>
-            </div>
+            </button>
           </div>
 
           {/* Center: Desktop Toolbar Navigation Menu */}
-          <nav className="hidden lg:flex items-center gap-1 bg-slate-100/60 dark:bg-slate-900/40 p-1 rounded-full border border-[var(--border)] shadow-3xs">
+          <nav aria-label="Main navigation" className="hidden lg:flex items-center gap-1 bg-slate-100/60 dark:bg-slate-900/40 p-1 rounded-full border border-[var(--border)] shadow-3xs">
             <button 
               onClick={() => handleSelectPage('home')}
               className={`px-3.5 py-1.5 text-xs font-bold transition-all border-none cursor-pointer rounded-full ${activePage === 'home' ? 'bg-[var(--primary)] text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--primary)]'}`}
@@ -636,7 +646,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
           <div className="flex flex-col lg:flex-row gap-6 items-start">
             
             {/* MAIN CENTER DASHBOARD CONTAINER */}
-            <main className="flex-1 w-full space-y-8 overflow-hidden">
+            <main id="main-content" className="flex-1 w-full space-y-8 overflow-hidden">
               
               {(() => {
                 const category = PREDICTION_CATEGORIES.find(c => 
@@ -1092,6 +1102,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
           href={`https://wa.me/${(siteContacts.whatsapp || siteContacts.phone || '+254740841375').replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello Soka King Support, I need today tips')}`} 
           target="_blank" 
           rel="noopener noreferrer"
+          aria-label="Chat with Soka King support on WhatsApp"
           title="Contact WhatsApp Support"
           className="w-12 h-12 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all duration-200"
         >
@@ -1102,7 +1113,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
       </div>
 
       {/* 7. MOBILE BOTTOM NAVIGATION BAR */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--card)]/95 backdrop-blur-md border-t border-[var(--border)] px-2 py-1.5 flex items-center justify-around shadow-2xl">
+      <nav aria-label="Mobile bottom navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--card)]/95 backdrop-blur-md border-t border-[var(--border)] px-2 py-1.5 flex items-center justify-around shadow-2xl">
         <button
           onClick={() => { handleSelectPage('category-today'); handleScrollTo('predictions'); }}
           className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer border-none ${

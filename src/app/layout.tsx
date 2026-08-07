@@ -5,16 +5,19 @@ import { Inter, JetBrains_Mono, Space_Grotesk, Playfair_Display } from 'next/fon
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
+  display: 'swap',
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
+  display: 'swap',
 });
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   variable: '--font-display',
+  display: 'swap',
 });
 
 const playfairDisplay = Playfair_Display({
@@ -22,6 +25,7 @@ const playfairDisplay = Playfair_Display({
   variable: '--font-serif',
   weight: ['500', '600', '700'],
   style: ['normal', 'italic'],
+  display: 'swap',
 });
 
 export const metadata = {
