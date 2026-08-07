@@ -111,27 +111,27 @@ export default function PredictionsList({
     return 'bg-slate-600 text-white';
   };
 
-  const getResultBadge = (fixture: Fixture) => {
+  const getResultBadge = (fixture: Fixture, showScore = true) => {
     const { result, homeScore, awayScore, status } = fixture;
     const scoreText = (status === 'FT' || status === 'LIVE' || status === 'HT') ? `${homeScore} - ${awayScore}` : '—';
     
     if (result === 'won') {
       return (
-        <span className="flex items-center gap-1 text-[10.5px] bg-emerald-500 bg-opacity-15 text-emerald-800 dark:text-emerald-400 font-black px-2.5 py-0.5 rounded border border-emerald-500 border-opacity-35 font-mono">
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> {scoreText}
+        <span className="flex items-center gap-1 text-[10.5px] bg-emerald-500 bg-opacity-15 text-emerald-800 dark:text-emerald-400 font-black px-2 py-0.5 rounded border border-emerald-500 border-opacity-35 font-mono">
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> {showScore ? scoreText : null}
         </span>
       );
     }
     if (result === 'lost') {
       return (
-        <span className="flex items-center gap-1 text-[10.5px] bg-red-500 bg-opacity-15 text-red-800 dark:text-red-400 font-black px-2.5 py-0.5 rounded border border-red-500 border-opacity-35 font-mono">
-          <XCircle className="w-3.5 h-3.5 text-red-500 shrink-0" /> {scoreText}
+        <span className="flex items-center gap-1 text-[10.5px] bg-red-500 bg-opacity-15 text-red-800 dark:text-red-400 font-black px-2 py-0.5 rounded border border-red-500 border-opacity-35 font-mono">
+          <XCircle className="w-3.5 h-3.5 text-red-500 shrink-0" /> {showScore ? scoreText : null}
         </span>
       );
     }
     return (
-      <span className="flex items-center gap-1 text-[10.5px] bg-slate-500 bg-opacity-15 text-slate-700 dark:text-slate-400 font-bold px-2.5 py-0.5 rounded border border-slate-500 border-opacity-30 font-mono">
-        <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" /> PENDING
+      <span className="flex items-center gap-1 text-[10.5px] bg-slate-500 bg-opacity-15 text-slate-700 dark:text-slate-400 font-bold px-2 py-0.5 rounded border border-slate-500 border-opacity-30 font-mono">
+        <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" /> {showScore ? 'PENDING' : null}
       </span>
     );
   };
@@ -401,9 +401,7 @@ export default function PredictionsList({
                       ) : (
                         <div className={`w-6 h-6 flex items-center justify-center border rounded-md text-xs font-mono font-black ${
                           isCompleted
-                            ? isWon
-                              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-                              : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'
+                            ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200'
                             : 'bg-slate-50 dark:bg-slate-800 border-slate-150 dark:border-slate-700 text-slate-850 dark:text-slate-200'
                         }`}>
                           {fixture.homeScore}
@@ -431,9 +429,7 @@ export default function PredictionsList({
                       ) : (
                         <div className={`w-6 h-6 flex items-center justify-center border rounded-md text-xs font-mono font-black ${
                           isCompleted
-                            ? isWon
-                              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-                              : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'
+                            ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200'
                             : 'bg-slate-50 dark:bg-slate-800 border-slate-150 dark:border-slate-700 text-slate-850 dark:text-slate-200'
                         }`}>
                           {fixture.awayScore}
@@ -445,18 +441,14 @@ export default function PredictionsList({
                   {/* ACTION/TIP BOTTOM BAR & READ ANALYSIS TRIGGER (MOBILE) */}
                   <div className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 transition-all ${
                     isCompleted
-                      ? isWon
-                        ? 'bg-emerald-500/[0.08] border-emerald-500/20 text-emerald-700 dark:text-emerald-350'
-                        : 'bg-slate-100/70 dark:bg-slate-900/40 border-slate-200/60 dark:border-slate-800 text-slate-400'
+                      ? 'bg-slate-100/70 dark:bg-slate-900/40 border-slate-200/60 dark:border-slate-800 text-slate-400'
                       : 'bg-indigo-500/[0.06] dark:bg-indigo-500/12 border-indigo-500/20 dark:border-indigo-500/25'
                   }`}>
                     <div className="min-w-0 flex-1 flex items-center gap-1.5 flex-wrap">
                       <span className="text-[10px] uppercase font-mono font-black text-slate-500 dark:text-slate-400 shrink-0">TIP:</span>
                       <span className={`text-[11px] sm:text-xs font-mono font-bold tracking-tight flex items-center gap-1 px-2 py-0.5 rounded-md border ${
                         isCompleted
-                          ? isWon
-                            ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/40'
-                            : 'bg-slate-200/60 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 border-slate-300/60 dark:border-slate-700 line-through opacity-80'
+                          ? 'bg-slate-200/60 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border-slate-300/60 dark:border-slate-700'
                           : 'bg-indigo-600/10 dark:bg-indigo-500/20 text-indigo-900 dark:text-indigo-200 border-indigo-500/30'
                       }`}>
                         <span className="font-bold tracking-tight">{fixture.prediction}</span>
@@ -464,7 +456,6 @@ export default function PredictionsList({
                           <span className="inline-flex items-center justify-center bg-emerald-500 text-white font-black rounded-full w-3.5 h-3.5 text-[8px] ml-0.5 shrink-0">✓</span>
                         )}
                       </span>
-                      {isCompleted && getResultBadge(fixture)}
                     </div>
 
                     <button 
@@ -474,9 +465,7 @@ export default function PredictionsList({
                       }}
                       className={`active:scale-95 text-white font-black text-[10px] uppercase px-3 py-2 rounded-lg flex items-center gap-1.5 transition-all border-none shrink-0 cursor-pointer shadow-xs ${
                         isCompleted
-                          ? isWon
-                            ? 'bg-emerald-600 hover:bg-emerald-700'
-                            : 'bg-slate-600 hover:bg-slate-700'
+                          ? 'bg-slate-600 hover:bg-slate-700'
                           : 'bg-indigo-600 hover:bg-indigo-700'
                       }`}
                     >

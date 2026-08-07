@@ -24,7 +24,7 @@ Our live support dispatchers monitor incoming tickets and WhatsApp channels 24 h
 ### Contact Information & Channels
 
 - **Email Support**: support@sokaking.com
-- **WhatsApp Hotline**: +254 712 345 678
+- **WhatsApp Hotline**: +254 740 841 375
 - **Headquarters Location**: Galana Plaza, 4th Floor, Kilimani, Nairobi, Kenya
 - **Operating Hours**: 24/7 Operations
 

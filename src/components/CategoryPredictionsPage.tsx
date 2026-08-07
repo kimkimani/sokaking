@@ -422,13 +422,13 @@ export default function CategoryPredictionsPage({
                 {pageMd.displayTitle || pageMd.title || category.name}
               </h1>
               
-              <p className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed">
+              <div className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed">
                 {pageMd.intro ? (
                   <MarkdownRenderer content={pageMd.intro} />
                 ) : (
                   <>{category.description} Powered by Soka King's state-of-the-art sporting index systems, Poisson probability modeling, and real-time team statistics.</>
                 )}
-              </p>
+              </div>
             </div>
 
             <div className="flex flex-col gap-2 shrink-0 self-start md:self-center">

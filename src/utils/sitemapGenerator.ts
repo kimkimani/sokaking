@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { getAllMarkdownPages } from '../content/markdownLoader';
 
 export const BASE_URL = 'https://sokaking.com';
 
@@ -38,7 +39,24 @@ export function getAllSitemapRoutes(): string[] {
 
   const routesSet = new Set<string>(defaultRoutes);
 
-  // Automatically scan all markdown files in src/content/pages/
+  // 1. Scan markdownLoader (includes markdownData.ts and parsed pages)
+  try {
+    const allMd = getAllMarkdownPages();
+    for (const { pageKey, page } of allMd) {
+      if (page.link) {
+        let normLink = page.link.toLowerCase().trim();
+        if (!normLink.startsWith('/')) normLink = '/' + normLink;
+        if (normLink.endsWith('/') && normLink !== '/') normLink = normLink.slice(0, -1);
+        routesSet.add(normLink);
+      } else {
+        routesSet.add(`/${pageKey}`);
+      }
+    }
+  } catch (err) {
+    console.error('Error getting markdown pages for sitemap:', err);
+  }
+
+  // 2. Automatically scan all physical markdown files in src/content/pages/
   try {
     const pagesDir = path.join(process.cwd(), 'src/content/pages');
     if (fs.existsSync(pagesDir)) {
@@ -50,6 +68,7 @@ export function getAllSitemapRoutes(): string[] {
           if (linkMatch && linkMatch[1]) {
             let normLink = linkMatch[1].trim();
             if (!normLink.startsWith('/')) normLink = '/' + normLink;
+            if (normLink.endsWith('/') && normLink !== '/') normLink = normLink.slice(0, -1);
             routesSet.add(normLink);
           } else {
             const pageSlug = file.replace(/\.md$/, '');
@@ -73,7 +92,7 @@ export function generateSitemapXml(): string {
     const fullUrl = p === '/' ? BASE_URL : `${BASE_URL}${p}`;
     const isJackpotOrPred = p.includes('jackpot') || p.includes('prediction') || p.includes('tips') || p === '/';
     const changeFreq = isJackpotOrPred ? 'daily' : 'weekly';
-    const priority = p === '/' ? '1.0' : isJackpotOrPred ? '0.8' : '0.8';
+    const priority = p === '/' ? '1.0' : isJackpotOrPred ? '0.8' : '0.5';
 
     return `  <url>
     <loc>${fullUrl}</loc>

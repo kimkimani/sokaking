@@ -209,8 +209,8 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
     youtube?: string;
   }>({
     email: 'support@sokaking.com',
-    phone: '+254712345678',
-    whatsapp: '+254712345678',
+    phone: '+254740841375',
+    whatsapp: '+254740841375',
     telegram: 'https://t.me/sokapredictions',
     facebook: 'https://facebook.com/sokaking',
     twitter: 'https://x.com/sokaking',
@@ -1293,7 +1293,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
       {/* 6. FLOATING WHATSAPP BUTTON */}
       <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40">
         <a 
-          href="https://wa.me/254712345678" 
+          href={`https://wa.me/${(siteContacts.whatsapp || siteContacts.phone || '+254740841375').replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello Soka King Support, I need today tips')}`} 
           target="_blank" 
           rel="noopener noreferrer"
           title="Contact WhatsApp Support"
@@ -1376,7 +1376,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
             <div className="flex flex-wrap items-center gap-2 pt-1">
               {siteContacts.whatsapp && (
                 <a 
-                  href={`https://wa.me/${siteContacts.whatsapp.replace(/[^0-9]/g, '')}`} 
+                  href={`https://wa.me/${siteContacts.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello Soka King Support, I need today tips')}`} 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono text-[11px] font-bold hover:bg-emerald-500/20 transition-all no-underline" 

@@ -1,6 +1,8 @@
 import { RAW_MARKDOWN_MAP } from './markdownData';
 
-const pageMarkdownFiles = import.meta.glob('./pages/*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+const pageMarkdownFiles = (typeof import.meta !== 'undefined' && typeof (import.meta as any).glob === 'function')
+  ? (import.meta as any).glob('./pages/*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
+  : {};
 
 export interface ParsedMarkdownPage {
   pageKey?: string;

@@ -37,16 +37,24 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures }: Live
   }, [propFixtures]);
 
   const recentWins = useMemo(() => {
-    const settledWon = dbFixtures.filter(f => f.result === 'won' || f.status === 'FT');
+    const settledWon = dbFixtures
+      .filter(f => f.result === 'won' || f.result === 'Won' || (f.status === 'FT' && f.result !== 'lost'))
+      .sort((a, b) => new Date(b.kickoffTime || 0).getTime() - new Date(a.kickoffTime || 0).getTime());
+
     if (settledWon.length > 0) {
-      return settledWon.slice(0, 4).map(f => ({
-        teams: `${f.homeTeam} vs ${f.awayTeam}`,
-        tip: f.prediction || 'Home Win (1)',
-        odds: (1.5 + (f.confidence || 75) / 100).toFixed(2),
-        result: `${f.homeScore ?? 1} - ${f.awayScore ?? 0}`,
-        date: f.kickoffTime ? new Date(f.kickoffTime).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Recently'
-      }));
+      return settledWon.slice(0, 4).map(f => {
+        const hScore = f.homeScore !== undefined && f.homeScore !== null && f.homeScore !== '-' ? f.homeScore : 2;
+        const aScore = f.awayScore !== undefined && f.awayScore !== null && f.awayScore !== '-' ? f.awayScore : 1;
+        return {
+          teams: `${f.homeTeam} vs ${f.awayTeam}`,
+          tip: f.prediction || 'Home Win (1)',
+          odds: (1.5 + (f.confidence || 75) / 100).toFixed(2),
+          result: `${hScore} - ${aScore}`,
+          date: f.kickoffTime ? new Date(f.kickoffTime).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Recently'
+        };
+      });
     }
+
     return [
       { teams: "Man City vs Liverpool", tip: "Over 2.5 Goals", odds: "1.78", result: "3 - 2", date: "Yesterday" },
       { teams: "Arsenal vs Chelsea", tip: "Home Win (1)", odds: "1.65", result: "2 - 0", date: "Yesterday" },

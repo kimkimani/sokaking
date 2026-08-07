@@ -19,8 +19,8 @@ export async function GET() {
     return NextResponse.json({
       siteName: 'SOKA Predictions',
       email: 'support@sokapredictions.co.ke',
-      phone: '+254 700 123 456',
-      whatsapp: '+254 700 123 456',
+      phone: '+254740841375',
+      whatsapp: '+254740841375',
       telegram: 'https://t.me/sokapredictions',
       facebook: 'https://facebook.com/sokapredictions',
       twitter: 'https://x.com/sokapredictions',

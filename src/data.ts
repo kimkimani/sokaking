@@ -350,9 +350,9 @@ export const contactSocialTable: ContactSocialConfig[] = [
   {
     id: 'cnt-wa-1',
     channelName: 'WhatsApp Official Hotline',
-    contactValue: '+254 712 345 678',
+    contactValue: '+254 740 841 375',
     type: 'whatsapp',
-    actionUrl: 'https://wa.me/254712345678',
+    actionUrl: 'https://wa.me/254740841375?text=Hello%20Soka%20King%20Support%2C%20I%20need%20today%20tips',
     description: 'Instant customer support, M-Pesa STK push assistance, and daily VIP slip queries',
     status: '24/7 Dispatch'
   },
@@ -368,9 +368,9 @@ export const contactSocialTable: ContactSocialConfig[] = [
   {
     id: 'cnt-phone-1',
     channelName: 'Direct Dispatch Line',
-    contactValue: '+254 712 345 678',
+    contactValue: '+254 740 841 375',
     type: 'phone',
-    actionUrl: 'tel:+254712345678',
+    actionUrl: 'tel:+254740841375',
     description: 'Safaricom M-Pesa verification and helpline support',
     status: '24/7 Dispatch'
   },
