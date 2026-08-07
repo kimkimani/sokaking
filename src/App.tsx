@@ -216,12 +216,12 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Font Preset State (Option 2: Future Gaming & eSports - Unbounded + DM Sans)
+  // Font Preset State (Option 1: Plus Jakarta Sans + Bricolage Grotesque)
   const [fontPreset, setFontPreset] = useState<string>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('soka_font_preset') || 'preset-2';
+      return localStorage.getItem('soka_font_preset') || 'preset-1';
     }
-    return 'preset-2';
+    return 'preset-1';
   });
   const [fontModalOpen, setFontModalOpen] = useState(false);
 
@@ -257,12 +257,6 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
       'category-yesterday': yesterdayPreds,
       'category-tomorrow': tomorrowPreds,
     };
-
-    PREDICTION_CATEGORIES.forEach(cat => {
-      if (!initialMap[cat.id]) {
-        initialMap[cat.id] = getCategoryFixtures(cat.id, initialPool);
-      }
-    });
 
     return initialMap;
   });
@@ -451,12 +445,22 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
           const preds = await fetch(`${baseUrl}/api/predictions?category=${activePage}`)
             .then(r => r.ok ? r.json() : [])
             .catch(() => []);
+          let catFixtures = Array.isArray(preds) && preds.length > 0 ? preds : [];
+          if (catFixtures.length === 0 && dbPredictions['all']) {
+            catFixtures = getCategoryFixtures(activePage, dbPredictions['all']);
+          }
           setDbPredictions(prev => ({
             ...prev,
-            [activePage]: Array.isArray(preds) ? preds : [],
+            [activePage]: catFixtures,
           }));
         } catch (err) {
           console.error(`Failed to load predictions for category: ${activePage}`, err);
+          if (dbPredictions['all']) {
+            setDbPredictions(prev => ({
+              ...prev,
+              [activePage]: getCategoryFixtures(activePage, prev['all'] || []),
+            }));
+          }
         }
       };
       fetchCategoryPredictions();
@@ -699,6 +703,18 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setFontModalOpen(true)}
+              title="Change Font & Visibility Settings"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-[var(--text)] text-[10px] lg:text-xs font-bold rounded-[var(--radius)] border border-[var(--primary)]/30 transition-all cursor-pointer shadow-2xs"
+            >
+              <Type className="w-3.5 h-3.5 text-[var(--primary)] shrink-0" />
+              <span className="hidden sm:inline font-extrabold text-[var(--primary)]">Font Style</span>
+              <span className="text-[9px] font-black uppercase px-1.5 py-0.2 bg-[var(--primary)] text-white rounded-full ml-0.5">
+                {fontPreset.replace('preset-', 'Option ')}
+              </span>
+            </button>
+
             <button
               onClick={() => {
                 if (dbVipPackages.length > 0) {
@@ -1407,6 +1423,98 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
           </div>
         </div>
       </footer>
+
+      {/* TYPOGRAPHY PRESETS MODAL */}
+      <AnimatePresence>
+        {fontModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[var(--card)] border border-[var(--border)] rounded-2xl max-w-xl w-full p-5 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-[var(--primary)] text-white flex items-center justify-center font-bold">
+                    <Type className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-extrabold text-[var(--text)] tracking-tight">Typography Style Options</h2>
+                    <p className="text-xs text-[var(--text-muted)]">Select your preferred font pair for zero-latency rendering</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setFontModalOpen(false)}
+                  className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white cursor-pointer border-none"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-3 pt-1">
+                {FONT_PRESETS.map((preset) => {
+                  const isActive = fontPreset === preset.id;
+                  return (
+                    <div
+                      key={preset.id}
+                      onClick={() => {
+                        setFontPreset(preset.id);
+                      }}
+                      className={`font-${preset.id} p-4 rounded-xl border transition-all cursor-pointer relative ${
+                        isActive
+                          ? 'border-[var(--primary)] bg-[var(--primary)]/5 ring-2 ring-[var(--primary)]/30'
+                          : 'border-[var(--border)] hover:border-[var(--primary)]/50 bg-slate-50/50 dark:bg-slate-900/30'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className="font-extrabold text-sm text-[var(--text)]">{preset.name}</span>
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[var(--primary)]/10 text-[var(--primary)]">
+                            {preset.headingFont} + {preset.bodyFont}
+                          </span>
+                        </div>
+                        {isActive ? (
+                          <span className="inline-flex items-center gap-1 text-xs font-black text-[var(--primary)] bg-[var(--primary)]/15 px-2 py-0.5 rounded-full">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Active
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-400 border border-slate-200 dark:border-slate-800 px-2 py-0.5 rounded-full">
+                            Select
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-xs text-[var(--text-muted)] mb-3 leading-relaxed">
+                        {preset.description}
+                      </p>
+
+                      {/* Live preview strip inside the preset card */}
+                      <div className="p-2.5 rounded-lg border border-[var(--border)] bg-[var(--card)] space-y-1">
+                        <div className="text-xs font-black tracking-wide text-[var(--primary)] uppercase" style={{ fontFamily: `'${preset.headingFont}', sans-serif` }}>
+                          SOKA KING PREDICTIONS
+                        </div>
+                        <div className="text-[11px] font-semibold text-[var(--text)]" style={{ fontFamily: `'${preset.bodyFont}', sans-serif` }}>
+                          Arsenal vs Chelsea • Over 2.5 Goals (1.85 Odds)
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  onClick={() => setFontModalOpen(false)}
+                  className="px-5 py-2 rounded-xl bg-[var(--primary)] text-white font-bold text-xs shadow-sm hover:opacity-90 cursor-pointer border-none"
+                >
+                  Apply & Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
