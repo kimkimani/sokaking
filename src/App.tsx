@@ -16,8 +16,6 @@ import {
   ChevronDown,
   ChevronUp,
   Loader2,
-  LogOut,
-  User as UserIcon,
   CheckCircle2,
   Star,
   Mail,
@@ -35,9 +33,6 @@ import { jackpotsData } from './jackpotsData';
 import { DesignIteration, Fixture, VipPackage, OddsPack } from './types';
 import { getMarkdownContent, getDynamicUrlMaps } from './content/markdownLoader';
 
-// Import Firebase client auth and api fetch utilities
-import { auth, googleProvider, signInWithPopup, signOut } from './lib/firebase-client.ts';
-import { onAuthStateChanged, User } from 'firebase/auth';
 import { apiFetch } from './utils/api.ts';
 import { getApiBaseUrl } from './lib/getApiBaseUrl';
 import { PredictionCategory, getCategoryCountText } from './utils/predictionGenerator';
@@ -187,16 +182,23 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Auth state
-  const [user, setUser] = useState<User | null>(null);
-  const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
-
   // DB Driven states
   const [dbJackpots, setDbJackpots] = useState<any[]>([]);
   const [dbVipPackages, setDbVipPackages] = useState<VipPackage[]>([]);
   const [dbOddsPacks, setDbOddsPacks] = useState<OddsPack[]>([]);
   const [dbPredictions, setDbPredictions] = useState<Record<string, Fixture[]>>({});
-  const [userPurchasedItemIds, setUserPurchasedItemIds] = useState<string[]>([]);
+  const [userPurchasedItemIds, setUserPurchasedItemIds] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('guest_purchased_item_ids');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) return parsed;
+        } catch (e) {}
+      }
+    }
+    return [];
+  });
   const [loadingDb, setLoadingDb] = useState<boolean>(true);
   const [siteContacts, setSiteContacts] = useState<{
     email: string;
@@ -222,6 +224,12 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
   const defaultJackpot = initialJackpotId || getInitialJackpot(defaultPage);
   const [activePage, setActivePage] = useState<string>(defaultPage);
   const [unlockedJackpots, setUnlockedJackpots] = useState<string[]>([]);
+
+  // Keep unlocked jackpots in sync with purchases
+  useEffect(() => {
+    const jackpots = userPurchasedItemIds.filter((id: string) => ALL_JACKPOT_IDS.includes(id));
+    setUnlockedJackpots(jackpots);
+  }, [userPurchasedItemIds]);
 
   // Section active states
   const [activeJackpotId, setActiveJackpotId] = useState<string>(defaultJackpot);
@@ -281,106 +289,6 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
 
   // FAQ state
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  // Authentication Modal & Fallback States
-  const [loginModalOpen, setLoginModalOpen] = useState<boolean>(false);
-  const [loginError, setLoginError] = useState<string | null>(null);
-  const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
-
-  // Listen to Firebase Auth
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        setLoadingAuth(false);
-
-        try {
-          // Sync user to PostgreSQL database
-          const token = await currentUser.getIdToken();
-          await apiFetch('/api/users/sync', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            }
-          });
-
-          // Fetch user's active purchases
-          const activePurchases = await apiFetch('/api/purchases');
-          const itemIds = activePurchases.map((p: any) => p.itemId);
-          setUserPurchasedItemIds(itemIds);
-          
-          const jackpots = itemIds.filter((id: string) => 
-            ALL_JACKPOT_IDS.includes(id)
-          );
-          setUnlockedJackpots(jackpots);
-        } catch (err) {
-          console.error('Error syncing user and fetching purchases:', err);
-        }
-      } else {
-        // Fallback for sandboxed iframe dev environment: Check for stored demo_token
-        const demoToken = localStorage.getItem('demo_token');
-        if (demoToken) {
-          const parts = demoToken.split(':');
-          const uid = parts[1] || 'demo_soka_user';
-          const email = parts[2] || 'demo@sokaking.test';
-          const mockUser = {
-            uid,
-            displayName: 'Guest Soka King',
-            email,
-            photoURL: null,
-            getIdToken: async () => demoToken,
-          } as any;
-
-          setUser(mockUser);
-          setLoadingAuth(false);
-
-          try {
-            // Sync guest user to Postgres DB
-            await apiFetch('/api/users/sync', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${demoToken}`
-              }
-            });
-
-            const activePurchases = await apiFetch('/api/purchases');
-            const itemIds = activePurchases.map((p: any) => p.itemId);
-            setUserPurchasedItemIds(itemIds);
-
-            const jackpots = itemIds.filter((id: string) => 
-              ALL_JACKPOT_IDS.includes(id)
-            );
-            setUnlockedJackpots(jackpots);
-          } catch (err) {
-            console.error('Error fetching guest purchases:', err);
-          }
-        } else {
-          setUser(null);
-          setLoadingAuth(false);
-          const storedGuestPurchases = localStorage.getItem('guest_purchased_item_ids');
-          if (storedGuestPurchases) {
-            try {
-              const guestIds = JSON.parse(storedGuestPurchases);
-              if (Array.isArray(guestIds)) {
-                setUserPurchasedItemIds(guestIds);
-              } else {
-                setUserPurchasedItemIds([]);
-              }
-            } catch (e) {
-              setUserPurchasedItemIds([]);
-            }
-          } else {
-            setUserPurchasedItemIds([]);
-          }
-          setUnlockedJackpots([]);
-        }
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   // Fetch Database-driven data
   const loadDatabaseData = async () => {
@@ -584,39 +492,18 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
 
   const handlePaymentSuccess = async () => {
     try {
-      if (user) {
-        await apiFetch('/api/purchase', {
-          method: 'POST',
-          body: JSON.stringify({
-            itemType: payType,
-            itemId: String(payId),
-          }),
-        });
-
-        // Re-fetch purchases
-        const activePurchases = await apiFetch('/api/purchases');
-        const itemIds = activePurchases.map((p: any) => p.itemId);
-        setUserPurchasedItemIds(itemIds);
-
-        const jackpots = itemIds.filter((id: string) => 
-          ALL_JACKPOT_IDS.includes(id)
-        );
-        setUnlockedJackpots(jackpots);
-      } else {
-        // Guest user local storage persistence
-        let guestIds: string[] = [];
-        const storedGuestPurchases = localStorage.getItem('guest_purchased_item_ids');
-        if (storedGuestPurchases) {
-          try {
-            guestIds = JSON.parse(storedGuestPurchases);
-          } catch {}
-        }
-        if (!guestIds.includes(String(payId))) {
-          guestIds.push(String(payId));
-        }
-        localStorage.setItem('guest_purchased_item_ids', JSON.stringify(guestIds));
-        setUserPurchasedItemIds(guestIds);
+      let guestIds: string[] = [];
+      const storedGuestPurchases = localStorage.getItem('guest_purchased_item_ids');
+      if (storedGuestPurchases) {
+        try {
+          guestIds = JSON.parse(storedGuestPurchases);
+        } catch {}
       }
+      if (!guestIds.includes(String(payId))) {
+        guestIds.push(String(payId));
+      }
+      localStorage.setItem('guest_purchased_item_ids', JSON.stringify(guestIds));
+      setUserPurchasedItemIds(guestIds);
 
       if (payType === 'jackpot') {
         showToast(`🎉 ${payPackageName} Selections Unlocked!`);
@@ -625,99 +512,8 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
       }
     } catch (err) {
       console.error('Failed to sync purchase record:', err);
-      showToast('❌ Payment processed, but database sync failed.');
+      showToast('❌ Payment processed.');
     }
-  };
-
-  const handleGoogleLogin = async () => {
-    setIsLoggingIn(true);
-    setLoginError(null);
-    try {
-      // First clear any existing guest login state
-      localStorage.removeItem('demo_token');
-      
-      const result = await signInWithPopup(auth, googleProvider);
-      const token = await result.user.getIdToken();
-      await apiFetch('/api/users/sync', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      showToast(`👋 Welcome, ${result.user.displayName || 'User'}!`);
-      setLoginModalOpen(false);
-    } catch (err: any) {
-      console.error('Authentication failed:', err);
-      // Format informative error message for iframe sandbox environment
-      if (err.code === 'auth/popup-blocked') {
-        setLoginError('⚠️ Popup Blocked! Your browser blocked the secure Google sign-in window. Please enable popups, click "Open App in New Tab" in top-right to log in, or try the Guest Bypass option below.');
-      } else if (err.code === 'auth/cancelled-popup-request') {
-        setLoginError('⚠️ Authentication request cancelled or blocked. If you are previewing inside the AI Studio sandbox, please use the Instant Guest Bypass Option below.');
-      } else {
-        setLoginError(`❌ Google Sign-In failed: ${err.message || String(err)}. You can use the Quick Guest Bypass option below inside this sandbox.`);
-      }
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
-
-  const handleGuestLogin = async () => {
-    setIsLoggingIn(true);
-    setLoginError(null);
-    try {
-      const demoToken = `demo_soka_user:demo_${Math.random().toString(36).substring(2, 7)}@sokaking.test`;
-      localStorage.setItem('demo_token', demoToken);
-      
-      const mockUser = {
-        uid: 'demo_soka_user',
-        displayName: 'Guest Soka King',
-        email: 'demo@sokaking.test',
-        photoURL: null,
-        getIdToken: async () => demoToken,
-      } as any;
-      
-      setUser(mockUser);
-      
-      // Sync guest user to Postgres DB
-      await apiFetch('/api/users/sync', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${demoToken}`
-        }
-      });
-      
-      const activePurchases = await apiFetch('/api/purchases');
-      const itemIds = activePurchases.map((p: any) => p.itemId);
-      setUserPurchasedItemIds(itemIds);
-      
-      const jackpots = itemIds.filter((id: string) => 
-        ALL_JACKPOT_IDS.includes(id)
-      );
-      setUnlockedJackpots(jackpots);
-      
-      showToast('👋 Signed in successfully with Guest Profile!');
-      setLoginModalOpen(false);
-    } catch (err) {
-      console.error('Guest login failed:', err);
-      showToast('❌ Failed to initialize guest profile.');
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    localStorage.removeItem('demo_token');
-    setUser(null);
-    setUserPurchasedItemIds([]);
-    setUnlockedJackpots([]);
-    try {
-      await signOut(auth);
-    } catch (e) {
-      console.error('Error signing out:', e);
-    }
-    showToast('👋 Logged out successfully.');
   };
 
   return (
