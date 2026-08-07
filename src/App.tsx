@@ -28,14 +28,14 @@ import {
   Youtube
 } from 'lucide-react';
 
-import { designIterations } from './data';
+import { designIterations, vipPackages, oddsPacks } from './data';
 import { jackpotsData } from './jackpotsData';
 import { DesignIteration, Fixture, VipPackage, OddsPack } from './types';
 import { getMarkdownContent, getDynamicUrlMaps } from './content/markdownLoader';
 
 import { apiFetch } from './utils/api.ts';
 import { getApiBaseUrl } from './lib/getApiBaseUrl';
-import { PredictionCategory, getCategoryCountText } from './utils/predictionGenerator';
+import { PredictionCategory, getCategoryCountText, PREDICTION_CATEGORIES, getCategoryFixtures, isSameDay, generateUnifiedPredictionsPool } from './utils/predictionGenerator';
 
 // Import subcomponents
 import Sidebar from './components/Sidebar';
@@ -170,8 +170,6 @@ import FaqSection from './components/FaqSection';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import { AuthorCard } from './components/AuthorCard';
 import { ResponsibleGamblingNotice } from './components/ResponsibleGamblingNotice';
-import { PREDICTION_CATEGORIES, getCategoryFixtures, isSameDay } from './utils/predictionGenerator';
-
 export interface AppProps {
   initialPage?: string;
   initialJackpotId?: string;
@@ -182,11 +180,29 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // DB Driven states
-  const [dbJackpots, setDbJackpots] = useState<any[]>([]);
-  const [dbVipPackages, setDbVipPackages] = useState<VipPackage[]>([]);
-  const [dbOddsPacks, setDbOddsPacks] = useState<OddsPack[]>([]);
-  const [dbPredictions, setDbPredictions] = useState<Record<string, Fixture[]>>({});
+  // DB Driven states initialized with baseline fallback data to prevent CLS layout shift
+  const [dbJackpots, setDbJackpots] = useState<any[]>(() => jackpotsData);
+  const [dbVipPackages, setDbVipPackages] = useState<VipPackage[]>(() => vipPackages);
+  const [dbOddsPacks, setDbOddsPacks] = useState<OddsPack[]>(() => oddsPacks);
+  const [dbPredictions, setDbPredictions] = useState<Record<string, Fixture[]>>(() => {
+    const initialPool = generateUnifiedPredictionsPool();
+    const clientToday = new Date();
+    const clientYesterday = new Date();
+    clientYesterday.setDate(clientToday.getDate() - 1);
+    const clientTomorrow = new Date();
+    clientTomorrow.setDate(clientToday.getDate() + 1);
+
+    const todayPreds = initialPool.filter((f: any) => isSameDay(f.kickoffTime, clientToday));
+    const yesterdayPreds = initialPool.filter((f: any) => isSameDay(f.kickoffTime, clientYesterday));
+    const tomorrowPreds = initialPool.filter((f: any) => isSameDay(f.kickoffTime, clientTomorrow));
+
+    return {
+      'all': initialPool,
+      'category-today': todayPreds,
+      'category-yesterday': yesterdayPreds,
+      'category-tomorrow': tomorrowPreds,
+    };
+  });
   const [userPurchasedItemIds, setUserPurchasedItemIds] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('guest_purchased_item_ids');
@@ -199,7 +215,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
     }
     return [];
   });
-  const [loadingDb, setLoadingDb] = useState<boolean>(true);
+  const [loadingDb, setLoadingDb] = useState<boolean>(false);
   const [siteContacts, setSiteContacts] = useState<{
     email: string;
     phone: string;
@@ -216,7 +232,8 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
     telegram: 'https://t.me/sokapredictions',
     facebook: 'https://facebook.com/sokaking',
     twitter: 'https://x.com/sokaking',
-    instagram: 'https://instagram.com/sokaking'
+    instagram: 'https://instagram.com/sokaking',
+    youtube: 'https://youtube.com/@sokaking'
   });
 
   // Portal active views state
@@ -293,7 +310,6 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
   // Fetch Database-driven data
   const loadDatabaseData = async () => {
     try {
-      setLoadingDb(true);
       const baseUrl = getApiBaseUrl();
       const [jackpotsRes, vipRes, oddsRes, allPredictionsRes, settingsRes] = await Promise.all([
         fetch(`${baseUrl}/api/jackpots`).then(r => r.ok ? r.json() : []).catch(() => []),
@@ -312,32 +328,37 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
 
       // Filter dynamically based on client/user date timezone
       const clientToday = new Date();
-      
       const clientYesterday = new Date();
       clientYesterday.setDate(clientToday.getDate() - 1);
-      
       const clientTomorrow = new Date();
       clientTomorrow.setDate(clientToday.getDate() + 1);
 
-      const predictionsList = Array.isArray(allPredictionsRes) ? allPredictionsRes : [];
+      if (Array.isArray(jackpotsRes) && jackpotsRes.length > 0) {
+        setDbJackpots(jackpotsRes);
+      }
+      if (Array.isArray(vipRes) && vipRes.length > 0) {
+        setDbVipPackages(vipRes);
+      }
+      if (Array.isArray(oddsRes) && oddsRes.length > 0) {
+        setDbOddsPacks(oddsRes);
+      }
 
-      const yesterdayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientYesterday));
-      const todayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientToday));
-      const tomorrowPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientTomorrow));
+      const predictionsList = Array.isArray(allPredictionsRes) && allPredictionsRes.length > 0 ? allPredictionsRes : [];
+      if (predictionsList.length > 0) {
+        const yesterdayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientYesterday));
+        const todayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientToday));
+        const tomorrowPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientTomorrow));
 
-      setDbJackpots(Array.isArray(jackpotsRes) ? jackpotsRes : []);
-      setDbVipPackages(Array.isArray(vipRes) ? vipRes : []);
-      setDbOddsPacks(Array.isArray(oddsRes) ? oddsRes : []);
-      setDbPredictions({
-        'all': predictionsList,
-        'category-today': todayPreds,
-        'category-yesterday': yesterdayPreds,
-        'category-tomorrow': tomorrowPreds,
-      });
+        setDbPredictions(prev => ({
+          ...prev,
+          'all': predictionsList,
+          'category-today': todayPreds,
+          'category-yesterday': yesterdayPreds,
+          'category-tomorrow': tomorrowPreds,
+        }));
+      }
     } catch (err) {
       console.error('Failed to load database content:', err);
-    } finally {
-      setLoadingDb(false);
     }
   };
 
@@ -634,24 +655,11 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
       />
 
       {/* 3. CENTERED INTERACTIVE WORKSPACE */}
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 py-6 min-h-[750px]">
-        {loadingDb ? (
-          <div className="flex flex-col lg:flex-row gap-6 items-start w-full">
-            <div className="flex-1 w-full space-y-6">
-              <div className="h-40 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 animate-pulse w-full" />
-              <div className="h-80 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 animate-pulse w-full" />
-              <div className="h-64 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 animate-pulse w-full" />
-            </div>
-            <div className="hidden lg:block w-80 shrink-0 space-y-6">
-              <div className="h-80 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 animate-pulse w-full" />
-              <div className="h-48 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 animate-pulse w-full" />
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col lg:flex-row gap-6 items-start">
-            
-            {/* MAIN CENTER DASHBOARD CONTAINER */}
-            <main id="main-content" className="flex-1 w-full space-y-8 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 py-6 min-h-[85vh] md:min-h-[1000px]">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+          
+          {/* MAIN CENTER DASHBOARD CONTAINER */}
+            <main id="main-content" className="flex-1 w-full space-y-8 min-h-[650px] md:min-h-[850px] overflow-hidden">
               
               {(() => {
                 const category = PREDICTION_CATEGORIES.find(c => 
@@ -1067,7 +1075,6 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
             </aside>
 
           </div>
-        )}
       </div>
 
       {/* 4. MODAL FOR INTEGRATED SECURE PAYMENTS */}
@@ -1170,7 +1177,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
 
       {/* 8. FOOTER */}
       <footer className="mt-16 border-t border-[var(--border)] bg-slate-50 dark:bg-slate-950/60 py-12 pb-24 md:pb-12 text-xs transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-left text-slate-500 dark:text-slate-400">
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-left text-slate-500 dark:text-slate-400 min-h-[220px]">
           
           {/* Brand Col */}
           <div className="space-y-4">
