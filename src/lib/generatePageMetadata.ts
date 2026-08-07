@@ -1,9 +1,10 @@
 import { Metadata } from 'next';
-import { getMarkdownContent, buildCanonicalUrl } from '@/src/content/markdownLoader';
+import { getMarkdownContent } from '@/src/content/markdownLoader';
 
 export function getPageMetadata(pageId: string, customCanonical?: string): Metadata {
   const md = getMarkdownContent(pageId);
-  const fullUrl = buildCanonicalUrl(customCanonical || md.link, pageId);
+  const canonicalPath = customCanonical || md.link || '/';
+  const fullUrl = `https://sokaking.com${canonicalPath}`;
 
   return {
     title: md.title,
