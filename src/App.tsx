@@ -25,8 +25,7 @@ import {
   Facebook,
   Twitter,
   Instagram,
-  Youtube,
-  Type
+  Youtube
 } from 'lucide-react';
 
 import { designIterations, vipPackages, oddsPacks } from './data';
@@ -178,61 +177,10 @@ export interface AppProps {
   initialJackpots?: any[];
 }
 
-export const FONT_PRESETS = [
-  { id: 'preset-1', name: 'Option 1: Dynamic Athletic Expressive', bodyFont: 'Plus Jakarta Sans', headingFont: 'Bricolage Grotesque', description: 'High-energy, expressive variable typography with punchy headers.', badge: 'Trending' },
-  { id: 'preset-2', name: 'Option 2: Future Gaming & eSports', bodyFont: 'DM Sans', headingFont: 'Unbounded', description: 'Ultra-wide futuristic display lettering for live jackpots & gaming odds.', badge: 'eSports' },
-  { id: 'preset-3', name: 'Option 3: Heavy Stadium Broadcast', bodyFont: 'Figtree', headingFont: 'Chivo', description: 'Bold broadcast-style headlines (like ESPN & Sky Sports) with clean UI text.', badge: 'Broadcast' },
-  { id: 'preset-4', name: 'Option 4: Tactical Scoreboard & Odds', bodyFont: 'Outfit', headingFont: 'Rajdhani', description: 'Condensed angular technical headers inspired by stadium scoreboards.', badge: 'Scoreboard' },
-  { id: 'preset-5', name: 'Option 5: Modern Sports Newsroom', bodyFont: 'Albert Sans', headingFont: 'Schibsted Grotesk', description: 'Sophisticated digital journalism font pairing created for fast sports news.', badge: 'Editorial' },
-  { id: 'preset-6', name: 'Option 6: Ultra-Clear Reader', bodyFont: 'Inter', headingFont: 'Lexend', description: 'Designed for optical clarity, fast readability, and reduced visual fatigue.', badge: 'Clear' },
-  { id: 'preset-7', name: 'Option 7: Bold Champion Impact', bodyFont: 'Open Sans', headingFont: 'Oswald', description: 'Classic tall impact headlines paired with highly readable Open Sans text.', badge: 'Champion' },
-  { id: 'preset-8', name: 'Option 8: FinTech Sports Predictor', bodyFont: 'Plus Jakarta Sans', headingFont: 'Sora', description: 'Modern tech-focused layout used by high-performance analytics dashboards.', badge: 'Analytics' },
-  { id: 'preset-9', name: 'Option 9: Classic Sports Gazette', bodyFont: 'Lato', headingFont: 'Montserrat', description: 'Heavyweight titles paired with warm, legible body typography.', badge: 'Classic' },
-  { id: 'preset-10', name: 'Option 10: Futuristic Cyber Tech', bodyFont: 'Urbanist', headingFont: 'Space Grotesk', description: 'Sharp geometric headers paired with smooth modern curves.', badge: 'Cyber' },
-  { id: 'preset-11', name: 'Option 11: Vibrant Arena Neon', bodyFont: 'Prompt', headingFont: 'Kanit', description: 'Dynamic, high-impact athletic styling with sharp geometry.', badge: 'Arena' },
-  { id: 'preset-12', name: 'Option 12: High-Odds Density Matrix', bodyFont: 'Barlow', headingFont: 'Barlow Condensed', description: 'Compact condensed headers optimized for dense sports tables and odds.', badge: 'Odds Pro' },
-  { id: 'preset-13', name: 'Option 13: High-Stakes Jackpot', bodyFont: 'Plus Jakarta Sans', headingFont: 'Righteous', description: 'Fun, bold display font perfect for big win jackpot highlights.', badge: 'Jackpot' },
-  { id: 'preset-14', name: 'Option 14: Aggressive Striker', bodyFont: 'Montserrat', headingFont: 'Bebas Neue', description: 'Iconic all-caps condensed headline style with bold modern body text.', badge: 'Striker' },
-  { id: 'preset-15', name: 'Option 15: Nordic Minimal Clean', bodyFont: 'Inter', headingFont: 'Manrope', description: 'Clean Scandinavian aesthetic with high WCAG contrast.', badge: 'Minimal' },
-  { id: 'preset-16', name: 'Option 16: Sci-Fi League Matrix', bodyFont: 'Exo 2', headingFont: 'Orbitron', description: 'Futuristic sci-fi scoreboard design with tech accents.', badge: 'Sci-Fi' },
-  { id: 'preset-17', name: 'Option 17: Energetic Matchday Live', bodyFont: 'Public Sans', headingFont: 'Teko', description: 'Super-tall matchday headers for real-time live score updates.', badge: 'Live Match' },
-  { id: 'preset-18', name: 'Option 18: High Impact Headline', bodyFont: 'Work Sans', headingFont: 'Anton', description: 'Ultra-bold, heavy impact lettering with clean Work Sans UI.', badge: 'Headline' },
-  { id: 'preset-19', name: 'Option 19: Digital Sports Analytics', bodyFont: 'Outfit', headingFont: 'Public Sans', description: 'Pro-grade data presentation with crystal-clear number tabular alignment.', badge: 'Pro Data' },
-  { id: 'preset-20', name: 'Option 20: High Velocity Sprint', bodyFont: 'DM Sans', headingFont: 'Saira Extra Condensed', description: 'Ultra-condensed energetic headlines that save screen space.', badge: 'Sprint' },
-  { id: 'preset-21', name: 'Option 21: High-Contrast Accessibility', bodyFont: 'Inter', headingFont: 'Atkinson Hyperlegible', description: 'Maximum legibility font designed specifically for low-vision readers.', badge: 'WCAG AAA' },
-  { id: 'preset-22', name: 'Option 22: Editorial Matchday Magazine', bodyFont: 'Plus Jakarta Sans', headingFont: 'Syne', description: 'Stylized high-end magazine header pair for premium VIP predictions.', badge: 'VIP' },
-  { id: 'preset-23', name: 'Option 23: Dynamic Tournament Title', bodyFont: 'Figtree', headingFont: 'Rubik', description: 'Friendly yet powerful rounded headers with modern Figtree text.', badge: 'League' },
-  { id: 'preset-24', name: 'Option 24: Premium VIP Lounge', bodyFont: 'DM Sans', headingFont: 'Cinzel', description: 'Elegant luxury serif headers paired with clean digital sans-serif.', badge: 'Luxury' },
-  { id: 'preset-25', name: 'Option 25: Crisp Retina Clarity', bodyFont: 'Albert Sans', headingFont: 'Work Sans', description: 'Optimized for high-DPI retina screens with maximum pixel crispness.', badge: 'Retina' },
-  { id: 'preset-26', name: 'Option 26: Precision Data Terminal', bodyFont: 'Outfit', headingFont: 'JetBrains Mono', description: 'Monospaced header styling for statistical analysts & odds tracking.', badge: 'Terminal' },
-  { id: 'preset-27', name: 'Option 27: Modern Minimal Sans', bodyFont: 'Inter', headingFont: 'DM Sans', description: 'Unassuming, neutral, and hyper-clean modern layout.', badge: 'Clean' },
-  { id: 'preset-28', name: 'Option 28: Bold Broadcast Pro', bodyFont: 'Plus Jakarta Sans', headingFont: 'Chivo', description: 'TV broadcast graphics feel with versatile modern body text.', badge: 'TV Media' },
-  { id: 'preset-29', name: 'Option 29: Expressive League Title', bodyFont: 'Outfit', headingFont: 'Bricolage Grotesque', description: 'Varied font weights for clear visual hierarchy.', badge: 'League' },
-  { id: 'preset-30', name: 'Option 30: Ultra High-Density Scoreboard', bodyFont: 'DM Sans', headingFont: 'Rajdhani', description: 'Space-saving scoreboard font pair ideal for mobile prediction tables.', badge: 'Mobile Odds' }
-];
-
 export default function App({ initialPage, initialJackpotId, initialPredictions, initialJackpots }: AppProps = {}) {
   const [currentIteration, setCurrentIteration] = useState<DesignIteration>(designIterations[0]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  // Font Preset State (Option 1: Plus Jakarta Sans + Bricolage Grotesque)
-  const [fontPreset, setFontPreset] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('soka_font_preset') || 'preset-1';
-    }
-    return 'preset-1';
-  });
-  const [fontModalOpen, setFontModalOpen] = useState(false);
-
-  useEffect(() => {
-    if (typeof document !== 'undefined') {
-      document.documentElement.setAttribute('data-font', fontPreset);
-    }
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('soka_font_preset', fontPreset);
-    }
-  }, [fontPreset]);
 
   // DB Driven states initialized with baseline fallback data to prevent CLS layout shift
   const [dbJackpots, setDbJackpots] = useState<any[]>(() => (Array.isArray(initialJackpots) && initialJackpots.length > 0 ? initialJackpots : jackpotsData));
@@ -445,22 +393,16 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
           const preds = await fetch(`${baseUrl}/api/predictions?category=${activePage}`)
             .then(r => r.ok ? r.json() : [])
             .catch(() => []);
-          let catFixtures = Array.isArray(preds) && preds.length > 0 ? preds : [];
-          if (catFixtures.length === 0 && dbPredictions['all']) {
-            catFixtures = getCategoryFixtures(activePage, dbPredictions['all']);
-          }
           setDbPredictions(prev => ({
             ...prev,
-            [activePage]: catFixtures,
+            [activePage]: Array.isArray(preds) ? preds : [],
           }));
         } catch (err) {
           console.error(`Failed to load predictions for category: ${activePage}`, err);
-          if (dbPredictions['all']) {
-            setDbPredictions(prev => ({
-              ...prev,
-              [activePage]: getCategoryFixtures(activePage, prev['all'] || []),
-            }));
-          }
+          setDbPredictions(prev => ({
+            ...prev,
+            [activePage]: [],
+          }));
         }
       };
       fetchCategoryPredictions();
@@ -703,18 +645,6 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setFontModalOpen(true)}
-              title="Change Font & Visibility Settings"
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-[var(--text)] text-[10px] lg:text-xs font-bold rounded-[var(--radius)] border border-[var(--primary)]/30 transition-all cursor-pointer shadow-2xs"
-            >
-              <Type className="w-3.5 h-3.5 text-[var(--primary)] shrink-0" />
-              <span className="hidden sm:inline font-extrabold text-[var(--primary)]">Font Style</span>
-              <span className="text-[9px] font-black uppercase px-1.5 py-0.2 bg-[var(--primary)] text-white rounded-full ml-0.5">
-                {fontPreset.replace('preset-', 'Option ')}
-              </span>
-            </button>
-
             <button
               onClick={() => {
                 if (dbVipPackages.length > 0) {
@@ -1423,98 +1353,6 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
           </div>
         </div>
       </footer>
-
-      {/* TYPOGRAPHY PRESETS MODAL */}
-      <AnimatePresence>
-        {fontModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[var(--card)] border border-[var(--border)] rounded-2xl max-w-xl w-full p-5 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
-            >
-              <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-[var(--primary)] text-white flex items-center justify-center font-bold">
-                    <Type className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h2 className="text-base font-extrabold text-[var(--text)] tracking-tight">Typography Style Options</h2>
-                    <p className="text-xs text-[var(--text-muted)]">Select your preferred font pair for zero-latency rendering</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setFontModalOpen(false)}
-                  className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white cursor-pointer border-none"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="space-y-3 pt-1">
-                {FONT_PRESETS.map((preset) => {
-                  const isActive = fontPreset === preset.id;
-                  return (
-                    <div
-                      key={preset.id}
-                      onClick={() => {
-                        setFontPreset(preset.id);
-                      }}
-                      className={`font-${preset.id} p-4 rounded-xl border transition-all cursor-pointer relative ${
-                        isActive
-                          ? 'border-[var(--primary)] bg-[var(--primary)]/5 ring-2 ring-[var(--primary)]/30'
-                          : 'border-[var(--border)] hover:border-[var(--primary)]/50 bg-slate-50/50 dark:bg-slate-900/30'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2 mb-1.5">
-                        <div className="flex items-center gap-2">
-                          <span className="font-extrabold text-sm text-[var(--text)]">{preset.name}</span>
-                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[var(--primary)]/10 text-[var(--primary)]">
-                            {preset.headingFont} + {preset.bodyFont}
-                          </span>
-                        </div>
-                        {isActive ? (
-                          <span className="inline-flex items-center gap-1 text-xs font-black text-[var(--primary)] bg-[var(--primary)]/15 px-2 py-0.5 rounded-full">
-                            <CheckCircle2 className="w-3.5 h-3.5" /> Active
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-bold text-slate-400 border border-slate-200 dark:border-slate-800 px-2 py-0.5 rounded-full">
-                            Select
-                          </span>
-                        )}
-                      </div>
-
-                      <p className="text-xs text-[var(--text-muted)] mb-3 leading-relaxed">
-                        {preset.description}
-                      </p>
-
-                      {/* Live preview strip inside the preset card */}
-                      <div className="p-2.5 rounded-lg border border-[var(--border)] bg-[var(--card)] space-y-1">
-                        <div className="text-xs font-black tracking-wide text-[var(--primary)] uppercase" style={{ fontFamily: `'${preset.headingFont}', sans-serif` }}>
-                          SOKA KING PREDICTIONS
-                        </div>
-                        <div className="text-[11px] font-semibold text-[var(--text)]" style={{ fontFamily: `'${preset.bodyFont}', sans-serif` }}>
-                          Arsenal vs Chelsea • Over 2.5 Goals (1.85 Odds)
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="pt-2 flex justify-end">
-                <button
-                  onClick={() => setFontModalOpen(false)}
-                  className="px-5 py-2 rounded-xl bg-[var(--primary)] text-white font-bold text-xs shadow-sm hover:opacity-90 cursor-pointer border-none"
-                >
-                  Apply & Close
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
     </div>
   );
