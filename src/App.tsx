@@ -634,13 +634,18 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
       />
 
       {/* 3. CENTERED INTERACTIVE WORKSPACE */}
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 py-6">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 py-6 min-h-[750px]">
         {loadingDb ? (
-          <div className="py-24 text-center space-y-4">
-            <Loader2 className="w-10 h-10 animate-spin text-[var(--primary)] mx-auto" />
-            <p className="text-xs font-mono font-bold text-slate-400 uppercase tracking-widest animate-pulse">
-              Loading...
-            </p>
+          <div className="flex flex-col lg:flex-row gap-6 items-start w-full">
+            <div className="flex-1 w-full space-y-6">
+              <div className="h-40 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 animate-pulse w-full" />
+              <div className="h-80 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 animate-pulse w-full" />
+              <div className="h-64 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 animate-pulse w-full" />
+            </div>
+            <div className="hidden lg:block w-80 shrink-0 space-y-6">
+              <div className="h-80 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 animate-pulse w-full" />
+              <div className="h-48 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 animate-pulse w-full" />
+            </div>
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row gap-6 items-start">
@@ -659,10 +664,10 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
                     <AnimatePresence mode="wait">
                       <motion.div
                         key={category.id}
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -15 }}
-                        transition={{ duration: 0.25 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
                       >
                         <CategoryPredictionsPage 
                           category={category}
@@ -724,10 +729,10 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
                     <AnimatePresence mode="wait">
                       <motion.div
                         key={formattedJackpot.id}
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -15 }}
-                        transition={{ duration: 0.25 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
                       >
                         <JackpotPage 
                           jackpot={formattedJackpot}
@@ -745,10 +750,10 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
                     <AnimatePresence mode="wait">
                       <motion.div
                         key="vip-packages-page"
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -15 }}
-                        transition={{ duration: 0.25 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
                       >
                         <VipPackagesPage 
                           vipPackages={dbVipPackages}
@@ -770,10 +775,10 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
                     <AnimatePresence mode="wait">
                       <motion.div
                         key={activePage}
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -15 }}
-                        transition={{ duration: 0.25 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
                       >
                         <StaticPages 
                           pageId={activePage}
@@ -798,10 +803,10 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
                         <AnimatePresence mode="wait">
                           <motion.div
                             key={activePage}
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -15 }}
-                            transition={{ duration: 0.25 }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
                           >
                             <JackpotPage 
                               jackpot={activeJackpot}
@@ -838,10 +843,10 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
                       <AnimatePresence mode="wait">
                         <motion.div
                           key={activePage}
-                          initial={{ opacity: 0, y: 15 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -15 }}
-                          transition={{ duration: 0.25 }}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.15 }}
                         >
                           <CategoryPredictionsPage 
                             category={dynamicCategory}
@@ -907,7 +912,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
                     <section id="predictions" className="space-y-4">
                       {/* Quick Horizontal Scroll for Categories */}
                       <div className="space-y-2 text-left">
-                        <span className="text-[10px] font-mono font-black uppercase text-indigo-500 tracking-wider">
+                        <span className="text-[10px] font-mono font-black uppercase text-indigo-800 dark:text-indigo-300 tracking-wider">
                           Quick Category Shortcuts
                         </span>
                         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
@@ -919,14 +924,14 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
                                 onClick={() => handleSelectPage(cat.id)}
                                 className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-black shrink-0 transition-all border cursor-pointer ${
                                   isCatActive 
-                                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-3xs scale-102' 
+                                    ? 'bg-indigo-700 text-white border-indigo-700 shadow-3xs scale-102' 
                                     : 'bg-[var(--card)] text-[var(--text-muted)] hover:text-[var(--text)] border-[var(--border)] hover:bg-slate-100/40 dark:hover:bg-slate-900/30'
                                 }`}
                               >
                                 <span>{cat.icon}</span>
                                 <span>{cat.label}</span>
                                 <span className={`text-[9px] font-mono font-black px-1.5 py-0.5 rounded-full ${
-                                  isCatActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                                  isCatActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                                 }`}>
                                   {getCategoryCountText(cat.id, dbPredictions.all && dbPredictions.all.length > 0 ? dbPredictions.all : dbPredictions).split(' ')[0]}
                                 </span>
@@ -956,7 +961,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
                       
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div className="space-y-2 max-w-lg">
-                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-[10px] font-mono font-bold uppercase tracking-wider animate-pulse">
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 text-[10px] font-mono font-bold uppercase tracking-wider animate-pulse">
                             <Trophy className="w-3 h-3" /> Premium Jackpots Available
                           </div>
                           <h3 className="text-md md:text-lg font-black text-[var(--text)] tracking-tight uppercase" style={{ fontFamily: 'var(--font-display)' }}>
@@ -985,7 +990,7 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
                             className="p-2.5 rounded-lg border bg-[var(--card)] text-left transition-all cursor-pointer border-emerald-500/20 hover:border-emerald-500/50 hover:bg-emerald-500/5 flex flex-col justify-between"
                           >
                             <span className="text-[11px] font-black text-[var(--text)] tracking-tight uppercase">{item.name}</span>
-                            <span className="text-[9px] text-slate-400 font-mono font-bold mt-1">{item.gamesCount} Games</span>
+                            <span className="text-[9px] text-slate-600 dark:text-slate-400 font-mono font-bold mt-1">{item.gamesCount} Games</span>
                           </button>
                         ))}
                       </div>

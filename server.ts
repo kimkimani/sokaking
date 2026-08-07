@@ -60,6 +60,27 @@ Sitemap: https://sokaking.com/sitemap.xml
 `);
   });
 
+  app.get('/llms.txt', (_req, res) => {
+    res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+    return res.status(200).send(`# Soka King - Football Predictions & Betting Tips
+
+> Soka King is a premier sports analytics platform delivering daily football predictions, jackpot analysis, over/under tips, BTTS recommendations, and VIP betting tips for sports fans in Kenya and internationally.
+
+## Key Prediction Categories & Services
+
+- [Football Predictions Today](https://sokaking.com/football-predictions-today): Free daily football predictions, match tips, and 1X2 odds.
+- [Over 1.5 Goals Tips](https://sokaking.com/football-predictions-over-1-5-goals): Highly reliable over 1.5 goals market analysis.
+- [Over 2.5 Goals Tips](https://sokaking.com/football-predictions-over-2-5-goals): High-yield over 2.5 goals match selections.
+- [Both Teams To Score (BTTS / GG)](https://sokaking.com/football-predictions-btts-gg): Both teams to score tips and analysis.
+- [Double Chance Predictions](https://sokaking.com/football-predictions-double-chance): 1X, X2, and 12 double chance safety predictions.
+- [1X2 Home Win Tips](https://sokaking.com/football-predictions-1x2-home-win): Solitary home win predictions backed by form data.
+- [Jackpot Tips & Analysis](https://sokaking.com/jackpot-tips): Comprehensive predictions for SportPesa Mega Jackpot, Betika Midweek, Mozzart, and SportyBet jackpots.
+- [VIP Packages](https://sokaking.com/vip-packages): Multi-day exclusive VIP tips sent directly via instant MPesa unlock and WhatsApp.
+- [About Us](https://sokaking.com/about-us): Learn about Soka King analytics model and prediction algorithms.
+- [Contact Us](https://sokaking.com/contact-us): Contact customer service and technical support.
+`);
+  });
+
   // Proxy /api requests to PHP Backend Server
   app.all('/api/*', async (req, res) => {
     const targetUrl = `${PHP_BACKEND_URL}${req.originalUrl}`;

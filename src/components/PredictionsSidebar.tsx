@@ -40,12 +40,12 @@ export default function PredictionsSidebar({
       {/* Sidebar Header */}
       <div className="p-4 border-b border-[var(--border)] bg-gradient-to-r from-indigo-500/5 to-transparent flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-indigo-500 animate-pulse shrink-0" />
+          <Sparkles className="w-4 h-4 text-indigo-700 dark:text-indigo-400 animate-pulse shrink-0" />
           <h3 className="text-xs font-black uppercase text-[var(--text)] tracking-wider font-mono">
             Predictions Sidebar
           </h3>
         </div>
-        <span className="text-[9px] font-mono font-black text-indigo-500 bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20">
+        <span className="text-[9px] font-mono font-black text-indigo-800 dark:text-indigo-300 bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20">
           FREE & SURE
         </span>
       </div>
@@ -80,7 +80,7 @@ export default function PredictionsSidebar({
                     {category.label}
                   </span>
                   <span className={`text-[9px] block font-mono font-bold mt-0.5 ${
-                    isActive ? 'text-indigo-100' : 'text-slate-400 dark:text-slate-500'
+                    isActive ? 'text-indigo-100' : 'text-slate-600 dark:text-slate-400'
                   }`}>
                     {getCategoryCountText(category.id, fixtures)}
                   </span>
@@ -88,7 +88,7 @@ export default function PredictionsSidebar({
               </div>
 
               <ChevronRight className={`w-3.5 h-3.5 transition-transform duration-150 ${
-                isActive ? 'text-white translate-x-0.5' : 'text-slate-400 group-hover:translate-x-0.5'
+                isActive ? 'text-white translate-x-0.5' : 'text-slate-500 group-hover:translate-x-0.5'
               }`} />
             </button>
           );
