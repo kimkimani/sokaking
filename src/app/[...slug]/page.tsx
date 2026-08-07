@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
 import { getPageMetadata } from '@/src/lib/generatePageMetadata';
 import SokaPageServer from '@/src/components/SokaPageServer';
+import { getDynamicUrlMaps, getMarkdownContent } from '@/src/content/markdownLoader';
 
-const URL_TO_PAGE_MAP: Record<string, string> = {
+const BASE_URL_TO_PAGE_MAP: Record<string, string> = {
   '/': 'home',
   '/football-predictions-today': 'category-today',
   '/football-predictions-yesterday': 'category-yesterday',
@@ -42,16 +43,46 @@ const URL_TO_PAGE_MAP: Record<string, string> = {
   '/database-export': 'database-export',
 };
 
+function resolvePageId(path: string): { pageId: string; canonicalPath: string } {
+  let normPath = path.toLowerCase().trim();
+  if (normPath.endsWith('/') && normPath !== '/') {
+    normPath = normPath.slice(0, -1);
+  }
+
+  const { urlToPageMap, pageToUrlMap } = getDynamicUrlMaps(BASE_URL_TO_PAGE_MAP, {});
+
+  if (urlToPageMap[normPath]) {
+    const pId = urlToPageMap[normPath];
+    const canonicalPath = pageToUrlMap[pId] || normPath;
+    return { pageId: pId, canonicalPath };
+  }
+
+  const rawSlug = normPath.replace(/^\//, '');
+  if (rawSlug) {
+    if (urlToPageMap[`/${rawSlug}`]) {
+      const pId = urlToPageMap[`/${rawSlug}`];
+      return { pageId: pId, canonicalPath: pageToUrlMap[pId] || normPath };
+    }
+    // Check if rawSlug directly loads valid markdown
+    const md = getMarkdownContent(rawSlug);
+    if (md && md.title && md.title !== 'Soka King | Free Football Predictions & Jackpot Tips') {
+      return { pageId: rawSlug, canonicalPath: md.link || normPath };
+    }
+  }
+
+  return { pageId: 'category-today', canonicalPath: '/football-predictions-today' };
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
   const { slug } = await params;
   const path = '/' + (slug ? slug.join('/') : '');
-  const pageId = URL_TO_PAGE_MAP[path] || 'category-today';
-  return getPageMetadata(pageId, path);
+  const { pageId, canonicalPath } = resolvePageId(path);
+  return getPageMetadata(pageId, canonicalPath);
 }
 
 export default async function DynamicCatchAllPage({ params }: { params: Promise<{ slug: string[] }> }) {
   const { slug } = await params;
   const path = '/' + (slug ? slug.join('/') : '');
-  const pageId = URL_TO_PAGE_MAP[path] || 'category-today';
-  return <SokaPageServer pageId={pageId} customCanonical={path} />;
+  const { pageId, canonicalPath } = resolvePageId(path);
+  return <SokaPageServer pageId={pageId} customCanonical={canonicalPath} />;
 }

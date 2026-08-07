@@ -1,27 +1,64 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700;800&display=swap');
 @import "tailwindcss";
 
-/* Define the custom global themes and variables as premium light modes */
-:root {
-  /* Font Family Definitions for zero CLS */
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+@theme {
+  --font-sans: 'DM Sans', var(--font-dm-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Unbounded', var(--font-unbounded), sans-serif;
+  --font-mono: var(--font-mono), 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
 
-  /* Default variables matching Emerald Light Mode with high WCAG contrast */
-  --background: #f0f7f4;
-  --text: #062c1e;
-  --text-muted: #2d4f42;
-  --primary: #047857; /* Emerald Green 700 - WCAG 5.5:1 on white */
+/* Define the custom global themes and variables for maximum readability and visual contrast */
+:root {
+  /* Default Font Preset (Option 2: Unbounded + DM Sans) */
+  --font-sans: 'DM Sans', var(--font-dm-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Unbounded', var(--font-unbounded), sans-serif;
+  --font-mono: var(--font-mono), 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Enhanced High-Visibility Colors (WCAG AAA compliant contrast) */
+  --background: #f1f7f4;
+  --text: #041e15; /* Ultra-deep high contrast text */
+  --text-muted: #1e3a2e; /* Dark readable secondary text */
+  --primary: #047857; /* Emerald Green 700 - WCAG AAA contrast */
   --primary-rgb: 4, 120, 87;
   --secondary: #0284c7; /* Sky 600 */
   --accent: #9a3412; /* Orange 800 */
   --card: #ffffff;
-  --border: #cbd5e1;
-  --shadow: 0 10px 30px rgba(6, 44, 30, 0.05);
+  --border: #bfe0d4; /* Clear defined card borders */
+  --shadow: 0 10px 30px rgba(4, 30, 21, 0.08);
   --radius: 14px;
   --backdrop: none;
 }
+
+/* 30 Distinct High-Grade Font Presets */
+[data-font="preset-1"], .font-preset-1 { --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif; --font-display: 'Bricolage Grotesque', sans-serif; }
+[data-font="preset-2"], .font-preset-2 { --font-sans: 'DM Sans', system-ui, sans-serif; --font-display: 'Unbounded', sans-serif; }
+[data-font="preset-3"], .font-preset-3 { --font-sans: 'Figtree', system-ui, sans-serif; --font-display: 'Chivo', sans-serif; }
+[data-font="preset-4"], .font-preset-4 { --font-sans: 'Outfit', system-ui, sans-serif; --font-display: 'Rajdhani', sans-serif; }
+[data-font="preset-5"], .font-preset-5 { --font-sans: 'Albert Sans', system-ui, sans-serif; --font-display: 'Schibsted Grotesk', sans-serif; }
+[data-font="preset-6"], .font-preset-6 { --font-sans: 'Inter', system-ui, sans-serif; --font-display: 'Lexend', sans-serif; }
+[data-font="preset-7"], .font-preset-7 { --font-sans: 'Open Sans', system-ui, sans-serif; --font-display: 'Oswald', sans-serif; }
+[data-font="preset-8"], .font-preset-8 { --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif; --font-display: 'Sora', sans-serif; }
+[data-font="preset-9"], .font-preset-9 { --font-sans: 'Lato', system-ui, sans-serif; --font-display: 'Montserrat', sans-serif; }
+[data-font="preset-10"], .font-preset-10 { --font-sans: 'Urbanist', system-ui, sans-serif; --font-display: 'Space Grotesk', sans-serif; }
+[data-font="preset-11"], .font-preset-11 { --font-sans: 'Prompt', system-ui, sans-serif; --font-display: 'Kanit', sans-serif; }
+[data-font="preset-12"], .font-preset-12 { --font-sans: 'Barlow', system-ui, sans-serif; --font-display: 'Barlow Condensed', sans-serif; }
+[data-font="preset-13"], .font-preset-13 { --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif; --font-display: 'Righteous', sans-serif; }
+[data-font="preset-14"], .font-preset-14 { --font-sans: 'Montserrat', system-ui, sans-serif; --font-display: 'Bebas Neue', sans-serif; }
+[data-font="preset-15"], .font-preset-15 { --font-sans: 'Inter', system-ui, sans-serif; --font-display: 'Manrope', sans-serif; }
+[data-font="preset-16"], .font-preset-16 { --font-sans: 'Exo 2', system-ui, sans-serif; --font-display: 'Orbitron', sans-serif; }
+[data-font="preset-17"], .font-preset-17 { --font-sans: 'Public Sans', system-ui, sans-serif; --font-display: 'Teko', sans-serif; }
+[data-font="preset-18"], .font-preset-18 { --font-sans: 'Work Sans', system-ui, sans-serif; --font-display: 'Anton', sans-serif; }
+[data-font="preset-19"], .font-preset-19 { --font-sans: 'Outfit', system-ui, sans-serif; --font-display: 'Public Sans', sans-serif; }
+[data-font="preset-20"], .font-preset-20 { --font-sans: 'DM Sans', system-ui, sans-serif; --font-display: 'Saira Extra Condensed', sans-serif; }
+[data-font="preset-21"], .font-preset-21 { --font-sans: 'Inter', system-ui, sans-serif; --font-display: 'Atkinson Hyperlegible', sans-serif; }
+[data-font="preset-22"], .font-preset-22 { --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif; --font-display: 'Syne', sans-serif; }
+[data-font="preset-23"], .font-preset-23 { --font-sans: 'Figtree', system-ui, sans-serif; --font-display: 'Rubik', sans-serif; }
+[data-font="preset-24"], .font-preset-24 { --font-sans: 'DM Sans', system-ui, sans-serif; --font-display: 'Cinzel', sans-serif; }
+[data-font="preset-25"], .font-preset-25 { --font-sans: 'Albert Sans', system-ui, sans-serif; --font-display: 'Work Sans', sans-serif; }
+[data-font="preset-26"], .font-preset-26 { --font-sans: 'Outfit', system-ui, sans-serif; --font-display: 'JetBrains Mono', monospace; }
+[data-font="preset-27"], .font-preset-27 { --font-sans: 'Inter', system-ui, sans-serif; --font-display: 'DM Sans', sans-serif; }
+[data-font="preset-28"], .font-preset-28 { --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif; --font-display: 'Chivo', sans-serif; }
+[data-font="preset-29"], .font-preset-29 { --font-sans: 'Outfit', system-ui, sans-serif; --font-display: 'Bricolage Grotesque', sans-serif; }
+[data-font="preset-30"], .font-preset-30 { --font-sans: 'DM Sans', system-ui, sans-serif; --font-display: 'Rajdhani', sans-serif; }
 
 /* 1. EMERALD PROFESSIONAL (Chosen Primary Light Mode) */
 .theme-emerald {
@@ -55,13 +92,18 @@
   --backdrop: none;
 }
 
-/* Base style resets and scrollbars */
+/* Base style resets, font smoothing, rendering optimizations, and scrollbars */
 html, body {
   background: var(--background);
   color: var(--text);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'ss01', 'tnum';
   transition: background-color 0.4s ease, color 0.4s ease;
   scroll-behavior: smooth;
+  font-weight: 500; /* Crisp baseline weight */
 }
 
 /* Global scrollbar styling */

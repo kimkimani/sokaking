@@ -1,6 +1,7 @@
 import App from '../App';
-import { getMarkdownContent } from '../content/markdownLoader';
-import { fetchPredictions, fetchJackpots } from '../lib/dataStore';
+import { getMarkdownContent, buildCanonicalUrl } from '../content/markdownLoader';
+import { jackpotsData } from '../jackpotsData';
+import { generateUnifiedPredictionsPool } from '../utils/predictionGenerator';
 
 interface SokaPageServerProps {
   pageId: string;
@@ -9,23 +10,11 @@ interface SokaPageServerProps {
 
 export default async function SokaPageServer({ pageId, customCanonical }: SokaPageServerProps) {
   const pageMd = getMarkdownContent(pageId);
-  const canonicalPath = customCanonical || pageMd.link || '/';
-  const fullCanonicalUrl = `https://sokaking.com${canonicalPath}`;
+  const fullCanonicalUrl = buildCanonicalUrl(customCanonical || pageMd.link, pageId);
 
-  // Pre-fetch predictions or jackpots on the server for rich SEO HTML rendering
-  let preloadedPredictions: any[] = [];
-  let preloadedJackpots: any[] = [];
-
-  try {
-    if (pageId.startsWith('category-') || pageId.includes('tips') || pageId.includes('predictions')) {
-      preloadedPredictions = await fetchPredictions(pageId);
-    }
-    if (pageId.includes('jackpot') || pageId.includes('sportpesa') || pageId.includes('betika') || pageId.includes('mozzart') || pageId.includes('odibet')) {
-      preloadedJackpots = await fetchJackpots();
-    }
-  } catch (err) {
-    // Non-blocking fallback
-  }
+  // Preloaded static data for initial render (fast & non-blocking)
+  const preloadedJackpots = jackpotsData;
+  const preloadedPredictions = generateUnifiedPredictionsPool();
 
   // Generate FAQ JSON-LD Schema if page has FAQs
   let faqSchema: any = null;
@@ -102,7 +91,12 @@ export default async function SokaPageServer({ pageId, customCanonical }: SokaPa
       </div>
 
       {/* Interactive Hydrated React Application */}
-      <App initialPage={pageId} initialJackpotId={pageId} />
+      <App 
+        initialPage={pageId} 
+        initialJackpotId={pageId} 
+        initialPredictions={preloadedPredictions} 
+        initialJackpots={preloadedJackpots} 
+      />
     </>
   );
 }

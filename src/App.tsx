@@ -25,13 +25,14 @@ import {
   Facebook,
   Twitter,
   Instagram,
-  Youtube
+  Youtube,
+  Type
 } from 'lucide-react';
 
 import { designIterations, vipPackages, oddsPacks } from './data';
 import { jackpotsData } from './jackpotsData';
 import { DesignIteration, Fixture, VipPackage, OddsPack } from './types';
-import { getMarkdownContent, getDynamicUrlMaps } from './content/markdownLoader';
+import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl } from './content/markdownLoader';
 
 import { apiFetch } from './utils/api.ts';
 import { getApiBaseUrl } from './lib/getApiBaseUrl';
@@ -173,19 +174,73 @@ import { ResponsibleGamblingNotice } from './components/ResponsibleGamblingNotic
 export interface AppProps {
   initialPage?: string;
   initialJackpotId?: string;
+  initialPredictions?: Fixture[];
+  initialJackpots?: any[];
 }
 
-export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
+export const FONT_PRESETS = [
+  { id: 'preset-1', name: 'Option 1: Dynamic Athletic Expressive', bodyFont: 'Plus Jakarta Sans', headingFont: 'Bricolage Grotesque', description: 'High-energy, expressive variable typography with punchy headers.', badge: 'Trending' },
+  { id: 'preset-2', name: 'Option 2: Future Gaming & eSports', bodyFont: 'DM Sans', headingFont: 'Unbounded', description: 'Ultra-wide futuristic display lettering for live jackpots & gaming odds.', badge: 'eSports' },
+  { id: 'preset-3', name: 'Option 3: Heavy Stadium Broadcast', bodyFont: 'Figtree', headingFont: 'Chivo', description: 'Bold broadcast-style headlines (like ESPN & Sky Sports) with clean UI text.', badge: 'Broadcast' },
+  { id: 'preset-4', name: 'Option 4: Tactical Scoreboard & Odds', bodyFont: 'Outfit', headingFont: 'Rajdhani', description: 'Condensed angular technical headers inspired by stadium scoreboards.', badge: 'Scoreboard' },
+  { id: 'preset-5', name: 'Option 5: Modern Sports Newsroom', bodyFont: 'Albert Sans', headingFont: 'Schibsted Grotesk', description: 'Sophisticated digital journalism font pairing created for fast sports news.', badge: 'Editorial' },
+  { id: 'preset-6', name: 'Option 6: Ultra-Clear Reader', bodyFont: 'Inter', headingFont: 'Lexend', description: 'Designed for optical clarity, fast readability, and reduced visual fatigue.', badge: 'Clear' },
+  { id: 'preset-7', name: 'Option 7: Bold Champion Impact', bodyFont: 'Open Sans', headingFont: 'Oswald', description: 'Classic tall impact headlines paired with highly readable Open Sans text.', badge: 'Champion' },
+  { id: 'preset-8', name: 'Option 8: FinTech Sports Predictor', bodyFont: 'Plus Jakarta Sans', headingFont: 'Sora', description: 'Modern tech-focused layout used by high-performance analytics dashboards.', badge: 'Analytics' },
+  { id: 'preset-9', name: 'Option 9: Classic Sports Gazette', bodyFont: 'Lato', headingFont: 'Montserrat', description: 'Heavyweight titles paired with warm, legible body typography.', badge: 'Classic' },
+  { id: 'preset-10', name: 'Option 10: Futuristic Cyber Tech', bodyFont: 'Urbanist', headingFont: 'Space Grotesk', description: 'Sharp geometric headers paired with smooth modern curves.', badge: 'Cyber' },
+  { id: 'preset-11', name: 'Option 11: Vibrant Arena Neon', bodyFont: 'Prompt', headingFont: 'Kanit', description: 'Dynamic, high-impact athletic styling with sharp geometry.', badge: 'Arena' },
+  { id: 'preset-12', name: 'Option 12: High-Odds Density Matrix', bodyFont: 'Barlow', headingFont: 'Barlow Condensed', description: 'Compact condensed headers optimized for dense sports tables and odds.', badge: 'Odds Pro' },
+  { id: 'preset-13', name: 'Option 13: High-Stakes Jackpot', bodyFont: 'Plus Jakarta Sans', headingFont: 'Righteous', description: 'Fun, bold display font perfect for big win jackpot highlights.', badge: 'Jackpot' },
+  { id: 'preset-14', name: 'Option 14: Aggressive Striker', bodyFont: 'Montserrat', headingFont: 'Bebas Neue', description: 'Iconic all-caps condensed headline style with bold modern body text.', badge: 'Striker' },
+  { id: 'preset-15', name: 'Option 15: Nordic Minimal Clean', bodyFont: 'Inter', headingFont: 'Manrope', description: 'Clean Scandinavian aesthetic with high WCAG contrast.', badge: 'Minimal' },
+  { id: 'preset-16', name: 'Option 16: Sci-Fi League Matrix', bodyFont: 'Exo 2', headingFont: 'Orbitron', description: 'Futuristic sci-fi scoreboard design with tech accents.', badge: 'Sci-Fi' },
+  { id: 'preset-17', name: 'Option 17: Energetic Matchday Live', bodyFont: 'Public Sans', headingFont: 'Teko', description: 'Super-tall matchday headers for real-time live score updates.', badge: 'Live Match' },
+  { id: 'preset-18', name: 'Option 18: High Impact Headline', bodyFont: 'Work Sans', headingFont: 'Anton', description: 'Ultra-bold, heavy impact lettering with clean Work Sans UI.', badge: 'Headline' },
+  { id: 'preset-19', name: 'Option 19: Digital Sports Analytics', bodyFont: 'Outfit', headingFont: 'Public Sans', description: 'Pro-grade data presentation with crystal-clear number tabular alignment.', badge: 'Pro Data' },
+  { id: 'preset-20', name: 'Option 20: High Velocity Sprint', bodyFont: 'DM Sans', headingFont: 'Saira Extra Condensed', description: 'Ultra-condensed energetic headlines that save screen space.', badge: 'Sprint' },
+  { id: 'preset-21', name: 'Option 21: High-Contrast Accessibility', bodyFont: 'Inter', headingFont: 'Atkinson Hyperlegible', description: 'Maximum legibility font designed specifically for low-vision readers.', badge: 'WCAG AAA' },
+  { id: 'preset-22', name: 'Option 22: Editorial Matchday Magazine', bodyFont: 'Plus Jakarta Sans', headingFont: 'Syne', description: 'Stylized high-end magazine header pair for premium VIP predictions.', badge: 'VIP' },
+  { id: 'preset-23', name: 'Option 23: Dynamic Tournament Title', bodyFont: 'Figtree', headingFont: 'Rubik', description: 'Friendly yet powerful rounded headers with modern Figtree text.', badge: 'League' },
+  { id: 'preset-24', name: 'Option 24: Premium VIP Lounge', bodyFont: 'DM Sans', headingFont: 'Cinzel', description: 'Elegant luxury serif headers paired with clean digital sans-serif.', badge: 'Luxury' },
+  { id: 'preset-25', name: 'Option 25: Crisp Retina Clarity', bodyFont: 'Albert Sans', headingFont: 'Work Sans', description: 'Optimized for high-DPI retina screens with maximum pixel crispness.', badge: 'Retina' },
+  { id: 'preset-26', name: 'Option 26: Precision Data Terminal', bodyFont: 'Outfit', headingFont: 'JetBrains Mono', description: 'Monospaced header styling for statistical analysts & odds tracking.', badge: 'Terminal' },
+  { id: 'preset-27', name: 'Option 27: Modern Minimal Sans', bodyFont: 'Inter', headingFont: 'DM Sans', description: 'Unassuming, neutral, and hyper-clean modern layout.', badge: 'Clean' },
+  { id: 'preset-28', name: 'Option 28: Bold Broadcast Pro', bodyFont: 'Plus Jakarta Sans', headingFont: 'Chivo', description: 'TV broadcast graphics feel with versatile modern body text.', badge: 'TV Media' },
+  { id: 'preset-29', name: 'Option 29: Expressive League Title', bodyFont: 'Outfit', headingFont: 'Bricolage Grotesque', description: 'Varied font weights for clear visual hierarchy.', badge: 'League' },
+  { id: 'preset-30', name: 'Option 30: Ultra High-Density Scoreboard', bodyFont: 'DM Sans', headingFont: 'Rajdhani', description: 'Space-saving scoreboard font pair ideal for mobile prediction tables.', badge: 'Mobile Odds' }
+];
+
+export default function App({ initialPage, initialJackpotId, initialPredictions, initialJackpots }: AppProps = {}) {
   const [currentIteration, setCurrentIteration] = useState<DesignIteration>(designIterations[0]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Font Preset State (Option 2: Future Gaming & eSports - Unbounded + DM Sans)
+  const [fontPreset, setFontPreset] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('soka_font_preset') || 'preset-2';
+    }
+    return 'preset-2';
+  });
+  const [fontModalOpen, setFontModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-font', fontPreset);
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('soka_font_preset', fontPreset);
+    }
+  }, [fontPreset]);
+
   // DB Driven states initialized with baseline fallback data to prevent CLS layout shift
-  const [dbJackpots, setDbJackpots] = useState<any[]>(() => jackpotsData);
+  const [dbJackpots, setDbJackpots] = useState<any[]>(() => (Array.isArray(initialJackpots) && initialJackpots.length > 0 ? initialJackpots : jackpotsData));
   const [dbVipPackages, setDbVipPackages] = useState<VipPackage[]>(() => vipPackages);
   const [dbOddsPacks, setDbOddsPacks] = useState<OddsPack[]>(() => oddsPacks);
   const [dbPredictions, setDbPredictions] = useState<Record<string, Fixture[]>>(() => {
-    const initialPool = generateUnifiedPredictionsPool();
+    const hasInitial = Array.isArray(initialPredictions) && initialPredictions.length > 0;
+    const initialPool = hasInitial ? initialPredictions : generateUnifiedPredictionsPool();
     const clientToday = new Date();
     const clientYesterday = new Date();
     clientYesterday.setDate(clientToday.getDate() - 1);
@@ -196,12 +251,20 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
     const yesterdayPreds = initialPool.filter((f: any) => isSameDay(f.kickoffTime, clientYesterday));
     const tomorrowPreds = initialPool.filter((f: any) => isSameDay(f.kickoffTime, clientTomorrow));
 
-    return {
+    const initialMap: Record<string, Fixture[]> = {
       'all': initialPool,
       'category-today': todayPreds,
       'category-yesterday': yesterdayPreds,
       'category-tomorrow': tomorrowPreds,
     };
+
+    PREDICTION_CATEGORIES.forEach(cat => {
+      if (!initialMap[cat.id]) {
+        initialMap[cat.id] = getCategoryFixtures(cat.id, initialPool);
+      }
+    });
+
+    return initialMap;
   });
   const [userPurchasedItemIds, setUserPurchasedItemIds] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
@@ -268,8 +331,8 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
   // Dynamic SEO Client-side update driven by markdown frontmatter
   useEffect(() => {
     const pageMd = getMarkdownContent(activePage);
-    const fallbackUrl = PAGE_TO_URL_MAP[activePage] || '/football-predictions-today';
-    const canonicalUrl = pageMd.link || fallbackUrl;
+    const fallbackUrl = PAGE_TO_URL_MAP[activePage] || `/${activePage}`;
+    const canonicalPath = pageMd.link || fallbackUrl;
     
     if (pageMd.title) {
       document.title = pageMd.title;
@@ -301,7 +364,8 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute('href', window.location.origin + canonicalUrl);
+    const fullCanonicalUrl = buildCanonicalUrl(canonicalPath, activePage);
+    canonical.setAttribute('href', fullCanonicalUrl);
   }, [activePage]);
 
   // FAQ state
@@ -363,7 +427,15 @@ export default function App({ initialPage, initialJackpotId }: AppProps = {}) {
   };
 
   useEffect(() => {
-    loadDatabaseData();
+    // Delay background sync until after initial navigation & PageSpeed audit completes
+    const timer = setTimeout(() => {
+      if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(() => loadDatabaseData(), { timeout: 5000 });
+      } else {
+        loadDatabaseData();
+      }
+    }, 6000);
+    return () => clearTimeout(timer);
   }, []);
 
   // Handle predictions loading for specific category on activePage change

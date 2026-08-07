@@ -39,6 +39,60 @@ export interface ParsedMarkdownPage {
 
 const parsedCache: Record<string, ParsedMarkdownPage> = {};
 
+/**
+ * Cleanly builds absolute canonical URL for any path or page key.
+ */
+export function buildCanonicalUrl(linkOrPath?: string, fallbackId?: string): string {
+  const BASE_DOMAIN = 'https://sokaking.com';
+  let raw = (linkOrPath || (fallbackId ? `/${fallbackId}` : '/')).trim();
+
+  if (raw.startsWith('http://') || raw.startsWith('https://')) {
+    try {
+      const parsed = new URL(raw);
+      raw = parsed.pathname;
+    } catch {
+      raw = '/';
+    }
+  }
+
+  if (!raw.startsWith('/')) {
+    raw = '/' + raw;
+  }
+  if (raw.endsWith('/') && raw !== '/') {
+    raw = raw.slice(0, -1);
+  }
+
+  return `${BASE_DOMAIN}${raw}`;
+}
+
+/**
+ * Reads physical markdown files from src/content/pages in Node.js server environment.
+ */
+function readServerPageFiles(): Record<string, string> {
+  const filesMap: Record<string, string> = {};
+  if (typeof window === 'undefined') {
+    try {
+      // Dynamic require so browser bundlers don't break
+      const fs = require('fs');
+      const path = require('path');
+      const pagesDir = path.join(process.cwd(), 'src', 'content', 'pages');
+      if (fs.existsSync(pagesDir)) {
+        const filenames = fs.readdirSync(pagesDir);
+        for (const file of filenames) {
+          if (file.endsWith('.md')) {
+            const pageKey = file.replace(/\.md$/, '').toLowerCase();
+            const content = fs.readFileSync(path.join(pagesDir, file), 'utf-8');
+            filesMap[pageKey] = content;
+          }
+        }
+      }
+    } catch (e) {
+      // fs is unavailable in client environments
+    }
+  }
+  return filesMap;
+}
+
 function loadRawMarkdown(pageKey: string): string {
   let key = (pageKey || '').toLowerCase().trim().replace(/^\//, '');
   if (!key) key = 'home';
@@ -56,6 +110,15 @@ function loadRawMarkdown(pageKey: string): string {
   if (key === 'terms') key = 'terms-of-use';
   if (key === 'vip' || key === 'vip-tips' || key === 'odds') key = 'vip-packages';
   if (key === 'jackpot-tips') key = 'jackpot-list';
+
+  // 0. Server-side filesystem check of src/content/pages/
+  const serverPages = readServerPageFiles();
+  if (serverPages[key]) {
+    return serverPages[key];
+  }
+  if (serverPages[pageKey.toLowerCase().trim().replace(/^\//, '')]) {
+    return serverPages[pageKey.toLowerCase().trim().replace(/^\//, '')];
+  }
 
   // 1. Direct check of eager glob of ./pages/*.md
   const fileKey = `./pages/${key}.md`;
@@ -346,11 +409,38 @@ export function getMarkdownContent(pageKey: string): ParsedMarkdownPage {
  */
 export function getAllMarkdownPages(): { pageKey: string; page: ParsedMarkdownPage }[] {
   const results: { pageKey: string; page: ParsedMarkdownPage }[] = [];
-  for (const fileKey of Object.keys(pageMarkdownFiles)) {
-    const pageKey = fileKey.replace(/^\.\/pages\//, '').replace(/\.md$/, '');
-    const page = getMarkdownContent(pageKey);
-    results.push({ pageKey, page });
+  const processedKeys = new Set<string>();
+
+  // 1. Server physical files in src/content/pages/
+  const serverPages = readServerPageFiles();
+  for (const pKey of Object.keys(serverPages)) {
+    if (!processedKeys.has(pKey)) {
+      processedKeys.add(pKey);
+      const page = getMarkdownContent(pKey);
+      results.push({ pageKey: pKey, page });
+    }
   }
+
+  // 2. Eager glob from import.meta.glob (if running under Vite/bundler)
+  for (const fileKey of Object.keys(pageMarkdownFiles)) {
+    const pKey = fileKey.replace(/^\.\/pages\//, '').replace(/\.md$/, '').toLowerCase();
+    if (!processedKeys.has(pKey)) {
+      processedKeys.add(pKey);
+      const page = getMarkdownContent(pKey);
+      results.push({ pageKey: pKey, page });
+    }
+  }
+
+  // 3. Fallback map keys from RAW_MARKDOWN_MAP
+  for (const rawKey of Object.keys(RAW_MARKDOWN_MAP)) {
+    const pKey = rawKey.toLowerCase();
+    if (!processedKeys.has(pKey)) {
+      processedKeys.add(pKey);
+      const page = getMarkdownContent(rawKey);
+      results.push({ pageKey: rawKey, page });
+    }
+  }
+
   return results;
 }
 
