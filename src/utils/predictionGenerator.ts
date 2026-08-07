@@ -279,14 +279,8 @@ export function matchPredictionCategory(prediction: string, categoryId: string):
   return true;
 }
 
-let cachedUnifiedPool: Fixture[] | null = null;
-
 // Helper to generate dynamic, realistic unified prediction fixtures
 export function generateUnifiedPredictionsPool(): Fixture[] {
-  if (cachedUnifiedPool && cachedUnifiedPool.length > 0) {
-    return cachedUnifiedPool;
-  }
-
   const pool: Fixture[] = [];
   const now = new Date();
 
@@ -392,7 +386,6 @@ export function generateUnifiedPredictionsPool(): Fixture[] {
     }
   }
 
-  cachedUnifiedPool = pool;
   return pool;
 }
 
