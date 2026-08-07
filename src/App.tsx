@@ -188,7 +188,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   const [dbOddsPacks, setDbOddsPacks] = useState<OddsPack[]>(() => oddsPacks);
   const [dbPredictions, setDbPredictions] = useState<Record<string, Fixture[]>>(() => {
     const hasInitial = Array.isArray(initialPredictions) && initialPredictions.length > 0;
-    const initialPool = hasInitial ? initialPredictions : generateUnifiedPredictionsPool();
+    const initialPool = hasInitial ? initialPredictions : [];
     const clientToday = new Date();
     const clientYesterday = new Date();
     clientYesterday.setDate(clientToday.getDate() - 1);
@@ -369,15 +369,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   };
 
   useEffect(() => {
-    // Delay background sync until after initial navigation & PageSpeed audit completes
-    const timer = setTimeout(() => {
-      if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-        (window as any).requestIdleCallback(() => loadDatabaseData(), { timeout: 5000 });
-      } else {
-        loadDatabaseData();
-      }
-    }, 6000);
-    return () => clearTimeout(timer);
+    loadDatabaseData();
   }, []);
 
   // Handle predictions loading for specific category on activePage change

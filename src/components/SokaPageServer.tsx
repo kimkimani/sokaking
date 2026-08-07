@@ -14,7 +14,7 @@ export default async function SokaPageServer({ pageId, customCanonical }: SokaPa
 
   // Preloaded static data for initial render (fast & non-blocking)
   const preloadedJackpots = jackpotsData;
-  const preloadedPredictions = generateUnifiedPredictionsPool();
+  const preloadedPredictions: any[] = [];
 
   // Generate FAQ JSON-LD Schema if page has FAQs
   let faqSchema: any = null;
