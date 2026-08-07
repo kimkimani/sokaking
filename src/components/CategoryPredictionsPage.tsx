@@ -43,6 +43,7 @@ interface CategoryPredictionsPageProps {
   ) => void;
   jackpots?: any[];
   pageId?: string;
+  isLoading?: boolean;
 }
 
 export default function CategoryPredictionsPage({  
@@ -52,7 +53,8 @@ export default function CategoryPredictionsPage({
   onSelectPage,
   onOpenPayment,
   jackpots,
-  pageId
+  pageId,
+  isLoading = false
 }: CategoryPredictionsPageProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [copied, setCopied] = useState(false);
@@ -443,9 +445,25 @@ export default function CategoryPredictionsPage({
       )}
 
       {/* Main Predictions Feed (Page Major Prediction Table) */}
-      {filteredFixtures.length > 0 ? (
+      {isLoading ? (
+        <PredictionsList 
+          fixtures={[]}
+          isLoading={true}
+          title={
+            pageMd.listTitle || (
+              category.id === 'category-yesterday'
+                ? "Yesterday's Matches"
+                : (category.id === 'category-today' || category.id === 'today' || pageMd.type === 'competitor')
+                  ? "Today's Free Football Predictions"
+                  : `${category.name} Predictions list`
+            )
+          }
+          subtitle="Loading predictions..."
+        />
+      ) : filteredFixtures.length > 0 ? (
         <PredictionsList 
           fixtures={filteredFixtures}
+          isLoading={false}
           title={
             pageMd.listTitle || (
               category.id === 'category-yesterday'

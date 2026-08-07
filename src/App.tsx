@@ -35,7 +35,7 @@ import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl } from './cont
 
 import { apiFetch } from './utils/api.ts';
 import { getApiBaseUrl } from './lib/getApiBaseUrl';
-import { PredictionCategory, getCategoryCountText, PREDICTION_CATEGORIES, getCategoryFixtures, isSameDay, generateUnifiedPredictionsPool } from './utils/predictionGenerator';
+import { PredictionCategory, getCategoryCountText, PREDICTION_CATEGORIES, getCategoryFixtures, isSameDay } from './utils/predictionGenerator';
 
 // Import subcomponents
 import Sidebar from './components/Sidebar';
@@ -220,7 +220,8 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     }
     return [];
   });
-  const [loadingDb, setLoadingDb] = useState<boolean>(false);
+  const [loadingDb, setLoadingDb] = useState<boolean>(true);
+  const [loadingCategory, setLoadingCategory] = useState<boolean>(false);
   const [siteContacts, setSiteContacts] = useState<{
     email: string;
     phone: string;
@@ -316,6 +317,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   // Fetch Database-driven data
   const loadDatabaseData = async () => {
     try {
+      setLoadingDb(true);
       const baseUrl = getApiBaseUrl();
       const [jackpotsRes, vipRes, oddsRes, allPredictionsRes, settingsRes] = await Promise.all([
         fetch(`${baseUrl}/api/jackpots`).then(r => r.ok ? r.json() : []).catch(() => []),
@@ -365,6 +367,8 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
       }
     } catch (err) {
       console.error('Failed to load database content:', err);
+    } finally {
+      setLoadingDb(false);
     }
   };
 
@@ -381,6 +385,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
         !dbPredictions[activePage]) {
       const fetchCategoryPredictions = async () => {
         try {
+          setLoadingCategory(true);
           const baseUrl = getApiBaseUrl();
           const preds = await fetch(`${baseUrl}/api/predictions?category=${activePage}`)
             .then(r => r.ok ? r.json() : [])
@@ -395,6 +400,8 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
             ...prev,
             [activePage]: [],
           }));
+        } finally {
+          setLoadingCategory(false);
         }
       };
       fetchCategoryPredictions();
@@ -869,6 +876,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                           <CategoryPredictionsPage 
                             category={dynamicCategory}
                             fixtures={categoryFixtures}
+                            isLoading={loadingDb || loadingCategory}
                             onBackToHome={() => handleSelectPage('home')}
                             onSelectPage={handleSelectPage}
                             onOpenPayment={handleOpenPayment}
@@ -960,6 +968,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                       </div>
 
                       <PredictionsList 
+                        isLoading={loadingDb}
                         fixtures={getCategoryFixtures('category-today', dbPredictions.all && dbPredictions.all.length > 0 ? dbPredictions.all : dbPredictions)}
                         title={homeMd.listTitle || "Today's Free Football Predictions"}
                         subtitle={homeMd.listSubtitle || "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes."}

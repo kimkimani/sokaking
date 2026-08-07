@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import { Fixture } from '../types';
 import { calculateProbabilities } from '../utils/probability';
-import { generateUnifiedPredictionsPool } from '../utils/predictionGenerator';
 import VotePoll from './VotePoll';
 import { FlagImage } from '../utils/flagUtils';
 
@@ -24,6 +23,43 @@ interface PredictionsListProps {
   fixtures: Fixture[];
   title: string;
   subtitle: string;
+  isLoading?: boolean;
+}
+
+export function MinimalShimmerLoader({ count = 5 }: { count?: number }) {
+  return (
+    <div className="space-y-3 w-full p-2 md:p-3">
+      {Array.from({ length: count }).map((_, idx) => (
+        <div
+          key={idx}
+          className="p-3 md:p-4 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-3 animate-pulse"
+        >
+          {/* Subtle top shimmer bar */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500/20 via-sky-500/30 to-emerald-500/20" />
+
+          {/* Left: League & teams skeleton */}
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-slate-200/80 dark:bg-slate-800/80 shrink-0" />
+            <div className="space-y-2 flex-1 min-w-0">
+              <div className="h-3.5 bg-slate-200/90 dark:bg-slate-800/90 rounded-md w-2/3 max-w-[220px]" />
+              <div className="h-2.5 bg-slate-200/60 dark:bg-slate-800/60 rounded-md w-1/3 max-w-[130px]" />
+            </div>
+          </div>
+
+          {/* Middle: Prediction badge & odds skeleton */}
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="h-7 w-28 bg-slate-200/80 dark:bg-slate-800/80 rounded-lg" />
+            <div className="h-7 w-12 bg-slate-200/60 dark:bg-slate-800/60 rounded-lg" />
+          </div>
+
+          {/* Right: Button skeleton */}
+          <div className="shrink-0 flex items-center justify-end">
+            <div className="h-8 w-24 md:w-28 bg-slate-200/80 dark:bg-slate-800/80 rounded-lg" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function isSameDay(dateStr?: string, targetDate?: Date) {
@@ -40,7 +76,8 @@ function isSameDay(dateStr?: string, targetDate?: Date) {
 export default function PredictionsList({
   fixtures,
   title,
-  subtitle
+  subtitle,
+  isLoading = false
 }: PredictionsListProps) {
   const [expandedFixture, setExpandedFixture] = useState<number | null>(null);
   const [dateFilter, setDateFilter] = useState<'all' | 'yesterday' | 'today' | 'tomorrow'>('all');
@@ -67,25 +104,13 @@ export default function PredictionsList({
     tomorrow.setDate(now.getDate() + 1);
 
     if (dateFilter === 'yesterday') {
-      const list = sortedFixtures.filter(f => isSameDay(f.kickoffTime, yesterday));
-      if (list.length === 0) {
-        return generateUnifiedPredictionsPool().filter(f => isSameDay(f.kickoffTime, yesterday)).map(f => ({
-          ...f,
-          status: 'FT',
-          result: 'won',
-          homeScore: 2,
-          awayScore: 1,
-        }));
-      }
-      return list;
+      return sortedFixtures.filter(f => isSameDay(f.kickoffTime, yesterday));
     }
     if (dateFilter === 'today') {
-      const list = sortedFixtures.filter(f => isSameDay(f.kickoffTime, now));
-      return list.length > 0 ? list : generateUnifiedPredictionsPool().filter(f => isSameDay(f.kickoffTime, now));
+      return sortedFixtures.filter(f => isSameDay(f.kickoffTime, now));
     }
     if (dateFilter === 'tomorrow') {
-      const list = sortedFixtures.filter(f => isSameDay(f.kickoffTime, tomorrow));
-      return list.length > 0 ? list : generateUnifiedPredictionsPool().filter(f => isSameDay(f.kickoffTime, tomorrow));
+      return sortedFixtures.filter(f => isSameDay(f.kickoffTime, tomorrow));
     }
     return sortedFixtures;
   }, [sortedFixtures, dateFilter]);
@@ -215,7 +240,9 @@ export default function PredictionsList({
 
         {/* Fixtures list */}
         <div className="md:divide-y md:divide-[var(--border)] space-y-4 md:space-y-0">
-          {displayedFixtures.length === 0 ? (
+          {isLoading ? (
+            <MinimalShimmerLoader count={5} />
+          ) : displayedFixtures.length === 0 ? (
             <div className="p-8 text-center text-xs font-mono text-[var(--text-muted)]">
               No matches found for the selected filter.
             </div>

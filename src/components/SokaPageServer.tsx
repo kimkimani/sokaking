@@ -1,7 +1,6 @@
 import App from '../App';
 import { getMarkdownContent, buildCanonicalUrl } from '../content/markdownLoader';
 import { jackpotsData } from '../jackpotsData';
-import { generateUnifiedPredictionsPool } from '../utils/predictionGenerator';
 
 interface SokaPageServerProps {
   pageId: string;
