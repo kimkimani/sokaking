@@ -8,16 +8,6 @@ import { getApiBaseUrl } from './getApiBaseUrl';
  */
 
 
-function getDemoAuthHeader(): Record<string, string> {
-  if (typeof window !== 'undefined') {
-    const demoToken = localStorage.getItem('demo_token');
-    if (demoToken) {
-      return { 'Authorization': `Bearer ${demoToken}` };
-    }
-  }
-  return { 'Authorization': 'Bearer demo_token:guest_user:guest@sokaking.com' };
-}
-
 export async function ensureDbInitialized(): Promise<void> {
   return Promise.resolve();
 }
@@ -277,68 +267,6 @@ export async function addPartner(partnerData: any) {
   } catch (error) {
     console.error('[dataStore] API addPartner failed:', error);
     return { success: false, error: 'Failed to add partner' };
-  }
-}
-
-export async function syncUserSession(uid: string, email: string) {
-  const baseUrl = getApiBaseUrl();
-  try {
-    console.log(`[dataStore] Syncing user session for UID: ${uid}`);
-    const res = await fetch(`${baseUrl}/api/users/sync`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json', 
-        'Accept': 'application/json',
-        ...getDemoAuthHeader(),
-        'Authorization': `Bearer demo_token:${uid}:${email}`
-      },
-      body: JSON.stringify({ uid, email }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    return await res.json();
-  } catch (error) {
-    console.error('[dataStore] API syncUserSession failed:', error);
-    return { id: 1, uid, email, createdAt: new Date() };
-  }
-}
-
-export async function recordUserPurchase(uid: string, email: string, itemType: string, itemId: string) {
-  const baseUrl = getApiBaseUrl();
-  try {
-    console.log(`[dataStore] Recording user purchase (${itemType}:${itemId}) for UID: ${uid}`);
-    const res = await fetch(`${baseUrl}/api/purchase`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json', 
-        'Accept': 'application/json',
-        'Authorization': `Bearer demo_token:${uid}:${email}`
-      },
-      body: JSON.stringify({ itemType, itemId }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    return await res.json();
-  } catch (error) {
-    console.error('[dataStore] API recordUserPurchase failed:', error);
-    return { message: 'Purchase recorded', purchase: { id: 1, userId: 1, itemType, itemId: String(itemId) } };
-  }
-}
-
-export async function fetchUserPurchases(uid: string, email: string) {
-  const baseUrl = getApiBaseUrl();
-  try {
-    console.log(`[dataStore] Fetching purchases for user UID: ${uid}`);
-    const res = await fetch(`${baseUrl}/api/purchases`, {
-      method: 'GET',
-      headers: { 
-        'Accept': 'application/json',
-        'Authorization': `Bearer demo_token:${uid}:${email}`
-      },
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    return await res.json();
-  } catch (error) {
-    console.error('[dataStore] API fetchUserPurchases failed:', error);
-    return [];
   }
 }
 
