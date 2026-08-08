@@ -1,9 +1,9 @@
 ---
-title: "Today's Football Predictions & Free Betting Tips - Soka King"
-description: "Get today's free football predictions, high accuracy betting tips, 1X2, Over/Under, and BTTS predictions on Soka King."
+title: "Today's SokaKing Predictions & Free Betting Tips - Soka King"
+description: "free football predictions, high accuracy betting tips, 1X2, Over/Under, and BTTS predictions on Soka King."
 keywords: "football predictions today, soccer tips today, free betting tips Kenya, 1X2 predictions, BTTS today"
 link: "/football-predictions-today"
-displayTitle: "Today's Football Predictions & Sure Betting Tips"
+displayTitle: "Today's SokaKing SokaKing Football Predictions & Sure Betting Tips"
 authorName: "John K. Mwangi"
 authorTitle: "Lead Football Analyst & Poisson Model Expert"
 authorDescription: "Providing daily mathematical tips and Poisson probability forecasts."
