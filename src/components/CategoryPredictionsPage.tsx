@@ -414,7 +414,7 @@ export default function CategoryPredictionsPage({
             <div className="space-y-2.5 max-w-xl">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 text-[10px] font-black uppercase tracking-wider">
                 <span className="text-sm shrink-0 block leading-none">{category.icon}</span>
-                <span>{getCategoryCountText(category.id, fixtures)} Live Selections</span>
+                <span>{isLoading ? 'Loading Selections...' : `${getCategoryCountText(category.id, fixtures)} Live Selections`}</span>
               </div>
               
               <h1 
