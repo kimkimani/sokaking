@@ -703,7 +703,7 @@ export default function CategoryPredictionsPage({
       )}
 
       {/* FREQUENTLY ASKED QUESTIONS (MARKDOWN EDITABLE) */}
-      <FaqSection pageId={category.id} />
+      <FaqSection pageId={pageId || category.id} />
     </div>
   );
 }

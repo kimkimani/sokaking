@@ -838,7 +838,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
       )}
 
       {/* 6. FREQUENTLY ASKED QUESTIONS (MARKDOWN EDITABLE) */}
-      <FaqSection pageId={jackpot.id} />
+      <FaqSection pageId={pageId || jackpot.id} />
     </div>
   );
 }

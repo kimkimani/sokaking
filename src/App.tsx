@@ -493,12 +493,12 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
     // Regular page selections
     setActivePage(resolvedPageId);
-    if (ALL_JACKPOT_IDS.includes(resolvedPageId)) {
+    if (ALL_JACKPOT_IDS.includes(resolvedPageId) || DYNAMIC_JACKPOT_PAGES[resolvedPageId]) {
       setActiveJackpotId(resolvedPageId);
     }
 
     // Push URL state for normal subpages
-    const url = PAGE_TO_URL_MAP[resolvedPageId];
+    const url = PAGE_TO_URL_MAP[resolvedPageId] || `/${resolvedPageId}`;
     if (url && typeof window !== 'undefined') {
       window.history.pushState(null, '', url);
     }
