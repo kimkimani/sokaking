@@ -40,20 +40,6 @@ import { PredictionCategory, getCategoryCountText, PREDICTION_CATEGORIES, getCat
 // Import subcomponents
 import Sidebar from './components/Sidebar';
 
-const ALL_JACKPOT_IDS = [
-  'sportpesa-mega', 
-  'sportpesa-midweek', 
-  'betika-grand', 
-  'betika-midweek', 
-  'mozzart-grand', 
-  'mozzart-super-grand', 
-  'mozzart-daily', 
-  'sportybet-jackpot', 
-  'betpawa-pick-jackpot', 
-  'odibet-laki-tatu', 
-  'mozzart-super-daily'
-];
-
 const BASE_URL_TO_PAGE_MAP: Record<string, string> = {
   '/': 'home',
   '/football-predictions-today': 'category-today',
@@ -130,7 +116,28 @@ const BASE_PAGE_TO_URL_MAP: Record<string, string> = {
   'odds': '/vip-packages'
 };
 
-const { urlToPageMap: URL_TO_PAGE_MAP, pageToUrlMap: PAGE_TO_URL_MAP } = getDynamicUrlMaps(BASE_URL_TO_PAGE_MAP, BASE_PAGE_TO_URL_MAP);
+const { 
+  urlToPageMap: URL_TO_PAGE_MAP, 
+  pageToUrlMap: PAGE_TO_URL_MAP,
+  dynamicCategoryPages: DYNAMIC_CATEGORY_PAGES,
+  dynamicJackpotPages: DYNAMIC_JACKPOT_PAGES,
+  dynamicJackpotIds: DYNAMIC_JACKPOT_IDS
+} = getDynamicUrlMaps(BASE_URL_TO_PAGE_MAP, BASE_PAGE_TO_URL_MAP);
+
+const ALL_JACKPOT_IDS = Array.from(new Set([
+  'sportpesa-mega', 
+  'sportpesa-midweek', 
+  'betika-grand', 
+  'betika-midweek', 
+  'mozzart-grand', 
+  'mozzart-super-grand', 
+  'mozzart-daily', 
+  'sportybet-jackpot', 
+  'betpawa-pick-jackpot', 
+  'odibet-laki-tatu', 
+  'mozzart-super-daily',
+  ...DYNAMIC_JACKPOT_IDS
+]));
 
 const getNormalizedPath = (path: string) => {
   let p = path.toLowerCase();
@@ -682,9 +689,15 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 const category = PREDICTION_CATEGORIES.find(c => 
                   c.id === activePage || 
                   (c.id === 'sunpel-free-football-betting-tips' && activePage.startsWith('sunpel-free-football-betting-tips'))
-                );
+                ) || DYNAMIC_CATEGORY_PAGES[activePage];
+
                 if (category) {
-                  const categoryFixtures = getCategoryFixtures(category.id, dbPredictions.all && dbPredictions.all.length > 0 ? dbPredictions.all : dbPredictions);
+                  const pageMd = getMarkdownContent(activePage);
+                  const categoryFixtures = getCategoryFixtures(
+                    category.id, 
+                    dbPredictions.all && dbPredictions.all.length > 0 ? dbPredictions.all : dbPredictions,
+                    pageMd.type
+                  );
                   return (
                     <AnimatePresence mode="wait">
                       <motion.div
@@ -701,6 +714,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                           onSelectPage={handleSelectPage}
                           onOpenPayment={handleOpenPayment}
                           jackpots={dbJackpots}
+                          pageId={activePage}
                         />
                       </motion.div>
                     </AnimatePresence>
@@ -718,12 +732,24 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   );
                 }
 
-                if (ALL_JACKPOT_IDS.includes(activePage)) {
-                  let activeJackpot = dbJackpots.find(j => j.id === activePage || j.slug === activePage);
+                if (ALL_JACKPOT_IDS.includes(activePage) || DYNAMIC_JACKPOT_PAGES[activePage]) {
+                  const dynamicJpInfo = DYNAMIC_JACKPOT_PAGES[activePage];
+                  const targetJackpotId = dynamicJpInfo ? dynamicJpInfo.jackpotId : activePage;
+
+                  let activeJackpot = dbJackpots.find(j => j.id === targetJackpotId || j.slug === targetJackpotId || j.id === activePage || j.slug === activePage);
                   if (!activeJackpot) {
-                    activeJackpot = jackpotsData.find(j => j.id === activePage || j.slug === activePage);
+                    activeJackpot = jackpotsData.find(j => j.id === targetJackpotId || j.slug === targetJackpotId || j.id === activePage || j.slug === activePage);
                   }
-                  if (!activeJackpot) return null;
+                  if (!activeJackpot) {
+                    const baseFallback = jackpotsData.find(j => j.id === 'sportpesa-mega') || jackpotsData[0];
+                    const pageMd = getMarkdownContent(activePage);
+                    activeJackpot = {
+                      ...baseFallback,
+                      id: activePage,
+                      name: pageMd.displayTitle || pageMd.title || activePage,
+                      slug: activePage
+                    };
+                  }
 
                   const rawFixtures = (activeJackpot.fixtures && activeJackpot.fixtures.length > 0)
                     ? activeJackpot.fixtures
@@ -748,12 +774,12 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     }))
                   };
 
-                  const isJackpotUnlocked = unlockedJackpots.includes(formattedJackpot.id);
+                  const isJackpotUnlocked = unlockedJackpots.includes(formattedJackpot.id) || unlockedJackpots.includes(targetJackpotId);
 
                   return (
                     <AnimatePresence mode="wait">
                       <motion.div
-                        key={formattedJackpot.id}
+                        key={activePage}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -764,6 +790,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                           hasPaid={isJackpotUnlocked}
                           onOpenPayment={handleOpenPayment}
                           onBackToList={() => handleSelectPage('jackpot-list')}
+                          pageId={activePage}
                         />
                       </motion.div>
                     </AnimatePresence>

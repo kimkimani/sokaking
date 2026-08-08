@@ -447,6 +447,7 @@ export function getAllMarkdownPages(): { pageKey: string; page: ParsedMarkdownPa
 /**
  * Dynamically constructs URL_TO_PAGE_MAP and PAGE_TO_URL_MAP by combining standard base maps
  * with all detected markdown files and their frontmatter links.
+ * Also dynamically discovers competitor category pages and jackpot pages.
  */
 export function getDynamicUrlMaps(
   baseUrlToPageMap: Record<string, string>,
@@ -454,6 +455,8 @@ export function getDynamicUrlMaps(
 ) {
   const urlToPageMap: Record<string, string> = { ...baseUrlToPageMap };
   const pageToUrlMap: Record<string, string> = { ...basePageToUrlMap };
+  const dynamicCategoryPages: Record<string, any> = {};
+  const dynamicJackpotPages: Record<string, { pageKey: string; jackpotId: string; name: string; link: string; page: ParsedMarkdownPage }> = {};
 
   const allMd = getAllMarkdownPages();
   for (const { pageKey, page } of allMd) {
@@ -474,9 +477,51 @@ export function getDynamicUrlMaps(
     if (!pageToUrlMap[pageKey]) {
       pageToUrlMap[pageKey] = defaultPath;
     }
+
+    // 1. Dynamic Competitor / Category Discovery
+    const isCompetitorOrCategory = 
+      page.type === 'competitor' ||
+      page.type === 'category' ||
+      pageKey.includes('predict') ||
+      pageKey.includes('vista') ||
+      pageKey.includes('tips') ||
+      pageKey.includes('sure-') ||
+      pageKey.startsWith('category-');
+
+    if (isCompetitorOrCategory && page.type !== 'jackpot' && page.type !== 'static') {
+      dynamicCategoryPages[pageKey] = {
+        id: pageKey,
+        name: page.displayTitle || page.title || pageKey,
+        label: page.displayTitle || page.title || pageKey,
+        countText: 'Tips',
+        description: page.description || '',
+        icon: page.icon || '⚡',
+        badgeColor: page.badgeColor || 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+        isDynamicCompetitor: true
+      };
+    }
+
+    // 2. Dynamic Jackpot Discovery
+    if (page.type === 'jackpot' || page.jackpotId) {
+      const resolvedJackpotId = page.jackpotId || pageKey;
+      dynamicJackpotPages[pageKey] = {
+        pageKey,
+        jackpotId: resolvedJackpotId,
+        name: page.displayTitle || page.title || pageKey,
+        link: page.link || `/${pageKey}`,
+        page
+      };
+    }
   }
 
-  return { urlToPageMap, pageToUrlMap };
+  return { 
+    urlToPageMap, 
+    pageToUrlMap, 
+    dynamicCategoryPages, 
+    dynamicJackpotPages,
+    dynamicCategoryIds: Object.keys(dynamicCategoryPages),
+    dynamicJackpotIds: Object.keys(dynamicJackpotPages)
+  };
 }
 
 
