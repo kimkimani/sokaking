@@ -687,6 +687,21 @@ export default function CategoryPredictionsPage({
         </div>
       )}
 
+      {/* Author Card (renders when authorName is defined in page markdown) */}
+      {pageMd && pageMd.authorName && (
+        <AuthorCard 
+          name={pageMd.authorName} 
+          title={pageMd.authorTitle} 
+          description={pageMd.authorDescription} 
+          avatar={pageMd.authorAvatar} 
+        />
+      )}
+
+      {/* Responsible Gambling Notice (renders when defined in page markdown) */}
+      {pageMd && pageMd.responsibleGambling && (
+        <ResponsibleGamblingNotice notice={pageMd.responsibleGambling} />
+      )}
+
       {/* FREQUENTLY ASKED QUESTIONS (MARKDOWN EDITABLE) */}
       <FaqSection pageId={category.id} />
     </div>

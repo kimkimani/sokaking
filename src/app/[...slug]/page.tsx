@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { getPageMetadata } from '@/src/lib/generatePageMetadata';
 import SokaPageServer from '@/src/components/SokaPageServer';
-import { getDynamicUrlMaps, getMarkdownContent } from '@/src/content/markdownLoader';
+import { getDynamicUrlMaps, getMarkdownContent, getAllMarkdownPages } from '@/src/content/markdownLoader';
 
 const BASE_URL_TO_PAGE_MAP: Record<string, string> = {
   '/': 'home',
@@ -78,6 +78,28 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const path = '/' + (slug ? slug.join('/') : '');
   const { pageId, canonicalPath } = resolvePageId(path);
   return getPageMetadata(pageId, canonicalPath);
+}
+
+export async function generateStaticParams() {
+  const allPages = getAllMarkdownPages();
+  const slugSet = new Set<string>();
+
+  for (const { pageKey, page } of allPages) {
+    if (pageKey === 'home') continue;
+
+    // Standard slug from pageKey
+    if (pageKey) slugSet.add(pageKey.toLowerCase());
+
+    // Frontmatter link slug if present
+    if (page.link) {
+      const cleanLink = page.link.replace(/^\//, '').replace(/\/$/, '').toLowerCase();
+      if (cleanLink) slugSet.add(cleanLink);
+    }
+  }
+
+  return Array.from(slugSet).map((slugStr) => ({
+    slug: slugStr.split('/'),
+  }));
 }
 
 export default async function DynamicCatchAllPage({ params }: { params: Promise<{ slug: string[] }> }) {
