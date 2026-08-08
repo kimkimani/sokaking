@@ -33,46 +33,6 @@ interface JackpotPageProps {
   onOpenPayment: (pkgName: string, price: number, id: string | number, slug: string, type: 'vip' | 'jackpot' | 'odds') => void;
   onBackToList?: () => void;
   pageId?: string;
-  isLoading?: boolean;
-}
-
-export function JackpotShimmerLoader({ count = 10 }: { count?: number }) {
-  return (
-    <div className="divide-y divide-[var(--border)]">
-      {Array.from({ length: count }).map((_, idx) => (
-        <div key={idx} className="p-3.5 grid grid-cols-12 items-center gap-4 animate-pulse">
-          <div className="col-span-12 md:col-span-5 flex items-center gap-3 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-slate-200/80 dark:bg-slate-800/80 shrink-0 font-mono text-[11px] flex items-center justify-center font-bold text-slate-400">
-              {idx + 1}
-            </div>
-            <div className="min-w-0 flex-1 space-y-2">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-3 bg-slate-200/80 dark:bg-slate-800/80 rounded" />
-                <div className="h-3 w-24 bg-slate-200/80 dark:bg-slate-800/80 rounded" />
-                <div className="h-3 w-16 bg-slate-200/60 dark:bg-slate-800/60 rounded" />
-              </div>
-              <div className="h-2.5 w-24 bg-indigo-500/20 rounded" />
-              <div className="space-y-1.5">
-                <div className="h-6 bg-slate-200/70 dark:bg-slate-800/70 rounded-lg w-full" />
-                <div className="h-6 bg-slate-200/70 dark:bg-slate-800/70 rounded-lg w-full" />
-              </div>
-            </div>
-          </div>
-
-          <div className="col-span-12 md:col-span-4 grid grid-cols-3 gap-1.5">
-            <div className="h-12 bg-slate-200/80 dark:bg-slate-800/80 rounded-lg" />
-            <div className="h-12 bg-slate-200/80 dark:bg-slate-800/80 rounded-lg" />
-            <div className="h-12 bg-slate-200/80 dark:bg-slate-800/80 rounded-lg" />
-          </div>
-
-          <div className="col-span-12 md:col-span-3 flex items-center justify-end gap-2">
-            <div className="h-8 w-24 bg-slate-200/80 dark:bg-slate-800/80 rounded-lg" />
-            <div className="h-8 w-8 bg-slate-200/60 dark:bg-slate-800/60 rounded-lg" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
 }
 
 function formatMatchDateTime(rawDate?: string | Date): string {
@@ -94,7 +54,7 @@ function formatMatchDateTime(rawDate?: string | Date): string {
   }
 }
 
-export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToList, pageId, isLoading = false }: JackpotPageProps) {
+export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToList, pageId }: JackpotPageProps) {
   const [expandedFixture, setExpandedFixture] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState({ days: 2, hours: 14, minutes: 45, seconds: 22 });
   const pageMd = getMarkdownContent(pageId || jackpot.id);
@@ -574,14 +534,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
         </div>
 
         <div className="divide-y divide-[var(--border)]">
-          {isLoading ? (
-            <JackpotShimmerLoader count={jackpot.gamesCount || 10} />
-          ) : (jackpot.fixtures || (jackpot as any).games || []).length === 0 ? (
-            <div className="p-8 text-center text-xs font-mono text-[var(--text-muted)]">
-              No jackpot fixtures available for this selection.
-            </div>
-          ) : (
-            (jackpot.fixtures || (jackpot as any).games || []).map((match) => {
+          {(jackpot.fixtures || (jackpot as any).games || []).map((match) => {
             // First 3 fixtures are unlocked for preview, or everything if paid
             const isUnlocked = true;
             const isExpanded = expandedFixture === match.id;

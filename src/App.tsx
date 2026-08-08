@@ -710,7 +710,6 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                         <CategoryPredictionsPage 
                           category={category}
                           fixtures={categoryFixtures}
-                          isLoading={loadingDb || loadingCategory}
                           onBackToHome={() => handleSelectPage('home')}
                           onSelectPage={handleSelectPage}
                           onOpenPayment={handleOpenPayment}
@@ -789,7 +788,6 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                         <JackpotPage 
                           jackpot={formattedJackpot}
                           hasPaid={isJackpotUnlocked}
-                          isLoading={loadingDb}
                           onOpenPayment={handleOpenPayment}
                           onBackToList={() => handleSelectPage('jackpot-list')}
                           pageId={activePage}
@@ -865,7 +863,6 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                             <JackpotPage 
                               jackpot={activeJackpot}
                               hasPaid={isJackpotUnlocked}
-                              isLoading={loadingDb}
                               onOpenPayment={handleOpenPayment}
                               onBackToList={() => handleSelectPage('jackpot-list')}
                               pageId={activePage}

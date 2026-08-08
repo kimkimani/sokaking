@@ -416,9 +416,9 @@ export function getCategoryFixtures(
     }
   }
 
-  // Return empty array if master pool is empty to avoid showing dummy in-memory data
+  // Fallback to generated unified predictions pool ONLY if master pool is completely empty
   if (masterPool.length === 0) {
-    return [];
+    masterPool = generateUnifiedPredictionsPool();
   }
 
   const today = new Date();
