@@ -179,9 +179,10 @@ function readServerPageFiles(): Record<string, string> {
 
 function loadRawMarkdown(pageKey: string): string {
   const key = normalizePageKey(pageKey);
+  const rawKey = (pageKey || '').toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
 
   // 0. Direct server-side filesystem check of src/content/pages/<key>.md
-  const directServerFile = readSingleServerPageFile(key) || readSingleServerPageFile(pageKey);
+  const directServerFile = readSingleServerPageFile(key) || readSingleServerPageFile(rawKey);
   if (directServerFile) {
     return directServerFile;
   }
@@ -190,31 +191,36 @@ function loadRawMarkdown(pageKey: string): string {
   if (serverPages[key]) {
     return serverPages[key];
   }
-  if (serverPages[pageKey.toLowerCase().trim().replace(/^\//, '')]) {
-    return serverPages[pageKey.toLowerCase().trim().replace(/^\//, '')];
+  if (serverPages[rawKey]) {
+    return serverPages[rawKey];
   }
 
-  // 1. Direct check of eager glob of ./pages/*.md
-  const fileKey = `./pages/${key}.md`;
-  if (pageMarkdownFiles[fileKey]) {
-    return pageMarkdownFiles[fileKey];
-  }
-
-  // 2. Case-insensitive check of eager glob
-  for (const fk of Object.keys(pageMarkdownFiles)) {
-    const pk = fk.replace(/^\.\/pages\//, '').replace(/\.md$/, '').toLowerCase();
-    if (pk === key) {
-      return pageMarkdownFiles[fk];
+  // 1. Eager glob check of ./pages/*.md in Vite
+  if (pageMarkdownFiles && typeof pageMarkdownFiles === 'object') {
+    for (const [filePath, fileContent] of Object.entries(pageMarkdownFiles)) {
+      const cleanFilename = filePath
+        .split('/')
+        .pop()
+        ?.replace(/\.md.*$/, '')
+        .toLowerCase()
+        .trim();
+      
+      if (cleanFilename && (cleanFilename === key || cleanFilename === rawKey)) {
+        if (typeof fileContent === 'string') return fileContent;
+        if (fileContent && typeof fileContent === 'object' && 'default' in fileContent) {
+          return (fileContent as any).default;
+        }
+      }
     }
   }
 
-  // 3. Fallback to RAW_MARKDOWN_MAP
+  // 2. Fallback to RAW_MARKDOWN_MAP
   if (RAW_MARKDOWN_MAP[key]) {
     return RAW_MARKDOWN_MAP[key];
   }
 
-  if (RAW_MARKDOWN_MAP[pageKey]) {
-    return RAW_MARKDOWN_MAP[pageKey];
+  if (RAW_MARKDOWN_MAP[rawKey]) {
+    return RAW_MARKDOWN_MAP[rawKey];
   }
 
   return '# Soka King\n\nExpert Football Predictions and Analysis';
