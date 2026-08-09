@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { RAW_MARKDOWN_MAP } from './markdownData';
 
 const pageMarkdownFiles = (typeof import.meta !== 'undefined' && typeof (import.meta as any).glob === 'function')
@@ -37,17 +38,46 @@ export interface ParsedMarkdownPage {
   fullContent: string;
 }
 
+export const MARKDOWN_UPDATED_EVENT = 'sokaking_markdown_updated';
+
 const clientLiveMap: Record<string, ParsedMarkdownPage> = {};
+
+export function normalizePageKey(pageKey: string): string {
+  let key = (pageKey || '').toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
+  if (!key) return 'home';
+  if (key === 'today' || key === 'football-predictions-today') return 'category-today';
+  if (key === 'tomorrow' || key === 'football-predictions-tomorrow') return 'category-tomorrow';
+  if (key === 'yesterday' || key === 'football-predictions-yesterday') return 'category-yesterday';
+  if (key === 'over15' || key === 'over-1-5' || key === 'football-predictions-over-1-5-goals') return 'category-over15';
+  if (key === 'over25' || key === 'over-2-5' || key === 'football-predictions-over-2-5-goals') return 'category-over25';
+  if (key === 'btts' || key === 'gg' || key === 'football-predictions-btts-gg') return 'category-btts';
+  if (key === 'doublechance' || key === 'double-chance' || key === 'football-predictions-double-chance') return 'category-doublechance';
+  if (key === 'homewin' || key === 'home-win' || key === '1x2' || key === 'football-predictions-1x2-home-win') return 'category-homewin';
+  if (key === 'about-us') return 'about';
+  if (key === 'contact-us') return 'contact';
+  if (key === 'privacy') return 'privacy-policy';
+  if (key === 'terms') return 'terms-of-use';
+  if (key === 'vip' || key === 'vip-tips' || key === 'odds') return 'vip-packages';
+  if (key === 'jackpot-tips') return 'jackpot-list';
+  return key;
+}
 
 export function setLiveMarkdownPage(key: string, page: ParsedMarkdownPage) {
   if (!key) return;
-  const normKey = key.toLowerCase().trim().replace(/^\//, '');
+  const normKey = normalizePageKey(key);
   clientLiveMap[normKey] = page;
+  clientLiveMap[key.toLowerCase().trim().replace(/^\//, '')] = page;
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(MARKDOWN_UPDATED_EVENT, { 
+      detail: { key: normKey, rawKey: key, page } 
+    }));
+  }
 }
 
 export async function fetchLiveMarkdownPage(key: string): Promise<ParsedMarkdownPage | null> {
   if (typeof window === 'undefined') return null;
-  const normKey = (key || 'home').toLowerCase().trim().replace(/^\//, '');
+  const normKey = normalizePageKey(key);
   try {
     const res = await fetch(`/api/markdown-content?key=${encodeURIComponent(normKey)}`, {
       cache: 'no-store'
@@ -139,22 +169,7 @@ function readServerPageFiles(): Record<string, string> {
 }
 
 function loadRawMarkdown(pageKey: string): string {
-  let key = (pageKey || '').toLowerCase().trim().replace(/^\//, '');
-  if (!key) key = 'home';
-  if (key === 'today' || key === 'football-predictions-today') key = 'category-today';
-  if (key === 'tomorrow' || key === 'football-predictions-tomorrow') key = 'category-tomorrow';
-  if (key === 'yesterday' || key === 'football-predictions-yesterday') key = 'category-yesterday';
-  if (key === 'over15' || key === 'over-1-5' || key === 'football-predictions-over-1-5-goals') key = 'category-over15';
-  if (key === 'over25' || key === 'over-2-5' || key === 'football-predictions-over-2-5-goals') key = 'category-over25';
-  if (key === 'btts' || key === 'gg' || key === 'football-predictions-btts-gg') key = 'category-btts';
-  if (key === 'doublechance' || key === 'double-chance' || key === 'football-predictions-double-chance') key = 'category-doublechance';
-  if (key === 'homewin' || key === 'home-win' || key === '1x2' || key === 'football-predictions-1x2-home-win') key = 'category-homewin';
-  if (key === 'about-us') key = 'about';
-  if (key === 'contact-us') key = 'contact';
-  if (key === 'privacy') key = 'privacy-policy';
-  if (key === 'terms') key = 'terms-of-use';
-  if (key === 'vip' || key === 'vip-tips' || key === 'odds') key = 'vip-packages';
-  if (key === 'jackpot-tips') key = 'jackpot-list';
+  const key = normalizePageKey(pageKey);
 
   // 0. Direct server-side filesystem check of src/content/pages/<key>.md
   const directServerFile = readSingleServerPageFile(key) || readSingleServerPageFile(pageKey);
@@ -444,7 +459,7 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
 }
 
 export function getMarkdownContent(pageKey: string): ParsedMarkdownPage {
-  const normKey = (pageKey || 'home').toLowerCase().trim().replace(/^\//, '');
+  const normKey = normalizePageKey(pageKey);
 
   if (typeof window !== 'undefined' && clientLiveMap[normKey]) {
     return clientLiveMap[normKey];
@@ -455,9 +470,59 @@ export function getMarkdownContent(pageKey: string): ParsedMarkdownPage {
 
   if (typeof window !== 'undefined') {
     clientLiveMap[normKey] = parsed;
+    clientLiveMap[pageKey.toLowerCase().trim().replace(/^\//, '')] = parsed;
   }
 
   return parsed;
+}
+
+/**
+  * Custom React hook to subscribe to live markdown updates for any page key.
+  */
+export function useMarkdownContent(pageKey: string): ParsedMarkdownPage {
+  const normKey = normalizePageKey(pageKey);
+  const [content, setContent] = useState<ParsedMarkdownPage>(() => getMarkdownContent(normKey));
+
+  useEffect(() => {
+    let isMounted = true;
+
+    // Refresh immediately synchronously from current state or map
+    const latest = getMarkdownContent(normKey);
+    setContent(latest);
+
+    // Always fetch fresh live physical markdown from server API
+    fetchLiveMarkdownPage(normKey).then((data) => {
+      if (isMounted && data) {
+        setContent(data);
+      }
+    });
+
+    const handleUpdate = (e: Event) => {
+      const customEvt = e as CustomEvent<{ key: string; rawKey?: string; page: ParsedMarkdownPage }>;
+      if (customEvt.detail) {
+        const evtKey = customEvt.detail.key;
+        const rawKey = customEvt.detail.rawKey;
+        if (evtKey === normKey || evtKey === pageKey || rawKey === pageKey || rawKey === normKey) {
+          if (isMounted) {
+            setContent(customEvt.detail.page);
+          }
+        }
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener(MARKDOWN_UPDATED_EVENT, handleUpdate);
+    }
+
+    return () => {
+      isMounted = false;
+      if (typeof window !== 'undefined') {
+        window.removeEventListener(MARKDOWN_UPDATED_EVENT, handleUpdate);
+      }
+    };
+  }, [pageKey, normKey]);
+
+  return content;
 }
 
 /**

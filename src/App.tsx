@@ -31,7 +31,7 @@ import {
 import { designIterations, vipPackages, oddsPacks } from './data';
 import { jackpotsData } from './jackpotsData';
 import { DesignIteration, Fixture, VipPackage, OddsPack } from './types';
-import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl, fetchLiveMarkdownPage } from './content/markdownLoader';
+import { getMarkdownContent, useMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl, fetchLiveMarkdownPage } from './content/markdownLoader';
 
 import { apiFetch } from './utils/api.ts';
 import { getApiBaseUrl } from './lib/getApiBaseUrl';
@@ -279,35 +279,31 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  const currentHomeMd = useMarkdownContent('home');
+  const currentActiveMd = useMarkdownContent(activePage);
+
   // Live Markdown file sync effect: fetches latest physical markdown file from server
   useEffect(() => {
-    let isMounted = true;
-    
     // Fetch immediately on page change
-    fetchLiveMarkdownPage(activePage).then((data) => {
-      if (isMounted && data) {
-        setMarkdownVersion(v => v + 1);
-      }
-    });
+    fetchLiveMarkdownPage(activePage);
+    if (activePage !== 'home') {
+      fetchLiveMarkdownPage('home');
+    }
 
-    // Poll every 3.5 seconds so published/edited markdown changes reflect instantly
+    // Poll every 3 seconds so published/edited markdown changes reflect instantly
     const timer = setInterval(() => {
-      fetchLiveMarkdownPage(activePage).then((data) => {
-        if (isMounted && data) {
-          setMarkdownVersion(v => v + 1);
-        }
-      });
-    }, 3500);
+      fetchLiveMarkdownPage(activePage);
+      if (activePage !== 'home') {
+        fetchLiveMarkdownPage('home');
+      }
+    }, 3000);
 
-    return () => {
-      isMounted = false;
-      clearInterval(timer);
-    };
+    return () => clearInterval(timer);
   }, [activePage]);
 
   // Dynamic SEO Client-side update driven by markdown frontmatter
   useEffect(() => {
-    const pageMd = getMarkdownContent(activePage);
+    const pageMd = currentActiveMd;
     const fallbackUrl = PAGE_TO_URL_MAP[activePage] || `/${activePage}`;
     const canonicalPath = pageMd.link || fallbackUrl;
     
@@ -343,7 +339,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     }
     const fullCanonicalUrl = buildCanonicalUrl(canonicalPath, activePage);
     canonical.setAttribute('href', fullCanonicalUrl);
-  }, [activePage, markdownVersion]);
+  }, [activePage, currentActiveMd]);
 
   // FAQ state
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -947,7 +943,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 }
 
                 // DEFAULT: Home / Free Tips Page Layout
-                const homeMd = getMarkdownContent('home');
+                const homeMd = currentHomeMd;
                 return (
                   <div className="space-y-8">
                     {/* HERO BANNER */}
