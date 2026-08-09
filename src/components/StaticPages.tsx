@@ -28,7 +28,7 @@ import {
   Link,
   Plus
 } from 'lucide-react';
-import { getMarkdownContent, useMarkdownContent } from '../content/markdownLoader';
+import { getMarkdownContent } from '../content/markdownLoader';
 import MarkdownRenderer from './MarkdownRenderer';
 import { contactSocialTable } from '../data';
 import { AuthorCard } from './AuthorCard';
@@ -175,7 +175,7 @@ function PageFAQ({ items }: { items: FAQItem[] }) {
 }
 
 export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) {
-  const pageMd = useMarkdownContent(pageId);
+  const pageMd = getMarkdownContent(pageId);
 
   // Dynamic Site Settings (database-driven)
   const [siteContacts, setSiteContacts] = useState({

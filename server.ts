@@ -85,9 +85,8 @@ Sitemap: https://sokaking.com/sitemap.xml
   app.get('/api/markdown', (req, res) => {
     try {
       const key = (req.query.key as string) || 'home';
-      let rawKey = key.toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
-      if (!rawKey) rawKey = 'home';
-      let normKey = rawKey;
+      let normKey = key.toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
+      if (!normKey) normKey = 'home';
 
       if (normKey === 'today' || normKey === 'football-predictions-today') normKey = 'category-today';
       if (normKey === 'tomorrow' || normKey === 'football-predictions-tomorrow') normKey = 'category-tomorrow';
@@ -106,15 +105,10 @@ Sitemap: https://sokaking.com/sitemap.xml
 
       const pagesDir = path.join(process.cwd(), 'src', 'content', 'pages');
       let filePath = path.join(pagesDir, `${normKey}.md`);
-      let rawPath = path.join(pagesDir, `${rawKey}.md`);
-
-      if (!fs.existsSync(filePath) && fs.existsSync(rawPath)) {
-        filePath = rawPath;
-      }
 
       if (!fs.existsSync(filePath) && fs.existsSync(pagesDir)) {
         const filenames = fs.readdirSync(pagesDir);
-        const match = filenames.find(f => f.toLowerCase() === `${normKey}.md` || f.toLowerCase() === normKey || f.toLowerCase() === `${rawKey}.md` || f.toLowerCase() === rawKey);
+        const match = filenames.find(f => f.toLowerCase() === `${normKey}.md` || f.toLowerCase() === normKey);
         if (match) {
           filePath = path.join(pagesDir, match);
         }

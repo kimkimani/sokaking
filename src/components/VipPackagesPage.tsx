@@ -7,7 +7,7 @@ import VipPackages from './VipPackages';
 import OddsPacks from './OddsPacks';
 import JackpotListPage from './JackpotListPage';
 import FaqSection from './FaqSection';
-import { getMarkdownContent, useMarkdownContent } from '../content/markdownLoader';
+import { getMarkdownContent } from '../content/markdownLoader';
 import MarkdownRenderer from './MarkdownRenderer';
 import { AuthorCard } from './AuthorCard';
 import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
@@ -33,7 +33,7 @@ export default function VipPackagesPage({
   onSelectJackpot,
   onBackToHome
 }: VipPackagesPageProps) {
-  const pageMd = useMarkdownContent('vip-packages');
+  const pageMd = getMarkdownContent('vip-packages');
   const activeJackpots = jackpots.length > 0 ? jackpots : jackpotsData;
 
   return (
