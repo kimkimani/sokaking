@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { RAW_MARKDOWN_MAP } from './markdownData';
 
 const pageMarkdownFiles = (typeof import.meta !== 'undefined' && typeof (import.meta as any).glob === 'function')
@@ -426,6 +427,33 @@ export async function fetchLiveMarkdownContent(pageKey: string): Promise<ParsedM
     }
   }
   return getMarkdownContent(pageKey);
+}
+
+/**
+ * React Hook for dynamic, live-updating markdown content.
+ * Synchronously provides initial content and asynchronously fetches live updates from disk.
+ */
+export function useMarkdownContent(pageKey: string): ParsedMarkdownPage {
+  const [pageMd, setPageMd] = useState<ParsedMarkdownPage>(() => getMarkdownContent(pageKey));
+
+  useEffect(() => {
+    let isMounted = true;
+    setPageMd(getMarkdownContent(pageKey));
+
+    if (typeof window !== 'undefined') {
+      fetchLiveMarkdownContent(pageKey).then((liveMd) => {
+        if (isMounted && liveMd) {
+          setPageMd(liveMd);
+        }
+      });
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [pageKey]);
+
+  return pageMd;
 }
 
 /**

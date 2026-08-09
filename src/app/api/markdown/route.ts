@@ -6,8 +6,9 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const key = searchParams.get('key') || 'home';
-    let normKey = key.toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
-    if (!normKey) normKey = 'home';
+    let rawKey = key.toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
+    if (!rawKey) rawKey = 'home';
+    let normKey = rawKey;
 
     if (normKey === 'today' || normKey === 'football-predictions-today') normKey = 'category-today';
     if (normKey === 'tomorrow' || normKey === 'football-predictions-tomorrow') normKey = 'category-tomorrow';
@@ -26,10 +27,15 @@ export async function GET(req: NextRequest) {
 
     const pagesDir = path.join(process.cwd(), 'src', 'content', 'pages');
     let filePath = path.join(pagesDir, `${normKey}.md`);
+    let rawPath = path.join(pagesDir, `${rawKey}.md`);
+
+    if (!fs.existsSync(filePath) && fs.existsSync(rawPath)) {
+      filePath = rawPath;
+    }
 
     if (!fs.existsSync(filePath) && fs.existsSync(pagesDir)) {
       const filenames = fs.readdirSync(pagesDir);
-      const match = filenames.find(f => f.toLowerCase() === `${normKey}.md` || f.toLowerCase() === normKey);
+      const match = filenames.find(f => f.toLowerCase() === `${normKey}.md` || f.toLowerCase() === normKey || f.toLowerCase() === `${rawKey}.md` || f.toLowerCase() === rawKey);
       if (match) {
         filePath = path.join(pagesDir, match);
       }
