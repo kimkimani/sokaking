@@ -1,7 +1,7 @@
 ---
-title: "Both Teams To Score (BTTS / GG) Predictions - Soka King"
+title: "(BTTS / GG) Predictions - Soka King"
 description: "High-accuracy Both Teams To Score (BTTS / Goal-Goal) football tips. Computer algorithms analyzing attacking momentum and defensive leaks."
-keywords: "BTTS predictions, GG predictions today, both teams to score tips"
+keywords: "GG predictions today, both teams to score tips"
 link: "/football-predictions-btts-gg"
 displayTitle: "Both Teams To Score (BTTS / GG) Predictions Today"
 authorName: "John K. Mwangi"
