@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { RAW_MARKDOWN_MAP } from './markdownData';
 
 const pageMarkdownFiles = (typeof import.meta !== 'undefined' && typeof (import.meta as any).glob === 'function')
@@ -415,7 +414,7 @@ export function getMarkdownContent(pageKey: string): ParsedMarkdownPage {
 export async function fetchLiveMarkdownContent(pageKey: string): Promise<ParsedMarkdownPage> {
   if (typeof window !== 'undefined') {
     try {
-      const res = await fetch(`/api/markdown?key=${encodeURIComponent(pageKey)}&_t=${Date.now()}`, { cache: 'no-store' });
+      const res = await fetch(`/api/markdown?key=${encodeURIComponent(pageKey)}`, { cache: 'no-store' });
       if (res.ok) {
         const rawMd = await res.text();
         if (rawMd && rawMd.length > 5) {
@@ -427,52 +426,6 @@ export async function fetchLiveMarkdownContent(pageKey: string): Promise<ParsedM
     }
   }
   return getMarkdownContent(pageKey);
-}
-
-/**
- * React hook to get markdown content with live client-side auto-refresh.
- * Updates immediately on mount, on pageKey change, and whenever browser window regains focus.
- */
-export function useMarkdownContent(pageKey: string): ParsedMarkdownPage {
-  const [page, setPage] = useState<ParsedMarkdownPage>(() => getMarkdownContent(pageKey));
-
-  useEffect(() => {
-    let isMounted = true;
-
-    // Immediate sync load
-    setPage(getMarkdownContent(pageKey));
-
-    const loadLive = async () => {
-      if (typeof window !== 'undefined') {
-        const live = await fetchLiveMarkdownContent(pageKey);
-        if (isMounted && live) {
-          setPage(live);
-        }
-      }
-    };
-
-    loadLive();
-
-    // Refetch when tab regains focus or visibility changes
-    const onFocus = () => {
-      loadLive();
-    };
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener('focus', onFocus);
-      document.addEventListener('visibilitychange', onFocus);
-    }
-
-    return () => {
-      isMounted = false;
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('focus', onFocus);
-        document.removeEventListener('visibilitychange', onFocus);
-      }
-    };
-  }, [pageKey]);
-
-  return page;
 }
 
 /**
