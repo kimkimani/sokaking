@@ -2,7 +2,7 @@ import { motion } from 'motion/react';
 import { Trophy, Clock, ArrowRight, ShieldCheck, Zap, HelpCircle, Star } from 'lucide-react';
 import { jackpotsData, JackpotConfig } from '../jackpotsData';
 import FaqSection from './FaqSection';
-import { getMarkdownContent, useMarkdownContent } from '../content/markdownLoader';
+import { getMarkdownContent } from '../content/markdownLoader';
 import MarkdownRenderer from './MarkdownRenderer';
 import { AuthorCard } from './AuthorCard';
 import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
@@ -24,7 +24,7 @@ export default function JackpotListPage({
 }: JackpotListPageProps) {
   
   const listData = sortJackpotsByStatusAndTime(jackpots && jackpots.length > 0 ? jackpots : jackpotsData);
-  const pageMd = useMarkdownContent('jackpot-list');
+  const pageMd = getMarkdownContent('jackpot-list');
   
   // Custom brand badges matching actual Kenyan betting houses
   const getBrandInfo = (id: string) => {

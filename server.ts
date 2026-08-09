@@ -3,7 +3,6 @@ import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { generateSitemapXml, getAllSitemapRoutes, BASE_URL } from './src/utils/sitemapGenerator.js';
-import { getMarkdownContent, getAllMarkdownPages, normalizePageKey, parseMarkdownPage } from './src/content/markdownLoader.js';
 
 async function startServer() {
   const app = express();
@@ -82,73 +81,49 @@ Sitemap: https://sokaking.com/sitemap.xml
 `);
   });
 
-  // Local Markdown Content Routes (Read directly from physical src/content/pages/*.md files)
-  app.get('/api/markdown-content', (req, res) => {
+  // Serve dynamic live Markdown directly from src/content/pages/
+  app.get('/api/markdown', (req, res) => {
     try {
-      const pageKey = (req.query.key as string || 'home').trim();
-      const normKey = normalizePageKey(pageKey);
-      const pagesDir = path.join(process.cwd(), 'src', 'content', 'pages');
+      const key = (req.query.key as string) || 'home';
+      let normKey = key.toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
+      if (!normKey) normKey = 'home';
 
-      let rawMd: string | null = null;
-      if (fs.existsSync(pagesDir)) {
-        const file1 = path.join(pagesDir, `${normKey}.md`);
-        const file2 = path.join(pagesDir, `${pageKey.toLowerCase().replace(/^\//, '').replace(/\.md$/, '')}.md`);
-        if (fs.existsSync(file1)) {
-          rawMd = fs.readFileSync(file1, 'utf-8');
-        } else if (fs.existsSync(file2)) {
-          rawMd = fs.readFileSync(file2, 'utf-8');
-        } else {
-          const files = fs.readdirSync(pagesDir);
-          for (const f of files) {
-            const cleanF = f.replace(/\.md$/i, '').toLowerCase();
-            if (cleanF === normKey || cleanF === pageKey.toLowerCase().replace(/^\//, '').replace(/\.md$/, '')) {
-              rawMd = fs.readFileSync(path.join(pagesDir, f), 'utf-8');
-              break;
-            }
-          }
+      if (normKey === 'today' || normKey === 'football-predictions-today') normKey = 'category-today';
+      if (normKey === 'tomorrow' || normKey === 'football-predictions-tomorrow') normKey = 'category-tomorrow';
+      if (normKey === 'yesterday' || normKey === 'football-predictions-yesterday') normKey = 'category-yesterday';
+      if (normKey === 'over15' || normKey === 'over-1-5' || normKey === 'football-predictions-over-1-5-goals') normKey = 'category-over15';
+      if (normKey === 'over25' || normKey === 'over-2-5' || normKey === 'football-predictions-over-2-5-goals') normKey = 'category-over25';
+      if (normKey === 'btts' || normKey === 'gg' || normKey === 'football-predictions-btts-gg') normKey = 'category-btts';
+      if (normKey === 'doublechance' || normKey === 'double-chance' || normKey === 'football-predictions-double-chance') normKey = 'category-doublechance';
+      if (normKey === 'homewin' || normKey === 'home-win' || normKey === '1x2' || normKey === 'football-predictions-1x2-home-win') normKey = 'category-homewin';
+      if (normKey === 'about-us') normKey = 'about';
+      if (normKey === 'contact-us') normKey = 'contact';
+      if (normKey === 'privacy') normKey = 'privacy-policy';
+      if (normKey === 'terms') normKey = 'terms-of-use';
+      if (normKey === 'vip' || normKey === 'vip-tips' || normKey === 'odds') normKey = 'vip-packages';
+      if (normKey === 'jackpot-tips') normKey = 'jackpot-list';
+
+      const pagesDir = path.join(process.cwd(), 'src', 'content', 'pages');
+      let filePath = path.join(pagesDir, `${normKey}.md`);
+
+      if (!fs.existsSync(filePath) && fs.existsSync(pagesDir)) {
+        const filenames = fs.readdirSync(pagesDir);
+        const match = filenames.find(f => f.toLowerCase() === `${normKey}.md` || f.toLowerCase() === normKey);
+        if (match) {
+          filePath = path.join(pagesDir, match);
         }
       }
 
-      const parsed = rawMd ? parseMarkdownPage(rawMd, normKey) : getMarkdownContent(pageKey);
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      return res.json({ success: true, key: normKey, rawKey: pageKey, data: parsed });
-    } catch (err: any) {
-      console.error('Error serving markdown content:', err);
-      return res.status(500).json({ success: false, error: err.message });
-    }
-  });
-
-  app.get('/api/markdown-pages', (_req, res) => {
-    try {
-      const pages = getAllMarkdownPages();
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      return res.json({ success: true, pages });
-    } catch (err: any) {
-      console.error('Error serving markdown pages:', err);
-      return res.status(500).json({ success: false, error: err.message });
-    }
-  });
-
-  app.post('/api/markdown-save', (req, res) => {
-    try {
-      const { pageKey, content } = req.body || {};
-      if (!pageKey || typeof content !== 'string') {
-        return res.status(400).json({ success: false, error: 'Missing pageKey or content' });
+      if (fs.existsSync(filePath)) {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        return res.status(200).send(content);
       }
-      const normKey = pageKey.toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
-      const pagesDir = path.join(process.cwd(), 'src', 'content', 'pages');
-      if (!fs.existsSync(pagesDir)) {
-        fs.mkdirSync(pagesDir, { recursive: true });
-      }
-      const filePath = path.join(pagesDir, `${normKey}.md`);
-      fs.writeFileSync(filePath, content, 'utf-8');
 
-      const parsed = getMarkdownContent(normKey);
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      return res.json({ success: true, key: normKey, data: parsed });
+      return res.status(404).json({ error: 'Markdown file not found', key: normKey });
     } catch (err: any) {
-      console.error('Error saving markdown content:', err);
-      return res.status(500).json({ success: false, error: err.message });
+      return res.status(500).json({ error: err.message });
     }
   });
 

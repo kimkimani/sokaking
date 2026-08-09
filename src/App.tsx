@@ -31,7 +31,7 @@ import {
 import { designIterations, vipPackages, oddsPacks } from './data';
 import { jackpotsData } from './jackpotsData';
 import { DesignIteration, Fixture, VipPackage, OddsPack } from './types';
-import { getMarkdownContent, useMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl, fetchLiveMarkdownPage } from './content/markdownLoader';
+import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl } from './content/markdownLoader';
 
 import { apiFetch } from './utils/api.ts';
 import { getApiBaseUrl } from './lib/getApiBaseUrl';
@@ -188,7 +188,6 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   const [currentIteration, setCurrentIteration] = useState<DesignIteration>(designIterations[0]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [markdownVersion, setMarkdownVersion] = useState(0);
 
   // DB Driven states initialized with baseline fallback data to prevent CLS layout shift
   const [dbJackpots, setDbJackpots] = useState<any[]>(() => (Array.isArray(initialJackpots) && initialJackpots.length > 0 ? initialJackpots : jackpotsData));
@@ -279,12 +278,9 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const currentHomeMd = useMarkdownContent('home');
-  const currentActiveMd = useMarkdownContent(activePage);
-
   // Dynamic SEO Client-side update driven by markdown frontmatter
   useEffect(() => {
-    const pageMd = currentActiveMd;
+    const pageMd = getMarkdownContent(activePage);
     const fallbackUrl = PAGE_TO_URL_MAP[activePage] || `/${activePage}`;
     const canonicalPath = pageMd.link || fallbackUrl;
     
@@ -320,7 +316,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     }
     const fullCanonicalUrl = buildCanonicalUrl(canonicalPath, activePage);
     canonical.setAttribute('href', fullCanonicalUrl);
-  }, [activePage, currentActiveMd]);
+  }, [activePage]);
 
   // FAQ state
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -747,7 +743,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   }
                   if (!activeJackpot) {
                     const baseFallback = jackpotsData.find(j => j.id === 'sportpesa-mega') || jackpotsData[0];
-                    const pageMd = currentActiveMd;
+                    const pageMd = getMarkdownContent(activePage);
                     activeJackpot = {
                       ...baseFallback,
                       id: activePage,
@@ -849,7 +845,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
                 // DYNAMIC MARKDOWN PAGE FALLBACK (For any newly created .md files: Competitors, custom SEO Jackpot pages, etc.)
                 if (activePage !== 'home') {
-                  const pageMd = currentActiveMd;
+                  const pageMd = getMarkdownContent(activePage);
 
                   // 1. Is it a jackpot page (has jackpotId or type === 'jackpot')?
                   if (pageMd.jackpotId || pageMd.type === 'jackpot') {
@@ -924,7 +920,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 }
 
                 // DEFAULT: Home / Free Tips Page Layout
-                const homeMd = currentHomeMd;
+                const homeMd = getMarkdownContent('home');
                 return (
                   <div className="space-y-8">
                     {/* HERO BANNER */}

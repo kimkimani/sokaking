@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { HelpCircle, ChevronDown, Sparkles, MessageCircle } from 'lucide-react';
-import { getMarkdownContent, useMarkdownContent } from '../content/markdownLoader';
+import { getMarkdownContent } from '../content/markdownLoader';
 import { getDefaultFaqsForPage, FaqItem } from '../utils/defaultFaqs';
 import MarkdownRenderer from './MarkdownRenderer';
 
@@ -17,7 +17,7 @@ export default function FaqSection({
 }: FaqSectionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-  const pageMd = useMarkdownContent(pageId);
+  const pageMd = useMemo(() => getMarkdownContent(pageId), [pageId]);
 
   // Parse ### Question and following lines into structured FAQ items or use per-page defaults
   const faqItems = useMemo<FaqItem[]>(() => {

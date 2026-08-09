@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { RAW_MARKDOWN_MAP } from './markdownData';
 
 const pageMarkdownFiles = (typeof import.meta !== 'undefined' && typeof (import.meta as any).glob === 'function')
@@ -38,63 +37,6 @@ export interface ParsedMarkdownPage {
   fullContent: string;
 }
 
-export const MARKDOWN_UPDATED_EVENT = 'sokaking_markdown_updated';
-
-const clientLiveMap: Record<string, ParsedMarkdownPage> = {};
-
-export function normalizePageKey(pageKey: string): string {
-  let key = (pageKey || '').toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
-  if (!key) return 'home';
-  if (key === 'today' || key === 'football-predictions-today') return 'category-today';
-  if (key === 'tomorrow' || key === 'football-predictions-tomorrow') return 'category-tomorrow';
-  if (key === 'yesterday' || key === 'football-predictions-yesterday') return 'category-yesterday';
-  if (key === 'over15' || key === 'over-1-5' || key === 'football-predictions-over-1-5-goals') return 'category-over15';
-  if (key === 'over25' || key === 'over-2-5' || key === 'football-predictions-over-2-5-goals') return 'category-over25';
-  if (key === 'btts' || key === 'gg' || key === 'football-predictions-btts-gg') return 'category-btts';
-  if (key === 'doublechance' || key === 'double-chance' || key === 'football-predictions-double-chance') return 'category-doublechance';
-  if (key === 'homewin' || key === 'home-win' || key === '1x2' || key === 'football-predictions-1x2-home-win') return 'category-homewin';
-  if (key === 'about-us') return 'about';
-  if (key === 'contact-us') return 'contact';
-  if (key === 'privacy') return 'privacy-policy';
-  if (key === 'terms') return 'terms-of-use';
-  if (key === 'vip' || key === 'vip-tips' || key === 'odds') return 'vip-packages';
-  if (key === 'jackpot-tips') return 'jackpot-list';
-  return key;
-}
-
-export function setLiveMarkdownPage(key: string, page: ParsedMarkdownPage) {
-  if (!key) return;
-  const normKey = normalizePageKey(key);
-  clientLiveMap[normKey] = page;
-  clientLiveMap[key.toLowerCase().trim().replace(/^\//, '')] = page;
-
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent(MARKDOWN_UPDATED_EVENT, { 
-      detail: { key: normKey, rawKey: key, page } 
-    }));
-  }
-}
-
-export async function fetchLiveMarkdownPage(key: string): Promise<ParsedMarkdownPage | null> {
-  if (typeof window === 'undefined') return null;
-  const normKey = normalizePageKey(key);
-  try {
-    const res = await fetch(`/api/markdown-content?key=${encodeURIComponent(normKey)}`, {
-      cache: 'no-store'
-    });
-    if (res.ok) {
-      const json = await res.json();
-      if (json.success && json.data) {
-        setLiveMarkdownPage(normKey, json.data);
-        return json.data;
-      }
-    }
-  } catch (e) {
-    // Fallback silently if offline/network error
-  }
-  return null;
-}
-
 /**
  * Cleanly builds absolute canonical URL for any path or page key.
  */
@@ -121,52 +63,29 @@ export function buildCanonicalUrl(linkOrPath?: string, fallbackId?: string): str
   return `${BASE_DOMAIN}${raw}`;
 }
 
-let nodeFs: any = null;
-let nodePath: any = null;
-
-if (typeof window === 'undefined') {
-  try {
-    if (typeof process !== 'undefined' && (process as any).getBuiltinModule) {
-      nodeFs = (process as any).getBuiltinModule('fs');
-      nodePath = (process as any).getBuiltinModule('path');
-    }
-  } catch (e) {
-    // fallback
-  }
-}
-
-function readSingleServerPageFile(pageKey: string): string | null {
-  if (typeof window === 'undefined' && nodeFs && nodePath) {
+/**
+ * Reads physical markdown file from src/content/pages in Node.js server environment directly from disk.
+ * Guarantees that any updates to .md files are immediately picked up without restart.
+ */
+function readServerPageFile(pageKey: string): string | null {
+  if (typeof window === 'undefined') {
     try {
-      const cleanKey = (pageKey || '').toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
+      const fs = require('fs');
+      const path = require('path');
+      const pagesDir = path.join(process.cwd(), 'src', 'content', 'pages');
+      const cleanKey = pageKey.toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
       if (!cleanKey) return null;
 
-      const filePath = nodePath.join(process.cwd(), 'src', 'content', 'pages', `${cleanKey}.md`);
-      if (nodeFs.existsSync(filePath)) {
-        return nodeFs.readFileSync(filePath, 'utf-8');
+      const directFile = path.join(pagesDir, `${cleanKey}.md`);
+      if (fs.existsSync(directFile)) {
+        return fs.readFileSync(directFile, 'utf-8');
       }
-    } catch (e) {
-      // fs is unavailable
-    }
-  }
-  return null;
-}
 
-/**
- * Reads physical markdown files from src/content/pages in Node.js server environment.
- */
-function readServerPageFiles(): Record<string, string> {
-  const filesMap: Record<string, string> = {};
-  if (typeof window === 'undefined' && nodeFs && nodePath) {
-    try {
-      const pagesDir = nodePath.join(process.cwd(), 'src', 'content', 'pages');
-      if (nodeFs.existsSync(pagesDir)) {
-        const filenames = nodeFs.readdirSync(pagesDir);
+      if (fs.existsSync(pagesDir)) {
+        const filenames = fs.readdirSync(pagesDir);
         for (const file of filenames) {
-          if (file.endsWith('.md')) {
-            const pageKey = file.replace(/\.md$/, '').toLowerCase();
-            const content = nodeFs.readFileSync(nodePath.join(pagesDir, file), 'utf-8');
-            filesMap[pageKey] = content;
+          if (file.toLowerCase() === `${cleanKey}.md` || file.toLowerCase() === cleanKey) {
+            return fs.readFileSync(path.join(pagesDir, file), 'utf-8');
           }
         }
       }
@@ -174,47 +93,57 @@ function readServerPageFiles(): Record<string, string> {
       // fs is unavailable in client environments
     }
   }
-  return filesMap;
+  return null;
 }
 
 function loadRawMarkdown(pageKey: string): string {
-  const key = normalizePageKey(pageKey);
-  const rawKey = (pageKey || '').toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
+  let rawKey = (pageKey || '').toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
+  if (!rawKey) rawKey = 'home';
 
-  // 0. Direct server-side filesystem check of src/content/pages/<key>.md
-  const directServerFile = readSingleServerPageFile(key) || readSingleServerPageFile(rawKey);
-  if (directServerFile) {
-    return directServerFile;
-  }
+  let key = rawKey;
+  if (key === 'today' || key === 'football-predictions-today') key = 'category-today';
+  if (key === 'tomorrow' || key === 'football-predictions-tomorrow') key = 'category-tomorrow';
+  if (key === 'yesterday' || key === 'football-predictions-yesterday') key = 'category-yesterday';
+  if (key === 'over15' || key === 'over-1-5' || key === 'football-predictions-over-1-5-goals') key = 'category-over15';
+  if (key === 'over25' || key === 'over-2-5' || key === 'football-predictions-over-2-5-goals') key = 'category-over25';
+  if (key === 'btts' || key === 'gg' || key === 'football-predictions-btts-gg') key = 'category-btts';
+  if (key === 'doublechance' || key === 'double-chance' || key === 'football-predictions-double-chance') key = 'category-doublechance';
+  if (key === 'homewin' || key === 'home-win' || key === '1x2' || key === 'football-predictions-1x2-home-win') key = 'category-homewin';
+  if (key === 'about-us') key = 'about';
+  if (key === 'contact-us') key = 'contact';
+  if (key === 'privacy') key = 'privacy-policy';
+  if (key === 'terms') key = 'terms-of-use';
+  if (key === 'vip' || key === 'vip-tips' || key === 'odds') key = 'vip-packages';
+  if (key === 'jackpot-tips') key = 'jackpot-list';
 
-  const serverPages = readServerPageFiles();
-  if (serverPages[key]) {
-    return serverPages[key];
-  }
-  if (serverPages[rawKey]) {
-    return serverPages[rawKey];
-  }
-
-  // 1. Eager glob check of ./pages/*.md in Vite
-  if (pageMarkdownFiles && typeof pageMarkdownFiles === 'object') {
-    for (const [filePath, fileContent] of Object.entries(pageMarkdownFiles)) {
-      const cleanFilename = filePath
-        .split('/')
-        .pop()
-        ?.replace(/\.md.*$/, '')
-        .toLowerCase()
-        .trim();
-      
-      if (cleanFilename && (cleanFilename === key || cleanFilename === rawKey)) {
-        if (typeof fileContent === 'string') return fileContent;
-        if (fileContent && typeof fileContent === 'object' && 'default' in fileContent) {
-          return (fileContent as any).default;
-        }
-      }
+  // 0. Server-side filesystem read of src/content/pages/ (Primary Source of Truth on Server)
+  if (typeof window === 'undefined') {
+    const serverContent = readServerPageFile(key) || readServerPageFile(rawKey);
+    if (serverContent) {
+      return serverContent;
     }
   }
 
-  // 2. Fallback to RAW_MARKDOWN_MAP
+  // 1. Direct check of eager glob of ./pages/*.md
+  const fileKey = `./pages/${key}.md`;
+  if (pageMarkdownFiles[fileKey]) {
+    return pageMarkdownFiles[fileKey];
+  }
+
+  const rawFileKey = `./pages/${rawKey}.md`;
+  if (pageMarkdownFiles[rawFileKey]) {
+    return pageMarkdownFiles[rawFileKey];
+  }
+
+  // 2. Case-insensitive check of eager glob
+  for (const fk of Object.keys(pageMarkdownFiles)) {
+    const pk = fk.replace(/^\.\/pages\//, '').replace(/\.md$/, '').toLowerCase();
+    if (pk === key || pk === rawKey) {
+      return pageMarkdownFiles[fk];
+    }
+  }
+
+  // 3. Fallback to RAW_MARKDOWN_MAP
   if (RAW_MARKDOWN_MAP[key]) {
     return RAW_MARKDOWN_MAP[key];
   }
@@ -474,78 +403,58 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
 }
 
 export function getMarkdownContent(pageKey: string): ParsedMarkdownPage {
-  const normKey = normalizePageKey(pageKey);
-
-  if (typeof window !== 'undefined' && clientLiveMap[normKey]) {
-    return clientLiveMap[normKey];
-  }
-
   const raw = loadRawMarkdown(pageKey);
-  const parsed = parseMarkdownPage(raw, pageKey);
-
-  if (typeof window !== 'undefined') {
-    clientLiveMap[normKey] = parsed;
-    clientLiveMap[pageKey.toLowerCase().trim().replace(/^\//, '')] = parsed;
-  }
-
-  return parsed;
+  return parseMarkdownPage(raw, pageKey);
 }
 
 /**
-  * Custom React hook to subscribe to live markdown updates for any page key.
-  */
-export function useMarkdownContent(pageKey: string): ParsedMarkdownPage {
-  const normKey = normalizePageKey(pageKey);
-  const [content, setContent] = useState<ParsedMarkdownPage>(() => getMarkdownContent(normKey));
-
-  useEffect(() => {
-    let isMounted = true;
-    const latest = getMarkdownContent(normKey);
-    setContent(latest);
-
-    const handleUpdate = (e: Event) => {
-      const customEvt = e as CustomEvent<{ key: string; rawKey?: string; page: ParsedMarkdownPage }>;
-      if (customEvt.detail) {
-        const evtKey = customEvt.detail.key;
-        const rawKey = customEvt.detail.rawKey;
-        if (evtKey === normKey || evtKey === pageKey || rawKey === pageKey || rawKey === normKey) {
-          if (isMounted) {
-            setContent(customEvt.detail.page);
-          }
+ * Asynchronously fetches live markdown from the server endpoint if running in browser client.
+ * Guarantees real-time reflection of markdown file updates on client navigation.
+ */
+export async function fetchLiveMarkdownContent(pageKey: string): Promise<ParsedMarkdownPage> {
+  if (typeof window !== 'undefined') {
+    try {
+      const res = await fetch(`/api/markdown?key=${encodeURIComponent(pageKey)}`, { cache: 'no-store' });
+      if (res.ok) {
+        const rawMd = await res.text();
+        if (rawMd && rawMd.length > 5) {
+          return parseMarkdownPage(rawMd, pageKey);
         }
       }
-    };
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener(MARKDOWN_UPDATED_EVENT, handleUpdate);
+    } catch (e) {
+      // Fallback silently to synchronous loader
     }
-
-    return () => {
-      isMounted = false;
-      if (typeof window !== 'undefined') {
-        window.removeEventListener(MARKDOWN_UPDATED_EVENT, handleUpdate);
-      }
-    };
-  }, [pageKey, normKey]);
-
-  return content;
+  }
+  return getMarkdownContent(pageKey);
 }
 
 /**
- * Returns all parsed markdown pages from the ./pages/*.md directory automatically.
+ * Returns all parsed markdown pages automatically.
  */
 export function getAllMarkdownPages(): { pageKey: string; page: ParsedMarkdownPage }[] {
   const results: { pageKey: string; page: ParsedMarkdownPage }[] = [];
   const processedKeys = new Set<string>();
 
   // 1. Server physical files in src/content/pages/
-  const serverPages = readServerPageFiles();
-  for (const pKey of Object.keys(serverPages)) {
-    if (!processedKeys.has(pKey)) {
-      processedKeys.add(pKey);
-      const page = getMarkdownContent(pKey);
-      results.push({ pageKey: pKey, page });
-    }
+  if (typeof window === 'undefined') {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const pagesDir = path.join(process.cwd(), 'src', 'content', 'pages');
+      if (fs.existsSync(pagesDir)) {
+        const filenames = fs.readdirSync(pagesDir);
+        for (const file of filenames) {
+          if (file.endsWith('.md')) {
+            const pKey = file.replace(/\.md$/, '').toLowerCase();
+            if (!processedKeys.has(pKey)) {
+              processedKeys.add(pKey);
+              const page = getMarkdownContent(pKey);
+              results.push({ pageKey: pKey, page });
+            }
+          }
+        }
+      }
+    } catch (e) {}
   }
 
   // 2. Eager glob from import.meta.glob (if running under Vite/bundler)
