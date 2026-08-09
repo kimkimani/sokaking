@@ -22,7 +22,7 @@ import { PredictionCategory, getCategoryCountText } from '../utils/predictionGen
 import PredictionsList from './PredictionsList';
 import { jackpotsData } from '../jackpotsData';
 import { vipPackages, oddsPacks } from '../data';
-import { getMarkdownContent } from '../content/markdownLoader';
+import { getMarkdownContent, useMarkdownContent } from '../content/markdownLoader';
 import MarkdownRenderer from './MarkdownRenderer';
 import FaqSection from './FaqSection';
 import { AuthorCard } from './AuthorCard';
@@ -211,7 +211,7 @@ export default function CategoryPredictionsPage({
     });
   };
 
-  const pageMd = getMarkdownContent(pageId || category.id);
+  const pageMd = useMarkdownContent(pageId || category.id);
 
   return (
     <div id={`category-page-${category.id}`} className="space-y-6 text-left">

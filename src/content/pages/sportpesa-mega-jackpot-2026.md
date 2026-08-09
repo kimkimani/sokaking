@@ -1,6 +1,6 @@
 ---
-title: "Daily Mega Jackpot Predictions 2026 (17 Games Analysis)"
-displayTitle: "Daily Mega Jackpot 17 Games Comprehensive 2026 Predictions"
+title: "SportPesa Mega Jackpot Predictions 2026 (17 Games Analysis)"
+displayTitle: "SportPesa Mega Jackpot 17 Games Comprehensive 2026 Predictions"
 description: "Expert mathematical analysis and double chance predictions for the 2026 SportPesa Mega Jackpot 17 fixtures. Win bonuses with Soka King models."
 keywords: "sportpesa mega jackpot predictions 2026, sportpesa mega jackpot 17 games, mega jackpot analysis 2026"
 link: "/sportpesa-mega-jackpot-2026"

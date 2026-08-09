@@ -1,6 +1,6 @@
 ---
-title: "Daily Predictions & Free Daily Football Tips 2026"
-displayTitle: "Daily Predictions & Mathematical Soccer Tips"
+title: "SoccerVista Predictions & Free Daily Football Tips 2026"
+displayTitle: "SoccerVista Predictions & Mathematical Soccer Tips"
 description: "Looking for SoccerVista predictions? Get superior Soka King mathematical football predictions, 1X2 banker tips, and Poisson goal distribution forecasts."
 keywords: "soccervista predictions, soccervista tips, soccervista football tips, soccervista alternative"
 link: "/soccervista-predictions-and-tips"
