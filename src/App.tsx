@@ -31,7 +31,7 @@ import {
 import { designIterations, vipPackages, oddsPacks } from './data';
 import { jackpotsData } from './jackpotsData';
 import { DesignIteration, Fixture, VipPackage, OddsPack } from './types';
-import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl } from './content/markdownLoader';
+import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl, fetchLiveMarkdownPage } from './content/markdownLoader';
 
 import { apiFetch } from './utils/api.ts';
 import { getApiBaseUrl } from './lib/getApiBaseUrl';
@@ -188,6 +188,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   const [currentIteration, setCurrentIteration] = useState<DesignIteration>(designIterations[0]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [markdownVersion, setMarkdownVersion] = useState(0);
 
   // DB Driven states initialized with baseline fallback data to prevent CLS layout shift
   const [dbJackpots, setDbJackpots] = useState<any[]>(() => (Array.isArray(initialJackpots) && initialJackpots.length > 0 ? initialJackpots : jackpotsData));
@@ -278,6 +279,32 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Live Markdown file sync effect: fetches latest physical markdown file from server
+  useEffect(() => {
+    let isMounted = true;
+    
+    // Fetch immediately on page change
+    fetchLiveMarkdownPage(activePage).then((data) => {
+      if (isMounted && data) {
+        setMarkdownVersion(v => v + 1);
+      }
+    });
+
+    // Poll every 3.5 seconds so published/edited markdown changes reflect instantly
+    const timer = setInterval(() => {
+      fetchLiveMarkdownPage(activePage).then((data) => {
+        if (isMounted && data) {
+          setMarkdownVersion(v => v + 1);
+        }
+      });
+    }, 3500);
+
+    return () => {
+      isMounted = false;
+      clearInterval(timer);
+    };
+  }, [activePage]);
+
   // Dynamic SEO Client-side update driven by markdown frontmatter
   useEffect(() => {
     const pageMd = getMarkdownContent(activePage);
@@ -316,7 +343,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     }
     const fullCanonicalUrl = buildCanonicalUrl(canonicalPath, activePage);
     canonical.setAttribute('href', fullCanonicalUrl);
-  }, [activePage]);
+  }, [activePage, markdownVersion]);
 
   // FAQ state
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -710,6 +737,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                         <CategoryPredictionsPage 
                           category={category}
                           fixtures={categoryFixtures}
+                          isLoading={loadingDb || loadingCategory}
                           onBackToHome={() => handleSelectPage('home')}
                           onSelectPage={handleSelectPage}
                           onOpenPayment={handleOpenPayment}
@@ -788,6 +816,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                         <JackpotPage 
                           jackpot={formattedJackpot}
                           hasPaid={isJackpotUnlocked}
+                          isLoading={loadingDb}
                           onOpenPayment={handleOpenPayment}
                           onBackToList={() => handleSelectPage('jackpot-list')}
                           pageId={activePage}
@@ -863,6 +892,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                             <JackpotPage 
                               jackpot={activeJackpot}
                               hasPaid={isJackpotUnlocked}
+                              isLoading={loadingDb}
                               onOpenPayment={handleOpenPayment}
                               onBackToList={() => handleSelectPage('jackpot-list')}
                               pageId={activePage}

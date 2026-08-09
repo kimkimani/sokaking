@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { generateSitemapXml, getAllSitemapRoutes, BASE_URL } from './src/utils/sitemapGenerator.js';
+import { getMarkdownContent, getAllMarkdownPages } from './src/content/markdownLoader.js';
 
 async function startServer() {
   const app = express();
@@ -79,6 +80,53 @@ Sitemap: https://sokaking.com/sitemap.xml
 - [About Us](https://sokaking.com/about-us): Learn about Soka King analytics model and prediction algorithms.
 - [Contact Us](https://sokaking.com/contact-us): Contact customer service and technical support.
 `);
+  });
+
+  // Local Markdown Content Routes (Read directly from physical src/content/pages/*.md files)
+  app.get('/api/markdown-content', (req, res) => {
+    try {
+      const pageKey = (req.query.key as string || 'home').trim();
+      const parsed = getMarkdownContent(pageKey);
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      return res.json({ success: true, key: pageKey, data: parsed });
+    } catch (err: any) {
+      console.error('Error serving markdown content:', err);
+      return res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.get('/api/markdown-pages', (_req, res) => {
+    try {
+      const pages = getAllMarkdownPages();
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      return res.json({ success: true, pages });
+    } catch (err: any) {
+      console.error('Error serving markdown pages:', err);
+      return res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.post('/api/markdown-save', (req, res) => {
+    try {
+      const { pageKey, content } = req.body || {};
+      if (!pageKey || typeof content !== 'string') {
+        return res.status(400).json({ success: false, error: 'Missing pageKey or content' });
+      }
+      const normKey = pageKey.toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
+      const pagesDir = path.join(process.cwd(), 'src', 'content', 'pages');
+      if (!fs.existsSync(pagesDir)) {
+        fs.mkdirSync(pagesDir, { recursive: true });
+      }
+      const filePath = path.join(pagesDir, `${normKey}.md`);
+      fs.writeFileSync(filePath, content, 'utf-8');
+
+      const parsed = getMarkdownContent(normKey);
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      return res.json({ success: true, key: normKey, data: parsed });
+    } catch (err: any) {
+      console.error('Error saving markdown content:', err);
+      return res.status(500).json({ success: false, error: err.message });
+    }
   });
 
   // Proxy /api requests to PHP Backend Server

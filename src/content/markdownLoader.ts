@@ -37,7 +37,33 @@ export interface ParsedMarkdownPage {
   fullContent: string;
 }
 
-const parsedCache: Record<string, ParsedMarkdownPage> = {};
+const clientLiveMap: Record<string, ParsedMarkdownPage> = {};
+
+export function setLiveMarkdownPage(key: string, page: ParsedMarkdownPage) {
+  if (!key) return;
+  const normKey = key.toLowerCase().trim().replace(/^\//, '');
+  clientLiveMap[normKey] = page;
+}
+
+export async function fetchLiveMarkdownPage(key: string): Promise<ParsedMarkdownPage | null> {
+  if (typeof window === 'undefined') return null;
+  const normKey = (key || 'home').toLowerCase().trim().replace(/^\//, '');
+  try {
+    const res = await fetch(`/api/markdown-content?key=${encodeURIComponent(normKey)}`, {
+      cache: 'no-store'
+    });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && json.data) {
+        setLiveMarkdownPage(normKey, json.data);
+        return json.data;
+      }
+    }
+  } catch (e) {
+    // Fallback silently if offline/network error
+  }
+  return null;
+}
 
 /**
  * Cleanly builds absolute canonical URL for any path or page key.
@@ -63,6 +89,25 @@ export function buildCanonicalUrl(linkOrPath?: string, fallbackId?: string): str
   }
 
   return `${BASE_DOMAIN}${raw}`;
+}
+
+function readSingleServerPageFile(pageKey: string): string | null {
+  if (typeof window === 'undefined') {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const cleanKey = (pageKey || '').toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
+      if (!cleanKey) return null;
+
+      const filePath = path.join(process.cwd(), 'src', 'content', 'pages', `${cleanKey}.md`);
+      if (fs.existsSync(filePath)) {
+        return fs.readFileSync(filePath, 'utf-8');
+      }
+    } catch (e) {
+      // fs is unavailable
+    }
+  }
+  return null;
 }
 
 /**
@@ -111,7 +156,12 @@ function loadRawMarkdown(pageKey: string): string {
   if (key === 'vip' || key === 'vip-tips' || key === 'odds') key = 'vip-packages';
   if (key === 'jackpot-tips') key = 'jackpot-list';
 
-  // 0. Server-side filesystem check of src/content/pages/
+  // 0. Direct server-side filesystem check of src/content/pages/<key>.md
+  const directServerFile = readSingleServerPageFile(key) || readSingleServerPageFile(pageKey);
+  if (directServerFile) {
+    return directServerFile;
+  }
+
   const serverPages = readServerPageFiles();
   if (serverPages[key]) {
     return serverPages[key];
@@ -394,13 +444,19 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
 }
 
 export function getMarkdownContent(pageKey: string): ParsedMarkdownPage {
-  if (parsedCache[pageKey]) {
-    return parsedCache[pageKey];
+  const normKey = (pageKey || 'home').toLowerCase().trim().replace(/^\//, '');
+
+  if (typeof window !== 'undefined' && clientLiveMap[normKey]) {
+    return clientLiveMap[normKey];
   }
 
   const raw = loadRawMarkdown(pageKey);
   const parsed = parseMarkdownPage(raw, pageKey);
-  parsedCache[pageKey] = parsed;
+
+  if (typeof window !== 'undefined') {
+    clientLiveMap[normKey] = parsed;
+  }
+
   return parsed;
 }
 
