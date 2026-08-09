@@ -282,25 +282,6 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   const currentHomeMd = useMarkdownContent('home');
   const currentActiveMd = useMarkdownContent(activePage);
 
-  // Live Markdown file sync effect: fetches latest physical markdown file from server
-  useEffect(() => {
-    // Fetch immediately on page change
-    fetchLiveMarkdownPage(activePage);
-    if (activePage !== 'home') {
-      fetchLiveMarkdownPage('home');
-    }
-
-    // Poll every 3 seconds so published/edited markdown changes reflect instantly
-    const timer = setInterval(() => {
-      fetchLiveMarkdownPage(activePage);
-      if (activePage !== 'home') {
-        fetchLiveMarkdownPage('home');
-      }
-    }, 3000);
-
-    return () => clearInterval(timer);
-  }, [activePage]);
-
   // Dynamic SEO Client-side update driven by markdown frontmatter
   useEffect(() => {
     const pageMd = currentActiveMd;

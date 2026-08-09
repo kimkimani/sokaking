@@ -500,17 +500,8 @@ export function useMarkdownContent(pageKey: string): ParsedMarkdownPage {
 
   useEffect(() => {
     let isMounted = true;
-
-    // Refresh immediately synchronously from current state or map
     const latest = getMarkdownContent(normKey);
     setContent(latest);
-
-    // Always fetch fresh live physical markdown from server API
-    fetchLiveMarkdownPage(normKey).then((data) => {
-      if (isMounted && data) {
-        setContent(data);
-      }
-    });
 
     const handleUpdate = (e: Event) => {
       const customEvt = e as CustomEvent<{ key: string; rawKey?: string; page: ParsedMarkdownPage }>;
