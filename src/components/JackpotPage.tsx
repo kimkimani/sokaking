@@ -21,7 +21,7 @@ import { JackpotConfig } from '../jackpotsData';
 import { calculateProbabilities } from '../utils/probability';
 import VotePoll from './VotePoll';
 import FaqSection from './FaqSection';
-import { getMarkdownContent, useMarkdownContent } from '../content/markdownLoader';
+import { getMarkdownContent } from '../content/markdownLoader';
 import MarkdownRenderer from './MarkdownRenderer';
 import { FlagImage } from '../utils/flagUtils';
 import { AuthorCard } from './AuthorCard';
@@ -97,7 +97,7 @@ function formatMatchDateTime(rawDate?: string | Date): string {
 export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToList, pageId, isLoading = false }: JackpotPageProps) {
   const [expandedFixture, setExpandedFixture] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState({ days: 2, hours: 14, minutes: 45, seconds: 22 });
-  const pageMd = useMarkdownContent(pageId || jackpot.id);
+  const pageMd = getMarkdownContent(pageId || jackpot.id);
   
   // Local state for user votes saved in localStorage
   const [userVotes, setUserVotes] = useState<Record<string, '1' | 'X' | '2'>>(() => {
