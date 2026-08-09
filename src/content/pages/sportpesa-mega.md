@@ -1,5 +1,5 @@
 ---
-title: "SportPesa Mega Jackpot Predictions & KES 300 Million Analysis (17 Games)"
+title: "SportPesa Daily Jackpot Daily & KES 300 Million Analysis (17 Games)"
 description: "Expert SportPesa Mega Jackpot predictions, 17-game ticket analysis, and double chance combinations for Kenya's KES 300M+ jackpot pool."
 keywords: "SportPesa Mega Jackpot predictions, SportPesa tips today, 17 games jackpot Kenya, SportPesa bonus tips"
 link: "/free-sportpesa-mega-jackpot-predictions-and-analysis"
