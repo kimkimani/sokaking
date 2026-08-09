@@ -766,7 +766,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   }
                   if (!activeJackpot) {
                     const baseFallback = jackpotsData.find(j => j.id === 'sportpesa-mega') || jackpotsData[0];
-                    const pageMd = getMarkdownContent(activePage);
+                    const pageMd = currentActiveMd;
                     activeJackpot = {
                       ...baseFallback,
                       id: activePage,
@@ -868,7 +868,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
                 // DYNAMIC MARKDOWN PAGE FALLBACK (For any newly created .md files: Competitors, custom SEO Jackpot pages, etc.)
                 if (activePage !== 'home') {
-                  const pageMd = getMarkdownContent(activePage);
+                  const pageMd = currentActiveMd;
 
                   // 1. Is it a jackpot page (has jackpotId or type === 'jackpot')?
                   if (pageMd.jackpotId || pageMd.type === 'jackpot') {

@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { generateSitemapXml, getAllSitemapRoutes, BASE_URL } from './src/utils/sitemapGenerator.js';
-import { getMarkdownContent, getAllMarkdownPages } from './src/content/markdownLoader.js';
+import { getMarkdownContent, getAllMarkdownPages, normalizePageKey, parseMarkdownPage } from './src/content/markdownLoader.js';
 
 async function startServer() {
   const app = express();
@@ -86,9 +86,32 @@ Sitemap: https://sokaking.com/sitemap.xml
   app.get('/api/markdown-content', (req, res) => {
     try {
       const pageKey = (req.query.key as string || 'home').trim();
-      const parsed = getMarkdownContent(pageKey);
+      const normKey = normalizePageKey(pageKey);
+      const pagesDir = path.join(process.cwd(), 'src', 'content', 'pages');
+
+      let rawMd: string | null = null;
+      if (fs.existsSync(pagesDir)) {
+        const file1 = path.join(pagesDir, `${normKey}.md`);
+        const file2 = path.join(pagesDir, `${pageKey.toLowerCase().replace(/^\//, '').replace(/\.md$/, '')}.md`);
+        if (fs.existsSync(file1)) {
+          rawMd = fs.readFileSync(file1, 'utf-8');
+        } else if (fs.existsSync(file2)) {
+          rawMd = fs.readFileSync(file2, 'utf-8');
+        } else {
+          const files = fs.readdirSync(pagesDir);
+          for (const f of files) {
+            const cleanF = f.replace(/\.md$/i, '').toLowerCase();
+            if (cleanF === normKey || cleanF === pageKey.toLowerCase().replace(/^\//, '').replace(/\.md$/, '')) {
+              rawMd = fs.readFileSync(path.join(pagesDir, f), 'utf-8');
+              break;
+            }
+          }
+        }
+      }
+
+      const parsed = rawMd ? parseMarkdownPage(rawMd, normKey) : getMarkdownContent(pageKey);
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      return res.json({ success: true, key: pageKey, data: parsed });
+      return res.json({ success: true, key: normKey, rawKey: pageKey, data: parsed });
     } catch (err: any) {
       console.error('Error serving markdown content:', err);
       return res.status(500).json({ success: false, error: err.message });

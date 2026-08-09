@@ -121,17 +121,29 @@ export function buildCanonicalUrl(linkOrPath?: string, fallbackId?: string): str
   return `${BASE_DOMAIN}${raw}`;
 }
 
+let nodeFs: any = null;
+let nodePath: any = null;
+
+if (typeof window === 'undefined') {
+  try {
+    if (typeof process !== 'undefined' && (process as any).getBuiltinModule) {
+      nodeFs = (process as any).getBuiltinModule('fs');
+      nodePath = (process as any).getBuiltinModule('path');
+    }
+  } catch (e) {
+    // fallback
+  }
+}
+
 function readSingleServerPageFile(pageKey: string): string | null {
-  if (typeof window === 'undefined') {
+  if (typeof window === 'undefined' && nodeFs && nodePath) {
     try {
-      const fs = require('fs');
-      const path = require('path');
       const cleanKey = (pageKey || '').toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
       if (!cleanKey) return null;
 
-      const filePath = path.join(process.cwd(), 'src', 'content', 'pages', `${cleanKey}.md`);
-      if (fs.existsSync(filePath)) {
-        return fs.readFileSync(filePath, 'utf-8');
+      const filePath = nodePath.join(process.cwd(), 'src', 'content', 'pages', `${cleanKey}.md`);
+      if (nodeFs.existsSync(filePath)) {
+        return nodeFs.readFileSync(filePath, 'utf-8');
       }
     } catch (e) {
       // fs is unavailable
@@ -145,18 +157,15 @@ function readSingleServerPageFile(pageKey: string): string | null {
  */
 function readServerPageFiles(): Record<string, string> {
   const filesMap: Record<string, string> = {};
-  if (typeof window === 'undefined') {
+  if (typeof window === 'undefined' && nodeFs && nodePath) {
     try {
-      // Dynamic require so browser bundlers don't break
-      const fs = require('fs');
-      const path = require('path');
-      const pagesDir = path.join(process.cwd(), 'src', 'content', 'pages');
-      if (fs.existsSync(pagesDir)) {
-        const filenames = fs.readdirSync(pagesDir);
+      const pagesDir = nodePath.join(process.cwd(), 'src', 'content', 'pages');
+      if (nodeFs.existsSync(pagesDir)) {
+        const filenames = nodeFs.readdirSync(pagesDir);
         for (const file of filenames) {
           if (file.endsWith('.md')) {
             const pageKey = file.replace(/\.md$/, '').toLowerCase();
-            const content = fs.readFileSync(path.join(pagesDir, file), 'utf-8');
+            const content = nodeFs.readFileSync(nodePath.join(pagesDir, file), 'utf-8');
             filesMap[pageKey] = content;
           }
         }
