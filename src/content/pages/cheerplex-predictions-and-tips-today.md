@@ -1,9 +1,9 @@
 ---
-title: "Cheerplex Predictions and Tips Today - Free Football Picks"
+title: "Daily Predictions and Tips Today - Free Football Picks"
 description: "Daily Cheerplex predictions and soccer tips today. Soka King provides high accuracy Cheerplex computer models and daily match previews."
 keywords: "cheerplex predictions, cheerplex tips today, cheerplex football, sure cheerplex tips"
 link: "/cheerplex-predictions-and-tips-today"
-displayTitle: "Cheerplex Predictions & Computer Tips Today"
+displayTitle: "Daily Predictions & Computer Tips Today"
 authorName: "John K. Mwangi"
 authorTitle: "Lead Football Analyst & Poisson Model Expert"
 authorDescription: "Evaluating Cheerplex computer match algorithms and probability metrics."
