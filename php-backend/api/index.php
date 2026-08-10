@@ -358,9 +358,9 @@ if ($path === '/predictions/vote' || $path === '/vote') {
         }
 
         $stmt = $pdo->prepare("SELECT 
-                                COUNT(CASE WHEN vote = '1' THEN 1 END) AS votes_1,
-                                COUNT(CASE WHEN vote = 'X' THEN 1 END) AS votes_x,
-                                COUNT(CASE WHEN vote = '2' THEN 1 END) AS votes_2,
+                                COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
+                                COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
+                                COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
                                 COUNT(*) AS total_votes
                               FROM prediction_votes WHERE fixture_id = ?");
         $stmt->execute([$fixtureId]);
@@ -371,9 +371,9 @@ if ($path === '/predictions/vote' || $path === '/vote') {
         $v2 = (int)($stats['votes_2'] ?? 0);
         $total = (int)($stats['total_votes'] ?? 0);
 
-        $hPct = $total > 0 ? round(($v1 / $total) * 100) : 33;
-        $dPct = $total > 0 ? round(($vx / $total) * 100) : 34;
-        $aPct = $total > 0 ? round(($v2 / $total) * 100) : 33;
+        $hPct = $total > 0 ? (int)round(($v1 / $total) * 100) : 0;
+        $dPct = $total > 0 ? (int)round(($vx / $total) * 100) : 0;
+        $aPct = $total > 0 ? max(0, 100 - $hPct - $dPct) : 0;
 
         $userVote = null;
         if ($userId) {
@@ -410,8 +410,8 @@ if ($path === '/predictions/vote' || $path === '/vote') {
             jsonResponse(['error' => 'Voting is closed because this match has ended.'], 400);
         }
 
-        if (!$fixtureId || !in_array($vote, ['1', 'X', '2'])) {
-            jsonResponse(['error' => 'fixtureId and valid vote (1, X, 2) are required'], 400);
+        if (!$fixtureId || !$vote) {
+            jsonResponse(['error' => 'fixtureId and vote are required'], 400);
         }
 
         // Record or update vote
@@ -429,9 +429,9 @@ if ($path === '/predictions/vote' || $path === '/vote') {
 
         // Return updated stats
         $stmt = $pdo->prepare("SELECT 
-                                COUNT(CASE WHEN vote = '1' THEN 1 END) AS votes_1,
-                                COUNT(CASE WHEN vote = 'X' THEN 1 END) AS votes_x,
-                                COUNT(CASE WHEN vote = '2' THEN 1 END) AS votes_2,
+                                COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
+                                COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
+                                COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
                                 COUNT(*) AS total_votes
                               FROM prediction_votes WHERE fixture_id = ?");
         $stmt->execute([$fixtureId]);
@@ -442,6 +442,10 @@ if ($path === '/predictions/vote' || $path === '/vote') {
         $v2 = (int)($stats['votes_2'] ?? 0);
         $total = (int)($stats['total_votes'] ?? 0);
 
+        $hPct = $total > 0 ? (int)round(($v1 / $total) * 100) : 0;
+        $dPct = $total > 0 ? (int)round(($vx / $total) * 100) : 0;
+        $aPct = $total > 0 ? max(0, 100 - $hPct - $dPct) : 0;
+
         jsonResponse([
             'success' => true,
             'stats' => [
@@ -450,9 +454,9 @@ if ($path === '/predictions/vote' || $path === '/vote') {
                 'votes1' => $v1,
                 'votesX' => $vx,
                 'votes2' => $v2,
-                'homePercent' => $total > 0 ? round(($v1 / $total) * 100) : 33,
-                'drawPercent' => $total > 0 ? round(($vx / $total) * 100) : 34,
-                'awayPercent' => $total > 0 ? round(($v2 / $total) * 100) : 33,
+                'homePercent' => $hPct,
+                'drawPercent' => $dPct,
+                'awayPercent' => $aPct,
                 'userVote' => $vote
             ]
         ]);
