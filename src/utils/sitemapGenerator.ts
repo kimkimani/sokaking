@@ -52,6 +52,52 @@ export function getMarkdownRoutesSet(): Set<string> {
   return mdRoutes;
 }
 
+export function isLowerPriorityRoute(p: string): boolean {
+  const norm = p.toLowerCase().trim();
+  const lowerRoutes = new Set([
+    '/about',
+    '/about-us',
+    '/partners',
+    '/privacy-policy',
+    '/terms-of-use',
+    '/contact',
+    '/contact-us',
+    '/contact-support',
+    '/support',
+    '/jackpot-list',
+    '/jackpot-tips',
+    '/jackpots',
+    '/premium-jackpots',
+    '/vip-packages',
+    '/vip',
+    '/vip-subscription',
+    '/vip-tips',
+    '/odds-packs',
+    '/odds-slips',
+    '/odds-pack',
+    '/odds',
+    '/faq',
+    '/responsible-gambling',
+  ]);
+
+  if (lowerRoutes.has(norm)) return true;
+
+  return (
+    norm.includes('about') ||
+    norm.includes('privacy') ||
+    norm.includes('terms') ||
+    norm.includes('contact') ||
+    norm.includes('partner') ||
+    norm.includes('faq') ||
+    norm.includes('responsible-gambling') ||
+    norm === '/jackpot-list' ||
+    norm === '/jackpot-tips' ||
+    norm === '/vip-packages' ||
+    norm.includes('odds-pack') ||
+    norm.includes('odds-slip')
+  );
+}
+
 export function getAllSitemapRoutes(): string[] {
   const defaultRoutes = [
     '/',
@@ -106,13 +152,18 @@ export function generateSitemapXml(): string {
     const isJackpotOrPred = p.includes('jackpot') || p.includes('prediction') || p.includes('tips') || p.includes('sure') || p === '/';
 
     let priority = '0.50';
+    let changeFreq = 'weekly';
+
     if (p === '/') {
       priority = '1.00';
+      changeFreq = 'daily';
+    } else if (isLowerPriorityRoute(p)) {
+      priority = '0.64';
+      changeFreq = 'weekly';
     } else if (isMarkdownPage || isJackpotOrPred) {
       priority = '0.80';
+      changeFreq = 'daily';
     }
-
-    const changeFreq = (isMarkdownPage || isJackpotOrPred) ? 'daily' : 'weekly';
 
     return `  <url>
     <loc>${fullUrl}</loc>
