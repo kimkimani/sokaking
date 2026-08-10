@@ -2,7 +2,7 @@
 title: "SportPesa Midweek Jackpot Predictions & Daily Tips (13 Games)"
 description: "Accurate SportPesa Midweek Jackpot predictions for all 13 matches. Get computer models and double chance tips for KES 10M+ prizes."
 keywords: "SportPesa Midweek Jackpot, SportPesa 13 games predictions, Midweek Jackpot tips, SportPesa double chance"
-link: "/free-sportpesa-midweek-jackpot-predictions-and-analysis"
+link: "/free-sportpesa-midweek-jackpot-predictions"
 displayTitle: "SportPesa Midweek Jackpot Selections & Covers (13 Games)"
 authorName: "John K. Mwangi"
 authorTitle: "Lead Football Analyst & Poisson Model Expert"
