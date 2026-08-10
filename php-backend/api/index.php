@@ -349,6 +349,25 @@ if ($path === '/predictions' && $method === 'GET') {
 
 // 2. Voting GET & POST /api/predictions/vote or /api/vote
 if ($path === '/predictions/vote' || $path === '/vote') {
+    // Helper to ensure prediction_votes table exists in MySQL database
+    $ensureTable = function() use ($pdo) {
+        try {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS `prediction_votes` (
+              `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+              `fixture_id` VARCHAR(255) NOT NULL,
+              `user_id` VARCHAR(255) DEFAULT NULL,
+              `vote` VARCHAR(32) NOT NULL,
+              `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+              INDEX `idx_fixture` (`fixture_id`),
+              INDEX `idx_user_fixture` (`fixture_id`, `user_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        } catch (Throwable $e) {
+            // Ignore table creation error if user lacks DDL or table already exists
+        }
+    };
+
+    $ensureTable();
+
     if ($method === 'GET') {
         $fixtureId = isset($_GET['fixtureId']) ? trim($_GET['fixtureId']) : '';
         $userId = isset($_GET['userId']) ? trim($_GET['userId']) : '';
@@ -357,45 +376,60 @@ if ($path === '/predictions/vote' || $path === '/vote') {
             jsonResponse(['error' => 'fixtureId is required'], 400);
         }
 
-        $stmt = $pdo->prepare("SELECT 
-                                COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
-                                COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
-                                COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
-                                COUNT(*) AS total_votes
-                              FROM prediction_votes WHERE fixture_id = ?");
-        $stmt->execute([$fixtureId]);
-        $stats = $stmt->fetch();
+        try {
+            $stmt = $pdo->prepare("SELECT 
+                                    COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
+                                    COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
+                                    COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
+                                    COUNT(*) AS total_votes
+                                  FROM prediction_votes WHERE fixture_id = ?");
+            $stmt->execute([$fixtureId]);
+            $stats = $stmt->fetch();
 
-        $v1 = (int)($stats['votes_1'] ?? 0);
-        $vx = (int)($stats['votes_x'] ?? 0);
-        $v2 = (int)($stats['votes_2'] ?? 0);
-        $total = (int)($stats['total_votes'] ?? 0);
+            $v1 = (int)($stats['votes_1'] ?? 0);
+            $vx = (int)($stats['votes_x'] ?? 0);
+            $v2 = (int)($stats['votes_2'] ?? 0);
+            $total = (int)($stats['total_votes'] ?? 0);
 
-        $hPct = $total > 0 ? (int)round(($v1 / $total) * 100) : 0;
-        $dPct = $total > 0 ? (int)round(($vx / $total) * 100) : 0;
-        $aPct = $total > 0 ? max(0, 100 - $hPct - $dPct) : 0;
+            $hPct = $total > 0 ? (int)round(($v1 / $total) * 100) : 0;
+            $dPct = $total > 0 ? (int)round(($vx / $total) * 100) : 0;
+            $aPct = $total > 0 ? max(0, 100 - $hPct - $dPct) : 0;
 
-        $userVote = null;
-        if ($userId) {
-            $uStmt = $pdo->prepare("SELECT vote FROM prediction_votes WHERE fixture_id = ? AND user_id = ? ORDER BY id DESC LIMIT 1");
-            $uStmt->execute([$fixtureId, $userId]);
-            $uRow = $uStmt->fetch();
-            if ($uRow) {
-                $userVote = $uRow['vote'];
+            $userVote = null;
+            if ($userId) {
+                $uStmt = $pdo->prepare("SELECT vote FROM prediction_votes WHERE fixture_id = ? AND user_id = ? ORDER BY id DESC LIMIT 1");
+                $uStmt->execute([$fixtureId, $userId]);
+                $uRow = $uStmt->fetch();
+                if ($uRow) {
+                    $userVote = $uRow['vote'];
+                }
             }
-        }
 
-        jsonResponse([
-            'fixtureId' => $fixtureId,
-            'totalVotes' => $total,
-            'votes1' => $v1,
-            'votesX' => $vx,
-            'votes2' => $v2,
-            'homePercent' => $hPct,
-            'drawPercent' => $dPct,
-            'awayPercent' => $aPct,
-            'userVote' => $userVote
-        ]);
+            jsonResponse([
+                'fixtureId' => $fixtureId,
+                'totalVotes' => $total,
+                'votes1' => $v1,
+                'votesX' => $vx,
+                'votes2' => $v2,
+                'homePercent' => $hPct,
+                'drawPercent' => $dPct,
+                'awayPercent' => $aPct,
+                'userVote' => $userVote
+            ]);
+        } catch (Throwable $e) {
+            jsonResponse([
+                'fixtureId' => $fixtureId,
+                'totalVotes' => 0,
+                'votes1' => 0,
+                'votesX' => 0,
+                'votes2' => 0,
+                'homePercent' => 0,
+                'drawPercent' => 0,
+                'awayPercent' => 0,
+                'userVote' => null,
+                'dbError' => $e->getMessage()
+            ]);
+        }
     }
 
     if ($method === 'POST') {
@@ -414,52 +448,60 @@ if ($path === '/predictions/vote' || $path === '/vote') {
             jsonResponse(['error' => 'fixtureId and vote are required'], 400);
         }
 
-        // Record or update vote
-        $uStmt = $pdo->prepare("SELECT id FROM prediction_votes WHERE fixture_id = ? AND user_id = ?");
-        $uStmt->execute([$fixtureId, $userId]);
-        $existing = $uStmt->fetch();
+        try {
+            // Record or update vote in prediction_votes database table
+            $uStmt = $pdo->prepare("SELECT id FROM prediction_votes WHERE fixture_id = ? AND user_id = ?");
+            $uStmt->execute([$fixtureId, $userId]);
+            $existing = $uStmt->fetch();
 
-        if ($existing) {
-            $upStmt = $pdo->prepare("UPDATE prediction_votes SET vote = ?, created_at = NOW() WHERE id = ?");
-            $upStmt->execute([$vote, $existing['id']]);
-        } else {
-            $insStmt = $pdo->prepare("INSERT INTO prediction_votes (fixture_id, user_id, vote) VALUES (?, ?, ?)");
-            $insStmt->execute([$fixtureId, $userId, $vote]);
+            if ($existing) {
+                $upStmt = $pdo->prepare("UPDATE prediction_votes SET vote = ?, created_at = NOW() WHERE id = ?");
+                $upStmt->execute([$vote, $existing['id']]);
+            } else {
+                $insStmt = $pdo->prepare("INSERT INTO prediction_votes (fixture_id, user_id, vote) VALUES (?, ?, ?)");
+                $insStmt->execute([$fixtureId, $userId, $vote]);
+            }
+
+            // Return updated stats from database table
+            $stmt = $pdo->prepare("SELECT 
+                                    COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
+                                    COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
+                                    COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
+                                    COUNT(*) AS total_votes
+                                  FROM prediction_votes WHERE fixture_id = ?");
+            $stmt->execute([$fixtureId]);
+            $stats = $stmt->fetch();
+
+            $v1 = (int)($stats['votes_1'] ?? 0);
+            $vx = (int)($stats['votes_x'] ?? 0);
+            $v2 = (int)($stats['votes_2'] ?? 0);
+            $total = (int)($stats['total_votes'] ?? 0);
+
+            $hPct = $total > 0 ? (int)round(($v1 / $total) * 100) : 0;
+            $dPct = $total > 0 ? (int)round(($vx / $total) * 100) : 0;
+            $aPct = $total > 0 ? max(0, 100 - $hPct - $dPct) : 0;
+
+            jsonResponse([
+                'success' => true,
+                'stats' => [
+                    'fixtureId' => $fixtureId,
+                    'totalVotes' => $total,
+                    'votes1' => $v1,
+                    'votesX' => $vx,
+                    'votes2' => $v2,
+                    'homePercent' => $hPct,
+                    'drawPercent' => $dPct,
+                    'awayPercent' => $aPct,
+                    'userVote' => $vote
+                ]
+            ]);
+        } catch (Throwable $e) {
+            jsonResponse([
+                'success' => false,
+                'error' => 'Failed to save vote to database table',
+                'details' => $e->getMessage()
+            ], 500);
         }
-
-        // Return updated stats
-        $stmt = $pdo->prepare("SELECT 
-                                COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
-                                COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
-                                COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
-                                COUNT(*) AS total_votes
-                              FROM prediction_votes WHERE fixture_id = ?");
-        $stmt->execute([$fixtureId]);
-        $stats = $stmt->fetch();
-
-        $v1 = (int)($stats['votes_1'] ?? 0);
-        $vx = (int)($stats['votes_x'] ?? 0);
-        $v2 = (int)($stats['votes_2'] ?? 0);
-        $total = (int)($stats['total_votes'] ?? 0);
-
-        $hPct = $total > 0 ? (int)round(($v1 / $total) * 100) : 0;
-        $dPct = $total > 0 ? (int)round(($vx / $total) * 100) : 0;
-        $aPct = $total > 0 ? max(0, 100 - $hPct - $dPct) : 0;
-
-        jsonResponse([
-            'success' => true,
-            'stats' => [
-                'fixtureId' => $fixtureId,
-                'totalVotes' => $total,
-                'votes1' => $v1,
-                'votesX' => $vx,
-                'votes2' => $v2,
-                'homePercent' => $hPct,
-                'drawPercent' => $dPct,
-                'awayPercent' => $aPct,
-                'userVote' => $vote
-            ]
-        ]);
     }
 }
 
