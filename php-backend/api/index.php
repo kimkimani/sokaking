@@ -349,20 +349,37 @@ if ($path === '/predictions' && $method === 'GET') {
 
 // 2. Voting GET & POST /api/predictions/vote or /api/vote
 if ($path === '/predictions/vote' || $path === '/vote') {
-    // Helper to ensure prediction_votes table exists in MySQL database
+    // Helper to ensure prediction_votes table exists and has proper auto_increment primary key in MySQL
     $ensureTable = function() use ($pdo) {
+        static $done = false;
+        if ($done) return;
+        $done = true;
+
         try {
             $pdo->exec("CREATE TABLE IF NOT EXISTS `prediction_votes` (
-              `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+              `id` INT(11) NOT NULL AUTO_INCREMENT,
               `fixture_id` VARCHAR(255) NOT NULL,
               `user_id` VARCHAR(255) DEFAULT NULL,
               `vote` VARCHAR(32) NOT NULL,
               `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-              INDEX `idx_fixture` (`fixture_id`),
-              INDEX `idx_user_fixture` (`fixture_id`, `user_id`)
+              PRIMARY KEY (`id`),
+              KEY `idx_fixture` (`fixture_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+            $pdo->exec("ALTER TABLE `prediction_votes` MODIFY `id` INT(11) NOT NULL AUTO_INCREMENT;");
         } catch (Throwable $e) {
-            // Ignore table creation error if user lacks DDL or table already exists
+            try {
+                $pdo->exec("DROP TABLE IF EXISTS `prediction_votes`;");
+                $pdo->exec("CREATE TABLE `prediction_votes` (
+                  `id` INT(11) NOT NULL AUTO_INCREMENT,
+                  `fixture_id` VARCHAR(255) NOT NULL,
+                  `user_id` VARCHAR(255) DEFAULT NULL,
+                  `vote` VARCHAR(32) NOT NULL,
+                  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+                  PRIMARY KEY (`id`),
+                  KEY `idx_fixture` (`fixture_id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+            } catch (Throwable $e2) {}
         }
     };
 
@@ -449,20 +466,32 @@ if ($path === '/predictions/vote' || $path === '/vote') {
         }
 
         try {
-            // Record or update vote in prediction_votes database table
+            $debugStep = 'select_existing';
             $uStmt = $pdo->prepare("SELECT id FROM prediction_votes WHERE fixture_id = ? AND user_id = ?");
             $uStmt->execute([$fixtureId, $userId]);
             $existing = $uStmt->fetch();
 
             if ($existing) {
-                $upStmt = $pdo->prepare("UPDATE prediction_votes SET vote = ?, created_at = NOW() WHERE id = ?");
-                $upStmt->execute([$vote, $existing['id']]);
+                $debugStep = 'update_vote';
+                $upStmt = $pdo->prepare("UPDATE prediction_votes SET vote = ?, created_at = NOW() WHERE fixture_id = ? AND user_id = ?");
+                $upStmt->execute([$vote, $fixtureId, $userId]);
             } else {
-                $insStmt = $pdo->prepare("INSERT INTO prediction_votes (fixture_id, user_id, vote) VALUES (?, ?, ?)");
-                $insStmt->execute([$fixtureId, $userId, $vote]);
+                $debugStep = 'calc_next_id';
+                $nextId = 1;
+                try {
+                    $nextIdStmt = $pdo->query("SELECT COALESCE(MAX(CAST(id AS UNSIGNED)), 0) + 1 AS next_id FROM prediction_votes");
+                    if ($nextIdStmt) {
+                        $val = (int)$nextIdStmt->fetchColumn();
+                        if ($val > 0) { $nextId = $val; }
+                    }
+                } catch (Throwable $eId) {}
+
+                $debugStep = 'insert_vote_with_id_' . $nextId;
+                $insStmt = $pdo->prepare("INSERT INTO `prediction_votes` (`id`, `fixture_id`, `user_id`, `vote`) VALUES (?, ?, ?, ?)");
+                $insStmt->execute([$nextId, $fixtureId, $userId, $vote]);
             }
 
-            // Return updated stats from database table
+            $debugStep = 'select_stats';
             $stmt = $pdo->prepare("SELECT 
                                     COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
                                     COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
@@ -499,7 +528,8 @@ if ($path === '/predictions/vote' || $path === '/vote') {
             jsonResponse([
                 'success' => false,
                 'error' => 'Failed to save vote to database table',
-                'details' => $e->getMessage()
+                'details' => $e->getMessage(),
+                'step' => isset($debugStep) ? $debugStep : 'unknown'
             ], 500);
         }
     }
