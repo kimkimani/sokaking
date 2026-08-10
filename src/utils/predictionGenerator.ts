@@ -432,20 +432,8 @@ export function getCategoryFixtures(
   // 1. Date pages: Today, Yesterday, Tomorrow
   if (categoryId === 'category-today') {
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, today));
-    if (filtered.length === 0) {
-      filtered = masterPool.slice(0, 15).map(f => ({
-        ...f,
-        kickoffTime: today.toISOString()
-      }));
-    }
   } else if (categoryId === 'category-yesterday') {
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, yesterday));
-    if (filtered.length === 0) {
-      filtered = masterPool.slice(0, 15).map(f => ({
-        ...f,
-        kickoffTime: yesterday.toISOString()
-      }));
-    }
     // Yesterday's matches must be completed with result outcomes
     filtered = filtered.map(f => ({
       ...f,
@@ -456,12 +444,6 @@ export function getCategoryFixtures(
     }));
   } else if (categoryId === 'category-tomorrow') {
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, tomorrow));
-    if (filtered.length === 0) {
-      filtered = masterPool.slice(0, 15).map(f => ({
-        ...f,
-        kickoffTime: tomorrow.toISOString()
-      }));
-    }
   } 
   // 2. Competitor / Tipster pages: ALWAYS show tips of TODAY
   else if (
@@ -479,14 +461,6 @@ export function getCategoryFixtures(
     categoryId.includes('tips')
   ) {
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, today));
-
-    // Fallback: If no fixtures are found strictly for today in pool, map master pool items to today
-    if (filtered.length === 0) {
-      filtered = masterPool.slice(0, 15).map(f => ({
-        ...f,
-        kickoffTime: new Date().toISOString()
-      }));
-    }
   } 
   // 3. Market / Category pages: Filter last 7 days based on prediction matching
   else if (

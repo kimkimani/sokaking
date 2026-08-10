@@ -358,20 +358,18 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
         setDbOddsPacks(oddsRes);
       }
 
-      const predictionsList = Array.isArray(allPredictionsRes) && allPredictionsRes.length > 0 ? allPredictionsRes : [];
-      if (predictionsList.length > 0) {
-        const yesterdayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientYesterday));
-        const todayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientToday));
-        const tomorrowPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientTomorrow));
+      const predictionsList = Array.isArray(allPredictionsRes) ? allPredictionsRes : [];
+      const yesterdayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientYesterday));
+      const todayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientToday));
+      const tomorrowPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientTomorrow));
 
-        setDbPredictions(prev => ({
-          ...prev,
-          'all': predictionsList,
-          'category-today': todayPreds,
-          'category-yesterday': yesterdayPreds,
-          'category-tomorrow': tomorrowPreds,
-        }));
-      }
+      setDbPredictions(prev => ({
+        ...prev,
+        'all': predictionsList,
+        'category-today': todayPreds,
+        'category-yesterday': yesterdayPreds,
+        'category-tomorrow': tomorrowPreds,
+      }));
     } catch (err) {
       console.error('Failed to load database content:', err);
     } finally {
