@@ -1,6 +1,6 @@
 ---
-title: "Soka  Predictions & Free Betting Tips Kenya"
-displayTitle: "Kenya's Premier Football Prediction & Jackpot Hub"
+title: "Soka King | #1 Football Predictions & Free Betting Tips Kenya"
+displayTitle: "Soka King - Kenya's Premier Football Prediction & Jackpot Hub"
 description: "Kenya's leading football prediction site. Get daily free 1X2 tips, SportPesa & Betika jackpot predictions, over 2.5 goals, and VIP betting packs."
 keywords: "Soka King, football predictions Kenya, free betting tips, SportPesa Mega Jackpot prediction, Betika jackpot analysis, sure bet tips"
 link: "/"

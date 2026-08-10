@@ -243,8 +243,18 @@ export default function PredictionsList({
           {isLoading ? (
             <MinimalShimmerLoader count={5} />
           ) : displayedFixtures.length === 0 ? (
-            <div className="p-8 text-center text-xs font-mono text-[var(--text-muted)]">
-              No matches found for the selected filter.
+            <div className="p-8 md:p-12 text-center flex flex-col items-center justify-center space-y-3 bg-[var(--card)]">
+              <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                <Calendar className="w-6 h-6 text-slate-400 shrink-0" />
+              </div>
+              <div className="max-w-md space-y-1">
+                <h3 className="text-xs md:text-sm font-bold text-[var(--text)] font-mono uppercase tracking-wider">
+                  No Fixtures Available
+                </h3>
+                <p className="text-xs text-[var(--text-muted)] font-sans leading-relaxed">
+                  There are currently no predictions or fixtures available for this date or category in our database. Please check back later or select a different page.
+                </p>
+              </div>
             </div>
           ) : (
             displayedFixtures.map((fixture) => {
