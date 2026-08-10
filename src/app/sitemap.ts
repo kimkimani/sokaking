@@ -1,19 +1,29 @@
 import { MetadataRoute } from 'next';
-import { getAllSitemapRoutes, BASE_URL } from '../utils/sitemapGenerator';
+import { getAllSitemapRoutes, getMarkdownRoutesSet, BASE_URL } from '../utils/sitemapGenerator';
 
 export const revalidate = 86400;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes = getAllSitemapRoutes();
+  const mdRoutes = getMarkdownRoutesSet();
   const currentDate = new Date().toISOString();
 
   return routes.map((p) => {
-    const isJackpotOrPred = p.includes('jackpot') || p.includes('prediction') || p.includes('tips') || p === '/';
+    const isMarkdownPage = mdRoutes.has(p);
+    const isJackpotOrPred = p.includes('jackpot') || p.includes('prediction') || p.includes('tips') || p.includes('sure') || p === '/';
+
+    let priority = 0.5;
+    if (p === '/') {
+      priority = 1.0;
+    } else if (isMarkdownPage || isJackpotOrPred) {
+      priority = 0.8;
+    }
+
     return {
       url: p === '/' ? BASE_URL : `${BASE_URL}${p}`,
       lastModified: currentDate,
-      changeFrequency: isJackpotOrPred ? 'daily' : 'weekly',
-      priority: p === '/' ? 1.0 : isJackpotOrPred ? 0.8 : 0.5,
+      changeFrequency: (isMarkdownPage || isJackpotOrPred) ? 'daily' : 'weekly',
+      priority,
     };
   });
 }

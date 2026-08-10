@@ -4,6 +4,54 @@ import { getAllMarkdownPages } from '../content/markdownLoader';
 
 export const BASE_URL = 'https://sokaking.com';
 
+export function getMarkdownRoutesSet(): Set<string> {
+  const mdRoutes = new Set<string>();
+
+  // 1. Scan markdownLoader (includes markdownData.ts and parsed pages)
+  try {
+    const allMd = getAllMarkdownPages();
+    for (const { pageKey, page } of allMd) {
+      if (page.link) {
+        let normLink = page.link.toLowerCase().trim();
+        if (!normLink.startsWith('/')) normLink = '/' + normLink;
+        if (normLink.endsWith('/') && normLink !== '/') normLink = normLink.slice(0, -1);
+        mdRoutes.add(normLink);
+      } else {
+        mdRoutes.add(`/${pageKey}`);
+      }
+    }
+  } catch (err) {
+    console.error('Error getting markdown pages for sitemap:', err);
+  }
+
+  // 2. Automatically scan all physical markdown files in src/content/pages/
+  try {
+    const pagesDir = path.join(process.cwd(), 'src/content/pages');
+    if (fs.existsSync(pagesDir)) {
+      const files = fs.readdirSync(pagesDir);
+      for (const file of files) {
+        if (file.endsWith('.md')) {
+          const content = fs.readFileSync(path.join(pagesDir, file), 'utf-8');
+          const linkMatch = content.match(/^(?:link|Link):\s*"?(.*?)"?$/m);
+          if (linkMatch && linkMatch[1]) {
+            let normLink = linkMatch[1].trim();
+            if (!normLink.startsWith('/')) normLink = '/' + normLink;
+            if (normLink.endsWith('/') && normLink !== '/') normLink = normLink.slice(0, -1);
+            mdRoutes.add(normLink);
+          } else {
+            const pageSlug = file.replace(/\.md$/, '').toLowerCase();
+            mdRoutes.add(`/${pageSlug}`);
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error reading markdown directory for sitemap:', err);
+  }
+
+  return mdRoutes;
+}
+
 export function getAllSitemapRoutes(): string[] {
   const defaultRoutes = [
     '/',
@@ -38,47 +86,10 @@ export function getAllSitemapRoutes(): string[] {
   ];
 
   const routesSet = new Set<string>(defaultRoutes);
+  const mdRoutes = getMarkdownRoutesSet();
 
-  // 1. Scan markdownLoader (includes markdownData.ts and parsed pages)
-  try {
-    const allMd = getAllMarkdownPages();
-    for (const { pageKey, page } of allMd) {
-      if (page.link) {
-        let normLink = page.link.toLowerCase().trim();
-        if (!normLink.startsWith('/')) normLink = '/' + normLink;
-        if (normLink.endsWith('/') && normLink !== '/') normLink = normLink.slice(0, -1);
-        routesSet.add(normLink);
-      } else {
-        routesSet.add(`/${pageKey}`);
-      }
-    }
-  } catch (err) {
-    console.error('Error getting markdown pages for sitemap:', err);
-  }
-
-  // 2. Automatically scan all physical markdown files in src/content/pages/
-  try {
-    const pagesDir = path.join(process.cwd(), 'src/content/pages');
-    if (fs.existsSync(pagesDir)) {
-      const files = fs.readdirSync(pagesDir);
-      for (const file of files) {
-        if (file.endsWith('.md')) {
-          const content = fs.readFileSync(path.join(pagesDir, file), 'utf-8');
-          const linkMatch = content.match(/^(?:link|Link):\s*"?(.*?)"?$/m);
-          if (linkMatch && linkMatch[1]) {
-            let normLink = linkMatch[1].trim();
-            if (!normLink.startsWith('/')) normLink = '/' + normLink;
-            if (normLink.endsWith('/') && normLink !== '/') normLink = normLink.slice(0, -1);
-            routesSet.add(normLink);
-          } else {
-            const pageSlug = file.replace(/\.md$/, '');
-            routesSet.add(`/${pageSlug}`);
-          }
-        }
-      }
-    }
-  } catch (err) {
-    console.error('Error reading markdown directory for sitemap:', err);
+  for (const r of mdRoutes) {
+    routesSet.add(r);
   }
 
   return Array.from(routesSet);
@@ -86,13 +97,22 @@ export function getAllSitemapRoutes(): string[] {
 
 export function generateSitemapXml(): string {
   const routes = getAllSitemapRoutes();
+  const mdRoutes = getMarkdownRoutesSet();
   const currentDate = new Date().toISOString();
 
   const urlEntries = routes.map((p) => {
     const fullUrl = p === '/' ? BASE_URL : `${BASE_URL}${p}`;
-    const isJackpotOrPred = p.includes('jackpot') || p.includes('prediction') || p.includes('tips') || p === '/';
-    const changeFreq = isJackpotOrPred ? 'daily' : 'weekly';
-    const priority = p === '/' ? '1.0' : isJackpotOrPred ? '0.8' : '0.5';
+    const isMarkdownPage = mdRoutes.has(p);
+    const isJackpotOrPred = p.includes('jackpot') || p.includes('prediction') || p.includes('tips') || p.includes('sure') || p === '/';
+
+    let priority = '0.50';
+    if (p === '/') {
+      priority = '1.00';
+    } else if (isMarkdownPage || isJackpotOrPred) {
+      priority = '0.80';
+    }
+
+    const changeFreq = (isMarkdownPage || isJackpotOrPred) ? 'daily' : 'weekly';
 
     return `  <url>
     <loc>${fullUrl}</loc>
