@@ -22,6 +22,15 @@ export interface Fixture {
   awayScore?: number | string;
   confidence: number; // e.g., 85 for 85%
   aiAnalysis?: string; // AI generated context
+  probabilities?: { home?: string | number; draw?: string | number; away?: string | number } | null;
+  explicitProbs?: { home?: number | string; draw?: number | string; away?: number | string; percentPredHome?: string | null; percentPredDraw?: string | null; percentPredAway?: string | null } | null;
+  probs?: any;
+  homeProb?: number;
+  drawProb?: number;
+  awayProb?: number;
+  percentPredHome?: string | null;
+  percentPredDraw?: string | null;
+  percentPredAway?: string | null;
 }
 
 export interface VipPackage {

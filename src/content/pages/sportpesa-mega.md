@@ -1,9 +1,9 @@
 ---
-title: "Spor Predictions & KES 300 Million Analysis (17 Games)"
+title: "SportPesa Mega Jackpot Predictions & KES 300 Million Analysis (17 Games)"
 description: "Expert SportPesa Mega Jackpot predictions, 17-game ticket analysis, and double chance combinations for Kenya's KES 300M+ jackpot pool."
 keywords: "SportPesa Mega Jackpot predictions, SportPesa tips today, 17 games jackpot Kenya, SportPesa bonus tips"
 link: "/free-sportpesa-mega-jackpot-predictions-and-analysis"
-displayTitle: " Selections & Covers (17 Games)"
+displayTitle: "SportPesa Mega Jackpot Selections & Covers (17 Games)"
 authorName: "John K. Mwangi"
 authorTitle: "Lead Football Analyst & Poisson Model Expert"
 authorDescription: "Specializing in 17-game SportPesa Mega Jackpot modeling and double chance strategies."

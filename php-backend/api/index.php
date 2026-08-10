@@ -39,94 +39,77 @@ function getJsonInput() {
  * Calculate dynamic, realistic betting probabilities and confidence indices
  */
 function computeFixtureConfidenceAndProbabilities($prediction, $hp = 0, $dp = 0, $ap = 0, $fixtureId = 1) {
+    $seed = is_numeric($fixtureId) && (int)$fixtureId > 0 ? (int)$fixtureId : abs(crc32((string)$fixtureId));
+    if ($seed === 0) $seed = 1;
+
     if ($hp > 0 || $dp > 0 || $ap > 0) {
         $total = $hp + $dp + $ap;
         if ($total > 0 && $total !== 100) {
-            $hp = round(($hp / $total) * 100);
-            $dp = round(($dp / $total) * 100);
+            $hp = (int)round(($hp / $total) * 100);
+            $dp = (int)round(($dp / $total) * 100);
             $ap = 100 - $hp - $dp;
         }
-
-        $predLower = strtolower($prediction ?? '');
-        if (strpos($predLower, '1x') !== false || strpos($predLower, 'x1') !== false) {
-            $conf = $hp + $dp;
-        } elseif (strpos($predLower, 'x2') !== false || strpos($predLower, '2x') !== false) {
-            $conf = $dp + $ap;
-        } elseif (strpos($predLower, '12') !== false || strpos($predLower, '21') !== false) {
-            $conf = $hp + $ap;
-        } elseif (strpos($predLower, '(1)') !== false || strpos($predLower, 'home win') !== false || $predLower === '1') {
-            $conf = $hp;
-        } elseif (strpos($predLower, '(x)') !== false || strpos($predLower, 'draw') !== false || $predLower === 'x') {
-            $conf = $dp;
-        } elseif (strpos($predLower, '(2)') !== false || strpos($predLower, 'away win') !== false || $predLower === '2') {
-            $conf = $ap;
-        } else {
-            $conf = max($hp, $dp, $ap, 75);
-        }
-
-        $conf = max(65, min(94, (int)$conf));
-
-        return [
-            'confidence' => $conf,
-            'probabilities' => [
-                'home' => $hp . '%',
-                'draw' => $dp . '%',
-                'away' => $ap . '%'
-            ],
-            'hp' => $hp,
-            'dp' => $dp,
-            'ap' => $ap
-        ];
-    }
-
-    // Deterministic fallback derived from prediction type and fixture seed
-    $predLower = strtolower($prediction ?? '');
-    $seed = is_numeric($fixtureId) ? (int)$fixtureId : crc32((string)$fixtureId);
-
-    if (strpos($predLower, '1x') !== false || strpos($predLower, 'x1') !== false) {
-        $conf = 78 + (abs($seed * 7) % 11); // 78 - 88%
-        $hp = round($conf * 0.55);
-        $dp = round($conf * 0.45);
-        $ap = 100 - $hp - $dp;
-    } elseif (strpos($predLower, 'x2') !== false || strpos($predLower, '2x') !== false) {
-        $conf = 76 + (abs($seed * 11) % 12); // 76 - 87%
-        $ap = round($conf * 0.55);
-        $dp = round($conf * 0.45);
-        $hp = 100 - $ap - $dp;
-    } elseif (strpos($predLower, '12') !== false || strpos($predLower, '21') !== false) {
-        $conf = 75 + (abs($seed * 13) % 12); // 75 - 86%
-        $hp = round($conf * 0.5);
-        $ap = round($conf * 0.5);
-        $dp = 100 - $hp - $ap;
-    } elseif (strpos($predLower, '(1)') !== false || strpos($predLower, 'home win') !== false || $predLower === '1') {
-        $conf = 72 + (abs($seed * 17) % 16); // 72 - 87%
-        $hp = $conf;
-        $dp = floor((100 - $conf) * 0.6);
-        $ap = 100 - $hp - $dp;
-    } elseif (strpos($predLower, '(x)') !== false || strpos($predLower, 'draw') !== false || $predLower === 'x') {
-        $conf = 66 + (abs($seed * 19) % 10); // 66 - 75%
-        $dp = $conf;
-        $hp = floor((100 - $conf) * 0.5);
-        $ap = 100 - $dp - $hp;
-    } elseif (strpos($predLower, '(2)') !== false || strpos($predLower, 'away win') !== false || $predLower === '2') {
-        $conf = 70 + (abs($seed * 23) % 16); // 70 - 85%
-        $ap = $conf;
-        $dp = floor((100 - $conf) * 0.6);
-        $hp = 100 - $ap - $dp;
     } else {
-        $conf = 74 + (abs($seed * 29) % 13); // 74 - 86%
-        $hp = $conf;
-        $dp = floor((100 - $conf) / 2);
+        $hp = 35 + ($seed * 7) % 25;
+        $dp = 22 + ($seed * 11) % 12;
         $ap = 100 - $hp - $dp;
+        if ($ap < 10) {
+            $ap = 15;
+            $hp = 100 - $dp - $ap;
+        }
     }
 
-    $hp = max(5, $hp);
-    $dp = max(5, $dp);
-    $ap = max(5, $ap);
-    $sum = $hp + $dp + $ap;
-    if ($sum !== 100) {
-        $hp += (100 - $sum);
+    $predLower = strtolower(trim($prediction ?? ''));
+    $seedVar = $seed % 9;
+
+    // Compute dynamic, fixture-specific confidence based on prediction type, team strength/probabilities, and match seed
+    if (strpos($predLower, '1x') !== false || strpos($predLower, 'x1') !== false || strpos($predLower, 'dc1x') !== false) {
+        $combined = ($hp > 0 || $dp > 0) ? ($hp + $dp) : 74;
+        $conf = $combined + ($seed % 7);
+    } elseif (strpos($predLower, 'x2') !== false || strpos($predLower, '2x') !== false || strpos($predLower, 'dcx2') !== false) {
+        $combined = ($dp > 0 || $ap > 0) ? ($dp + $ap) : 74;
+        $conf = $combined + ($seed % 7);
+    } elseif (strpos($predLower, '12') !== false || strpos($predLower, '21') !== false || strpos($predLower, 'dc12') !== false) {
+        $combined = ($hp > 0 || $ap > 0) ? ($hp + $ap) : 72;
+        $conf = $combined + ($seed % 7);
+    } elseif (strpos($predLower, '(1)') !== false || strpos($predLower, 'home win') !== false || $predLower === '1' || strpos($predLower, 'home') !== false) {
+        if ($hp > 0) {
+            $margin = max(0, $hp - $ap);
+            $conf = 65 + (int)round($hp * 0.22) + (int)round($margin * 0.25) + $seedVar;
+        } else {
+            $conf = 71 + ($seed % 18);
+        }
+    } elseif (strpos($predLower, '(2)') !== false || strpos($predLower, 'away win') !== false || $predLower === '2' || strpos($predLower, 'away') !== false) {
+        if ($ap > 0) {
+            $margin = max(0, $ap - $hp);
+            $conf = 65 + (int)round($ap * 0.22) + (int)round($margin * 0.25) + $seedVar;
+        } else {
+            $conf = 70 + ($seed % 18);
+        }
+    } elseif (strpos($predLower, '(x)') !== false || strpos($predLower, 'draw') !== false || $predLower === 'x') {
+        if ($dp > 0) {
+            $conf = 64 + (int)round($dp * 0.4) + $seedVar;
+        } else {
+            $conf = 66 + ($seed % 12);
+        }
+    } elseif (strpos($predLower, 'ov 1.5') !== false || strpos($predLower, 'over 1.5') !== false) {
+        $conf = 80 + ($seed * 13) % 14;
+    } elseif (strpos($predLower, 'ov 2.5') !== false || strpos($predLower, 'over 2.5') !== false || strpos($predLower, 'ov') !== false) {
+        $conf = 72 + ($seed * 17) % 17;
+    } elseif (strpos($predLower, 'un 2.5') !== false || strpos($predLower, 'under 2.5') !== false || strpos($predLower, 'un') !== false) {
+        $conf = 69 + ($seed * 19) % 16;
+    } elseif (strpos($predLower, 'gg') !== false || strpos($predLower, 'btts') !== false) {
+        $conf = 73 + ($seed * 23) % 16;
+    } else {
+        $maxP = max($hp, $dp, $ap);
+        if ($maxP > 0) {
+            $conf = 68 + (int)round($maxP * 0.25) + $seedVar;
+        } else {
+            $conf = 72 + ($seed % 19);
+        }
     }
+
+    $conf = max(65, min(96, (int)$conf));
 
     return [
         'confidence' => $conf,
