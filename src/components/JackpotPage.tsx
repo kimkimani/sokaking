@@ -818,7 +818,13 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
 
                         {/* Community Poll & Voting Section */}
                         <div className="pt-1.5">
-                          <VotePoll fixtureId={`jackpot_${jackpot.id}_${match.id}`} />
+                          <VotePoll 
+                            fixtureId={`jackpot_${jackpot.id}_${match.id}`} 
+                            isEnded={match.status === 'FT' || match.status === 'FINISHED' || match.result === 'won' || match.result === 'lost'}
+                            status={match.status}
+                            result={match.result}
+                            prediction={match.prediction}
+                          />
                         </div>
                       </div>
                     </motion.div>

@@ -39,9 +39,6 @@ export async function POST(req: NextRequest) {
     if (!fixtureId || !vote) {
       return NextResponse.json({ error: 'fixtureId and vote are required' }, { status: 400 });
     }
-    if (!['1', 'X', '2'].includes(vote)) {
-      return NextResponse.json({ error: 'Invalid vote value. Must be "1", "X", or "2"' }, { status: 400 });
-    }
 
     const baseUrl = getApiBaseUrl();
     const res = await fetch(`${baseUrl}/api/predictions/vote`, {

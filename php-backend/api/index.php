@@ -403,6 +403,12 @@ if ($path === '/predictions/vote' || $path === '/vote') {
         $fixtureId = isset($body['fixtureId']) ? trim($body['fixtureId']) : '';
         $userId = isset($body['userId']) ? trim($body['userId']) : 'guest_' . uniqid();
         $vote = isset($body['vote']) ? strtoupper(trim($body['vote'])) : '';
+        $isEnded = !empty($body['isEnded']);
+        $status = isset($body['status']) ? strtoupper(trim($body['status'])) : '';
+
+        if ($isEnded || in_array($status, ['FT', 'AET', 'PEN', 'FINISHED', 'AWD', 'CANCELLED', 'POSTPONED'])) {
+            jsonResponse(['error' => 'Voting is closed because this match has ended.'], 400);
+        }
 
         if (!$fixtureId || !in_array($vote, ['1', 'X', '2'])) {
             jsonResponse(['error' => 'fixtureId and valid vote (1, X, 2) are required'], 400);

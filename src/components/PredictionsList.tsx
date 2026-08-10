@@ -559,7 +559,13 @@ export default function PredictionsList({
 
                         {/* Community Verdict Poll */}
                         <div className="pt-1.5">
-                          <VotePoll fixtureId={fixture.id} />
+                          <VotePoll 
+                            fixtureId={fixture.id} 
+                            isEnded={isCompleted} 
+                            status={fixture.status} 
+                            result={fixture.result} 
+                            prediction={fixture.prediction}
+                          />
                         </div>
                       </div>
                     </motion.div>
