@@ -394,22 +394,26 @@ if ($path === '/predictions/vote' || $path === '/vote') {
         }
 
         try {
-            // First attempt instant lookup in pre-aggregated table
-            $stmt = $pdo->prepare("SELECT votes_1, votes_x, votes_2, total_votes FROM fixture_vote_counts WHERE fixture_id = ?");
+            // Ensure table exists
+            $pdo->exec("CREATE TABLE IF NOT EXISTS `prediction_votes` (
+              `id` INT AUTO_INCREMENT PRIMARY KEY,
+              `fixture_id` VARCHAR(255) NOT NULL,
+              `user_id` VARCHAR(255) NOT NULL,
+              `vote` VARCHAR(64) NOT NULL,
+              `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+              UNIQUE KEY `uniq_fixture_user` (`fixture_id`, `user_id`),
+              KEY `idx_fixture` (`fixture_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+            // Query vote totals directly from prediction_votes
+            $stmt = $pdo->prepare("SELECT 
+                                    COUNT(CASE WHEN UPPER(vote) IN ('1', '1X', 'GG', 'YES') OR UPPER(vote) LIKE 'OVER%' OR UPPER(vote) LIKE 'OV%' THEN 1 END) AS votes_1,
+                                    COUNT(CASE WHEN UPPER(vote) IN ('X', '12') THEN 1 END) AS votes_x,
+                                    COUNT(CASE WHEN UPPER(vote) IN ('2', '2X', 'NG', 'NO') OR UPPER(vote) LIKE 'UNDER%' OR UPPER(vote) LIKE 'UN%' THEN 1 END) AS votes_2,
+                                    COUNT(*) AS total_votes
+                                  FROM prediction_votes WHERE fixture_id = ?");
             $stmt->execute([$fixtureId]);
             $stats = $stmt->fetch();
-
-            if (!$stats) {
-                // Fallback to raw table if summary row not created yet
-                $stmt = $pdo->prepare("SELECT 
-                                        COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
-                                        COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
-                                        COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
-                                        COUNT(*) AS total_votes
-                                      FROM prediction_votes WHERE fixture_id = ?");
-                $stmt->execute([$fixtureId]);
-                $stats = $stmt->fetch();
-            }
 
             $v1 = (int)($stats['votes_1'] ?? 0);
             $vx = (int)($stats['votes_x'] ?? 0);
@@ -500,24 +504,31 @@ if ($path === '/predictions/vote' || $path === '/vote') {
             }
 
             // Recalculate and update summary counts for this fixture in fixture_vote_counts
-            $recalcStmt = $pdo->prepare("
-                INSERT INTO fixture_vote_counts (fixture_id, votes_1, votes_x, votes_2, total_votes)
-                SELECT 
-                    ? AS fixture_id,
-                    COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
-                    COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
-                    COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
-                    COUNT(*) AS total_votes
-                FROM prediction_votes WHERE fixture_id = ?
-                ON DUPLICATE KEY UPDATE 
-                    votes_1 = VALUES(votes_1),
-                    votes_x = VALUES(votes_x),
-                    votes_2 = VALUES(votes_2),
-                    total_votes = VALUES(total_votes)
-            ");
-            $recalcStmt->execute([$fixtureId, $fixtureId]);
+            try {
+                $recalcStmt = $pdo->prepare("
+                    INSERT INTO fixture_vote_counts (fixture_id, votes_1, votes_x, votes_2, total_votes)
+                    SELECT 
+                        ? AS fixture_id,
+                        COUNT(CASE WHEN UPPER(vote) IN ('1', '1X', 'GG', 'YES') OR UPPER(vote) LIKE 'OVER%' OR UPPER(vote) LIKE 'OV%' THEN 1 END) AS votes_1,
+                        COUNT(CASE WHEN UPPER(vote) IN ('X', '12') THEN 1 END) AS votes_x,
+                        COUNT(CASE WHEN UPPER(vote) IN ('2', '2X', 'NG', 'NO') OR UPPER(vote) LIKE 'UNDER%' OR UPPER(vote) LIKE 'UN%' THEN 1 END) AS votes_2,
+                        COUNT(*) AS total_votes
+                    FROM prediction_votes WHERE fixture_id = ?
+                    ON DUPLICATE KEY UPDATE 
+                        votes_1 = VALUES(votes_1),
+                        votes_x = VALUES(votes_x),
+                        votes_2 = VALUES(votes_2),
+                        total_votes = VALUES(total_votes)
+                ");
+                $recalcStmt->execute([$fixtureId, $fixtureId]);
+            } catch (Throwable $eCount) {}
 
-            $stmt = $pdo->prepare("SELECT votes_1, votes_x, votes_2, total_votes FROM fixture_vote_counts WHERE fixture_id = ?");
+            $stmt = $pdo->prepare("SELECT 
+                                    COUNT(CASE WHEN UPPER(vote) IN ('1', '1X', 'GG', 'YES') OR UPPER(vote) LIKE 'OVER%' OR UPPER(vote) LIKE 'OV%' THEN 1 END) AS votes_1,
+                                    COUNT(CASE WHEN UPPER(vote) IN ('X', '12') THEN 1 END) AS votes_x,
+                                    COUNT(CASE WHEN UPPER(vote) IN ('2', '2X', 'NG', 'NO') OR UPPER(vote) LIKE 'UNDER%' OR UPPER(vote) LIKE 'UN%' THEN 1 END) AS votes_2,
+                                    COUNT(*) AS total_votes
+                                  FROM prediction_votes WHERE fixture_id = ?");
             $stmt->execute([$fixtureId]);
             $stats = $stmt->fetch();
 

@@ -473,10 +473,10 @@ export default function VotePoll({ fixtureId, isEnded, status, result, predictio
   };
 
   const getOptionPercentage = (opt: PollOption) => {
-    if (!stats) return 0;
+    if (!stats || stats.totalVotes === 0) return 0;
     if (market.options.length === 2) {
       if (opt.dbKey === '1') return stats.homePercent;
-      return stats.awayPercent > 0 ? stats.awayPercent : (100 - stats.homePercent);
+      return stats.awayPercent;
     }
     if (opt.dbKey === '1') return stats.homePercent;
     if (opt.dbKey === 'X') return stats.drawPercent;
@@ -486,7 +486,10 @@ export default function VotePoll({ fixtureId, isEnded, status, result, predictio
 
   const isUserSelected = (opt: PollOption) => {
     if (!stats?.userVote) return false;
-    return stats.userVote === opt.key || stats.userVote === opt.dbKey;
+    const uv = String(stats.userVote).trim().toUpperCase();
+    const ok = String(opt.key).trim().toUpperCase();
+    const odb = String(opt.dbKey).trim().toUpperCase();
+    return uv === ok || uv === odb;
   };
 
   const hasVoted = Boolean(stats?.userVote);
