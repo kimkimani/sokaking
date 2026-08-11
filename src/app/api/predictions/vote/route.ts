@@ -39,11 +39,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'fixtureId and vote are required' }, { status: 400 });
     }
 
+    const payload = {
+      id: body.id || Math.floor(Date.now() / 1000) + Math.floor(Math.random() * 1000),
+      ...body,
+    };
+
     const baseUrl = getApiBaseUrl();
     const res = await fetch(`${baseUrl}/api/predictions/vote`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json().catch(() => null);

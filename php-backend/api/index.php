@@ -349,41 +349,41 @@ if ($path === '/predictions' && $method === 'GET') {
 
 // 2. Voting GET & POST /api/predictions/vote or /api/vote
 if ($path === '/predictions/vote' || $path === '/vote') {
-    // Helper to ensure prediction_votes table exists and has proper auto_increment primary key in MySQL
-    $ensureTable = function() use ($pdo) {
+    // Helper to ensure database tables and indexes exist for high performance at scale
+    $ensureTables = function() use ($pdo) {
         static $done = false;
         if ($done) return;
         $done = true;
 
         try {
+            // 1. Individual votes table
             $pdo->exec("CREATE TABLE IF NOT EXISTS `prediction_votes` (
               `id` INT(11) NOT NULL AUTO_INCREMENT,
               `fixture_id` VARCHAR(255) NOT NULL,
-              `user_id` VARCHAR(255) DEFAULT NULL,
+              `user_id` VARCHAR(255) NOT NULL,
               `vote` VARCHAR(32) NOT NULL,
               `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
               PRIMARY KEY (`id`),
-              KEY `idx_fixture` (`fixture_id`)
+              KEY `idx_fixture` (`fixture_id`),
+              UNIQUE KEY `uniq_fixture_user` (`fixture_id`, `user_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        } catch (Throwable $e) {}
 
-            $pdo->exec("ALTER TABLE `prediction_votes` MODIFY `id` INT(11) NOT NULL AUTO_INCREMENT;");
-        } catch (Throwable $e) {
-            try {
-                $pdo->exec("DROP TABLE IF EXISTS `prediction_votes`;");
-                $pdo->exec("CREATE TABLE `prediction_votes` (
-                  `id` INT(11) NOT NULL AUTO_INCREMENT,
-                  `fixture_id` VARCHAR(255) NOT NULL,
-                  `user_id` VARCHAR(255) DEFAULT NULL,
-                  `vote` VARCHAR(32) NOT NULL,
-                  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-                  PRIMARY KEY (`id`),
-                  KEY `idx_fixture` (`fixture_id`)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
-            } catch (Throwable $e2) {}
-        }
+        try {
+            // 2. Summary counter table for O(1) instant stats lookups even with millions of votes
+            $pdo->exec("CREATE TABLE IF NOT EXISTS `fixture_vote_counts` (
+              `fixture_id` VARCHAR(255) NOT NULL,
+              `votes_1` INT(11) NOT NULL DEFAULT 0,
+              `votes_x` INT(11) NOT NULL DEFAULT 0,
+              `votes_2` INT(11) NOT NULL DEFAULT 0,
+              `total_votes` INT(11) NOT NULL DEFAULT 0,
+              `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+              PRIMARY KEY (`fixture_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        } catch (Throwable $e) {}
     };
 
-    $ensureTable();
+    $ensureTables();
 
     if ($method === 'GET') {
         $fixtureId = isset($_GET['fixtureId']) ? trim($_GET['fixtureId']) : '';
@@ -394,14 +394,22 @@ if ($path === '/predictions/vote' || $path === '/vote') {
         }
 
         try {
-            $stmt = $pdo->prepare("SELECT 
-                                    COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
-                                    COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
-                                    COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
-                                    COUNT(*) AS total_votes
-                                  FROM prediction_votes WHERE fixture_id = ?");
+            // First attempt instant lookup in pre-aggregated table
+            $stmt = $pdo->prepare("SELECT votes_1, votes_x, votes_2, total_votes FROM fixture_vote_counts WHERE fixture_id = ?");
             $stmt->execute([$fixtureId]);
             $stats = $stmt->fetch();
+
+            if (!$stats) {
+                // Fallback to raw table if summary row not created yet
+                $stmt = $pdo->prepare("SELECT 
+                                        COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
+                                        COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
+                                        COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
+                                        COUNT(*) AS total_votes
+                                      FROM prediction_votes WHERE fixture_id = ?");
+                $stmt->execute([$fixtureId]);
+                $stats = $stmt->fetch();
+            }
 
             $v1 = (int)($stats['votes_1'] ?? 0);
             $vx = (int)($stats['votes_x'] ?? 0);
@@ -491,13 +499,25 @@ if ($path === '/predictions/vote' || $path === '/vote') {
                 $insStmt->execute([$nextId, $fixtureId, $userId, $vote]);
             }
 
-            $debugStep = 'select_stats';
-            $stmt = $pdo->prepare("SELECT 
-                                    COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
-                                    COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
-                                    COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
-                                    COUNT(*) AS total_votes
-                                  FROM prediction_votes WHERE fixture_id = ?");
+            // Recalculate and update summary counts for this fixture in fixture_vote_counts
+            $recalcStmt = $pdo->prepare("
+                INSERT INTO fixture_vote_counts (fixture_id, votes_1, votes_x, votes_2, total_votes)
+                SELECT 
+                    ? AS fixture_id,
+                    COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
+                    COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
+                    COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
+                    COUNT(*) AS total_votes
+                FROM prediction_votes WHERE fixture_id = ?
+                ON DUPLICATE KEY UPDATE 
+                    votes_1 = VALUES(votes_1),
+                    votes_x = VALUES(votes_x),
+                    votes_2 = VALUES(votes_2),
+                    total_votes = VALUES(total_votes)
+            ");
+            $recalcStmt->execute([$fixtureId, $fixtureId]);
+
+            $stmt = $pdo->prepare("SELECT votes_1, votes_x, votes_2, total_votes FROM fixture_vote_counts WHERE fixture_id = ?");
             $stmt->execute([$fixtureId]);
             $stats = $stmt->fetch();
 
