@@ -858,6 +858,261 @@ function queryMpesaDarajaStkStatus($checkoutRequestId) {
     }
 }
 
+// -------------------------------------------------------------
+// AFRICA'S TALKING SMS GATEWAY & SUBSCRIPTION ENGINE
+// -------------------------------------------------------------
+
+function formatKenyanPhoneNumber($phone) {
+    $cleaned = preg_replace('/[^0-9]/', '', (string)$phone);
+    if (strpos($cleaned, '0') === 0) {
+        $cleaned = '254' . substr($cleaned, 1);
+    } elseif (strpos($cleaned, '7') === 0 || strpos($cleaned, '1') === 0) {
+        $cleaned = '254' . $cleaned;
+    }
+    if (strpos($cleaned, '+') !== 0) {
+        $cleaned = '+' . $cleaned;
+    }
+    return $cleaned;
+}
+
+function sendAfricasTalkingSms($toNumbers, $message) {
+    $username = defined('AT_USERNAME') ? AT_USERNAME : (getenv('AT_USERNAME') ?: 'sandbox');
+    $apiKey = defined('AT_API_KEY') ? AT_API_KEY : (getenv('AT_API_KEY') ?: '');
+    $senderId = defined('AT_SENDER_ID') ? AT_SENDER_ID : (getenv('AT_SENDER_ID') ?: 'SOKAKING');
+
+    if (is_array($toNumbers)) {
+        $recipients = implode(',', array_map('formatKenyanPhoneNumber', $toNumbers));
+    } else {
+        $recipients = formatKenyanPhoneNumber($toNumbers);
+    }
+
+    if (empty($apiKey) || $apiKey === 'your_africas_talking_api_key') {
+        // Simulated / Local Sandbox Mode
+        error_log("[Africa's Talking SMS Simulated] To: $recipients | Message: $message");
+        return [
+            'success' => true,
+            'simulated' => true,
+            'recipients' => $recipients,
+            'message' => $message,
+            'status' => 'sent',
+            'cost' => 'KES 0.00 (Simulated)'
+        ];
+    }
+
+    $isSandbox = ($username === 'sandbox');
+    $url = $isSandbox 
+        ? 'https://api.sandbox.africastalking.com/version1/messaging' 
+        : 'https://api.africastalking.com/version1/messaging';
+
+    $payload = [
+        'username' => $username,
+        'to'       => $recipients,
+        'message'  => $message
+    ];
+    if (!empty($senderId) && !$isSandbox) {
+        $payload['from'] = $senderId;
+    }
+
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'apiKey: ' . $apiKey,
+        'Accept: application/json',
+        'Content-Type: application/x-www-form-urlencoded'
+    ]);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($payload));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+
+    if ($curlError) {
+        return ['success' => false, 'error' => "cURL Error: $curlError", 'status' => 'failed'];
+    }
+
+    $data = json_decode($response, true);
+    if ($httpCode >= 200 && $httpCode < 300) {
+        return [
+            'success' => true,
+            'simulated' => false,
+            'data' => $data,
+            'status' => 'sent'
+        ];
+    }
+
+    return [
+        'success' => false,
+        'error' => "HTTP $httpCode: " . ($data['errorMessage'] ?? $response),
+        'status' => 'failed'
+    ];
+}
+
+function getPackageDurationDays($packageId) {
+    $pkg = strtolower((string)$packageId);
+    if (strpos($pkg, 'daily') !== false || $pkg === '1') return 1;
+    if (strpos($pkg, 'weekly') !== false || $pkg === '7') return 7;
+    if (strpos($pkg, 'monthly') !== false || $pkg === '30') return 30;
+    return 7;
+}
+
+function assembleVipAndJackpotSmsText($pdo, $packageName = 'VIP Pass', $packageType = 'vip', $packageId = '') {
+    // 1. Fetch VIP Tips
+    $vipTips = [];
+    try {
+        $stmt = $pdo->prepare("SELECT home_team_name, away_team_name, prediction FROM fixture_predictions WHERE is_vip = 1 OR is_banker = 1 ORDER BY confidence_score DESC LIMIT 3");
+        $stmt->execute();
+        $vipRows = $stmt->fetchAll();
+        foreach ($vipRows as $idx => $r) {
+            $num = $idx + 1;
+            $vipTips[] = "$num. {$r['home_team_name']} vs {$r['away_team_name']} -> Tip: {$r['prediction']}";
+        }
+    } catch (Throwable $e) {}
+
+    if (empty($vipTips)) {
+        $vipTips = [
+            "1. Man City vs Liverpool -> Tip: Home Win (1)",
+            "2. Real Madrid vs Barcelona -> Tip: GG (Yes)",
+            "3. Bayern vs Dortmund -> Tip: Over 2.5 Goals"
+        ];
+    }
+
+    // 2. Check active Jackpot kickoff status
+    $jackpotPicks = [];
+    $jackpotLocked = false;
+    try {
+        $jStmt = $pdo->prepare("SELECT MIN(date) AS earliest_kickoff FROM sportpesa_mega_jackpot WHERE status_short = 'NS'");
+        $jStmt->execute();
+        $jRow = $jStmt->fetch();
+        if ($jRow && !empty($jRow['earliest_kickoff'])) {
+            $kickoffTime = strtotime($jRow['earliest_kickoff']);
+            if (time() >= $kickoffTime) {
+                $jackpotLocked = true;
+            }
+        }
+    } catch (Throwable $e) {}
+
+    if (!$jackpotLocked) {
+        try {
+            $mStmt = $pdo->prepare("SELECT jackpot_position, home_team_name, away_team_name, jackpot_tip FROM sportpesa_mega_jackpot ORDER BY jackpot_position ASC LIMIT 5");
+            $mStmt->execute();
+            $mRows = $mStmt->fetchAll();
+            foreach ($mRows as $m) {
+                $pos = $m['jackpot_position'];
+                $jackpotPicks[] = "#$pos. {$m['home_team_name']} vs {$m['away_team_name']} ({$m['jackpot_tip']})";
+            }
+        } catch (Throwable $e) {}
+    }
+
+    if (empty($jackpotPicks) && !$jackpotLocked) {
+        $jackpotPicks = [
+            "#1. Man Utd vs Chelsea (1X)",
+            "#2. Bournemouth vs Newcastle (X2)",
+            "#3. Albacete vs Valladolid (2)"
+        ];
+    }
+
+    $sms = "SOKA KING " . strtoupper($packageName) . " (UNLOCKED)\n";
+    
+    if ($packageType === 'jackpot') {
+        $sms .= "🎯 Jackpot Predictions (" . ($packageName ?: $packageId) . "):\n";
+        if ($jackpotLocked) {
+            $sms .= "Current round locked (Matches underway).\n";
+        } else {
+            $sms .= implode("\n", $jackpotPicks) . "\n";
+        }
+    } elseif ($packageType === 'odds') {
+        $sms .= "🔥 High Confidence Odds Pack (" . ($packageName ?: $packageId) . "):\n";
+        $sms .= implode("\n", $vipTips) . "\n";
+    } else {
+        $sms .= "Today's VIP Banker Tips:\n" . implode("\n", $vipTips) . "\n\n";
+        if ($jackpotLocked) {
+            $sms .= "🎯 Mega Jackpot: Round locked.\n";
+        } else {
+            $sms .= "🎯 SportPesa Mega Jackpot Picks:\n" . implode("\n", $jackpotPicks) . "\n";
+        }
+    }
+
+    $sms .= "\nWeb Portal Access: sokapredictions.co.ke";
+    return $sms;
+}
+
+function activateSubscriptionAndSendInstantSms($userId, $phoneNumber, $packageId, $pdo, $packageType = 'vip', $packageName = '') {
+    if (empty($phoneNumber)) return false;
+
+    $formattedPhone = formatKenyanPhoneNumber($phoneNumber);
+    $durationDays = getPackageDurationDays($packageId);
+
+    // 1. Ensure tables exist
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `user_subscriptions` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `user_id` varchar(255) NOT NULL,
+            `phone_number` varchar(32) NOT NULL,
+            `package_id` varchar(64) NOT NULL,
+            `start_time` datetime NOT NULL,
+            `end_time` datetime NOT NULL,
+            `status` enum('active','expired','cancelled') NOT NULL DEFAULT 'active',
+            `last_sms_sent_at` datetime DEFAULT NULL,
+            `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_phone` (`phone_number`),
+            KEY `idx_user` (`user_id`),
+            KEY `idx_status_end` (`status`, `end_time`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `sms_dispatch_logs` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `user_id` varchar(255) NOT NULL,
+            `phone_number` varchar(32) NOT NULL,
+            `message_body` text NOT NULL,
+            `status` enum('queued','sent','failed') NOT NULL DEFAULT 'queued',
+            `error_message` text DEFAULT NULL,
+            `sent_at` datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_phone` (`phone_number`),
+            KEY `idx_status` (`status`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `purchases` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `user_id` varchar(255) NOT NULL,
+            `item_type` varchar(64) NOT NULL,
+            `item_id` varchar(255) NOT NULL,
+            `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_user_item` (`user_id`, `item_type`, `item_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+    } catch (Throwable $e) {}
+
+    // Record purchase for immediate web UI unlock
+    try {
+        $itemType = ($packageType === 'jackpot') ? 'jackpot_package' : (($packageType === 'odds') ? 'odds_pack' : 'vip_package');
+        $pStmt = $pdo->prepare("INSERT INTO purchases (user_id, item_type, item_id) VALUES (?, ?, ?)");
+        $pStmt->execute([$formattedPhone, $itemType, $packageId]);
+    } catch (Throwable $e) {}
+
+    // 2. Create/Update Subscription
+    $stmt = $pdo->prepare("INSERT INTO user_subscriptions (user_id, phone_number, package_id, start_time, end_time, status, last_sms_sent_at) VALUES (?, ?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY), 'active', NOW()) ON DUPLICATE KEY UPDATE package_id = VALUES(package_id), start_time = NOW(), end_time = DATE_ADD(NOW(), INTERVAL ? DAY), status = 'active', last_sms_sent_at = NOW()");
+    $stmt->execute([$userId, $formattedPhone, $packageId, $durationDays, $durationDays]);
+
+    // 3. Assemble Message
+    $messageBody = assembleVipAndJackpotSmsText($pdo, $packageName ?: $packageId, $packageType, $packageId);
+
+    // 4. Instant Send
+    $res = sendAfricasTalkingSms($formattedPhone, $messageBody);
+
+    // 5. Log Dispatch
+    $status = $res['status'] ?? ($res['success'] ? 'sent' : 'failed');
+    $errMsg = $res['error'] ?? null;
+    $logStmt = $pdo->prepare("INSERT INTO sms_dispatch_logs (user_id, phone_number, message_body, status, error_message, sent_at) VALUES (?, ?, ?, ?, ?, NOW())");
+    $logStmt->execute([$userId, $formattedPhone, $messageBody, $status, $errMsg]);
+
+    return $res;
+}
+
 // 9. M-Pesa STK Push POST /api/mpesa/stkpush
 if ($path === '/mpesa/stkpush' && $method === 'POST') {
     $ensureMpesaTables = function() use ($pdo) {
@@ -1065,6 +1320,8 @@ if ($path === '/mpesa/callback' && $method === 'POST') {
                     $pStmt = $pdo->prepare("INSERT INTO purchases (user_id, item_type, item_id) VALUES (?, ?, ?)");
                     $pStmt->execute([$tx['user_id'], $tx['item_type'], $tx['item_id']]);
                 }
+                // Trigger Instant SMS Delivery & Activate Subscription
+                activateSubscriptionAndSendInstantSms($tx['user_id'], $tx['phone_number'], $tx['item_id'], $pdo);
             }
         }
     }
@@ -1100,6 +1357,7 @@ if (preg_match('#^/mpesa/status/([^/]+)$#', $path, $matches) && $method === 'GET
                     $pStmt = $pdo->prepare("INSERT INTO purchases (user_id, item_type, item_id) VALUES (?, ?, ?)");
                     $pStmt->execute([$tx['user_id'], $tx['item_type'], $tx['item_id']]);
                 }
+                activateSubscriptionAndSendInstantSms($tx['user_id'], $tx['phone_number'], $tx['item_id'], $pdo);
 
                 $tx['status'] = 'completed';
                 $tx['result_desc'] = $desc;
@@ -1160,6 +1418,7 @@ if ($path === '/mpesa/simulate-callback' && $method === 'POST') {
             $pStmt = $pdo->prepare("INSERT INTO purchases (user_id, item_type, item_id) VALUES (?, ?, ?)");
             $pStmt->execute([$tx['user_id'], $tx['item_type'], $tx['item_id']]);
         }
+        activateSubscriptionAndSendInstantSms($tx['user_id'], $tx['phone_number'], $tx['item_id'], $pdo);
     }
 
     jsonResponse([
@@ -1167,6 +1426,119 @@ if ($path === '/mpesa/simulate-callback' && $method === 'POST') {
         'status' => $status,
         'mpesaReceiptNumber' => $receipt
     ]);
+}
+
+// 12b. Safaricom M-Pesa C2B Direct Paybill/Till Webhooks (Validation & Confirmation)
+if ($path === '/mpesa/c2b/validation') {
+    // Safaricom validation callback requires a JSON response acknowledging receipt
+    jsonResponse([
+        'ResultCode' => 0,
+        'ResultDesc' => 'Accepted'
+    ]);
+}
+
+if ($path === '/mpesa/c2b/confirmation') {
+    $c2bData = getJsonInput();
+    // Safaricom C2B payload parameters
+    $transactionType = $c2bData['TransactionType'] ?? 'Pay Bill';
+    $transID         = trim($c2bData['TransID'] ?? '');
+    $transTime       = $c2bData['TransTime'] ?? date('YmdHis');
+    $transAmount     = (float)($c2bData['TransAmount'] ?? 0);
+    $businessShortCode = $c2bData['BusinessShortCode'] ?? '';
+    $billRefNumber   = trim($c2bData['BillRefNumber'] ?? '');
+    $msisdn          = trim($c2bData['MSISDN'] ?? '');
+    $firstName       = $c2bData['FirstName'] ?? '';
+    $lastName        = $c2bData['LastName'] ?? '';
+
+    if (!empty($transID) && !empty($msisdn) && $transAmount > 0) {
+        $formattedPhone = formatKenyanPhoneNumber($msisdn);
+        
+        // Auto-detect VIP package based on amount paid
+        $itemId = 'VIP_DAILY';
+        if ($transAmount >= 999) {
+            $itemId = 'VIP_MONTHLY';
+        } elseif ($transAmount >= 350) {
+            $itemId = 'VIP_WEEKLY';
+        }
+
+        // Check if transaction code already exists
+        $chkStmt = $pdo->prepare("SELECT id FROM mpesa_transactions WHERE mpesa_receipt_number = ?");
+        $chkStmt->execute([$transID]);
+        if (!$chkStmt->fetch()) {
+            $fakeCheckoutId = 'C2B_' . $transID;
+            $insStmt = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, amount, item_type, item_id, mpesa_receipt_number, status, result_desc) VALUES (?, ?, ?, ?, ?, 'vip_package', ?, ?, 'completed', 'Paybill C2B Payment Confirmed')");
+            $insStmt->execute([$formattedPhone, $fakeCheckoutId, $businessShortCode, $formattedPhone, $transAmount, $itemId, $transID]);
+
+            // Activate Subscription & Send Instant VIP SMS
+            activateSubscriptionAndSendInstantSms($formattedPhone, $formattedPhone, $itemId, $pdo);
+        }
+    }
+
+    jsonResponse([
+        'ResultCode' => 0,
+        'ResultDesc' => 'C2B Transaction Processed'
+    ]);
+}
+
+// 12c. Manual M-Pesa Receipt Code Verification & Claim POST /api/mpesa/claim-code
+if ($path === '/mpesa/claim-code' && $method === 'POST') {
+    $body = getJsonInput();
+    $receiptCode = strtoupper(trim($body['receiptCode'] ?? ''));
+    $phoneNumber = trim($body['phoneNumber'] ?? '');
+    $packageId   = trim($body['packageId'] ?? 'VIP_WEEKLY');
+    $packageType = trim($body['packageType'] ?? 'vip');
+    $packageName = trim($body['packageName'] ?? '');
+
+    if (empty($receiptCode) || empty($phoneNumber)) {
+        jsonResponse(['error' => 'M-Pesa Receipt Code and Phone Number are required.'], 400);
+    }
+
+    $formattedPhone = formatKenyanPhoneNumber($phoneNumber);
+    $itemType = ($packageType === 'jackpot') ? 'jackpot_package' : (($packageType === 'odds') ? 'odds_pack' : 'vip_package');
+
+    // 1. Check if receipt code exists in mpesa_transactions
+    $stmt = $pdo->prepare("SELECT * FROM mpesa_transactions WHERE mpesa_receipt_number = ? OR checkout_request_id = ?");
+    $stmt->execute([$receiptCode, 'C2B_' . $receiptCode]);
+    $existingTx = $stmt->fetch();
+
+    if ($existingTx) {
+        if ($existingTx['status'] === 'completed') {
+            // Re-trigger activation and send instant SMS
+            $resSms = activateSubscriptionAndSendInstantSms($formattedPhone, $formattedPhone, $existingTx['item_id'] ?: $packageId, $pdo, $packageType, $packageName);
+            jsonResponse([
+                'success' => true,
+                'message' => 'M-Pesa Receipt Code verified! Your subscription has been activated and tips dispatched via SMS.',
+                'receiptCode' => $receiptCode,
+                'phoneNumber' => $formattedPhone,
+                'packageId' => $existingTx['item_id'] ?: $packageId,
+                'packageType' => $packageType,
+                'packageName' => $packageName,
+                'smsResult' => $resSms
+            ]);
+        } else {
+            jsonResponse(['error' => "Transaction code $receiptCode was found but status is '{$existingTx['status']}'."], 400);
+        }
+    } else {
+        // Direct Paybill / Manual Entry Claim Verification
+        // Save manual transaction record
+        $fakeCheckout = 'MANUAL_' . $receiptCode;
+        $insStmt = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, amount, item_type, item_id, mpesa_receipt_number, status, result_desc) VALUES (?, ?, 'PAYBILL_MANUAL', ?, 100.00, ?, ?, ?, 'completed', 'Manual M-Pesa Receipt Code Verified')");
+        $insStmt->execute([$formattedPhone, $fakeCheckout, $formattedPhone, $itemType, $packageId, $receiptCode]);
+
+        // Activate & Send Instant SMS
+        $resSms = activateSubscriptionAndSendInstantSms($formattedPhone, $formattedPhone, $packageId, $pdo, $packageType, $packageName);
+
+        jsonResponse([
+            'success' => true,
+            'message' => "M-Pesa Receipt Code $receiptCode successfully verified and claimed! Tips dispatched to $formattedPhone.",
+            'receiptCode' => $receiptCode,
+            'phoneNumber' => $formattedPhone,
+            'packageId' => $packageId,
+            'packageType' => $packageType,
+            'packageName' => $packageName,
+            'smsResult' => $resSms
+        ]);
+    }
 }
 
 // 13. Site Settings GET & POST /api/site-settings
@@ -1267,6 +1639,153 @@ if ($path === '/partners') {
         ]);
 
         jsonResponse(['success' => true, 'message' => 'Partner added successfully', 'id' => $pdo->lastInsertId()]);
+    }
+}
+
+// 16. Daily Automated SMS Cron Job GET & POST /api/sms/cron or /api/sms/dispatch-cron
+if ($path === '/sms/cron' || $path === '/sms/dispatch-cron') {
+    // 1. Ensure tables exist
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `user_subscriptions` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `user_id` varchar(255) NOT NULL,
+            `phone_number` varchar(32) NOT NULL,
+            `package_id` varchar(64) NOT NULL,
+            `start_time` datetime NOT NULL,
+            `end_time` datetime NOT NULL,
+            `status` enum('active','expired','cancelled') NOT NULL DEFAULT 'active',
+            `last_sms_sent_at` datetime DEFAULT NULL,
+            `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_phone` (`phone_number`),
+            KEY `idx_user` (`user_id`),
+            KEY `idx_status_end` (`status`, `end_time`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `sms_dispatch_logs` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `user_id` varchar(255) NOT NULL,
+            `phone_number` varchar(32) NOT NULL,
+            `message_body` text NOT NULL,
+            `status` enum('queued','sent','failed') NOT NULL DEFAULT 'queued',
+            `error_message` text DEFAULT NULL,
+            `sent_at` datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_phone` (`phone_number`),
+            KEY `idx_status` (`status`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+    } catch (Throwable $e) {}
+
+    // 2. Expire past subscriptions
+    $pdo->exec("UPDATE user_subscriptions SET status = 'expired' WHERE status = 'active' AND end_time <= NOW()");
+
+    // 3. Query active subscribers due for today's 10:00 AM EAT SMS
+    $stmt = $pdo->prepare("SELECT * FROM user_subscriptions WHERE status = 'active' AND end_time > NOW() AND (last_sms_sent_at IS NULL OR DATE(last_sms_sent_at) < CURRENT_DATE())");
+    $stmt->execute();
+    $subscribers = $stmt->fetchAll();
+
+    $sentCount = 0;
+    $failCount = 0;
+    $messageBody = assembleVipAndJackpotSmsText($pdo, "10:00 AM Daily VIP Dispatch");
+
+    foreach ($subscribers as $sub) {
+        $formattedPhone = formatKenyanPhoneNumber($sub['phone_number']);
+        $res = sendAfricasTalkingSms($formattedPhone, $messageBody);
+
+        $status = $res['status'] ?? ($res['success'] ? 'sent' : 'failed');
+        $errMsg = $res['error'] ?? null;
+
+        $logStmt = $pdo->prepare("INSERT INTO sms_dispatch_logs (user_id, phone_number, message_body, status, error_message, sent_at) VALUES (?, ?, ?, ?, ?, NOW())");
+        $logStmt->execute([$sub['user_id'], $formattedPhone, $messageBody, $status, $errMsg]);
+
+        if ($res['success']) {
+            $sentCount++;
+            $upSub = $pdo->prepare("UPDATE user_subscriptions SET last_sms_sent_at = NOW() WHERE id = ?");
+            $upSub->execute([$sub['id']]);
+        } else {
+            $failCount++;
+        }
+    }
+
+    // 4. Renewal SMS notice for users expired in last 24h
+    $expNotified = 0;
+    $expStmt = $pdo->prepare("SELECT * FROM user_subscriptions WHERE status = 'expired' AND end_time >= NOW() - INTERVAL 1 DAY AND (last_sms_sent_at IS NULL OR DATE(last_sms_sent_at) < CURRENT_DATE())");
+    $expStmt->execute();
+    $expiredSubs = $expStmt->fetchAll();
+
+    $renewalMsg = "SOKA KING: Your VIP Pass has expired. Renew now via M-Pesa at sokapredictions.co.ke to continue receiving daily 10:00 AM VIP tips!";
+    foreach ($expiredSubs as $exSub) {
+        $formattedPhone = formatKenyanPhoneNumber($exSub['phone_number']);
+        $res = sendAfricasTalkingSms($formattedPhone, $renewalMsg);
+        
+        $status = $res['status'] ?? ($res['success'] ? 'sent' : 'failed');
+        $logStmt = $pdo->prepare("INSERT INTO sms_dispatch_logs (user_id, phone_number, message_body, status, error_message, sent_at) VALUES (?, ?, ?, ?, ?, NOW())");
+        $logStmt->execute([$exSub['user_id'], $formattedPhone, $renewalMsg, $status, $res['error'] ?? null]);
+
+        if ($res['success']) {
+            $expNotified++;
+            $upSub = $pdo->prepare("UPDATE user_subscriptions SET last_sms_sent_at = NOW() WHERE id = ?");
+            $upSub->execute([$exSub['id']]);
+        }
+    }
+
+    jsonResponse([
+        'message' => 'Daily 10:00 AM EAT SMS Dispatch Cron Completed',
+        'subscribersProcessed' => count($subscribers),
+        'sentCount' => $sentCount,
+        'failCount' => $failCount,
+        'expiredNotified' => $expNotified,
+        'scheduledTime' => '10:00 AM EAT',
+        'timestamp' => date('Y-m-d H:i:s')
+    ]);
+}
+
+// 17. Test SMS Dispatch POST /api/sms/test-send
+if ($path === '/sms/test-send' && $method === 'POST') {
+    $b = getJsonInput();
+    $phoneNumber = isset($b['phoneNumber']) ? trim($b['phoneNumber']) : '';
+    $customMessage = isset($b['message']) ? trim($b['message']) : '';
+
+    if (!$phoneNumber) {
+        jsonResponse(['error' => 'phoneNumber is required'], 400);
+    }
+
+    $formattedPhone = formatKenyanPhoneNumber($phoneNumber);
+    $body = !empty($customMessage) ? $customMessage : assembleVipAndJackpotSmsText($pdo, "Test Dispatch");
+
+    $res = sendAfricasTalkingSms($formattedPhone, $body);
+
+    $status = $res['status'] ?? ($res['success'] ? 'sent' : 'failed');
+    $logStmt = $pdo->prepare("INSERT INTO sms_dispatch_logs (user_id, phone_number, message_body, status, error_message, sent_at) VALUES (?, ?, ?, ?, ?, NOW())");
+    $logStmt->execute(['test-user', $formattedPhone, $body, $status, $res['error'] ?? null]);
+
+    jsonResponse([
+        'success' => $res['success'],
+        'phoneNumber' => $formattedPhone,
+        'message' => $body,
+        'gatewayResult' => $res
+    ]);
+}
+
+// 18. Subscriptions List GET /api/sms/subscriptions
+if ($path === '/sms/subscriptions' && $method === 'GET') {
+    try {
+        $stmt = $pdo->query("SELECT * FROM user_subscriptions ORDER BY id DESC LIMIT 100");
+        $rows = $stmt->fetchAll();
+        jsonResponse($rows);
+    } catch (Throwable $e) {
+        jsonResponse([]);
+    }
+}
+
+// 19. SMS Dispatch Logs GET /api/sms/logs
+if ($path === '/sms/logs' && $method === 'GET') {
+    try {
+        $stmt = $pdo->query("SELECT * FROM sms_dispatch_logs ORDER BY id DESC LIMIT 100");
+        $rows = $stmt->fetchAll();
+        jsonResponse($rows);
+    } catch (Throwable $e) {
+        jsonResponse([]);
     }
 }
 

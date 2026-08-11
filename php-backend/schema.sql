@@ -364,6 +364,47 @@ CREATE TABLE IF NOT EXISTS `prediction_votes` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `user_subscriptions`
+--
+
+CREATE TABLE IF NOT EXISTS `user_subscriptions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(255) NOT NULL,
+  `phone_number` varchar(32) NOT NULL,
+  `package_id` varchar(64) NOT NULL,
+  `start_time` datetime NOT NULL,
+  `end_time` datetime NOT NULL,
+  `status` enum('active','expired','cancelled') NOT NULL DEFAULT 'active',
+  `last_sms_sent_at` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_phone` (`phone_number`),
+  KEY `idx_user` (`user_id`),
+  KEY `idx_status_end` (`status`, `end_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sms_dispatch_logs`
+--
+
+CREATE TABLE IF NOT EXISTS `sms_dispatch_logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(255) NOT NULL,
+  `phone_number` varchar(32) NOT NULL,
+  `message_body` text NOT NULL,
+  `status` enum('queued','sent','failed') NOT NULL DEFAULT 'queued',
+  `error_message` text DEFAULT NULL,
+  `sent_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_phone` (`phone_number`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `fixture_vote_counts`
 --
 

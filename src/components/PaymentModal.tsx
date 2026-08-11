@@ -9,9 +9,13 @@ import {
   Loader2, 
   ChevronRight, 
   Coins,
-  DollarSign
+  DollarSign,
+  Receipt,
+  FileCheck,
+  Zap
 } from 'lucide-react';
 import { apiFetch } from '../utils/api.ts';
+import { claimMpesaReceiptCode } from '../lib/dataStore';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -34,8 +38,10 @@ export default function PaymentModal({
   packageType,
   onPaymentSuccess
 }: PaymentModalProps) {
+  const [paymentMode, setPaymentMode] = useState<'stk' | 'paybill_claim'>('stk');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [accountName, setAccountName] = useState('');
+  const [receiptCode, setReceiptCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Real transaction and simulation states
@@ -45,19 +51,23 @@ export default function PaymentModal({
   const [checkoutRequestId, setCheckoutRequestId] = useState('');
   const [pollingAttempts, setPollingAttempts] = useState(0);
   const [showSandboxSuccessBtn, setShowSandboxSuccessBtn] = useState(false);
+  const [claimedReceipt, setClaimedReceipt] = useState('');
 
   // Reset modal state on open
   useEffect(() => {
     if (isOpen) {
+      setPaymentMode('stk');
       setStep('input');
       setPhoneNumber('');
       setAccountName('');
+      setReceiptCode('');
       setPin('');
       setErrorMessage('');
       setIsSubmitting(false);
       setCheckoutRequestId('');
       setPollingAttempts(0);
       setShowSandboxSuccessBtn(false);
+      setClaimedReceipt('');
     }
   }, [isOpen]);
 
@@ -183,6 +193,49 @@ export default function PaymentModal({
     }
   };
 
+  const handleClaimCode = async (e: FormEvent) => {
+    e.preventDefault();
+    setErrorMessage('');
+
+    if (!receiptCode.trim()) {
+      setErrorMessage('Please enter your 10-character M-Pesa Receipt Code (e.g. RJK382910A).');
+      return;
+    }
+    if (!phoneNumber) {
+      setErrorMessage('Please enter your M-Pesa Mobile Number.');
+      return;
+    }
+    if (!validatePhone(phoneNumber)) {
+      setErrorMessage('Please enter a valid Kenyan Safaricom Number (e.g. 0712345678).');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await claimMpesaReceiptCode(
+        receiptCode.trim(), 
+        phoneNumber.trim(), 
+        String(packageId),
+        packageType,
+        packageName
+      );
+      if (res.success) {
+        setClaimedReceipt(res.receiptCode || receiptCode.trim().toUpperCase());
+        setStep('success');
+        if (onPaymentSuccess) {
+          onPaymentSuccess();
+        }
+      } else {
+        setErrorMessage(res.error || res.message || 'Verification failed. Check code and try again.');
+      }
+    } catch (err: any) {
+      console.error('Claim code error:', err);
+      setErrorMessage(err.message || 'Failed to verify M-Pesa transaction code.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -215,15 +268,45 @@ export default function PaymentModal({
           <p className="text-[var(--text-muted)] mt-1">
             Double-chance mathematical selections delivered directly via SMS & WhatsApp.
           </p>
+
+          {/* Payment Method Switcher Tabs */}
+          {step === 'input' && (
+            <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-[var(--border)] font-mono text-[11px]">
+              <button
+                type="button"
+                onClick={() => { setPaymentMode('stk'); setErrorMessage(''); }}
+                className={`py-2 px-3 rounded flex items-center justify-center gap-1.5 border font-bold cursor-pointer transition-all ${
+                  paymentMode === 'stk'
+                    ? 'bg-[var(--primary)] text-white border-[var(--primary)] shadow-sm'
+                    : 'bg-[var(--card)] text-[var(--text-muted)] border-[var(--border)] hover:text-[var(--text)]'
+                }`}
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span>M-PESA</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => { setPaymentMode('paybill_claim'); setErrorMessage(''); }}
+                className={`py-2 px-3 rounded flex items-center justify-center gap-1.5 border font-bold cursor-pointer transition-all ${
+                  paymentMode === 'paybill_claim'
+                    ? 'bg-[var(--primary)] text-white border-[var(--primary)] shadow-sm'
+                    : 'bg-[var(--card)] text-[var(--text-muted)] border-[var(--border)] hover:text-[var(--text)]'
+                }`}
+              >
+                <Receipt className="w-3.5 h-3.5" />
+                <span>Manual Payment</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Modal Content */}
         <div className="p-5">
           <AnimatePresence mode="wait">
             {/* STEP 1: INPUT CREDENTIALS */}
-            {step === 'input' && (
+            {step === 'input' && paymentMode === 'stk' && (
               <motion.form 
-                key="input-form"
+                key="input-form-stk"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
@@ -261,7 +344,7 @@ export default function PaymentModal({
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
                       disabled={isSubmitting}
-                      className="w-full px-3.5 py-3 rounded-[var(--radius)] border border-[var(--border)] bg-white text-[var(--text)] text-xs focus:outline-none focus:ring-1 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all"
+                      className="w-full px-3.5 py-3 rounded-[var(--radius)] border border-[var(--border)] bg-white dark:bg-slate-900 text-[var(--text)] text-xs focus:outline-none focus:ring-1 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all font-mono"
                     />
                   </div>
 
@@ -276,7 +359,7 @@ export default function PaymentModal({
                       value={accountName}
                       onChange={(e) => setAccountName(e.target.value)}
                       disabled={isSubmitting}
-                      className="w-full px-3.5 py-3 rounded-[var(--radius)] border border-[var(--border)] bg-white text-[var(--text)] text-xs focus:outline-none focus:ring-1 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all"
+                      className="w-full px-3.5 py-3 rounded-[var(--radius)] border border-[var(--border)] bg-white dark:bg-slate-900 text-[var(--text)] text-xs focus:outline-none focus:ring-1 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all font-mono"
                     />
                   </div>
                 </div>
@@ -284,7 +367,7 @@ export default function PaymentModal({
                 {/* Payment Instructions list */}
                 <div className="p-3 rounded-[var(--radius)] bg-[var(--background)] bg-opacity-40 border border-[var(--border)] space-y-1.5 text-[10px] text-[var(--text-muted)]">
                   <div className="font-bold text-[var(--text)] flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[var(--secondary)]" /> Payment Instructions:
+                    <ShieldCheck className="w-3.5 h-3.5 text-[var(--secondary)]" /> STK Push Instructions:
                   </div>
                   <p>1. Enter your active mobile phone line.</p>
                   <p>2. Keep your handset unlocked to receive the payment prompt.</p>
@@ -306,7 +389,125 @@ export default function PaymentModal({
                   ) : (
                     <>
                       <Smartphone className="w-4 h-4" />
-                      <span>Proceed to Instant Payment</span>
+                      <span>Proceed to Instant STK Payment</span>
+                    </>
+                  )}
+                </button>
+              </motion.form>
+            )}
+
+            {/* STEP 1 - PAYBILL / CLAIM M-PESA CODE MODE */}
+            {step === 'input' && paymentMode === 'paybill_claim' && (
+              <motion.form 
+                key="input-form-paybill"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                onSubmit={handleClaimCode}
+                className="space-y-4"
+              >
+                {/* Paybill Instructions Card & How-to-pay Guide */}
+                <div className="p-3.5 rounded-[var(--radius)] bg-slate-100 dark:bg-slate-800/80 border border-[var(--border)] space-y-2.5 text-[11px]">
+                  <div className="flex items-center justify-between border-b border-[var(--border)] pb-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-mono font-bold uppercase text-[var(--text-muted)] text-[10px]">Lipa na M-Pesa</span>
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
+                        packageType === 'jackpot' ? 'bg-amber-500 text-white' :
+                        packageType === 'odds' ? 'bg-purple-600 text-white' : 'bg-emerald-600 text-white'
+                      }`}>
+                        {packageType}
+                      </span>
+                    </div>
+                    <span className="font-mono font-black text-[var(--primary)] text-xs">KES {price}</span>
+                  </div>
+
+                  <div className="text-xs font-extrabold text-[var(--text)] flex items-center justify-between">
+                    <span>{packageName}</span>
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">Manual Paybill</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 font-mono text-[11px] pt-1.5 border-t border-[var(--border)] border-dashed">
+                    <div className="p-2 rounded bg-white dark:bg-slate-900 border border-[var(--border)]">
+                      <span className="text-[9px] text-[var(--text-muted)] uppercase block font-bold">Business No (Paybill):</span>
+                      <strong className="text-emerald-600 dark:text-emerald-400 font-black text-sm">400200</strong>
+                    </div>
+                    <div className="p-2 rounded bg-white dark:bg-slate-900 border border-[var(--border)]">
+                      <span className="text-[9px] text-[var(--text-muted)] uppercase block font-bold">Account Name:</span>
+                      <strong className="text-[var(--text)] font-black text-sm">SOKAKING</strong>
+                    </div>
+                  </div>
+
+                  {/* Step-by-Step Payment Instructions */}
+                  <div className="p-2.5 rounded bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 space-y-1 text-[10px] text-amber-900 dark:text-amber-200 font-sans">
+                    <div className="font-bold flex items-center gap-1 text-[11px] text-amber-900 dark:text-amber-100">
+                      <Zap className="w-3.5 h-3.5 text-amber-600" /> How to Pay via M-PESA:
+                    </div>
+                    <ol className="list-decimal pl-4 space-y-0.5 leading-relaxed">
+                      <li>Go to <strong>M-PESA</strong> on your SIM Toolkit or M-PESA App.</li>
+                      <li>Select <strong>Lipa na M-PESA</strong> ➔ <strong>Pay Bill</strong>.</li>
+                      <li>Enter Business Number: <strong>400200</strong>.</li>
+                      <li>Enter Account Number: <strong>SOKAKING</strong>.</li>
+                      <li>Enter Amount: <strong>KES {price}</strong>.</li>
+                      <li>Enter your <strong>M-PESA PIN</strong> and press Send.</li>
+                      <li>Copy the 10-character code (e.g., <strong>RJK382910A</strong>) from your M-PESA SMS and paste it below.</li>
+                    </ol>
+                  </div>
+                </div>
+
+                {errorMessage && (
+                  <div className="p-3 rounded-[var(--radius)] bg-rose-500 bg-opacity-10 border border-rose-500 border-opacity-30 text-rose-700 font-bold">
+                    {errorMessage}
+                  </div>
+                )}
+
+                {/* Claim Inputs */}
+                <div className="space-y-3">
+                  <div>
+                    <label htmlFor="receiptCodeInput" className="block text-[10px] text-[var(--text-muted)] font-mono font-bold uppercase mb-1.5">
+                      M-Pesa Transaction Code
+                    </label>
+                    <input 
+                      id="receiptCodeInput"
+                      type="text"
+                      placeholder="e.g. RJK382910A"
+                      value={receiptCode}
+                      onChange={(e) => setReceiptCode(e.target.value.toUpperCase())}
+                      disabled={isSubmitting}
+                      maxLength={12}
+                      className="w-full px-3.5 py-3 rounded-[var(--radius)] border border-[var(--border)] bg-white dark:bg-slate-900 text-[var(--text)] text-xs font-mono font-black tracking-widest focus:outline-none focus:ring-1 focus:ring-[var(--primary)] focus:border-[var(--primary)] uppercase"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="claimPhone" className="block text-[10px] text-[var(--text-muted)] font-mono font-bold uppercase mb-1.5">
+                      Your Mobile Phone Line
+                    </label>
+                    <input 
+                      id="claimPhone"
+                      type="text"
+                      placeholder="e.g. 0712345678"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      disabled={isSubmitting}
+                      className="w-full px-3.5 py-3 rounded-[var(--radius)] border border-[var(--border)] bg-white dark:bg-slate-900 text-[var(--text)] text-xs focus:outline-none focus:ring-1 focus:ring-[var(--primary)] focus:border-[var(--primary)] font-mono"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !receiptCode.trim() || !phoneNumber.trim()}
+                  className="w-full py-3.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-extrabold text-xs rounded-[var(--radius)] shadow-lg hover:opacity-95 flex items-center justify-center gap-2 transition-all cursor-pointer border-none disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Verifying Transaction Code...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FileCheck className="w-4 h-4" />
+                      <span>Verify Code & Unlock VIP SMS</span>
                     </>
                   )}
                 </button>
@@ -453,7 +654,7 @@ export default function PaymentModal({
                 <div className="p-4 rounded-[var(--radius)] bg-[var(--background)] bg-opacity-80 border border-[var(--border)] max-w-xs mx-auto text-left space-y-2 font-mono text-[10px]">
                   <div className="flex justify-between">
                     <span className="text-[var(--text-muted)]">Receipt Ref:</span>
-                    <strong className="text-[var(--text)] uppercase">MPESA-{Math.random().toString(36).substring(2, 9).toUpperCase()}</strong>
+                    <strong className="text-[var(--text)] uppercase">{claimedReceipt || `MPESA-${Math.random().toString(36).substring(2, 9).toUpperCase()}`}</strong>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[var(--text-muted)]">Phone:</span>
@@ -465,7 +666,7 @@ export default function PaymentModal({
                   </div>
                   <div className="flex justify-between border-t border-[var(--border)] pt-2 mt-1">
                     <span className="text-[var(--text-muted)]">Status:</span>
-                    <strong className="text-emerald-700 uppercase font-black">Verified Success</strong>
+                    <strong className="text-emerald-700 uppercase font-black">Verified & SMS Dispatched</strong>
                   </div>
                 </div>
 
