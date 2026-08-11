@@ -180,9 +180,9 @@ export function formatJackpotStartTime(fixtures: any[], defaultVal: string): str
     const endStr = latest ? fmt(latest) : '';
 
     if (endStr && startStr !== endStr) {
-      return `Start: ${startStr} • End: ${endStr} EAT`;
+      return `Start: ${startStr} • End: ${endStr}`;
     }
-    return `Starts ${startStr} EAT`;
+    return `Starts ${startStr}`;
   } catch (e) {
     return defaultVal;
   }

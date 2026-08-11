@@ -179,16 +179,11 @@ const EUROPEAN_TEAMS = [
   { name: 'Bandari FC', country: 'Kenya', flag: '🇰🇪', league: 'Kenya Premier League' }
 ];
 
+import { isSameDay as isSameDayEAT } from './dateUtils';
+
 // Helper functions for date comparison
 export function isSameDay(dateStr: string, targetDate: Date): boolean {
-  if (!dateStr) return false;
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return false;
-  return (
-    d.getFullYear() === targetDate.getFullYear() &&
-    d.getMonth() === targetDate.getMonth() &&
-    d.getDate() === targetDate.getDate()
-  );
+  return isSameDayEAT(dateStr, targetDate);
 }
 
 export function isWithinLast7Days(dateStr: string, refDate: Date = new Date()): boolean {
