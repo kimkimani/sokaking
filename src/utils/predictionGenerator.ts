@@ -1,4 +1,5 @@
 import { Fixture } from '../types';
+import { evaluatePredictionResult } from './resultChecker';
 
 export interface PredictionCategory {
   id: string;
@@ -429,14 +430,20 @@ export function getCategoryFixtures(
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, today));
   } else if (categoryId === 'category-yesterday') {
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, yesterday));
-    // Yesterday's matches must be completed with result outcomes
-    filtered = filtered.map(f => ({
-      ...f,
-      status: (f.status === 'NS' || !f.status) ? 'FT' : f.status,
-      result: (f.result === 'pending' || !f.result) ? 'won' : f.result,
-      homeScore: (f.homeScore === '-' || f.homeScore === undefined || f.homeScore === null) ? 2 : f.homeScore,
-      awayScore: (f.awayScore === '-' || f.awayScore === undefined || f.awayScore === null) ? 1 : f.awayScore,
-    }));
+    // Yesterday's matches must be completed with result outcomes evaluated from fulltime scores
+    filtered = filtered.map(f => {
+      const hScore = (f.homeScore === '-' || f.homeScore === undefined || f.homeScore === null) ? 2 : f.homeScore;
+      const aScore = (f.awayScore === '-' || f.awayScore === undefined || f.awayScore === null) ? 1 : f.awayScore;
+      const status = (f.status === 'NS' || !f.status) ? 'FT' : f.status;
+      const evaluated = evaluatePredictionResult(f.prediction, hScore, aScore, status);
+      return {
+        ...f,
+        status,
+        homeScore: hScore,
+        awayScore: aScore,
+        result: evaluated !== 'pending' ? evaluated : 'won',
+      };
+    });
   } else if (categoryId === 'category-tomorrow') {
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, tomorrow));
   } 

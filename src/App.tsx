@@ -28,7 +28,7 @@ import {
   Youtube
 } from 'lucide-react';
 
-import { designIterations, vipPackages, oddsPacks } from './data';
+import { designIterations, vipPackages, oddsPacks, fixturesData } from './data';
 import { jackpotsData } from './jackpotsData';
 import { DesignIteration, Fixture, VipPackage, OddsPack } from './types';
 import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl } from './content/markdownLoader';
@@ -167,22 +167,22 @@ const getInitialJackpot = (initialPage: string) => {
   return 'sportpesa-mega';
 };
 
-// Core Homepage Component Imports (Static for instant LCP)
+// Core Homepage & Primary View Imports (Static for instant 0ms popups and clicks)
 import PredictionsList from './components/PredictionsList';
 import VipPackages from './components/VipPackages';
 import OddsPacks from './components/OddsPacks';
 import PredictionsSidebar from './components/PredictionsSidebar';
 import LiveUpdates from './components/LiveUpdates';
 import JackpotSidebar from './components/JackpotSidebar';
+import PaymentModal from './components/PaymentModal';
+import JackpotPage from './components/JackpotPage';
+import VipPackagesPage from './components/VipPackagesPage';
+import CategoryPredictionsPage from './components/CategoryPredictionsPage';
 
-// Dynamic Secondary Page Components (Code-split for maximum PageSpeed score)
+// Dynamic Secondary Utility Pages (Code-split)
 const AdminDashboard = dynamic(() => import('./components/AdminDashboard'), { ssr: false });
-const JackpotPage = dynamic(() => import('./components/JackpotPage'), { ssr: false });
 const JackpotListPage = dynamic(() => import('./components/JackpotListPage'), { ssr: false });
-const VipPackagesPage = dynamic(() => import('./components/VipPackagesPage'), { ssr: false });
-const CategoryPredictionsPage = dynamic(() => import('./components/CategoryPredictionsPage'), { ssr: false });
 const StaticPages = dynamic(() => import('./components/StaticPages'), { ssr: false });
-const PaymentModal = dynamic(() => import('./components/PaymentModal'), { ssr: false });
 
 // Shared UI utilities
 import FaqSection from './components/FaqSection';
@@ -207,7 +207,12 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   const [dbOddsPacks, setDbOddsPacks] = useState<OddsPack[]>(() => oddsPacks);
   const [dbPredictions, setDbPredictions] = useState<Record<string, Fixture[]>>(() => {
     const hasInitial = Array.isArray(initialPredictions) && initialPredictions.length > 0;
-    const initialPool = hasInitial ? initialPredictions : [];
+    const initialPool = hasInitial ? initialPredictions : [
+      ...(fixturesData.today || []),
+      ...(fixturesData.yesterday || []),
+      ...(fixturesData.tomorrow || []),
+      ...(fixturesData.jackpot || [])
+    ];
     const clientToday = new Date();
     const clientYesterday = new Date();
     clientYesterday.setDate(clientToday.getDate() - 1);
@@ -220,9 +225,9 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
     const initialMap: Record<string, Fixture[]> = {
       'all': initialPool,
-      'category-today': todayPreds,
-      'category-yesterday': yesterdayPreds,
-      'category-tomorrow': tomorrowPreds,
+      'category-today': todayPreds.length > 0 ? todayPreds : (fixturesData.today || []),
+      'category-yesterday': yesterdayPreds.length > 0 ? yesterdayPreds : (fixturesData.yesterday || []),
+      'category-tomorrow': tomorrowPreds.length > 0 ? tomorrowPreds : (fixturesData.tomorrow || []),
     };
 
     return initialMap;
@@ -239,7 +244,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     }
     return [];
   });
-  const [loadingDb, setLoadingDb] = useState<boolean>(true);
+  const [loadingDb, setLoadingDb] = useState<boolean>(false);
   const [loadingCategory, setLoadingCategory] = useState<boolean>(false);
   const [siteContacts, setSiteContacts] = useState<{
     email: string;
@@ -333,7 +338,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   // FAQ state
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  // Fetch Database-driven data
+  // Fetch Database-driven data with visual loading support
   const loadDatabaseData = async () => {
     try {
       setLoadingDb(true);
@@ -370,18 +375,20 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
         setDbOddsPacks(oddsRes);
       }
 
-      const predictionsList = Array.isArray(allPredictionsRes) ? allPredictionsRes : [];
-      const yesterdayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientYesterday));
-      const todayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientToday));
-      const tomorrowPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientTomorrow));
+      const predictionsList = Array.isArray(allPredictionsRes) && allPredictionsRes.length > 0 ? allPredictionsRes : null;
+      if (predictionsList) {
+        const yesterdayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientYesterday));
+        const todayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientToday));
+        const tomorrowPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientTomorrow));
 
-      setDbPredictions(prev => ({
-        ...prev,
-        'all': predictionsList,
-        'category-today': todayPreds,
-        'category-yesterday': yesterdayPreds,
-        'category-tomorrow': tomorrowPreds,
-      }));
+        setDbPredictions(prev => ({
+          ...prev,
+          'all': predictionsList,
+          'category-today': todayPreds,
+          'category-yesterday': yesterdayPreds,
+          'category-tomorrow': tomorrowPreds,
+        }));
+      }
     } catch (err) {
       console.error('Failed to load database content:', err);
     } finally {
@@ -452,14 +459,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   const handleScrollTo = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      const headerOffset = 70;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-      
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -518,7 +518,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
         resolvedPageId === 'jackpot-list' || 
         ALL_JACKPOT_IDS.includes(resolvedPageId) ||
         ['about', 'partners', 'responsible-gambling', 'privacy-policy', 'terms-of-use', 'contact'].includes(resolvedPageId)) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
     }
   };
 

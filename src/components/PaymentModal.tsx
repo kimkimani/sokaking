@@ -236,16 +236,29 @@ export default function PaymentModal({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/35 dark:bg-black/45 backdrop-blur-[2px] transition-opacity duration-200">
-      <motion.div 
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
-        className="w-full max-w-lg bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] shadow-2xl overflow-hidden text-xs relative"
-      >
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          key="payment-modal-backdrop"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.12 }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 dark:bg-black/80 transition-opacity duration-150 touch-manipulation"
+        >
+          <motion.div 
+            key="payment-modal-card"
+            initial={{ scale: 0.96, opacity: 0, y: 8 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.96, opacity: 0, y: 8 }}
+            transition={{ type: 'spring', stiffness: 420, damping: 30 }}
+            className="w-full max-w-lg bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] shadow-2xl overflow-hidden text-xs relative will-change-transform"
+            onClick={(e) => e.stopPropagation()}
+          >
         {/* Modal Close Button */}
         <button 
           onClick={onClose}
@@ -683,6 +696,8 @@ export default function PaymentModal({
           </AnimatePresence>
         </div>
       </motion.div>
-    </div>
+    </motion.div>
+  )}
+</AnimatePresence>
   );
 }
