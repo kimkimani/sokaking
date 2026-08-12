@@ -167,26 +167,26 @@ const getInitialJackpot = (initialPage: string) => {
   return 'sportpesa-mega';
 };
 
-// Core Homepage & Primary View Imports (Static for instant 0ms popups and clicks)
+// Core Homepage & Primary View Imports
 import PredictionsList from './components/PredictionsList';
 import VipPackages from './components/VipPackages';
 import OddsPacks from './components/OddsPacks';
 import PredictionsSidebar from './components/PredictionsSidebar';
 import LiveUpdates from './components/LiveUpdates';
 import JackpotSidebar from './components/JackpotSidebar';
-import PaymentModal from './components/PaymentModal';
-import JackpotPage from './components/JackpotPage';
-import VipPackagesPage from './components/VipPackagesPage';
-import CategoryPredictionsPage from './components/CategoryPredictionsPage';
 
-// Dynamic Secondary Utility Pages (Code-split)
+// Dynamic Secondary Utility Pages & Heavy Components (Code-split)
+const PaymentModal = dynamic(() => import('./components/PaymentModal'), { ssr: false });
+const JackpotPage = dynamic(() => import('./components/JackpotPage'), { ssr: false });
+const VipPackagesPage = dynamic(() => import('./components/VipPackagesPage'), { ssr: false });
+const CategoryPredictionsPage = dynamic(() => import('./components/CategoryPredictionsPage'), { ssr: false });
 const AdminDashboard = dynamic(() => import('./components/AdminDashboard'), { ssr: false });
 const JackpotListPage = dynamic(() => import('./components/JackpotListPage'), { ssr: false });
 const StaticPages = dynamic(() => import('./components/StaticPages'), { ssr: false });
+const MarkdownRenderer = dynamic(() => import('./components/MarkdownRenderer'), { ssr: false });
 
 // Shared UI utilities
 import FaqSection from './components/FaqSection';
-import MarkdownRenderer from './components/MarkdownRenderer';
 import { AuthorCard } from './components/AuthorCard';
 import { ResponsibleGamblingNotice } from './components/ResponsibleGamblingNotice';
 export interface AppProps {
@@ -339,9 +339,9 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   // Fetch Database-driven data with visual loading support
-  const loadDatabaseData = async () => {
+  const loadDatabaseData = async (showLoading: boolean = false) => {
     try {
-      setLoadingDb(true);
+      if (showLoading) setLoadingDb(true);
       const baseUrl = getApiBaseUrl();
       const [jackpotsRes, vipRes, oddsRes, allPredictionsRes, settingsRes] = await Promise.all([
         fetch(`${baseUrl}/api/jackpots`).then(r => r.ok ? r.json() : []).catch(() => []),
@@ -392,12 +392,12 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     } catch (err) {
       console.error('Failed to load database content:', err);
     } finally {
-      setLoadingDb(false);
+      if (showLoading) setLoadingDb(false);
     }
   };
 
   useEffect(() => {
-    loadDatabaseData();
+    loadDatabaseData(false);
   }, []);
 
   // Handle predictions loading for specific category on activePage change
