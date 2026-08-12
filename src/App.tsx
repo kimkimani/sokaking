@@ -41,8 +41,13 @@ import { PredictionCategory, getCategoryCountText, PREDICTION_CATEGORIES, getCat
 // Import subcomponents
 import Sidebar from './components/Sidebar';
 
+import dynamic from 'next/dynamic';
+
 const BASE_URL_TO_PAGE_MAP: Record<string, string> = {
   '/': 'home',
+  '/admin': 'admin',
+  '/admin-dashboard': 'admin',
+  '/sms-admin': 'admin',
   '/football-predictions-today': 'category-today',
   '/football-predictions-yesterday': 'category-yesterday',
   '/football-predictions-tomorrow': 'category-tomorrow',
@@ -82,6 +87,7 @@ const BASE_URL_TO_PAGE_MAP: Record<string, string> = {
 
 const BASE_PAGE_TO_URL_MAP: Record<string, string> = {
   'home': '/',
+  'admin': '/admin',
   'category-today': '/football-predictions-today',
   'category-yesterday': '/football-predictions-yesterday',
   'category-tomorrow': '/football-predictions-tomorrow',
@@ -160,20 +166,25 @@ const getInitialJackpot = (initialPage: string) => {
   }
   return 'sportpesa-mega';
 };
+
+// Core Homepage Component Imports (Static for instant LCP)
 import PredictionsList from './components/PredictionsList';
-import JackpotPage from './components/JackpotPage';
-import JackpotListPage from './components/JackpotListPage';
 import VipPackages from './components/VipPackages';
 import OddsPacks from './components/OddsPacks';
-import VipPackagesPage from './components/VipPackagesPage';
+import PredictionsSidebar from './components/PredictionsSidebar';
 import LiveUpdates from './components/LiveUpdates';
 import JackpotSidebar from './components/JackpotSidebar';
-import PaymentModal from './components/PaymentModal';
 
-// Category Predictions Import
-import PredictionsSidebar from './components/PredictionsSidebar';
-import CategoryPredictionsPage from './components/CategoryPredictionsPage';
-import StaticPages from './components/StaticPages';
+// Dynamic Secondary Page Components (Code-split for maximum PageSpeed score)
+const AdminDashboard = dynamic(() => import('./components/AdminDashboard'), { ssr: false });
+const JackpotPage = dynamic(() => import('./components/JackpotPage'), { ssr: false });
+const JackpotListPage = dynamic(() => import('./components/JackpotListPage'), { ssr: false });
+const VipPackagesPage = dynamic(() => import('./components/VipPackagesPage'), { ssr: false });
+const CategoryPredictionsPage = dynamic(() => import('./components/CategoryPredictionsPage'), { ssr: false });
+const StaticPages = dynamic(() => import('./components/StaticPages'), { ssr: false });
+const PaymentModal = dynamic(() => import('./components/PaymentModal'), { ssr: false });
+
+// Shared UI utilities
 import FaqSection from './components/FaqSection';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import { AuthorCard } from './components/AuthorCard';
@@ -646,6 +657,12 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
             >
               VIP
             </button>
+            <button 
+              onClick={() => handleSelectPage('admin')}
+              className={`px-3 py-1.5 text-xs font-bold transition-all border-none cursor-pointer rounded-full flex items-center gap-1 ${activePage === 'admin' ? 'bg-slate-900 text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-slate-900 dark:hover:text-white'}`}
+            >
+              Admin
+            </button>
           </nav>
 
           {/* Right: Actions */}
@@ -685,6 +702,22 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
             <main id="main-content" className="flex-1 w-full space-y-8 min-h-[650px] md:min-h-[850px] overflow-hidden">
               
               {(() => {
+                if (activePage === 'admin' || activePage === 'admin-dashboard') {
+                  return (
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key="admin-dashboard"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                      >
+                        <AdminDashboard />
+                      </motion.div>
+                    </AnimatePresence>
+                  );
+                }
+
                 const category = PREDICTION_CATEGORIES.find(c => 
                   c.id === activePage || 
                   (c.id === 'sunpel-free-football-betting-tips' && activePage.startsWith('sunpel-free-football-betting-tips'))

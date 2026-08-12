@@ -1,8 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  compress: true,
   serverExternalPackages: ['@electric-sql/pglite'],
-  // Disable type-checking and linting during build to speed up compilation and bypass minor warnings
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'motion'],
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -10,3 +21,4 @@ const nextConfig = {
 };
 
 export default nextConfig;
+

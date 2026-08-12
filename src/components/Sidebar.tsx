@@ -57,6 +57,7 @@ export default function Sidebar({
     { label: "Mega JP", icon: Trophy, id: 'sportpesa-mega', color: 'text-amber-400' },
     { label: "Midweek JP", icon: Trophy, id: 'sportpesa-midweek', color: 'text-sky-400' },
     { label: "VIP", icon: Crown, id: 'vip-packages', color: 'text-amber-500' },
+    { label: "Admin Console", icon: LayoutDashboard, id: 'admin', color: 'text-indigo-500' },
   ];
 
   return (
