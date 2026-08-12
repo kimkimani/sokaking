@@ -464,7 +464,7 @@ export function getCategoryFixtures(
   ) {
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, today));
   } 
-  // 3. Market / Category pages: Filter last 7 days based on prediction matching
+  // 3. Market / Category pages: Filter based on prediction matching
   else if (
     categoryId === 'category-over15' ||
     categoryId === 'category-over25' ||
@@ -473,7 +473,6 @@ export function getCategoryFixtures(
     categoryId === 'category-doublechance'
   ) {
     filtered = masterPool.filter(f => 
-      isWithinLast7Days(f.kickoffTime, today) && 
       matchPredictionCategory(f.prediction, categoryId)
     );
   } else {

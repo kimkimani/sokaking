@@ -167,19 +167,19 @@ const getInitialJackpot = (initialPage: string) => {
   return 'sportpesa-mega';
 };
 
-// Core Homepage & Primary View Imports
+// Core Homepage & Primary View Imports (Static for instant 0ms popups and clicks)
 import PredictionsList from './components/PredictionsList';
 import VipPackages from './components/VipPackages';
 import OddsPacks from './components/OddsPacks';
 import PredictionsSidebar from './components/PredictionsSidebar';
 import LiveUpdates from './components/LiveUpdates';
 import JackpotSidebar from './components/JackpotSidebar';
+import PaymentModal from './components/PaymentModal';
+import JackpotPage from './components/JackpotPage';
+import VipPackagesPage from './components/VipPackagesPage';
+import CategoryPredictionsPage from './components/CategoryPredictionsPage';
 
 // Dynamic Secondary Utility Pages & Heavy Components (Code-split)
-const PaymentModal = dynamic(() => import('./components/PaymentModal'), { ssr: false });
-const JackpotPage = dynamic(() => import('./components/JackpotPage'), { ssr: false });
-const VipPackagesPage = dynamic(() => import('./components/VipPackagesPage'), { ssr: false });
-const CategoryPredictionsPage = dynamic(() => import('./components/CategoryPredictionsPage'), { ssr: false });
 const AdminDashboard = dynamic(() => import('./components/AdminDashboard'), { ssr: false });
 const JackpotListPage = dynamic(() => import('./components/JackpotListPage'), { ssr: false });
 const StaticPages = dynamic(() => import('./components/StaticPages'), { ssr: false });
@@ -402,13 +402,26 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
   // Handle predictions loading for specific category on activePage change
   useEffect(() => {
-    if (activePage.startsWith('category-') && 
+    if ((activePage.startsWith('category-') || DYNAMIC_CATEGORY_PAGES[activePage]) && 
         activePage !== 'category-today' && 
         activePage !== 'category-yesterday' && 
         activePage !== 'category-tomorrow' && 
         !dbPredictions[activePage]) {
       const fetchCategoryPredictions = async () => {
         try {
+          const allPool = dbPredictions.all || [];
+          if (allPool.length > 0) {
+            const pageMd = getMarkdownContent(activePage);
+            const derived = getCategoryFixtures(activePage, allPool, pageMd?.type);
+            if (derived.length > 0) {
+              setDbPredictions(prev => ({
+                ...prev,
+                [activePage]: derived
+              }));
+              return;
+            }
+          }
+
           setLoadingCategory(true);
           const baseUrl = getApiBaseUrl();
           const preds = await fetch(`${baseUrl}/api/predictions?category=${activePage}`)
@@ -430,7 +443,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
       };
       fetchCategoryPredictions();
     }
-  }, [activePage, dbPredictions]);
+  }, [activePage, dbPredictions.all]);
 
   // Attach active design iteration to document body
   useEffect(() => {
