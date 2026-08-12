@@ -36,6 +36,7 @@ import { getRefinedConfidence } from './utils/probability';
 
 import { apiFetch } from './utils/api.ts';
 import { getApiBaseUrl } from './lib/getApiBaseUrl';
+import { fetchWithSWR, getSWRCache } from './lib/swrCache';
 import { PredictionCategory, getCategoryCountText, PREDICTION_CATEGORIES, getCategoryFixtures, isSameDay } from './utils/predictionGenerator';
 
 // Import subcomponents
@@ -244,8 +245,17 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     }
     return [];
   });
-  const [loadingDb, setLoadingDb] = useState<boolean>(false);
+  // Granular resource loading states
+  const [loadingJackpots, setLoadingJackpots] = useState<boolean>(false);
+  const [loadingVip, setLoadingVip] = useState<boolean>(false);
+  const [loadingOdds, setLoadingOdds] = useState<boolean>(false);
+  const [loadingPredictions, setLoadingPredictions] = useState<boolean>(false);
+  const [loadingSettings, setLoadingSettings] = useState<boolean>(false);
   const [loadingCategory, setLoadingCategory] = useState<boolean>(false);
+
+  // Composite loading state helper
+  const loadingDb = loadingPredictions || loadingJackpots || loadingVip || loadingOdds;
+
   const [siteContacts, setSiteContacts] = useState<{
     email: string;
     phone: string;
@@ -338,69 +348,98 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   // FAQ state
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  // Fetch Database-driven data with visual loading support
-  const loadDatabaseData = async (showLoading: boolean = false) => {
-    try {
-      if (showLoading) setLoadingDb(true);
-      const baseUrl = getApiBaseUrl();
-      const [jackpotsRes, vipRes, oddsRes, allPredictionsRes, settingsRes] = await Promise.all([
-        fetch(`${baseUrl}/api/jackpots`).then(r => r.ok ? r.json() : []).catch(() => []),
-        fetch(`${baseUrl}/api/vip-packages`).then(r => r.ok ? r.json() : []).catch(() => []),
-        fetch(`${baseUrl}/api/odds-packs`).then(r => r.ok ? r.json() : []).catch(() => []),
-        fetch(`${baseUrl}/api/predictions`).then(r => r.ok ? r.json() : []).catch(() => []),
-        fetch(`${baseUrl}/api/site-settings`).then(r => r.ok ? r.json() : null).catch(() => null),
-      ]);
+  // Fetch Database-driven data with Stale-While-Revalidate & Granular Resource Loading
+  const loadDatabaseData = async (forceRefresh: boolean = false) => {
+    const baseUrl = getApiBaseUrl();
 
-      if (settingsRes) {
-        setSiteContacts(prev => ({
-          ...prev,
-          ...settingsRes
-        }));
+    // 1. Jackpots Resource (Incremental Unblocked Fetch)
+    const jackpotCache = getSWRCache<any[]>('jackpots');
+    if (!jackpotCache.data && dbJackpots.length === 0) setLoadingJackpots(true);
+    fetchWithSWR('jackpots', () => fetch(`${baseUrl}/api/jackpots`).then(r => r.ok ? r.json() : []).catch(() => []), {
+      forceRefresh,
+      onData: (data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setDbJackpots(data);
+        }
+        setLoadingJackpots(false);
       }
+    });
 
-      // Filter dynamically based on client/user date timezone
-      const clientToday = new Date();
-      const clientYesterday = new Date();
-      clientYesterday.setDate(clientToday.getDate() - 1);
-      const clientTomorrow = new Date();
-      clientTomorrow.setDate(clientToday.getDate() + 1);
+    // 2. VIP Packages Resource (Incremental Unblocked Fetch)
+    const vipCache = getSWRCache<VipPackage[]>('vip-packages');
+    if (!vipCache.data && dbVipPackages.length === 0) setLoadingVip(true);
+    fetchWithSWR('vip-packages', () => fetch(`${baseUrl}/api/vip-packages`).then(r => r.ok ? r.json() : []).catch(() => []), {
+      forceRefresh,
+      onData: (data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setDbVipPackages(data);
+        }
+        setLoadingVip(false);
+      }
+    });
 
-      if (Array.isArray(jackpotsRes) && jackpotsRes.length > 0) {
-        setDbJackpots(jackpotsRes);
+    // 3. Odds Packs Resource (Incremental Unblocked Fetch)
+    const oddsCache = getSWRCache<OddsPack[]>('odds-packs');
+    if (!oddsCache.data && dbOddsPacks.length === 0) setLoadingOdds(true);
+    fetchWithSWR('odds-packs', () => fetch(`${baseUrl}/api/odds-packs`).then(r => r.ok ? r.json() : []).catch(() => []), {
+      forceRefresh,
+      onData: (data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setDbOddsPacks(data);
+        }
+        setLoadingOdds(false);
       }
-      if (Array.isArray(vipRes) && vipRes.length > 0) {
-        setDbVipPackages(vipRes);
-      }
-      if (Array.isArray(oddsRes) && oddsRes.length > 0) {
-        setDbOddsPacks(oddsRes);
-      }
+    });
 
-      const predictionsList = Array.isArray(allPredictionsRes) && allPredictionsRes.length > 0 ? allPredictionsRes : null;
-      if (predictionsList) {
-        const yesterdayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientYesterday));
-        const todayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientToday));
-        const tomorrowPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientTomorrow));
-
-        setDbPredictions(prev => ({
-          ...prev,
-          'all': predictionsList,
-          'category-today': todayPreds,
-          'category-yesterday': yesterdayPreds,
-          'category-tomorrow': tomorrowPreds,
-        }));
+    // 4. Site Settings Resource
+    fetchWithSWR('site-settings', () => fetch(`${baseUrl}/api/site-settings`).then(r => r.ok ? r.json() : null).catch(() => null), {
+      forceRefresh,
+      onData: (data) => {
+        if (data) {
+          setSiteContacts(prev => ({ ...prev, ...data }));
+        }
+        setLoadingSettings(false);
       }
-    } catch (err) {
-      console.error('Failed to load database content:', err);
-    } finally {
-      if (showLoading) setLoadingDb(false);
+    });
+
+    // 5. Predictions Resource (Incremental Unblocked Fetch)
+    const predictionsCache = getSWRCache<any[]>('predictions');
+    if (!predictionsCache.data && (!dbPredictions.all || dbPredictions.all.length === 0)) {
+      setLoadingPredictions(true);
     }
+    fetchWithSWR('predictions', () => fetch(`${baseUrl}/api/predictions`).then(r => r.ok ? r.json() : []).catch(() => []), {
+      forceRefresh,
+      onData: (allPredictionsRes) => {
+        const clientToday = new Date();
+        const clientYesterday = new Date();
+        clientYesterday.setDate(clientToday.getDate() - 1);
+        const clientTomorrow = new Date();
+        clientTomorrow.setDate(clientToday.getDate() + 1);
+
+        const predictionsList = Array.isArray(allPredictionsRes) && allPredictionsRes.length > 0 ? allPredictionsRes : null;
+        if (predictionsList) {
+          const yesterdayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientYesterday));
+          const todayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientToday));
+          const tomorrowPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientTomorrow));
+
+          setDbPredictions(prev => ({
+            ...prev,
+            'all': predictionsList,
+            'category-today': todayPreds,
+            'category-yesterday': yesterdayPreds,
+            'category-tomorrow': tomorrowPreds,
+          }));
+        }
+        setLoadingPredictions(false);
+      }
+    });
   };
 
   useEffect(() => {
     loadDatabaseData(false);
   }, []);
 
-  // Handle predictions loading for specific category on activePage change
+  // Handle predictions loading for specific category on activePage change using SWR
   useEffect(() => {
     if ((activePage.startsWith('category-') || DYNAMIC_CATEGORY_PAGES[activePage]) && 
         activePage !== 'category-today' && 
@@ -422,22 +461,26 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
             }
           }
 
-          setLoadingCategory(true);
+          const cacheKey = `category_${activePage}`;
+          const catCache = getSWRCache<Fixture[]>(cacheKey);
+          if (!catCache.data) setLoadingCategory(true);
+
           const baseUrl = getApiBaseUrl();
-          const preds = await fetch(`${baseUrl}/api/predictions?category=${activePage}`)
-            .then(r => r.ok ? r.json() : [])
-            .catch(() => []);
-          setDbPredictions(prev => ({
-            ...prev,
-            [activePage]: Array.isArray(preds) ? preds : [],
-          }));
+          await fetchWithSWR(cacheKey, () => fetch(`${baseUrl}/api/predictions?category=${activePage}`).then(r => r.ok ? r.json() : []).catch(() => []), {
+            onData: (preds) => {
+              setDbPredictions(prev => ({
+                ...prev,
+                [activePage]: Array.isArray(preds) ? preds : [],
+              }));
+              setLoadingCategory(false);
+            }
+          });
         } catch (err) {
           console.error(`Failed to load predictions for category: ${activePage}`, err);
           setDbPredictions(prev => ({
             ...prev,
             [activePage]: [],
           }));
-        } finally {
           setLoadingCategory(false);
         }
       };
@@ -755,7 +798,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                         <CategoryPredictionsPage 
                           category={category}
                           fixtures={categoryFixtures}
-                          isLoading={loadingDb || loadingCategory}
+                          isLoading={loadingPredictions || loadingCategory}
                           onBackToHome={() => handleSelectPage('home')}
                           onSelectPage={handleSelectPage}
                           onOpenPayment={handleOpenPayment}
@@ -834,7 +877,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                         <JackpotPage 
                           jackpot={formattedJackpot}
                           hasPaid={isJackpotUnlocked}
-                          isLoading={loadingDb}
+                          isLoading={loadingJackpots}
                           onOpenPayment={handleOpenPayment}
                           onBackToList={() => handleSelectPage('jackpot-list')}
                           pageId={activePage}
@@ -910,7 +953,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                             <JackpotPage 
                               jackpot={activeJackpot}
                               hasPaid={isJackpotUnlocked}
-                              isLoading={loadingDb}
+                              isLoading={loadingJackpots}
                               onOpenPayment={handleOpenPayment}
                               onBackToList={() => handleSelectPage('jackpot-list')}
                               pageId={activePage}
@@ -951,7 +994,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                           <CategoryPredictionsPage 
                             category={dynamicCategory}
                             fixtures={categoryFixtures}
-                            isLoading={loadingDb || loadingCategory}
+                            isLoading={loadingPredictions || loadingCategory}
                             onBackToHome={() => handleSelectPage('home')}
                             onSelectPage={handleSelectPage}
                             onOpenPayment={handleOpenPayment}
@@ -1043,7 +1086,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                       </div>
 
                       <PredictionsList 
-                        isLoading={loadingDb}
+                        isLoading={loadingPredictions}
                         fixtures={getCategoryFixtures('category-today', dbPredictions.all && dbPredictions.all.length > 0 ? dbPredictions.all : dbPredictions)}
                         title={homeMd.listTitle || "Today's Free Football Predictions"}
                         subtitle={homeMd.listSubtitle || "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes."}
