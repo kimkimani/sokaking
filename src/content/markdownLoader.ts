@@ -402,9 +402,17 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
   };
 }
 
+const parsedMarkdownCache = new Map<string, ParsedMarkdownPage>();
+
 export function getMarkdownContent(pageKey: string): ParsedMarkdownPage {
+  const normKey = (pageKey || 'home').toLowerCase().trim();
+  const cached = parsedMarkdownCache.get(normKey);
+  if (cached) return cached;
+
   const raw = loadRawMarkdown(pageKey);
-  return parseMarkdownPage(raw, pageKey);
+  const parsed = parseMarkdownPage(raw, pageKey);
+  parsedMarkdownCache.set(normKey, parsed);
+  return parsed;
 }
 
 /**

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Menu, 
@@ -347,6 +347,23 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
   // FAQ state
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  // Memoized predictions pool, category counts map, and today's free fixtures
+  const predictionPool = useMemo(() => {
+    return dbPredictions.all && dbPredictions.all.length > 0 ? dbPredictions.all : dbPredictions;
+  }, [dbPredictions]);
+
+  const categoryCountsMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    PREDICTION_CATEGORIES.forEach((cat) => {
+      map[cat.id] = getCategoryCountText(cat.id, predictionPool).split(' ')[0];
+    });
+    return map;
+  }, [predictionPool]);
+
+  const todayFreeFixtures = useMemo(() => {
+    return getCategoryFixtures('category-today', predictionPool);
+  }, [predictionPool]);
 
   // Fetch Database-driven data with Stale-While-Revalidate & Granular Resource Loading
   const loadDatabaseData = async (forceRefresh: boolean = false) => {
@@ -1077,7 +1094,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                                 <span className={`text-[9px] font-mono font-black px-1.5 py-0.5 rounded-full ${
                                   isCatActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                                 }`}>
-                                  {getCategoryCountText(cat.id, dbPredictions.all && dbPredictions.all.length > 0 ? dbPredictions.all : dbPredictions).split(' ')[0]}
+                                  {categoryCountsMap[cat.id] || '0'}
                                 </span>
                               </button>
                             );
@@ -1087,7 +1104,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
                       <PredictionsList 
                         isLoading={loadingPredictions}
-                        fixtures={getCategoryFixtures('category-today', dbPredictions.all && dbPredictions.all.length > 0 ? dbPredictions.all : dbPredictions)}
+                        fixtures={todayFreeFixtures}
                         title={homeMd.listTitle || "Today's Free Football Predictions"}
                         subtitle={homeMd.listSubtitle || "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes."}
                       />

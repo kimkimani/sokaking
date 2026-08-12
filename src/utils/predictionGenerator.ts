@@ -385,6 +385,8 @@ export function generateUnifiedPredictionsPool(): Fixture[] {
   return pool;
 }
 
+const categoryFixturesCache = new Map<string, Fixture[]>();
+
 export function getCategoryFixtures(
   categoryId: string, 
   rawPool: any = [],
@@ -394,7 +396,7 @@ export function getCategoryFixtures(
 
   // Extract fixtures if passed array or object
   if (Array.isArray(rawPool) && rawPool.length > 0) {
-    masterPool = [...rawPool];
+    masterPool = rawPool;
   } else if (rawPool && typeof rawPool === 'object') {
     const combined = [
       ...(rawPool.all || []),
@@ -415,6 +417,16 @@ export function getCategoryFixtures(
   // Return empty array if master pool is empty to avoid showing dummy in-memory data
   if (masterPool.length === 0) {
     return [];
+  }
+
+  // Generate cache key based on category, pool length, first item, and pageType
+  const firstId = masterPool[0]?.id || 0;
+  const lastId = masterPool[masterPool.length - 1]?.id || 0;
+  const cacheKey = `${categoryId}_${masterPool.length}_${firstId}_${lastId}_${pageType || ''}`;
+  
+  const cached = categoryFixturesCache.get(cacheKey);
+  if (cached) {
+    return cached;
   }
 
   const today = new Date();
@@ -485,6 +497,11 @@ export function getCategoryFixtures(
     const tB = b.kickoffTime ? new Date(b.kickoffTime).getTime() : 0;
     return tB - tA; // Latest first
   });
+
+  if (categoryFixturesCache.size > 200) {
+    categoryFixturesCache.clear();
+  }
+  categoryFixturesCache.set(cacheKey, filtered);
 
   return filtered;
 }
