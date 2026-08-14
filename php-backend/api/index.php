@@ -1335,7 +1335,7 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
         try {
             $pdo->exec("CREATE TABLE IF NOT EXISTS `mpesa_transactions` (
               `id` INT(11) NOT NULL AUTO_INCREMENT,
-              `user_id` INT(11) DEFAULT NULL,
+              `user_id` VARCHAR(255) DEFAULT NULL,
               `checkout_request_id` VARCHAR(255) NOT NULL,
               `merchant_request_id` VARCHAR(255) DEFAULT NULL,
               `phone_number` VARCHAR(50) NOT NULL,
@@ -1352,10 +1352,13 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
         } catch (Throwable $e) {}
 
+        try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY COLUMN `user_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
+        try { $pdo->exec("ALTER TABLE `purchases` MODIFY COLUMN `user_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
+
         try {
             $pdo->exec("CREATE TABLE IF NOT EXISTS `purchases` (
               `id` INT(11) NOT NULL AUTO_INCREMENT,
-              `user_id` INT(11) DEFAULT NULL,
+              `user_id` VARCHAR(255) DEFAULT NULL,
               `item_type` VARCHAR(50) NOT NULL,
               `item_id` VARCHAR(100) NOT NULL,
               `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -1380,7 +1383,7 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
     $cleanPhone = preg_replace('/[^0-9]/', '', $phoneNumber);
     if (strpos($cleanPhone, '0') === 0) {
         $cleanPhone = '254' . substr($cleanPhone, 1);
-    } elseif (strpos($cleanPhone, '7') === 0 || strpos($cleanPhone, '1') === 0) {
+    } elseif ((strpos($cleanPhone, '7') === 0 || strpos($cleanPhone, '1') === 0) && strlen($cleanPhone) === 9) {
         $cleanPhone = '254' . $cleanPhone;
     }
 
@@ -1390,7 +1393,7 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
         $uStmt->execute([$uid]);
         $uRow = $uStmt->fetch();
         if ($uRow) {
-            $userId = $uRow['id'];
+            $userId = (string)$uRow['id'];
         }
     } catch (Throwable $e) {
         $userId = null;
@@ -1407,7 +1410,7 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
         if ($token && function_exists('curl_init')) {
             $shortCode = defined('MPESA_SHORTCODE') ? trim(MPESA_SHORTCODE) : '174379';
             $passKey = defined('MPESA_PASSKEY') ? trim(MPESA_PASSKEY) : '';
-            $callbackUrl = defined('MPESA_CALLBACK_URL') ? trim(MPESA_CALLBACK_URL) : 'https://cheerplex.com/soka_king/api/mpesa/callback';
+            $callbackUrl = defined('MPESA_CALLBACK_URL') ? trim(MPESA_CALLBACK_URL) : 'https://cheerplex.co.ke/soka_king/api/mpesa/callback';
             $timestamp = date('YmdHis');
             $password = base64_encode($shortCode . $passKey . $timestamp);
 
@@ -1423,7 +1426,7 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
                 'PhoneNumber'       => $cleanPhone,
                 'CallBackURL'       => $callbackUrl,
                 'AccountReference'  => substr(preg_replace('/[^a-zA-Z0-9]/', '', $itemId ?: $itemType), 0, 12) ?: 'SOKA_KING',
-                'TransactionDesc'   => 'Payment for ' . substr($itemType, 0, 12)
+                'TransactionDesc'   => 'Payment for ' . substr(preg_replace('/[^a-zA-Z0-9]/', '', $itemType), 0, 12)
             ];
 
             $ch = curl_init($stkUrl);
@@ -1467,7 +1470,7 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
 
     try {
         $stmt = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, amount, item_type, item_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')");
-        $stmt->execute([$userId, $checkoutRequestId, $merchantRequestId, $cleanPhone, $amount, $itemType, $itemId]);
+        $stmt->execute([$userId ?: $cleanPhone, $checkoutRequestId, $merchantRequestId, $cleanPhone, $amount, $itemType, $itemId]);
     } catch (Throwable $e) {
         // Fallback log if insert fails
     }

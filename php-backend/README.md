@@ -1,8 +1,8 @@
 # SOKA Predictions - Standalone PHP Backend Setup & Deployment Guide
-## Host URL: `https://cheerplex.com/soka_king`
+## Host URL: `https://cheerplex.co.ke/soka_king`
 
 This directory (`/php-backend`) contains the pure **PHP + MySQL** backend server code.
-You can host this directly on your cPanel web server at `cheerplex.com/soka_king` and connect your local Next.js frontend to it over HTTP REST APIs.
+You can host this directly on your cPanel web server at `cheerplex.co.ke/soka_king` and connect your local Next.js frontend to it over HTTP REST APIs.
 
 ---
 
@@ -23,9 +23,9 @@ public_html/soka_king/
 
 ---
 
-## 🛠️ Step 1: Create MySQL Database on cPanel (cheerplex.com)
+## 🛠️ Step 1: Create MySQL Database on cPanel (cheerplex.co.ke)
 
-1. Log into your **cPanel** dashboard on `cheerplex.com`.
+1. Log into your **cPanel** dashboard on `cheerplex.co.ke`.
 2. Go to **MySQL® Databases**.
 3. Create a new database name, e.g. `cheerple_soka_king`.
 4. Create a new user, e.g. `cheerple_soka_user`, and set a strong password.
@@ -53,12 +53,12 @@ define('DB_PORT', '3306');
 
 Once uploaded, test these URLs in your browser or Postman:
 
-- **API Health Check**: `https://cheerplex.com/soka_king/api/health`
-- **Predictions**: `https://cheerplex.com/soka_king/api/predictions`
-- **Jackpots**: `https://cheerplex.com/soka_king/api/jackpots`
-- **VIP Packages**: `https://cheerplex.com/soka_king/api/vip-packages`
-- **Odds Packs**: `https://cheerplex.com/soka_king/api/odds-packs`
-- **Site Settings**: `https://cheerplex.com/soka_king/api/site-settings`
+- **API Health Check**: `https://cheerplex.co.ke/soka_king/api/health`
+- **Predictions**: `https://cheerplex.co.ke/soka_king/api/predictions`
+- **Jackpots**: `https://cheerplex.co.ke/soka_king/api/jackpots`
+- **VIP Packages**: `https://cheerplex.co.ke/soka_king/api/vip-packages`
+- **Odds Packs**: `https://cheerplex.co.ke/soka_king/api/odds-packs`
+- **Site Settings**: `https://cheerplex.co.ke/soka_king/api/site-settings`
 
 ---
 
@@ -68,8 +68,8 @@ On your local machine where Next.js runs (`http://localhost:3000`):
 
 1. Open `.env.local` (or `.env`) in your local project root:
    ```env
-   BACKEND_URL=https://cheerplex.com/soka_king
-   NEXT_PUBLIC_BACKEND_URL=https://cheerplex.com/soka_king
+   BACKEND_URL=https://cheerplex.co.ke/soka_king
+   NEXT_PUBLIC_BACKEND_URL=https://cheerplex.co.ke/soka_king
    ```
 
 2. Run your local Next.js dev server:
@@ -77,4 +77,4 @@ On your local machine where Next.js runs (`http://localhost:3000`):
    npm run dev
    ```
 
-Now your local Next.js web application running on your PC will automatically fetch data from and post votes, STK pushes, and purchases to `https://cheerplex.com/soka_king` PHP backend!
+Now your local Next.js web application running on your PC will automatically fetch data from and post votes, STK pushes, and purchases to `https://cheerplex.co.ke/soka_king` PHP backend!

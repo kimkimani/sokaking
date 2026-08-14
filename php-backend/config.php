@@ -1,7 +1,7 @@
 <?php
 /**
  * SOKA Predictions - Standalone PHP Backend Configuration
- * Hosted at cheerplex.com/soka_king
+ * Hosted at cheerplex.co.ke/soka_king
  */
 
 // Enable error logging for debugging (disable display_errors in production)
@@ -22,7 +22,7 @@ define('MPESA_CONSUMER_KEY', getenv('MPESA_CONSUMER_KEY') ?: 'dWIjVkNFUTNMLGGsjZ
 define('MPESA_CONSUMER_SECRET', getenv('MPESA_CONSUMER_SECRET') ?: 'bN9ujVVyuRoS2XCRcvI5gmt4EV1GILa0fUfvbvVgHX2C25wNbCf5zPE9jmMXUyfJ');
 define('MPESA_SHORTCODE', getenv('MPESA_SHORTCODE') ?: '174379');
 define('MPESA_PASSKEY', getenv('MPESA_PASSKEY') ?: 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919');
-define('MPESA_CALLBACK_URL', getenv('MPESA_CALLBACK_URL') ?: 'https://cheerplex.com/soka_king/api/mpesa/callback');
+define('MPESA_CALLBACK_URL', getenv('MPESA_CALLBACK_URL') ?: 'https://cheerplex.co.ke/soka_king/api/mpesa/callback');
 
 /**
  * Send CORS Headers allowing Next.js local & remote frontend access
@@ -30,11 +30,13 @@ define('MPESA_CALLBACK_URL', getenv('MPESA_CALLBACK_URL') ?: 'https://cheerplex.
 function sendCorsHeaders() {
     $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '*';
     header("Access-Control-Allow-Origin: $origin");
-    header("Access-Control-Allow-Credentials: true");
+    if ($origin !== '*') {
+        header("Access-Control-Allow-Credentials: true");
+    }
     header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
     header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 
-    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
         http_response_code(200);
         exit;
     }
