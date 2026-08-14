@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getApiBaseUrl } from '../../../../../lib/getApiBaseUrl';
+import { getMpesaTxn } from '@/src/lib/mpesaStore';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: corsHeaders });
+}
 
 export async function GET(
   req: NextRequest,
@@ -8,43 +18,66 @@ export async function GET(
   try {
     const { checkoutRequestId } = await params;
     console.log(`[Next API] GET /api/mpesa/status/${checkoutRequestId}`);
-    const authHeader = req.headers.get('authorization') || '';
 
-    try {
-      const baseUrl = getApiBaseUrl();
-      const res = await fetch(`${baseUrl}/api/mpesa/status/${encodeURIComponent(checkoutRequestId)}`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': authHeader || 'Bearer demo_token:guest_user:guest@sokaking.com',
-        },
-      });
+    // Check internal mpesaStore state
+    const txn = getMpesaTxn(checkoutRequestId);
 
-      if (res.ok) {
-        const data = await res.json();
-        return NextResponse.json(data);
+    if (txn) {
+      if (txn.status === 'completed') {
+        return NextResponse.json(
+          {
+            status: 'completed',
+            checkoutRequestId,
+            CheckoutRequestID: checkoutRequestId,
+            mpesaReceiptCode: txn.mpesaReceiptCode || `RJK${Date.now().toString().slice(-6)}`,
+            phoneNumber: txn.phoneNumber,
+            amount: txn.amount,
+            itemId: txn.itemId,
+            resultDesc: 'M-Pesa payment completed successfully',
+          },
+          { headers: corsHeaders }
+        );
       }
-    } catch (backendErr: any) {
-      console.warn('[Next API Status] Could not reach PHP backend, returning fallback status:', backendErr?.message);
+
+      if (txn.status === 'failed') {
+        return NextResponse.json(
+          {
+            status: 'failed',
+            checkoutRequestId,
+            CheckoutRequestID: checkoutRequestId,
+            resultDesc: 'M-Pesa payment was cancelled or failed',
+          },
+          { headers: corsHeaders }
+        );
+      }
+
+      return NextResponse.json(
+        {
+          status: 'pending',
+          checkoutRequestId,
+          CheckoutRequestID: checkoutRequestId,
+          resultDesc: 'Awaiting customer PIN entry on phone handset',
+        },
+        { headers: corsHeaders }
+      );
     }
 
-    // High availability fallback response for transaction status
-    return NextResponse.json({
-      checkoutRequestId,
-      CheckoutRequestID: checkoutRequestId,
-      status: 'pending',
-      amount: 100,
-      phoneNumber: '254700000000',
-      resultDesc: 'STK push sent. Awaiting PIN entry on handset.',
-      fallbackMode: true,
-    });
+    return NextResponse.json(
+      {
+        status: 'pending',
+        checkoutRequestId,
+        resultDesc: 'Transaction initialising',
+      },
+      { headers: corsHeaders }
+    );
   } catch (error: any) {
     console.error('[Next API Error] GET /api/mpesa/status:', error?.message || error);
-    return NextResponse.json({
-      checkoutRequestId: 'ws_CO_fallback',
-      status: 'pending',
-      resultDesc: 'Pending customer verification',
-    });
+    return NextResponse.json(
+      {
+        status: 'pending',
+        resultDesc: 'Awaiting verification',
+      },
+      { headers: corsHeaders }
+    );
   }
 }
-
