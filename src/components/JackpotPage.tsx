@@ -19,7 +19,6 @@ import {
 } from 'lucide-react';
 import { JackpotConfig } from '../jackpotsData';
 import { calculateProbabilities, getRefinedConfidence } from '../utils/probability';
-import { evaluatePredictionResult } from '../utils/resultChecker';
 import VotePoll from './VotePoll';
 import FaqSection from './FaqSection';
 import { getMarkdownContent } from '../content/markdownLoader';
@@ -587,9 +586,6 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
             // First 3 fixtures are unlocked for preview, or everything if paid
             const isUnlocked = true;
             const isExpanded = expandedFixture === match.id;
-
-            const evalResult = evaluatePredictionResult(match.prediction, match.homeScore, match.awayScore, match.status);
-            const finalResult = evalResult !== 'pending' ? evalResult : match.result;
             
             const isDoubleChance = match.prediction.toLowerCase().includes('double chance') || 
                                    match.prediction.toLowerCase().includes('1x') || 
@@ -600,11 +596,11 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                                    match.prediction.toLowerCase().includes('21');
 
             const displayConf = getRefinedConfidence(match);
-            const jackpotProbs = isExpanded ? calculateProbabilities(
+            const jackpotProbs = calculateProbabilities(
               match.prediction,
               displayConf,
               match.probabilities || match
-            ) : { home: 33, draw: 34, away: 33 };
+            );
 
             return (
               <div 
@@ -757,12 +753,10 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                       {isUnlocked ? (
                         <button
                           onClick={() => toggleExpand(match.id)}
-                          className={`px-2.5 py-1.5 text-white rounded-lg transition-all font-mono text-[9px] font-black uppercase tracking-wider flex items-center gap-1 border-none cursor-pointer whitespace-nowrap shadow-xs ${
-                            isExpanded ? 'bg-slate-700 hover:bg-slate-800' : 'bg-rose-600 hover:bg-rose-700 active:scale-95'
-                          }`}
+                          className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition-all font-mono text-[9px] font-black uppercase tracking-wider flex items-center gap-1 border border-transparent hover:border-[var(--border)] cursor-pointer whitespace-nowrap"
                         >
                           <span>{isExpanded ? 'Close' : 'Read Analysis'}</span>
-                          {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                          {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-[var(--primary)]" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
                         </button>
                       ) : (
                         <div 

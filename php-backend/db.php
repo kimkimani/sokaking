@@ -30,7 +30,7 @@ class Database {
                 jsonResponse([
                     'error' => 'Database connection failed',
                     'message' => $e->getMessage(),
-                    'hint' => 'Please import schema.sql into MySQL database ' . DB_NAME . ' on cheerplex.com'
+                    'hint' => 'Please import schema.sql into MySQL database ' . DB_NAME . ' on cheerplex.co.ke'
                 ], 500);
             }
         }

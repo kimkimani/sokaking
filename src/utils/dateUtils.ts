@@ -40,9 +40,6 @@ export function parseDateAsUTC(dateInput?: string | Date | number | null): Date 
   return isNaN(d.getTime()) ? null : d;
 }
 
-// Fast memoized EAT date parser (Kenya EAT = UTC + 3 hours always)
-const eatPartsCache = new Map<string, { year: number; month: number; day: number; hour: number; minute: number; dateString: string; timeString: string; dateObj: Date }>();
-
 /**
  * Get date components (Year, Month, Day, Hour, Minute) in Kenya EAT Time (Africa/Nairobi)
  */
@@ -50,45 +47,54 @@ export function getEATParts(dateInput?: string | Date | number | null) {
   const d = parseDateAsUTC(dateInput);
   if (!d) return null;
 
-  const key = d.getTime().toString();
-  const cached = eatPartsCache.get(key);
-  if (cached) return cached;
+  try {
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: KENYA_TIMEZONE,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    const parts = formatter.formatToParts(d);
+    const getValue = (type: string) => parts.find(p => p.type === type)?.value || '';
 
-  // Kenya / EAT is strictly UTC+3 hours year-round with zero Daylight Saving transitions
-  const eatMs = d.getTime() + 3 * 60 * 60 * 1000;
-  const eatDate = new Date(eatMs);
-  const year = eatDate.getUTCFullYear();
-  const month = eatDate.getUTCMonth() + 1;
-  const day = eatDate.getUTCDate();
-  const hour = eatDate.getUTCHours();
-  const minute = eatDate.getUTCMinutes();
+    const year = parseInt(getValue('year'), 10);
+    const month = parseInt(getValue('month'), 10);
+    const day = parseInt(getValue('day'), 10);
+    let hourStr = getValue('hour');
+    if (hourStr === '24') hourStr = '00';
+    const hour = parseInt(hourStr, 10);
+    const minute = parseInt(getValue('minute'), 10);
 
-  const mStr = month < 10 ? `0${month}` : `${month}`;
-  const dStr = day < 10 ? `0${day}` : `${day}`;
-  const hStr = hour < 10 ? `0${hour}` : `${hour}`;
-  const minStr = minute < 10 ? `0${minute}` : `${minute}`;
+    const dateString = `${getValue('year')}-${getValue('month')}-${getValue('day')}`;
+    const timeString = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 
-  const dateString = `${year}-${mStr}-${dStr}`;
-  const timeString = `${hStr}:${minStr}`;
+    return {
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      dateString, // YYYY-MM-DD in EAT
+      timeString, // HH:mm in EAT
+      dateObj: d,
+    };
+  } catch (e) {
+    // Fallback: UTC + 3 hours
+    const eatMs = d.getTime() + 3 * 60 * 60 * 1000;
+    const eatDate = new Date(eatMs);
+    const year = eatDate.getUTCFullYear();
+    const month = eatDate.getUTCMonth() + 1;
+    const day = eatDate.getUTCDate();
+    const hour = eatDate.getUTCHours();
+    const minute = eatDate.getUTCMinutes();
+    const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const timeString = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 
-  const result = {
-    year,
-    month,
-    day,
-    hour,
-    minute,
-    dateString, // YYYY-MM-DD in EAT
-    timeString, // HH:mm in EAT
-    dateObj: d,
-  };
-
-  // Keep cache size bounded
-  if (eatPartsCache.size > 2000) {
-    eatPartsCache.clear();
+    return { year, month, day, hour, minute, dateString, timeString, dateObj: d };
   }
-  eatPartsCache.set(key, result);
-
-  return result;
 }
 
 /**

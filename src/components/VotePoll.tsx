@@ -307,7 +307,6 @@ function getEndedDummyVoteStats(fixtureId: string | number, userVote: string | n
 export default function VotePoll({ fixtureId, isEnded, status, result, prediction }: VotePollProps) {
   const [stats, setStats] = useState<VoteStats | null>(null);
   const [voting, setVoting] = useState<string | null>(null);
-  const [loadingVotes, setLoadingVotes] = useState<boolean>(true);
 
   const market = detectMarketType(prediction);
 
@@ -353,7 +352,6 @@ export default function VotePoll({ fixtureId, isEnded, status, result, predictio
 
     const fetchStats = async () => {
       try {
-        setLoadingVotes(true);
         const baseUrl = getApiBaseUrl();
         const res = await fetch(`${baseUrl}/api/predictions/vote?fixtureId=${encodeURIComponent(fixtureId)}&userId=${encodeURIComponent(visitorId)}`);
         if (res.ok) {
@@ -405,11 +403,7 @@ export default function VotePoll({ fixtureId, isEnded, status, result, predictio
             }
           }
         }
-      } catch (err) {
-        console.error('Failed to load voting data:', err);
-      } finally {
-        if (active) setLoadingVotes(false);
-      }
+      } catch {}
     };
 
     fetchStats();
@@ -577,78 +571,64 @@ export default function VotePoll({ fixtureId, isEnded, status, result, predictio
         </div>
       )}
 
-      {/* Dynamic Option Grid or Shimmer Loading */}
-      {loadingVotes ? (
-        <div className="space-y-2 py-1 animate-pulse">
-          <div className="flex items-center justify-between">
-            <div className="h-3.5 w-32 bg-slate-200/80 dark:bg-slate-800/80 rounded-md" />
-            <div className="h-3.5 w-16 bg-slate-200/80 dark:bg-slate-800/80 rounded-full" />
-          </div>
-          <div className={`grid gap-2 ${market.options.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
-            {market.options.map((opt) => (
-              <div key={opt.key} className="h-14 bg-slate-200/70 dark:bg-slate-800/70 rounded-xl" />
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className={`grid gap-2 ${market.options.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
-          {market.options.map((opt) => {
-            const pct = getOptionPercentage(opt);
-            const selected = isUserSelected(opt);
-            const isWinner = isMatchFinished && winningOption?.key === opt.key;
+      {/* Dynamic Option Grid (grid-cols-2 or grid-cols-3 based on prediction type) */}
+      <div className={`grid gap-2 ${market.options.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+        {market.options.map((opt) => {
+          const pct = getOptionPercentage(opt);
+          const selected = isUserSelected(opt);
+          const isWinner = isMatchFinished && winningOption?.key === opt.key;
 
-            return (
-              <motion.button
-                key={opt.key}
-                whileHover={isMatchFinished ? undefined : { scale: 1.02 }}
-                whileTap={isMatchFinished ? undefined : { scale: 0.97 }}
-                onClick={() => castVote(opt)}
-                disabled={isMatchFinished || !!voting}
-                title={isMatchFinished ? 'Voting is closed because this match has ended.' : `Vote ${opt.label}`}
-                className={`relative overflow-hidden p-2.5 rounded-xl border-2 text-center transition-all duration-300 ${
-                  isMatchFinished ? 'cursor-not-allowed' : 'cursor-pointer'
-                } ${
-                  selected
-                    ? opt.bgActive
-                    : isWinner
-                      ? `${opt.bgActive} border-emerald-500 shadow-sm`
-                      : opt.hoverBg
-                }`}
-              >
-                {/* Vibrant Progress Fill Bar */}
-                <div
-                  className={`absolute left-0 bottom-0 top-0 bg-gradient-to-r ${opt.progressBg} transition-all duration-500 pointer-events-none`}
-                  style={{ width: `${pct}%` }}
-                />
+          return (
+            <motion.button
+              key={opt.key}
+              whileHover={isMatchFinished ? undefined : { scale: 1.02 }}
+              whileTap={isMatchFinished ? undefined : { scale: 0.97 }}
+              onClick={() => castVote(opt)}
+              disabled={isMatchFinished || !!voting}
+              title={isMatchFinished ? 'Voting is closed because this match has ended.' : `Vote ${opt.label}`}
+              className={`relative overflow-hidden p-2.5 rounded-xl border-2 text-center transition-all duration-300 ${
+                isMatchFinished ? 'cursor-not-allowed' : 'cursor-pointer'
+              } ${
+                selected
+                  ? opt.bgActive
+                  : isWinner
+                    ? `${opt.bgActive} border-emerald-500 shadow-sm`
+                    : opt.hoverBg
+              }`}
+            >
+              {/* Vibrant Progress Fill Bar */}
+              <div
+                className={`absolute left-0 bottom-0 top-0 bg-gradient-to-r ${opt.progressBg} transition-all duration-500 pointer-events-none`}
+                style={{ width: `${pct}%` }}
+              />
 
-                {selected && (
-                  <div className="absolute top-1.5 right-1.5 z-10">
-                    <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-300 fill-emerald-100 dark:fill-emerald-950" />
-                  </div>
-                )}
-                {isWinner && (
-                  <div className="absolute top-1.5 left-1.5 z-10">
-                    <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-300 animate-pulse" />
-                  </div>
-                )}
+              {selected && (
+                <div className="absolute top-1.5 right-1.5 z-10">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-300 fill-emerald-100 dark:fill-emerald-950" />
+                </div>
+              )}
+              {isWinner && (
+                <div className="absolute top-1.5 left-1.5 z-10">
+                  <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-300 animate-pulse" />
+                </div>
+              )}
 
-                <span className={`relative z-10 text-[11px] font-black uppercase block ${opt.textColor} tracking-wider`}>
-                  {opt.label}
-                </span>
-                <span className="relative z-10 text-xl font-black font-mono tracking-tight block text-slate-950 dark:text-white drop-shadow">
-                  {pct}%
-                </span>
+              <span className={`relative z-10 text-[11px] font-black uppercase block ${opt.textColor} tracking-wider`}>
+                {opt.label}
+              </span>
+              <span className="relative z-10 text-xl font-black font-mono tracking-tight block text-slate-950 dark:text-white drop-shadow">
+                {pct}%
+              </span>
 
-                {voting === opt.key && (
-                  <div className="absolute inset-0 z-20 bg-slate-900/40 flex items-center justify-center backdrop-blur-[1px]">
-                    <div className={`w-4 h-4 border-2 ${opt.spinnerBorder} border-t-transparent rounded-full animate-spin`} />
-                  </div>
-                )}
-              </motion.button>
-            );
-          })}
-        </div>
-      )}
+              {voting === opt.key && (
+                <div className="absolute inset-0 z-20 bg-slate-900/40 flex items-center justify-center backdrop-blur-[1px]">
+                  <div className={`w-4 h-4 border-2 ${opt.spinnerBorder} border-t-transparent rounded-full animate-spin`} />
+                </div>
+              )}
+            </motion.button>
+          );
+        })}
+      </div>
 
       {/* Visual Footnote Status */}
       <div className="flex items-center justify-between text-[9px] font-mono font-extrabold text-slate-600 dark:text-slate-300 select-none pt-0.5">

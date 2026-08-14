@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Menu, 
@@ -28,7 +28,7 @@ import {
   Youtube
 } from 'lucide-react';
 
-import { designIterations, vipPackages, oddsPacks, fixturesData } from './data';
+import { designIterations, vipPackages, oddsPacks } from './data';
 import { jackpotsData } from './jackpotsData';
 import { DesignIteration, Fixture, VipPackage, OddsPack } from './types';
 import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl } from './content/markdownLoader';
@@ -36,19 +36,13 @@ import { getRefinedConfidence } from './utils/probability';
 
 import { apiFetch } from './utils/api.ts';
 import { getApiBaseUrl } from './lib/getApiBaseUrl';
-import { fetchWithSWR, getSWRCache } from './lib/swrCache';
 import { PredictionCategory, getCategoryCountText, PREDICTION_CATEGORIES, getCategoryFixtures, isSameDay } from './utils/predictionGenerator';
 
 // Import subcomponents
 import Sidebar from './components/Sidebar';
 
-import dynamic from 'next/dynamic';
-
 const BASE_URL_TO_PAGE_MAP: Record<string, string> = {
   '/': 'home',
-  '/admin': 'admin',
-  '/admin-dashboard': 'admin',
-  '/sms-admin': 'admin',
   '/football-predictions-today': 'category-today',
   '/football-predictions-yesterday': 'category-yesterday',
   '/football-predictions-tomorrow': 'category-tomorrow',
@@ -88,7 +82,6 @@ const BASE_URL_TO_PAGE_MAP: Record<string, string> = {
 
 const BASE_PAGE_TO_URL_MAP: Record<string, string> = {
   'home': '/',
-  'admin': '/admin',
   'category-today': '/football-predictions-today',
   'category-yesterday': '/football-predictions-yesterday',
   'category-tomorrow': '/football-predictions-tomorrow',
@@ -167,27 +160,22 @@ const getInitialJackpot = (initialPage: string) => {
   }
   return 'sportpesa-mega';
 };
-
-// Core Homepage & Primary View Imports (Static for instant 0ms popups and clicks)
 import PredictionsList from './components/PredictionsList';
+import JackpotPage from './components/JackpotPage';
+import JackpotListPage from './components/JackpotListPage';
 import VipPackages from './components/VipPackages';
 import OddsPacks from './components/OddsPacks';
-import PredictionsSidebar from './components/PredictionsSidebar';
+import VipPackagesPage from './components/VipPackagesPage';
 import LiveUpdates from './components/LiveUpdates';
 import JackpotSidebar from './components/JackpotSidebar';
 import PaymentModal from './components/PaymentModal';
-import JackpotPage from './components/JackpotPage';
-import VipPackagesPage from './components/VipPackagesPage';
+
+// Category Predictions Import
+import PredictionsSidebar from './components/PredictionsSidebar';
 import CategoryPredictionsPage from './components/CategoryPredictionsPage';
-
-// Dynamic Secondary Utility Pages & Heavy Components (Code-split)
-const AdminDashboard = dynamic(() => import('./components/AdminDashboard'), { ssr: false });
-const JackpotListPage = dynamic(() => import('./components/JackpotListPage'), { ssr: false });
-const StaticPages = dynamic(() => import('./components/StaticPages'), { ssr: false });
-const MarkdownRenderer = dynamic(() => import('./components/MarkdownRenderer'), { ssr: false });
-
-// Shared UI utilities
+import StaticPages from './components/StaticPages';
 import FaqSection from './components/FaqSection';
+import MarkdownRenderer from './components/MarkdownRenderer';
 import { AuthorCard } from './components/AuthorCard';
 import { ResponsibleGamblingNotice } from './components/ResponsibleGamblingNotice';
 export interface AppProps {
@@ -208,12 +196,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   const [dbOddsPacks, setDbOddsPacks] = useState<OddsPack[]>(() => oddsPacks);
   const [dbPredictions, setDbPredictions] = useState<Record<string, Fixture[]>>(() => {
     const hasInitial = Array.isArray(initialPredictions) && initialPredictions.length > 0;
-    const initialPool = hasInitial ? initialPredictions : [
-      ...(fixturesData.today || []),
-      ...(fixturesData.yesterday || []),
-      ...(fixturesData.tomorrow || []),
-      ...(fixturesData.jackpot || [])
-    ];
+    const initialPool = hasInitial ? initialPredictions : [];
     const clientToday = new Date();
     const clientYesterday = new Date();
     clientYesterday.setDate(clientToday.getDate() - 1);
@@ -245,17 +228,8 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     }
     return [];
   });
-  // Granular resource loading states
-  const [loadingJackpots, setLoadingJackpots] = useState<boolean>(false);
-  const [loadingVip, setLoadingVip] = useState<boolean>(false);
-  const [loadingOdds, setLoadingOdds] = useState<boolean>(false);
-  const [loadingPredictions, setLoadingPredictions] = useState<boolean>(false);
-  const [loadingSettings, setLoadingSettings] = useState<boolean>(false);
+  const [loadingDb, setLoadingDb] = useState<boolean>(true);
   const [loadingCategory, setLoadingCategory] = useState<boolean>(false);
-
-  // Composite loading state helper
-  const loadingDb = loadingPredictions || loadingJackpots || loadingVip || loadingOdds;
-
   const [siteContacts, setSiteContacts] = useState<{
     email: string;
     phone: string;
@@ -348,162 +322,97 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   // FAQ state
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  // Memoized predictions pool, category counts map, and today's free fixtures
-  const predictionPool = useMemo(() => {
-    return dbPredictions.all && dbPredictions.all.length > 0 ? dbPredictions.all : dbPredictions;
-  }, [dbPredictions]);
+  // Fetch Database-driven data
+  const loadDatabaseData = async () => {
+    try {
+      setLoadingDb(true);
+      const baseUrl = getApiBaseUrl();
+      const [jackpotsRes, vipRes, oddsRes, allPredictionsRes, settingsRes] = await Promise.all([
+        fetch(`${baseUrl}/api/jackpots`).then(r => r.ok ? r.json() : []).catch(() => []),
+        fetch(`${baseUrl}/api/vip-packages`).then(r => r.ok ? r.json() : []).catch(() => []),
+        fetch(`${baseUrl}/api/odds-packs`).then(r => r.ok ? r.json() : []).catch(() => []),
+        fetch(`${baseUrl}/api/predictions`).then(r => r.ok ? r.json() : []).catch(() => []),
+        fetch(`${baseUrl}/api/site-settings`).then(r => r.ok ? r.json() : null).catch(() => null),
+      ]);
 
-  const categoryCountsMap = useMemo(() => {
-    const map: Record<string, string> = {};
-    PREDICTION_CATEGORIES.forEach((cat) => {
-      map[cat.id] = getCategoryCountText(cat.id, predictionPool).split(' ')[0];
-    });
-    return map;
-  }, [predictionPool]);
-
-  const todayFreeFixtures = useMemo(() => {
-    return getCategoryFixtures('category-today', predictionPool);
-  }, [predictionPool]);
-
-  // Fetch Database-driven data with Stale-While-Revalidate & Granular Resource Loading
-  const loadDatabaseData = async (forceRefresh: boolean = false) => {
-    const baseUrl = getApiBaseUrl();
-
-    // 1. Jackpots Resource (Incremental Unblocked Fetch)
-    const jackpotCache = getSWRCache<any[]>('jackpots');
-    if (!jackpotCache.data && dbJackpots.length === 0) setLoadingJackpots(true);
-    fetchWithSWR('jackpots', () => fetch(`${baseUrl}/api/jackpots`).then(r => r.ok ? r.json() : []).catch(() => []), {
-      forceRefresh,
-      onData: (data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setDbJackpots(data);
-        }
-        setLoadingJackpots(false);
+      if (settingsRes) {
+        setSiteContacts(prev => ({
+          ...prev,
+          ...settingsRes
+        }));
       }
-    });
 
-    // 2. VIP Packages Resource (Incremental Unblocked Fetch)
-    const vipCache = getSWRCache<VipPackage[]>('vip-packages');
-    if (!vipCache.data && dbVipPackages.length === 0) setLoadingVip(true);
-    fetchWithSWR('vip-packages', () => fetch(`${baseUrl}/api/vip-packages`).then(r => r.ok ? r.json() : []).catch(() => []), {
-      forceRefresh,
-      onData: (data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setDbVipPackages(data);
-        }
-        setLoadingVip(false);
+      // Filter dynamically based on client/user date timezone
+      const clientToday = new Date();
+      const clientYesterday = new Date();
+      clientYesterday.setDate(clientToday.getDate() - 1);
+      const clientTomorrow = new Date();
+      clientTomorrow.setDate(clientToday.getDate() + 1);
+
+      if (Array.isArray(jackpotsRes) && jackpotsRes.length > 0) {
+        setDbJackpots(jackpotsRes);
       }
-    });
-
-    // 3. Odds Packs Resource (Incremental Unblocked Fetch)
-    const oddsCache = getSWRCache<OddsPack[]>('odds-packs');
-    if (!oddsCache.data && dbOddsPacks.length === 0) setLoadingOdds(true);
-    fetchWithSWR('odds-packs', () => fetch(`${baseUrl}/api/odds-packs`).then(r => r.ok ? r.json() : []).catch(() => []), {
-      forceRefresh,
-      onData: (data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setDbOddsPacks(data);
-        }
-        setLoadingOdds(false);
+      if (Array.isArray(vipRes) && vipRes.length > 0) {
+        setDbVipPackages(vipRes);
       }
-    });
-
-    // 4. Site Settings Resource
-    fetchWithSWR('site-settings', () => fetch(`${baseUrl}/api/site-settings`).then(r => r.ok ? r.json() : null).catch(() => null), {
-      forceRefresh,
-      onData: (data) => {
-        if (data) {
-          setSiteContacts(prev => ({ ...prev, ...data }));
-        }
-        setLoadingSettings(false);
+      if (Array.isArray(oddsRes) && oddsRes.length > 0) {
+        setDbOddsPacks(oddsRes);
       }
-    });
 
-    // 5. Predictions Resource (Incremental Unblocked Fetch)
-    const predictionsCache = getSWRCache<any[]>('predictions');
-    if (!predictionsCache.data && (!dbPredictions.all || dbPredictions.all.length === 0)) {
-      setLoadingPredictions(true);
+      const predictionsList = Array.isArray(allPredictionsRes) ? allPredictionsRes : [];
+      const yesterdayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientYesterday));
+      const todayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientToday));
+      const tomorrowPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientTomorrow));
+
+      setDbPredictions(prev => ({
+        ...prev,
+        'all': predictionsList,
+        'category-today': todayPreds,
+        'category-yesterday': yesterdayPreds,
+        'category-tomorrow': tomorrowPreds,
+      }));
+    } catch (err) {
+      console.error('Failed to load database content:', err);
+    } finally {
+      setLoadingDb(false);
     }
-    fetchWithSWR('predictions', () => fetch(`${baseUrl}/api/predictions`).then(r => r.ok ? r.json() : []).catch(() => []), {
-      forceRefresh,
-      onData: (allPredictionsRes) => {
-        const clientToday = new Date();
-        const clientYesterday = new Date();
-        clientYesterday.setDate(clientToday.getDate() - 1);
-        const clientTomorrow = new Date();
-        clientTomorrow.setDate(clientToday.getDate() + 1);
-
-        const predictionsList = Array.isArray(allPredictionsRes) && allPredictionsRes.length > 0 ? allPredictionsRes : null;
-        if (predictionsList) {
-          const yesterdayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientYesterday));
-          const todayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientToday));
-          const tomorrowPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientTomorrow));
-
-          setDbPredictions(prev => ({
-            ...prev,
-            'all': predictionsList,
-            'category-today': todayPreds,
-            'category-yesterday': yesterdayPreds,
-            'category-tomorrow': tomorrowPreds,
-          }));
-        }
-        setLoadingPredictions(false);
-      }
-    });
   };
 
   useEffect(() => {
-    loadDatabaseData(false);
+    loadDatabaseData();
   }, []);
 
-  // Handle predictions loading for specific category on activePage change using SWR
+  // Handle predictions loading for specific category on activePage change
   useEffect(() => {
-    if ((activePage.startsWith('category-') || DYNAMIC_CATEGORY_PAGES[activePage]) && 
+    if (activePage.startsWith('category-') && 
         activePage !== 'category-today' && 
         activePage !== 'category-yesterday' && 
         activePage !== 'category-tomorrow' && 
         !dbPredictions[activePage]) {
       const fetchCategoryPredictions = async () => {
         try {
-          const allPool = dbPredictions.all || [];
-          if (allPool.length > 0) {
-            const pageMd = getMarkdownContent(activePage);
-            const derived = getCategoryFixtures(activePage, allPool, pageMd?.type);
-            if (derived.length > 0) {
-              setDbPredictions(prev => ({
-                ...prev,
-                [activePage]: derived
-              }));
-              return;
-            }
-          }
-
-          const cacheKey = `category_${activePage}`;
-          const catCache = getSWRCache<Fixture[]>(cacheKey);
-          if (!catCache.data) setLoadingCategory(true);
-
+          setLoadingCategory(true);
           const baseUrl = getApiBaseUrl();
-          await fetchWithSWR(cacheKey, () => fetch(`${baseUrl}/api/predictions?category=${activePage}`).then(r => r.ok ? r.json() : []).catch(() => []), {
-            onData: (preds) => {
-              setDbPredictions(prev => ({
-                ...prev,
-                [activePage]: Array.isArray(preds) ? preds : [],
-              }));
-              setLoadingCategory(false);
-            }
-          });
+          const preds = await fetch(`${baseUrl}/api/predictions?category=${activePage}`)
+            .then(r => r.ok ? r.json() : [])
+            .catch(() => []);
+          setDbPredictions(prev => ({
+            ...prev,
+            [activePage]: Array.isArray(preds) ? preds : [],
+          }));
         } catch (err) {
           console.error(`Failed to load predictions for category: ${activePage}`, err);
           setDbPredictions(prev => ({
             ...prev,
             [activePage]: [],
           }));
+        } finally {
           setLoadingCategory(false);
         }
       };
       fetchCategoryPredictions();
     }
-  }, [activePage, dbPredictions.all]);
+  }, [activePage, dbPredictions]);
 
   // Attach active design iteration to document body
   useEffect(() => {
@@ -532,7 +441,14 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   const handleScrollTo = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const headerOffset = 70;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -591,7 +507,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
         resolvedPageId === 'jackpot-list' || 
         ALL_JACKPOT_IDS.includes(resolvedPageId) ||
         ['about', 'partners', 'responsible-gambling', 'privacy-policy', 'terms-of-use', 'contact'].includes(resolvedPageId)) {
-      window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -730,12 +646,6 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
             >
               VIP
             </button>
-            <button 
-              onClick={() => handleSelectPage('admin')}
-              className={`px-3 py-1.5 text-xs font-bold transition-all border-none cursor-pointer rounded-full flex items-center gap-1 ${activePage === 'admin' ? 'bg-slate-900 text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-slate-900 dark:hover:text-white'}`}
-            >
-              Admin
-            </button>
           </nav>
 
           {/* Right: Actions */}
@@ -775,22 +685,6 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
             <main id="main-content" className="flex-1 w-full space-y-8 min-h-[650px] md:min-h-[850px] overflow-hidden">
               
               {(() => {
-                if (activePage === 'admin' || activePage === 'admin-dashboard') {
-                  return (
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key="admin-dashboard"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.15 }}
-                      >
-                        <AdminDashboard />
-                      </motion.div>
-                    </AnimatePresence>
-                  );
-                }
-
                 const category = PREDICTION_CATEGORIES.find(c => 
                   c.id === activePage || 
                   (c.id === 'sunpel-free-football-betting-tips' && activePage.startsWith('sunpel-free-football-betting-tips'))
@@ -815,7 +709,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                         <CategoryPredictionsPage 
                           category={category}
                           fixtures={categoryFixtures}
-                          isLoading={loadingPredictions || loadingCategory}
+                          isLoading={loadingDb || loadingCategory}
                           onBackToHome={() => handleSelectPage('home')}
                           onSelectPage={handleSelectPage}
                           onOpenPayment={handleOpenPayment}
@@ -894,7 +788,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                         <JackpotPage 
                           jackpot={formattedJackpot}
                           hasPaid={isJackpotUnlocked}
-                          isLoading={loadingJackpots}
+                          isLoading={loadingDb}
                           onOpenPayment={handleOpenPayment}
                           onBackToList={() => handleSelectPage('jackpot-list')}
                           pageId={activePage}
@@ -970,7 +864,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                             <JackpotPage 
                               jackpot={activeJackpot}
                               hasPaid={isJackpotUnlocked}
-                              isLoading={loadingJackpots}
+                              isLoading={loadingDb}
                               onOpenPayment={handleOpenPayment}
                               onBackToList={() => handleSelectPage('jackpot-list')}
                               pageId={activePage}
@@ -1011,7 +905,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                           <CategoryPredictionsPage 
                             category={dynamicCategory}
                             fixtures={categoryFixtures}
-                            isLoading={loadingPredictions || loadingCategory}
+                            isLoading={loadingDb || loadingCategory}
                             onBackToHome={() => handleSelectPage('home')}
                             onSelectPage={handleSelectPage}
                             onOpenPayment={handleOpenPayment}
@@ -1094,7 +988,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                                 <span className={`text-[9px] font-mono font-black px-1.5 py-0.5 rounded-full ${
                                   isCatActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                                 }`}>
-                                  {categoryCountsMap[cat.id] || '0'}
+                                  {getCategoryCountText(cat.id, dbPredictions.all && dbPredictions.all.length > 0 ? dbPredictions.all : dbPredictions).split(' ')[0]}
                                 </span>
                               </button>
                             );
@@ -1103,8 +997,8 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                       </div>
 
                       <PredictionsList 
-                        isLoading={loadingPredictions}
-                        fixtures={todayFreeFixtures}
+                        isLoading={loadingDb}
+                        fixtures={getCategoryFixtures('category-today', dbPredictions.all && dbPredictions.all.length > 0 ? dbPredictions.all : dbPredictions)}
                         title={homeMd.listTitle || "Today's Free Football Predictions"}
                         subtitle={homeMd.listSubtitle || "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes."}
                       />
