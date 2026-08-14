@@ -3,12 +3,11 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Send, Clock, CheckCircle2, AlertTriangle, MessageSquare, ShieldCheck, 
   RefreshCw, Zap, Smartphone, Play, Database, Settings, ChevronRight, 
-  Layers, Trophy, Flame, Code, X, Check, Globe, Edit3, Plus, Trash2, HelpCircle
+  Layers, Trophy, Flame, Code, X, Check, Globe
 } from 'lucide-react';
 import { 
   fetchSmsSubscriptions, fetchSmsDispatchLogs, triggerSmsCronJob, sendTestSms,
-  fetchSmsSettings, updateSmsSettings, fetchDeliverablesSummary,
-  saveDeliverableItem, deleteDeliverableItem
+  fetchSmsSettings, updateSmsSettings, fetchDeliverablesSummary
 } from '../lib/dataStore';
 
 export default function SmsManagement() {
@@ -19,14 +18,13 @@ export default function SmsManagement() {
   const [loading, setLoading] = useState(true);
 
   // Gateway Settings
-  const [smsProvider, setSmsProvider] = useState<'africastalking' | 'textsms'>('textsms');
+  const [smsProvider, setSmsProvider] = useState<'africastalking' | 'textsms'>('africastalking');
   const [atUsername, setAtUsername] = useState('sandbox');
   const [atApiKey, setAtApiKey] = useState('');
   const [atSenderId, setAtSenderId] = useState('SOKAKING');
   const [textSmsPartnerId, setTextSmsPartnerId] = useState('');
   const [textSmsApiKey, setTextSmsApiKey] = useState('');
   const [textSmsShortcode, setTextSmsShortcode] = useState('TEXTSMS');
-  const [envStatus, setEnvStatus] = useState<any>(null);
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsMsg, setSettingsMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -39,15 +37,6 @@ export default function SmsManagement() {
   const [testMessage, setTestMessage] = useState('');
   const [sendingTest, setSendingTest] = useState(false);
   const [testResult, setTestResult] = useState<any>(null);
-
-  // Deliverables CRUD State
-  const [editingDeliverable, setEditingDeliverable] = useState<any | null>(null);
-  const [savingDeliverable, setSavingDeliverable] = useState(false);
-  const [deletingDeliverable, setDeletingDeliverable] = useState(false);
-  const [deliverableMsg, setDeliverableMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [deliverableTestPhone, setDeliverableTestPhone] = useState('');
-  const [deliverableTestResult, setDeliverableTestResult] = useState<any | null>(null);
-  const [sendingDeliverableTest, setSendingDeliverableTest] = useState(false);
 
   // Modal for Response Data
   const [selectedLogResponse, setSelectedLogResponse] = useState<any | null>(null);
@@ -90,16 +79,13 @@ export default function SmsManagement() {
       setDeliverables(delivData);
 
       if (settingsData) {
-        setSmsProvider(settingsData.smsProvider === 'africastalking' ? 'africastalking' : 'textsms');
+        setSmsProvider(settingsData.smsProvider === 'textsms' ? 'textsms' : 'africastalking');
         setAtUsername(settingsData.atUsername || 'sandbox');
         setAtApiKey(settingsData.atApiKey || '');
         setAtSenderId(settingsData.atSenderId || 'SOKAKING');
         setTextSmsPartnerId(settingsData.textSmsPartnerId || '');
         setTextSmsApiKey(settingsData.textSmsApiKey || '');
         setTextSmsShortcode(settingsData.textSmsShortcode || 'TEXTSMS');
-        if (settingsData.envStatus) {
-          setEnvStatus(settingsData.envStatus);
-        }
       }
     } catch (e) {
       console.error('Failed loading SMS management data:', e);
@@ -169,92 +155,6 @@ export default function SmsManagement() {
     }
   };
 
-  const handleOpenEditDeliverable = (item?: any, cat: 'vip' | 'odds_pack' | 'jackpot' = 'vip') => {
-    setDeliverableMsg(null);
-    setDeliverableTestResult(null);
-    if (item) {
-      const sampleStr = Array.isArray(item.samplePicks) 
-        ? item.samplePicks.join('\n') 
-        : (Array.isArray(item.samplePredictions) ? item.samplePredictions.join('\n') : (item.samplePicks || ''));
-
-      setEditingDeliverable({
-        id: item.id,
-        category: item.category || cat,
-        package_id: item.packageId || item.package_id || `${cat}_custom`,
-        title: item.title || item.name || item.pack || 'Custom Deliverable',
-        odds_or_prize: item.oddsOrPrize || item.cashPrize || item.targetOdds || '3.00 Odds',
-        win_rate_or_category: item.winRateOrCategory || item.winProbability || item.category || '90% Win Rate',
-        description: item.description || '',
-        sms_template: item.smsTemplate || item.sms_template || `SOKA KING ${item.title || 'DELIVERABLE'}:\n1. Man City vs Liverpool -> 1\n2. Real Madrid vs Barca -> GG\nGood luck!`,
-        sample_picks: sampleStr,
-        status: item.status || 'ACTIVE'
-      });
-    } else {
-      setEditingDeliverable({
-        category: cat,
-        package_id: `${cat}_${Date.now().toString().slice(-4)}`,
-        title: cat === 'jackpot' ? 'New Jackpot Package' : (cat === 'odds_pack' ? '5+ Odds Custom Pack' : 'VIP Special Pass'),
-        odds_or_prize: cat === 'jackpot' ? 'KES 50,000,000' : '5.50 Odds',
-        win_rate_or_category: cat === 'jackpot' ? '15 Matches' : '88% Win Rate',
-        description: 'Package description and inclusions.',
-        sms_template: "SOKA KING TIPS:\n1. Match 1 vs Match 2 -> Tip\n2. Match 3 vs Match 4 -> Tip\nGood luck!",
-        sample_picks: "1. Match 1 vs Match 2 (Tip)\n2. Match 3 vs Match 4 (Tip)",
-        status: 'ACTIVE'
-      });
-    }
-  };
-
-  const handleSaveDeliverable = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingDeliverable) return;
-
-    setSavingDeliverable(true);
-    setDeliverableMsg(null);
-    try {
-      const res = await saveDeliverableItem(editingDeliverable);
-      if (res.success) {
-        setDeliverableMsg({ type: 'success', text: 'Deliverable saved successfully to MySQL database!' });
-        await loadData();
-        setTimeout(() => setEditingDeliverable(null), 1200);
-      } else {
-        setDeliverableMsg({ type: 'error', text: res.error || 'Failed to save deliverable' });
-      }
-    } catch (err: any) {
-      setDeliverableMsg({ type: 'error', text: err?.message || 'Error saving deliverable' });
-    } finally {
-      setSavingDeliverable(false);
-    }
-  };
-
-  const handleDeleteDeliverable = async (id: string | number) => {
-    if (!window.confirm('Are you sure you want to delete this deliverable from the database?')) return;
-    setDeletingDeliverable(true);
-    try {
-      await deleteDeliverableItem(id);
-      await loadData();
-      setEditingDeliverable(null);
-    } catch (err) {
-      console.error('Error deleting deliverable:', err);
-    } finally {
-      setDeletingDeliverable(false);
-    }
-  };
-
-  const handleSendDeliverableTestSms = async () => {
-    if (!deliverableTestPhone.trim() || !editingDeliverable?.sms_template) return;
-    setSendingDeliverableTest(true);
-    setDeliverableTestResult(null);
-    try {
-      const res = await sendTestSms(deliverableTestPhone.trim(), editingDeliverable.sms_template);
-      setDeliverableTestResult(res);
-      await loadData();
-    } catch (err: any) {
-      setDeliverableTestResult({ error: err?.message || 'Failed to send test deliverable SMS' });
-    } finally {
-      setSendingDeliverableTest(false);
-    }
-  };
-
   const formats = getPhoneFormats(testPhone);
 
   return (
@@ -270,7 +170,7 @@ export default function SmsManagement() {
             </h1>
           </div>
           <p className="text-xs text-[var(--text-muted)]">
-            Primary Gateway: <strong className="text-[var(--primary)]">TextSMS.co.ke</strong> &amp; Africa's Talking with Dynamic Database Deliverables &amp; SMS Length Control
+            Multi-Provider SMS Engine (Africa's Talking & TextSMS.co.ke) with Kenyan Phone Verification & Deliverables Audit
           </p>
         </div>
 
@@ -636,199 +536,126 @@ export default function SmsManagement() {
         </div>
       )}
 
-      {/* TAB 2: DELIVERABLES MANAGEMENT & SMS TEMPLATES */}
+      {/* TAB 2: DELIVERABLES TABLE (JACKPOTS, ODDS, VIP) */}
       {activeTab === 'deliverables' && (
         <div className="space-y-6">
-          <div className="p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--border)] pb-3">
+          <div className="p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] space-y-4">
+            <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-sm font-bold font-mono uppercase tracking-wider flex items-center gap-2 text-[var(--text)]">
-                  <Trophy className="w-4 h-4 text-amber-500" /> Database-Backed Deliverables &amp; SMS Template Control
+                <h2 className="text-sm font-bold font-mono uppercase tracking-wider flex items-center gap-2">
+                  <Trophy className="w-4 h-4 text-amber-500" /> Active Tip Deliverables by Package Type
                 </h2>
                 <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                  Manage VIP passes, Odds Packs, and Jackpots in MySQL. Control SMS text formatting &amp; message length.
+                  Live summary of prediction content delivered via SMS and Web Portal for each package category.
                 </p>
               </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleOpenEditDeliverable(null, 'vip')}
-                  className="px-3 py-1.5 bg-[var(--primary)] hover:opacity-90 text-slate-950 font-mono text-xs font-bold rounded-md flex items-center gap-1 cursor-pointer transition-all shadow-sm"
-                >
-                  <Plus className="w-3.5 h-3.5" /> Add Deliverable
-                </button>
-              </div>
+              <span className="text-xs font-mono text-[var(--text-muted)]">
+                Last Updated: {deliverables?.updatedAt ? new Date(deliverables.updatedAt).toLocaleTimeString() : 'Just now'}
+              </span>
             </div>
 
-            {/* 1. VIP Banker Tips Deliverables */}
+            {/* 1. Jackpots Deliverables Table */}
             <div className="space-y-2 pt-2">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-mono font-extrabold uppercase text-[var(--primary)] flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-500" /> 1. VIP Package Deliverables
-                </h3>
-                <button
-                  onClick={() => handleOpenEditDeliverable(null, 'vip')}
-                  className="text-[11px] font-mono text-[var(--primary)] hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <Plus className="w-3 h-3" /> Add VIP Pass
-                </button>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs font-mono border border-[var(--border)] rounded-md">
-                  <thead className="bg-slate-50 dark:bg-slate-900 border-b border-[var(--border)] text-[10px] uppercase font-bold text-[var(--text-muted)]">
-                    <tr>
-                      <th className="py-2.5 px-3">Title / Package</th>
-                      <th className="py-2.5 px-3">Target Odds / Win Rate</th>
-                      <th className="py-2.5 px-3">SMS Template Preview</th>
-                      <th className="py-2.5 px-3">SMS Length</th>
-                      <th className="py-2.5 px-3 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[var(--border)]">
-                    {deliverables?.vip?.map((v: any, i: number) => {
-                      const tpl = v.smsTemplate || v.sms_template || '';
-                      const charCount = tpl.length;
-                      const units = Math.ceil(charCount / 160) || 1;
-                      return (
-                        <tr key={v.id || i} className="hover:bg-slate-500/5 transition-all">
-                          <td className="py-3 px-3">
-                            <div className="font-bold text-[var(--text)]">{v.title || v.name || v.match}</div>
-                            <div className="text-[10px] text-[var(--text-muted)]">{v.packageId || v.league}</div>
-                          </td>
-                          <td className="py-3 px-3">
-                            <span className="font-bold text-[var(--primary)]">{v.oddsOrPrize || v.odds}</span>
-                            <div className="text-[10px] text-emerald-600 font-bold">{v.winRateOrCategory || v.confidence}</div>
-                          </td>
-                          <td className="py-3 px-3 max-w-xs">
-                            <div className="text-[10px] text-[var(--text-muted)] bg-slate-100 dark:bg-slate-800 p-1.5 rounded truncate font-mono">
-                              {tpl || 'Default Auto-Assembly'}
-                            </div>
-                          </td>
-                          <td className="py-3 px-3">
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${units === 1 ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 border border-amber-500/20'}`}>
-                              {charCount} chars ({units} SMS)
-                            </span>
-                          </td>
-                          <td className="py-3 px-3 text-right">
-                            <button
-                              onClick={() => handleOpenEditDeliverable(v, 'vip')}
-                              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[var(--text)] rounded font-mono text-[11px] font-bold border border-[var(--border)] cursor-pointer inline-flex items-center gap-1 transition-all"
-                            >
-                              <Edit3 className="w-3 h-3 text-[var(--primary)]" /> Edit SMS &amp; Tips
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* 2. Odds Packs Deliverables */}
-            <div className="space-y-2 pt-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-mono font-extrabold uppercase text-[var(--primary)] flex items-center gap-1.5">
-                  <Zap className="w-4 h-4 text-sky-500" /> 2. Odds Packs Deliverables
-                </h3>
-                <button
-                  onClick={() => handleOpenEditDeliverable(null, 'odds_pack')}
-                  className="text-[11px] font-mono text-[var(--primary)] hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <Plus className="w-3 h-3" /> Add Odds Pack
-                </button>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs font-mono border border-[var(--border)] rounded-md">
-                  <thead className="bg-slate-50 dark:bg-slate-900 border-b border-[var(--border)] text-[10px] uppercase font-bold text-[var(--text-muted)]">
-                    <tr>
-                      <th className="py-2.5 px-3">Pack Name</th>
-                      <th className="py-2.5 px-3">Target Odds</th>
-                      <th className="py-2.5 px-3">Win Probability</th>
-                      <th className="py-2.5 px-3">SMS Template Preview</th>
-                      <th className="py-2.5 px-3 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[var(--border)]">
-                    {deliverables?.oddsPacks?.map((o: any, i: number) => {
-                      const tpl = o.smsTemplate || o.sms_template || '';
-                      const charCount = tpl.length;
-                      const units = Math.ceil(charCount / 160) || 1;
-                      return (
-                        <tr key={o.id || i} className="hover:bg-slate-500/5 transition-all">
-                          <td className="py-3 px-3 font-bold text-[var(--text)]">{o.title || o.pack}</td>
-                          <td className="py-3 px-3 font-extrabold text-[var(--primary)]">{o.oddsOrPrize || o.targetOdds}</td>
-                          <td className="py-3 px-3 text-emerald-600 font-bold">{o.winRateOrCategory || o.winProbability}</td>
-                          <td className="py-3 px-3 max-w-xs">
-                            <div className="text-[10px] text-[var(--text-muted)] bg-slate-100 dark:bg-slate-800 p-1.5 rounded truncate font-mono">
-                              {tpl || 'Default Auto-Assembly'}
-                            </div>
-                          </td>
-                          <td className="py-3 px-3 text-right">
-                            <button
-                              onClick={() => handleOpenEditDeliverable(o, 'odds_pack')}
-                              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[var(--text)] rounded font-mono text-[11px] font-bold border border-[var(--border)] cursor-pointer inline-flex items-center gap-1 transition-all"
-                            >
-                              <Edit3 className="w-3 h-3 text-[var(--primary)]" /> Edit SMS &amp; Tips
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* 3. Jackpot Predictions Deliverables */}
-            <div className="space-y-2 pt-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-mono font-extrabold uppercase text-[var(--primary)] flex items-center gap-1.5">
-                  <Flame className="w-4 h-4 text-rose-500" /> 3. Jackpot Predictions Deliverables
-                </h3>
-                <button
-                  onClick={() => handleOpenEditDeliverable(null, 'jackpot')}
-                  className="text-[11px] font-mono text-[var(--primary)] hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <Plus className="w-3 h-3" /> Add Jackpot Deliverable
-                </button>
-              </div>
-
+              <h3 className="text-xs font-mono font-extrabold uppercase text-[var(--primary)] flex items-center gap-1.5">
+                <Flame className="w-4 h-4 text-rose-500" /> 1. Jackpot Predictions Deliverables
+              </h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs font-mono border border-[var(--border)] rounded-md">
                   <thead className="bg-slate-50 dark:bg-slate-900 border-b border-[var(--border)] text-[10px] uppercase font-bold text-[var(--text-muted)]">
                     <tr>
                       <th className="py-2.5 px-3">Jackpot Name</th>
-                      <th className="py-2.5 px-3">Cash Prize</th>
-                      <th className="py-2.5 px-3">SMS Template / Sample Predictions</th>
-                      <th className="py-2.5 px-3 text-right">Actions</th>
+                      <th className="py-2.5 px-3">Category</th>
+                      <th className="py-2.5 px-3">Estimated Cash Prize</th>
+                      <th className="py-2.5 px-3">Deliverable Predictions Sample</th>
+                      <th className="py-2.5 px-3 text-right">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[var(--border)]">
-                    {deliverables?.jackpots?.map((j: any, i: number) => {
-                      const tpl = j.smsTemplate || j.sms_template || '';
-                      return (
-                        <tr key={j.id || i} className="hover:bg-slate-500/5 transition-all">
-                          <td className="py-3 px-3 font-bold text-[var(--text)]">{j.title || j.name}</td>
-                          <td className="py-3 px-3 font-bold text-emerald-600">{j.oddsOrPrize || j.cashPrize}</td>
-                          <td className="py-3 px-3 max-w-md">
-                            <div className="text-[10px] text-[var(--text-muted)] bg-slate-100 dark:bg-slate-800 p-1.5 rounded truncate font-mono">
-                              {tpl || (j.samplePredictions?.join(' | ') ?? 'Auto-assembled')}
-                            </div>
-                          </td>
-                          <td className="py-3 px-3 text-right">
-                            <button
-                              onClick={() => handleOpenEditDeliverable(j, 'jackpot')}
-                              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[var(--text)] rounded font-mono text-[11px] font-bold border border-[var(--border)] cursor-pointer inline-flex items-center gap-1 transition-all"
-                            >
-                              <Edit3 className="w-3 h-3 text-[var(--primary)]" /> Edit SMS &amp; Tips
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {deliverables?.jackpots?.map((j: any, i: number) => (
+                      <tr key={i} className="hover:bg-slate-500/5">
+                        <td className="py-3 px-3 font-bold text-[var(--text)]">{j.name}</td>
+                        <td className="py-3 px-3 text-[var(--text-muted)]">{j.category}</td>
+                        <td className="py-3 px-3 font-bold text-emerald-600">{j.cashPrize}</td>
+                        <td className="py-3 px-3 max-w-md">
+                          <div className="flex flex-wrap gap-1">
+                            {j.samplePredictions?.map((pred: string, idx: number) => (
+                              <span key={idx} className="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 dark:bg-slate-800 text-[var(--text)] border border-[var(--border)]">
+                                {pred}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="py-3 px-3 text-right">
+                          <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                            {j.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* 2. VIP Banker Predictions Deliverables Table */}
+            <div className="space-y-2 pt-4">
+              <h3 className="text-xs font-mono font-extrabold uppercase text-[var(--primary)] flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" /> 2. VIP Banker Tips Deliverables
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs font-mono border border-[var(--border)] rounded-md">
+                  <thead className="bg-slate-50 dark:bg-slate-900 border-b border-[var(--border)] text-[10px] uppercase font-bold text-[var(--text-muted)]">
+                    <tr>
+                      <th className="py-2.5 px-3">Match Fixture</th>
+                      <th className="py-2.5 px-3">League</th>
+                      <th className="py-2.5 px-3">Prediction Tip</th>
+                      <th className="py-2.5 px-3">Confidence Score</th>
+                      <th className="py-2.5 px-3 text-right">Odds</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border)]">
+                    {deliverables?.vip?.map((v: any, i: number) => (
+                      <tr key={i} className="hover:bg-slate-500/5">
+                        <td className="py-3 px-3 font-bold text-[var(--text)]">{v.match}</td>
+                        <td className="py-3 px-3 text-[var(--text-muted)]">{v.league}</td>
+                        <td className="py-3 px-3 font-bold text-[var(--primary)]">{v.prediction}</td>
+                        <td className="py-3 px-3">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                            {v.confidence}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 text-right font-extrabold">{v.odds}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* 3. Odds Packs Deliverables Table */}
+            <div className="space-y-2 pt-4">
+              <h3 className="text-xs font-mono font-extrabold uppercase text-[var(--primary)] flex items-center gap-1.5">
+                <Zap className="w-4 h-4 text-sky-500" /> 3. Daily High Odds Packs Deliverables
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs font-mono border border-[var(--border)] rounded-md">
+                  <thead className="bg-slate-50 dark:bg-slate-900 border-b border-[var(--border)] text-[10px] uppercase font-bold text-[var(--text-muted)]">
+                    <tr>
+                      <th className="py-2.5 px-3">Odds Package Name</th>
+                      <th className="py-2.5 px-3">Target Combined Odds</th>
+                      <th className="py-2.5 px-3">Win Probability</th>
+                      <th className="py-2.5 px-3">Package Description & Scope</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border)]">
+                    {deliverables?.oddsPacks?.map((o: any, i: number) => (
+                      <tr key={i} className="hover:bg-slate-500/5">
+                        <td className="py-3 px-3 font-bold text-[var(--text)]">{o.pack}</td>
+                        <td className="py-3 px-3 font-extrabold text-[var(--primary)]">{o.targetOdds}</td>
+                        <td className="py-3 px-3 text-emerald-600 font-bold">{o.winProbability}</td>
+                        <td className="py-3 px-3 text-[var(--text-muted)] text-[11px]">{o.description}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -836,212 +663,6 @@ export default function SmsManagement() {
           </div>
         </div>
       )}
-
-      {/* DELIVERABLE EDITOR MODAL */}
-      <AnimatePresence>
-        {editingDeliverable && (
-          <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] w-full max-w-2xl p-6 shadow-xl space-y-4 font-mono my-8 max-h-[90vh] overflow-y-auto"
-            >
-              <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
-                <div className="flex items-center gap-2">
-                  <Edit3 className="w-5 h-5 text-[var(--primary)]" />
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--text)]">
-                    {editingDeliverable.id ? 'Edit Package Deliverable & SMS Template' : 'Add New Deliverable to Database'}
-                  </h3>
-                </div>
-                <button
-                  onClick={() => setEditingDeliverable(null)}
-                  className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-[var(--text-muted)] cursor-pointer"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <form onSubmit={handleSaveDeliverable} className="space-y-4 text-xs">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">Category</label>
-                    <select
-                      value={editingDeliverable.category}
-                      onChange={(e) => setEditingDeliverable({ ...editingDeliverable, category: e.target.value })}
-                      className="w-full px-3 py-2 rounded border border-[var(--border)] bg-[var(--background)] text-[var(--text)] font-mono"
-                    >
-                      <option value="vip">VIP Package</option>
-                      <option value="odds_pack">Odds Pack</option>
-                      <option value="jackpot">Jackpot Predictions</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">Package ID</label>
-                    <input
-                      type="text"
-                      value={editingDeliverable.package_id}
-                      onChange={(e) => setEditingDeliverable({ ...editingDeliverable, package_id: e.target.value })}
-                      placeholder="e.g. vip_daily, 2_odds, sportpesa_mega"
-                      required
-                      className="w-full px-3 py-2 rounded border border-[var(--border)] bg-[var(--background)] text-[var(--text)] font-mono"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="sm:col-span-2">
-                    <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">Title / Deliverable Name</label>
-                    <input
-                      type="text"
-                      value={editingDeliverable.title}
-                      onChange={(e) => setEditingDeliverable({ ...editingDeliverable, title: e.target.value })}
-                      required
-                      className="w-full px-3 py-2 rounded border border-[var(--border)] bg-[var(--background)] text-[var(--text)] font-mono"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">Odds or Prize</label>
-                    <input
-                      type="text"
-                      value={editingDeliverable.odds_or_prize}
-                      onChange={(e) => setEditingDeliverable({ ...editingDeliverable, odds_or_prize: e.target.value })}
-                      placeholder="e.g. 3.50 Odds or KES 385M"
-                      className="w-full px-3 py-2 rounded border border-[var(--border)] bg-[var(--background)] text-[var(--text)] font-mono"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">Win Rate or Category Details</label>
-                  <input
-                    type="text"
-                    value={editingDeliverable.win_rate_or_category}
-                    onChange={(e) => setEditingDeliverable({ ...editingDeliverable, win_rate_or_category: e.target.value })}
-                    placeholder="e.g. 95% Win Rate or 17 Matches"
-                    className="w-full px-3 py-2 rounded border border-[var(--border)] bg-[var(--background)] text-[var(--text)] font-mono"
-                  />
-                </div>
-
-                {/* SMS TEMPLATE WITH LENGTH ANALYZER */}
-                <div className="p-4 rounded border border-[var(--primary)]/30 bg-[var(--primary)]/5 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-[11px] font-bold uppercase text-[var(--primary)] flex items-center gap-1.5">
-                      <MessageSquare className="w-4 h-4" /> Custom SMS Template (Dispatched to Users)
-                    </label>
-
-                    {(() => {
-                      const len = (editingDeliverable.sms_template || '').length;
-                      const units = Math.ceil(len / 160) || 1;
-                      return (
-                        <div className="flex items-center gap-2 text-[10px] font-bold">
-                          <span className={`px-2 py-0.5 rounded ${units === 1 ? 'bg-emerald-500/20 text-emerald-600' : 'bg-amber-500/20 text-amber-600'}`}>
-                            {len} / 160 Chars
-                          </span>
-                          <span className={`px-2 py-0.5 rounded ${units === 1 ? 'bg-emerald-500/20 text-emerald-600' : 'bg-amber-500/20 text-amber-600'}`}>
-                            {units} SMS {units > 1 ? 'Units (Cost 2x)' : 'Unit (Standard)'}
-                          </span>
-                        </div>
-                      );
-                    })()}
-                  </div>
-
-                  <textarea
-                    rows={4}
-                    value={editingDeliverable.sms_template}
-                    onChange={(e) => setEditingDeliverable({ ...editingDeliverable, sms_template: e.target.value })}
-                    placeholder="Enter the exact SMS text sent to subscriber phones upon payment or automated daily dispatch..."
-                    required
-                    className="w-full px-3 py-2 rounded border border-[var(--border)] bg-[var(--background)] text-[var(--text)] font-mono text-xs focus:outline-none focus:border-[var(--primary)]"
-                  />
-
-                  {/* 1-Click Test Send inside Modal */}
-                  <div className="pt-2 border-t border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 w-full sm:w-auto">
-                      <input
-                        type="text"
-                        placeholder="Test phone (e.g. 0740841375)"
-                        value={deliverableTestPhone}
-                        onChange={(e) => setDeliverableTestPhone(e.target.value)}
-                        className="px-2.5 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] text-[var(--text)] text-xs font-mono w-full sm:w-48"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleSendDeliverableTestSms}
-                        disabled={sendingDeliverableTest || !deliverableTestPhone.trim()}
-                        className="px-3 py-1.5 bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 rounded font-bold text-xs flex items-center gap-1 hover:opacity-90 transition-all cursor-pointer whitespace-nowrap disabled:opacity-50"
-                      >
-                        {sendingDeliverableTest ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                        Send Test SMS
-                      </button>
-                    </div>
-
-                    <span className="text-[10px] text-[var(--text-muted)]">
-                      Instant gateway test verification
-                    </span>
-                  </div>
-
-                  {deliverableTestResult && (
-                    <div className={`mt-2 p-2 rounded text-[11px] font-mono border ${deliverableTestResult.error ? 'bg-rose-500/10 text-rose-600 border-rose-500/20' : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'}`}>
-                      {deliverableTestResult.error ? `❌ ${deliverableTestResult.error}` : `✅ SMS dispatched to ${deliverableTestResult.phoneNumber} (${deliverableTestResult.provider || 'textsms'})`}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">Sample Picks (Web Display)</label>
-                  <textarea
-                    rows={3}
-                    value={editingDeliverable.sample_picks}
-                    onChange={(e) => setEditingDeliverable({ ...editingDeliverable, sample_picks: e.target.value })}
-                    placeholder="Enter 1 match pick per line..."
-                    className="w-full px-3 py-2 rounded border border-[var(--border)] bg-[var(--background)] text-[var(--text)] font-mono text-xs"
-                  />
-                </div>
-
-                {deliverableMsg && (
-                  <div className={`p-3 rounded text-xs border ${deliverableMsg.type === 'success' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20'}`}>
-                    {deliverableMsg.text}
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between pt-3 border-t border-[var(--border)]">
-                  {editingDeliverable.id ? (
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteDeliverable(editingDeliverable.id)}
-                      disabled={deletingDeliverable}
-                      className="px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 border border-rose-500/30 rounded font-bold text-xs flex items-center gap-1 cursor-pointer transition-all"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" /> Delete
-                    </button>
-                  ) : <div />}
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setEditingDeliverable(null)}
-                      className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[var(--text)] rounded font-bold text-xs cursor-pointer transition-all"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={savingDeliverable}
-                      className="px-5 py-2 bg-[var(--primary)] hover:opacity-90 text-slate-950 font-bold text-xs rounded shadow-md flex items-center gap-1.5 cursor-pointer transition-all disabled:opacity-50"
-                    >
-                      {savingDeliverable ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                      Save to Database
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       {/* TAB 3: ACTIVE SUBSCRIPTIONS */}
       {activeTab === 'subscriptions' && (

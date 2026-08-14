@@ -12,7 +12,7 @@ export async function GET() {
   } catch (err) {}
 
   return NextResponse.json({
-    smsProvider: 'textsms',
+    smsProvider: 'africastalking',
     atUsername: 'sandbox',
     atApiKey: '',
     atSenderId: 'SOKAKING',
@@ -40,6 +40,6 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     success: true,
     message: 'SMS Provider settings saved locally (Simulation Mode)',
-    smsProvider: 'textsms'
+    smsProvider: 'africastalking'
   });
 }

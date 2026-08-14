@@ -457,7 +457,7 @@ export async function fetchSmsSettings() {
     console.error('[dataStore] fetchSmsSettings error:', err);
   }
   return {
-    smsProvider: 'textsms',
+    smsProvider: 'africastalking',
     atUsername: 'sandbox',
     atApiKey: '',
     atSenderId: 'SOKAKING',
@@ -488,52 +488,6 @@ export async function updateSmsSettings(settings: {
     console.error('[dataStore] updateSmsSettings error:', err);
   }
   return { success: true, message: 'Settings saved', smsProvider: settings.smsProvider };
-}
-
-export async function saveDeliverableItem(item: {
-  id?: string | number;
-  category: 'vip' | 'odds_pack' | 'jackpot';
-  package_id?: string;
-  packageId?: string;
-  title: string;
-  odds_or_prize?: string;
-  oddsOrPrize?: string;
-  win_rate_or_category?: string;
-  winRateOrCategory?: string;
-  description?: string;
-  sms_template?: string;
-  smsTemplate?: string;
-  sample_picks?: string | string[];
-  samplePicks?: string | string[];
-  status?: string;
-}) {
-  const baseUrl = getApiBaseUrl();
-  try {
-    const res = await fetch(`${baseUrl}/api/deliverables/save`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(item)
-    });
-    if (res.ok) return await res.json();
-  } catch (err) {
-    console.error('[dataStore] saveDeliverableItem error:', err);
-  }
-  return { success: true, message: 'Saved locally', id: item.id || Date.now() };
-}
-
-export async function deleteDeliverableItem(id: string | number) {
-  const baseUrl = getApiBaseUrl();
-  try {
-    const res = await fetch(`${baseUrl}/api/deliverables/delete`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id })
-    });
-    if (res.ok) return await res.json();
-  } catch (err) {
-    console.error('[dataStore] deleteDeliverableItem error:', err);
-  }
-  return { success: true, message: 'Deleted locally', id };
 }
 
 export async function fetchDeliverablesSummary() {

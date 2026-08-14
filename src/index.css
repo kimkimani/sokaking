@@ -101,23 +101,9 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'ss01', 'tnum';
+  transition: background-color 0.4s ease, color 0.4s ease;
+  scroll-behavior: smooth;
   font-weight: 500; /* Crisp baseline weight */
-}
-
-/* Offset for fixed sticky header without forced reflow getBoundingClientRect calls */
-section[id], div[id], [id] {
-  scroll-margin-top: 80px;
-}
-
-/* High-performance instant touch tap response on mobile (removes 300ms tap delay) */
-button, a, [role="button"], input, select, textarea {
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-
-button:active, [role="button"]:active {
-  transform: scale(0.98);
-  transition: transform 0.05s ease-out;
 }
 
 /* Global scrollbar styling */

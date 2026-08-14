@@ -1,7 +1,7 @@
 <?php
 /**
  * SOKA Predictions - Standalone PHP REST API Router
- * Host Path: cheerplex.com/soka_king
+ * Host Path: cheerplex.co.ke/soka_king
  * Database: cheerple_soka_king (MariaDB/MySQL)
  */
 
@@ -17,7 +17,7 @@ $pdo = Database::getConnection();
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Handle subfolder routing on cheerplex.com/soka_king
+// Handle subfolder routing on cheerplex.co.ke/soka_king
 $path = $uri;
 if (strpos($path, '/soka_king/api') !== false) {
     $path = substr($path, strpos($path, '/soka_king/api') + strlen('/soka_king/api'));
@@ -216,7 +216,7 @@ if ($path === '' || $path === '/' || $path === '/health') {
     jsonResponse([
         'status' => 'online',
         'service' => 'SOKA Predictions PHP MySQL Backend Server',
-        'host' => 'cheerplex.com/soka_king',
+        'host' => 'cheerplex.co.ke/soka_king',
         'database' => 'cheerple_soka_king',
         'timestamp' => date('Y-m-d H:i:s'),
         'endpoints' => [
@@ -896,26 +896,28 @@ function formatKenyanPhoneNumber($phone, $format = 'plus') {
 }
 
 function sendAfricasTalkingSms($toNumbers, $message, $pdo = null) {
-    // Check environment variables first (PHP env connection)
-    $username = getenv('AFRICASTALKING_USERNAME') ?: (getenv('AT_USERNAME') ?: 'sandbox');
-    $apiKey   = getenv('AFRICASTALKING_API_KEY') ?: (getenv('AT_API_KEY') ?: '');
-    $senderId = getenv('AFRICASTALKING_SENDER_ID') ?: (getenv('AT_SENDER_ID') ?: 'SOKAKING');
+    // Check DB site_settings for credentials if available
+    $username = 'sandbox';
+    $apiKey = '';
+    $senderId = 'SOKAKING';
 
-    // Fall back to site_settings DB configuration if env variables are empty
-    if (empty($apiKey) && $pdo) {
+    if ($pdo) {
         try {
             $sStmt = $pdo->query("SELECT at_username, at_api_key, at_sender_id FROM site_settings WHERE id = 1");
             $s = $sStmt->fetch();
             if ($s) {
-                if ($username === 'sandbox' && !empty($s['at_username'])) $username = $s['at_username'];
-                if (empty($apiKey) && !empty($s['at_api_key'])) $apiKey = $s['at_api_key'];
-                if ($senderId === 'SOKAKING' && !empty($s['at_sender_id'])) $senderId = $s['at_sender_id'];
+                if (!empty($s['at_username'])) $username = $s['at_username'];
+                if (!empty($s['at_api_key'])) $apiKey = $s['at_api_key'];
+                if (!empty($s['at_sender_id'])) $senderId = $s['at_sender_id'];
             }
         } catch (Throwable $e) {}
     }
 
     if (empty($apiKey)) {
-        $apiKey = defined('AT_API_KEY') ? AT_API_KEY : '';
+        $apiKey = defined('AT_API_KEY') ? AT_API_KEY : (getenv('AT_API_KEY') ?: '');
+    }
+    if (empty($username) || $username === 'sandbox') {
+        $username = defined('AT_USERNAME') ? AT_USERNAME : (getenv('AT_USERNAME') ?: 'sandbox');
     }
 
     if (is_array($toNumbers)) {
@@ -1001,28 +1003,27 @@ function sendAfricasTalkingSms($toNumbers, $message, $pdo = null) {
 
 function sendTextSmsGateway($toNumbers, $message, $pdo = null) {
     // TextSMS.co.ke API Gateway Integration
-    // Environment variables take primary precedence
-    $partnerId = getenv('TEXTSMS_PARTNER_ID') ?: (getenv('TEXT_SMS_PARTNER_ID') ?: '');
-    $apiKey    = getenv('TEXTSMS_API_KEY') ?: (getenv('TEXT_SMS_API_KEY') ?: '');
-    $shortcode = getenv('TEXTSMS_SHORTCODE') ?: (getenv('TEXT_SMS_SHORTCODE') ?: 'TEXTSMS');
+    $partnerId = '';
+    $apiKey = '';
+    $shortcode = 'TEXTSMS';
 
-    if ((empty($partnerId) || empty($apiKey)) && $pdo) {
+    if ($pdo) {
         try {
             $sStmt = $pdo->query("SELECT text_sms_partner_id, text_sms_api_key, text_sms_shortcode FROM site_settings WHERE id = 1");
             $s = $sStmt->fetch();
             if ($s) {
-                if (empty($partnerId) && !empty($s['text_sms_partner_id'])) $partnerId = $s['text_sms_partner_id'];
-                if (empty($apiKey) && !empty($s['text_sms_api_key'])) $apiKey = $s['text_sms_api_key'];
-                if ($shortcode === 'TEXTSMS' && !empty($s['text_sms_shortcode'])) $shortcode = $s['text_sms_shortcode'];
+                if (!empty($s['text_sms_partner_id'])) $partnerId = $s['text_sms_partner_id'];
+                if (!empty($s['text_sms_api_key'])) $apiKey = $s['text_sms_api_key'];
+                if (!empty($s['text_sms_shortcode'])) $shortcode = $s['text_sms_shortcode'];
             }
         } catch (Throwable $e) {}
     }
 
     if (empty($apiKey)) {
-        $apiKey = defined('TEXTSMS_API_KEY') ? TEXTSMS_API_KEY : '';
+        $apiKey = defined('TEXTSMS_API_KEY') ? TEXTSMS_API_KEY : (getenv('TEXTSMS_API_KEY') ?: '');
     }
     if (empty($partnerId)) {
-        $partnerId = defined('TEXTSMS_PARTNER_ID') ? TEXTSMS_PARTNER_ID : '';
+        $partnerId = defined('TEXTSMS_PARTNER_ID') ? TEXTSMS_PARTNER_ID : (getenv('TEXTSMS_PARTNER_ID') ?: '');
     }
 
     // Format numbers as 2547XXXXXXXX
@@ -1104,7 +1105,7 @@ function sendTextSmsGateway($toNumbers, $message, $pdo = null) {
 
 function sendSmsDispatch($pdo, $toNumbers, $message, $packageType = '', $packageName = '') {
     // Read configured active provider
-    $smsProvider = 'textsms';
+    $smsProvider = 'africastalking';
     if ($pdo) {
         try {
             $sStmt = $pdo->query("SELECT sms_provider FROM site_settings WHERE id = 1");
@@ -1134,19 +1135,6 @@ function getPackageDurationDays($packageId) {
 }
 
 function assembleVipAndJackpotSmsText($pdo, $packageName = 'VIP Pass', $packageType = 'vip', $packageId = '') {
-    // 0. Check if Admin configured a custom SMS Template in `deliverables` table
-    if ($pdo) {
-        try {
-            ensureDeliverablesTableExists($pdo);
-            $tplStmt = $pdo->prepare("SELECT sms_template FROM deliverables WHERE (package_id = ? OR package_id = ? OR title LIKE ?) AND status = 'ACTIVE' LIMIT 1");
-            $tplStmt->execute([$packageId, $packageType, '%' . $packageName . '%']);
-            $tplRow = $tplStmt->fetch();
-            if ($tplRow && !empty($tplRow['sms_template'])) {
-                return trim($tplRow['sms_template']);
-            }
-        } catch (Throwable $e) {}
-    }
-
     // 1. Fetch VIP Tips
     $vipTips = [];
     try {
@@ -1257,7 +1245,7 @@ function activateSubscriptionAndSendInstantSms($userId, $phoneNumber, $packageId
             `phone_number` varchar(32) NOT NULL,
             `package_type` varchar(64) DEFAULT 'vip',
             `package_name` varchar(128) DEFAULT 'VIP Pass',
-            `provider` varchar(32) DEFAULT 'textsms',
+            `provider` varchar(32) DEFAULT 'africastalking',
             `message_body` text NOT NULL,
             `status` enum('queued','sent','failed') NOT NULL DEFAULT 'queued',
             `error_message` text DEFAULT NULL,
@@ -1269,7 +1257,7 @@ function activateSubscriptionAndSendInstantSms($userId, $phoneNumber, $packageId
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
         // Migration check for missing columns
-        try { $pdo->exec("ALTER TABLE `sms_dispatch_logs` ADD COLUMN `provider` varchar(32) DEFAULT 'textsms'"); } catch (Throwable $e) {}
+        try { $pdo->exec("ALTER TABLE `sms_dispatch_logs` ADD COLUMN `provider` varchar(32) DEFAULT 'africastalking'"); } catch (Throwable $e) {}
         try { $pdo->exec("ALTER TABLE `sms_dispatch_logs` ADD COLUMN `package_type` varchar(64) DEFAULT 'vip'"); } catch (Throwable $e) {}
         try { $pdo->exec("ALTER TABLE `sms_dispatch_logs` ADD COLUMN `package_name` varchar(128) DEFAULT 'VIP Pass'"); } catch (Throwable $e) {}
         try { $pdo->exec("ALTER TABLE `sms_dispatch_logs` ADD COLUMN `response_data` text DEFAULT NULL"); } catch (Throwable $e) {}
@@ -1335,7 +1323,7 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
         try {
             $pdo->exec("CREATE TABLE IF NOT EXISTS `mpesa_transactions` (
               `id` INT(11) NOT NULL AUTO_INCREMENT,
-              `user_id` VARCHAR(255) DEFAULT NULL,
+              `user_id` INT(11) DEFAULT NULL,
               `checkout_request_id` VARCHAR(255) NOT NULL,
               `merchant_request_id` VARCHAR(255) DEFAULT NULL,
               `phone_number` VARCHAR(50) NOT NULL,
@@ -1352,18 +1340,10 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
         } catch (Throwable $e) {}
 
-        try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY COLUMN `user_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
-        try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY COLUMN `merchant_request_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
-        try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY COLUMN `item_type` VARCHAR(100) DEFAULT NULL"); } catch (Throwable $e) {}
-        try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY COLUMN `item_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
-        try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY COLUMN `mpesa_receipt_number` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
-        try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY COLUMN `result_desc` TEXT DEFAULT NULL"); } catch (Throwable $e) {}
-        try { $pdo->exec("ALTER TABLE `purchases` MODIFY COLUMN `user_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
-
         try {
             $pdo->exec("CREATE TABLE IF NOT EXISTS `purchases` (
               `id` INT(11) NOT NULL AUTO_INCREMENT,
-              `user_id` VARCHAR(255) DEFAULT NULL,
+              `user_id` INT(11) DEFAULT NULL,
               `item_type` VARCHAR(50) NOT NULL,
               `item_id` VARCHAR(100) NOT NULL,
               `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -1388,7 +1368,7 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
     $cleanPhone = preg_replace('/[^0-9]/', '', $phoneNumber);
     if (strpos($cleanPhone, '0') === 0) {
         $cleanPhone = '254' . substr($cleanPhone, 1);
-    } elseif ((strpos($cleanPhone, '7') === 0 || strpos($cleanPhone, '1') === 0) && strlen($cleanPhone) === 9) {
+    } elseif (strpos($cleanPhone, '7') === 0 || strpos($cleanPhone, '1') === 0) {
         $cleanPhone = '254' . $cleanPhone;
     }
 
@@ -1398,7 +1378,7 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
         $uStmt->execute([$uid]);
         $uRow = $uStmt->fetch();
         if ($uRow) {
-            $userId = (string)$uRow['id'];
+            $userId = $uRow['id'];
         }
     } catch (Throwable $e) {
         $userId = null;
@@ -1431,7 +1411,7 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
                 'PhoneNumber'       => $cleanPhone,
                 'CallBackURL'       => $callbackUrl,
                 'AccountReference'  => substr(preg_replace('/[^a-zA-Z0-9]/', '', $itemId ?: $itemType), 0, 12) ?: 'SOKA_KING',
-                'TransactionDesc'   => 'Payment for ' . substr(preg_replace('/[^a-zA-Z0-9]/', '', $itemType), 0, 12)
+                'TransactionDesc'   => 'Payment for ' . substr($itemType, 0, 12)
             ];
 
             $ch = curl_init($stkUrl);
@@ -1475,12 +1455,9 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
 
     try {
         $stmt = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, amount, item_type, item_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')");
-        $stmt->execute([$userId ?: $cleanPhone, $checkoutRequestId, $merchantRequestId, $cleanPhone, $amount, $itemType, $itemId]);
+        $stmt->execute([$userId, $checkoutRequestId, $merchantRequestId, $cleanPhone, $amount, $itemType, $itemId]);
     } catch (Throwable $e) {
-        try {
-            $stmtFallback = $pdo->prepare("INSERT INTO mpesa_transactions (checkout_request_id, phone_number, amount, status) VALUES (?, ?, ?, 'pending')");
-            $stmtFallback->execute([$checkoutRequestId, $cleanPhone, $amount]);
-        } catch (Throwable $e2) {}
+        // Fallback log if insert fails
     }
 
     jsonResponse([
@@ -1550,15 +1527,7 @@ if (preg_match('#^/mpesa/status/([^/]+)$#', $path, $matches) && $method === 'GET
     $tx = $stmt->fetch();
 
     if (!$tx) {
-        jsonResponse([
-            'checkoutRequestId' => $checkoutRequestId,
-            'CheckoutRequestID' => $checkoutRequestId,
-            'status' => 'pending',
-            'amount' => 0,
-            'phoneNumber' => '',
-            'resultDesc' => 'Transaction initialized, awaiting M-Pesa PIN input',
-            'isRealMpesa' => true
-        ], 200);
+        jsonResponse(['error' => 'Transaction not found'], 404);
     }
 
     if ($tx['status'] === 'pending') {
@@ -1865,34 +1834,25 @@ if ($path === '/partners') {
 // 16. SMS Gateway Provider Settings GET & POST /api/sms/settings
 if ($path === '/sms/settings') {
     if ($method === 'GET') {
-        $stmt = $pdo ? $pdo->query("SELECT sms_provider, at_username, at_api_key, at_sender_id, text_sms_partner_id, text_sms_api_key, text_sms_shortcode FROM site_settings WHERE id = 1") : false;
-        $s = $stmt ? $stmt->fetch() : [];
-
-        $hasTextSmsEnv = (!empty(getenv('TEXTSMS_PARTNER_ID')) || !empty(getenv('TEXT_SMS_PARTNER_ID')));
-        $hasAtEnv = (!empty(getenv('AFRICASTALKING_API_KEY')) || !empty(getenv('AT_API_KEY')));
-
+        $stmt = $pdo->query("SELECT sms_provider, at_username, at_api_key, at_sender_id, text_sms_partner_id, text_sms_api_key, text_sms_shortcode FROM site_settings WHERE id = 1");
+        $s = $stmt->fetch();
         jsonResponse([
-            'smsProvider' => getenv('SMS_PRIMARY_PROVIDER') ?: (getenv('SMS_PROVIDER') ?: ($s['sms_provider'] ?? 'textsms')),
-            'atUsername' => getenv('AFRICASTALKING_USERNAME') ?: (getenv('AT_USERNAME') ?: ($s['at_username'] ?? 'sandbox')),
-            'atApiKey' => getenv('AFRICASTALKING_API_KEY') ?: (getenv('AT_API_KEY') ?: ($s['at_api_key'] ?? '')),
-            'atSenderId' => getenv('AFRICASTALKING_SENDER_ID') ?: (getenv('AT_SENDER_ID') ?: ($s['at_sender_id'] ?? 'SOKAKING')),
-            'textSmsPartnerId' => getenv('TEXTSMS_PARTNER_ID') ?: (getenv('TEXT_SMS_PARTNER_ID') ?: ($s['text_sms_partner_id'] ?? '')),
-            'textSmsApiKey' => getenv('TEXTSMS_API_KEY') ?: (getenv('TEXT_SMS_API_KEY') ?: ($s['text_sms_api_key'] ?? '')),
-            'textSmsShortcode' => getenv('TEXTSMS_SHORTCODE') ?: (getenv('TEXT_SMS_SHORTCODE') ?: ($s['text_sms_shortcode'] ?? 'TEXTSMS')),
-            'envStatus' => [
-                'textSmsEnv' => $hasTextSmsEnv,
-                'africasTalkingEnv' => $hasAtEnv,
-                'primaryProvider' => getenv('SMS_PRIMARY_PROVIDER') ?: (getenv('SMS_PROVIDER') ?: 'textsms')
-            ]
+            'smsProvider' => $s['sms_provider'] ?? 'africastalking',
+            'atUsername' => $s['at_username'] ?? 'sandbox',
+            'atApiKey' => $s['at_api_key'] ?? '',
+            'atSenderId' => $s['at_sender_id'] ?? 'SOKAKING',
+            'textSmsPartnerId' => $s['text_sms_partner_id'] ?? '',
+            'textSmsApiKey' => $s['text_sms_api_key'] ?? '',
+            'textSmsShortcode' => $s['text_sms_shortcode'] ?? 'TEXTSMS'
         ]);
     }
 
     if ($method === 'POST') {
         $b = getJsonInput();
-        $provider = !empty($b['smsProvider']) ? strtolower(trim($b['smsProvider'])) : 'textsms';
+        $provider = !empty($b['smsProvider']) ? strtolower(trim($b['smsProvider'])) : 'africastalking';
 
         // Auto add columns if missing
-        try { $pdo->exec("ALTER TABLE `site_settings` ADD COLUMN `sms_provider` varchar(32) DEFAULT 'textsms'"); } catch (Throwable $e) {}
+        try { $pdo->exec("ALTER TABLE `site_settings` ADD COLUMN `sms_provider` varchar(32) DEFAULT 'africastalking'"); } catch (Throwable $e) {}
         try { $pdo->exec("ALTER TABLE `site_settings` ADD COLUMN `at_username` varchar(128) DEFAULT 'sandbox'"); } catch (Throwable $e) {}
         try { $pdo->exec("ALTER TABLE `site_settings` ADD COLUMN `at_api_key` varchar(255) DEFAULT ''"); } catch (Throwable $e) {}
         try { $pdo->exec("ALTER TABLE `site_settings` ADD COLUMN `at_sender_id` varchar(64) DEFAULT 'SOKAKING'"); } catch (Throwable $e) {}
@@ -1919,175 +1879,114 @@ if ($path === '/sms/settings') {
     }
 }
 
-function ensureDeliverablesTableExists($pdo) {
-    if (!$pdo) return;
+// 17. Deliverables & Predictions Summary GET /api/deliverables/summary
+if ($path === '/deliverables/summary' && $method === 'GET') {
+    // 1. Fetch VIP Banker Tips Deliverables
+    $vipDeliverables = [];
     try {
-        $pdo->exec("CREATE TABLE IF NOT EXISTS `deliverables` (
-            `id` int(11) NOT NULL AUTO_INCREMENT,
-            `category` varchar(32) NOT NULL DEFAULT 'vip',
-            `package_id` varchar(64) NOT NULL,
-            `title` varchar(255) NOT NULL,
-            `odds_or_prize` varchar(128) DEFAULT '',
-            `win_rate_or_category` varchar(128) DEFAULT '',
-            `description` text DEFAULT NULL,
-            `sms_template` text NOT NULL,
-            `sample_picks` text DEFAULT NULL,
-            `status` varchar(32) NOT NULL DEFAULT 'ACTIVE',
-            `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-            `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            PRIMARY KEY (`id`),
-            KEY `idx_cat` (`category`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
-
-        $cnt = $pdo->query("SELECT COUNT(*) FROM deliverables")->fetchColumn();
-        if ($cnt == 0) {
-            $seeds = [
-                // VIP
-                ['vip', 'vip_daily', 'VIP Daily Pass (3+ Odds)', '3.50+ Odds', '95% Win Rate', '3 Ultra-Banker tips for today with high confidence.', "SOKA KING VIP DAILY PICKS:\n1. Man City vs Liverpool -> 1\n2. Real Madrid vs Barca -> GG\n3. Bayern vs Dortmund -> Over 2.5\nGood luck!", "1. Man City vs Liverpool (1)\n2. Real Madrid vs Barca (GG)\n3. Bayern vs Dortmund (Over 2.5)", 'ACTIVE'],
-                ['vip', 'vip_weekly', 'VIP Weekly Pass (All Picks)', '5.00+ Odds Daily', '92% Win Rate', 'Full week access to VIP Bankers, Multi-bets & Jackpot predictions.', "SOKA KING VIP WEEKLY PASS:\nDaily Banker: Arsenal vs Chelsea (1)\n2+ Odds: PSG vs Marseille (Over 2.5)\nWeekly JP: SportPesa #1-17 Unlocked!", "Daily Banker: Arsenal vs Chelsea (1)\n2+ Odds: PSG vs Marseille (Over 2.5)", 'ACTIVE'],
-                ['vip', 'vip_monthly', 'VIP Monthly Platinum Pass', '10.00+ Odds Combo', '98% Win Rate', 'Monthly unlimited access to all VIP picks, high-odds packs, and all jackpots.', "SOKA KING MONTHLY PLATINUM:\n1. Inter vs Milan (1)\n2. Roma vs Lazio (X2)\n3. Atletico vs Sevilla (1)\nPlus 10+ Odds Mega Accumulator!", "1. Inter vs Milan (1)\n2. Roma vs Lazio (X2)\n3. Atletico vs Sevilla (1)", 'ACTIVE'],
-
-                // ODDS PACKS
-                ['odds_pack', '2_odds', '2+ Odds Daily Banker', '2.15 Odds', '95% Win Rate', '2 Ultra-Safe Double Chance & Over 1.5 Banker selections.', "SOKA KING 2+ ODDS BANKER:\n1. Man City vs Everton -> 1 & Over 1.5\n2. Barcelona vs Getafe -> 1\nTotal Odds: 2.15", "1. Man City vs Everton (1 & Over 1.5)\n2. Barcelona vs Getafe (1)", 'ACTIVE'],
-                ['odds_pack', '3_odds', '3+ Odds Value Accumulator', '3.40 Odds', '88% Win Rate', '3 Well-analyzed matches combining Home Win & GG markets.', "SOKA KING 3+ ODDS ACCUMULATOR:\n1. Arsenal vs Wolves -> 1\n2. Juventus vs Fiorentina -> GG\n3. Leipzig vs Frankfurt -> Over 2.5\nTotal Odds: 3.40", "1. Arsenal vs Wolves (1)\n2. Juventus vs Fiorentina (GG)", 'ACTIVE'],
-                ['odds_pack', '5_odds', '5+ Odds Multi-Bet Pack', '5.80 Odds', '82% Win Rate', 'High-yield multi-bet designed for maximum return.', "SOKA KING 5+ ODDS MULTI-BET:\n1. Chelsea vs Newcastle -> 1\n2. Leverkusen vs Freiburg -> 1 & Over 2.5\n3. Atalanta vs Bologna -> GG\nTotal Odds: 5.80", "1. Chelsea vs Newcastle (1)\n2. Leverkusen vs Freiburg (1 & Over 2.5)", 'ACTIVE'],
-                ['odds_pack', '10_odds', '10+ Odds Daily Mega Accumulator', '11.50 Odds', '74% Win Rate', 'Calculated risk high odds combo for big scorelines.', "SOKA KING 10+ MEGA ACCUMULATOR:\n1. Liverpool vs Spurs -> 1 & GG\n2. Dortmund vs Stuttgart -> Over 3.5\n3. Monaco vs Lille -> 1\n4. Real Betis vs Osasuna -> 1\nTotal Odds: 11.50", "1. Liverpool vs Spurs (1 & GG)\n2. Dortmund vs Stuttgart (Over 3.5)", 'ACTIVE'],
-
-                // JACKPOTS
-                ['jackpot', 'sportpesa_mega', 'SportPesa Mega Jackpot (17 Games)', 'KES 385,000,000+', '17 Matches', 'Pro-analyzed 17-game SportPesa Mega Jackpot predictions.', "SOKA KING SPORTPESA MEGA JP:\n#1 Man Utd vs Chelsea (1X)\n#2 Newcastle vs Spurs (2)\n#3 Everton vs Wolves (1)\n#4 Valencia vs Betis (X2)\n#5 Albacete vs Valladolid (2)", "#1 Man Utd vs Chelsea (1X)\n#2 Newcastle vs Spurs (2)\n#3 Everton vs Wolves (1)", 'ACTIVE'],
-                ['jackpot', 'sportpesa_midweek', 'SportPesa Midweek Jackpot (13 Games)', 'KES 15,000,000+', '13 Matches', 'SportPesa 13-game Midweek jackpot picks.', "SOKA KING SPORTPESA MIDWEEK JP:\n#1 Villa vs West Ham (1)\n#2 Southampton vs Leeds (X2)\n#3 Leicester vs Norwich (1)", "#1 Villa vs West Ham (1)\n#2 Southampton vs Leeds (X2)", 'ACTIVE'],
-                ['jackpot', 'betika_grand', 'Betika Grand Jackpot (17 Games)', 'KES 100,000,000', '17 Matches', 'Betika Grand Jackpot 17 combinations.', "SOKA KING BETIKA GRAND JP:\n#1 Lazio vs Napoli (1X)\n#2 Fiorentina vs Genoa (1)\n#3 Mainz vs Augsburg (X)", "#1 Lazio vs Napoli (1X)\n#2 Fiorentina vs Genoa (1)", 'ACTIVE'],
-                ['jackpot', 'mozzart_super', 'Mozzart Super Grand Jackpot (16 Games)', 'KES 200,000,000', '16 Matches', 'Mozzart 16 game jackpot selections.', "SOKA KING MOZZART GRAND JP:\n#1 Milan vs Inter (12)\n#2 Roma vs Lazio (X)\n#3 Atalanta vs Torino (1)", "#1 Milan vs Inter (12)\n#2 Roma vs Lazio (X)", 'ACTIVE']
+        $stmt = $pdo->query("SELECT home_team_name, away_team_name, prediction, confidence_score, odd_home, odd_draw, odd_away, league_name FROM fixture_predictions WHERE is_vip = 1 OR is_banker = 1 ORDER BY confidence_score DESC LIMIT 6");
+        $vipRows = $stmt->fetchAll();
+        foreach ($vipRows as $r) {
+            $vipDeliverables[] = [
+                'match' => "{$r['home_team_name']} vs {$r['away_team_name']}",
+                'league' => $r['league_name'] ?: 'Top European League',
+                'prediction' => $r['prediction'],
+                'confidence' => $r['confidence_score'] ? $r['confidence_score'] . '%' : '92%',
+                'odds' => $r['odd_home'] ?: '1.85'
             ];
-
-            $ins = $pdo->prepare("INSERT INTO deliverables (category, package_id, title, odds_or_prize, win_rate_or_category, description, sms_template, sample_picks, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            foreach ($seeds as $s) {
-                $ins->execute($s);
-            }
         }
     } catch (Throwable $e) {}
-}
 
-// 17. Deliverables & Predictions Summary GET & POST /api/deliverables/summary or /api/deliverables/save
-if ($path === '/deliverables/summary' || $path === '/deliverables/list' || $path === '/deliverables/save' || $path === '/deliverables/add' || $path === '/deliverables/delete') {
-    ensureDeliverablesTableExists($pdo);
-
-    if ($path === '/deliverables/delete' && $method === 'POST') {
-        $b = getJsonInput();
-        $id = $b['id'] ?? null;
-        if ($id && $pdo) {
-            $delStmt = $pdo->prepare("DELETE FROM deliverables WHERE id = ?");
-            $delStmt->execute([$id]);
-        }
-        jsonResponse(['success' => true, 'message' => 'Deliverable removed successfully']);
-    }
-
-    if (($path === '/deliverables/save' || $path === '/deliverables/add') && $method === 'POST') {
-        $b = getJsonInput();
-        $id = $b['id'] ?? null;
-        $category = strtolower($b['category'] ?? 'vip');
-        $packageId = $b['package_id'] ?? ($b['packageId'] ?? 'custom_pkg');
-        $title = $b['title'] ?? 'Custom Package Deliverable';
-        $oddsOrPrize = $b['odds_or_prize'] ?? ($b['oddsOrPrize'] ?? '');
-        $winRate = $b['win_rate_or_category'] ?? ($b['winRateOrCategory'] ?? '');
-        $description = $b['description'] ?? '';
-        $smsTemplate = $b['sms_template'] ?? ($b['smsTemplate'] ?? '');
-        $samplePicks = is_array($b['sample_picks'] ?? null) ? implode("\n", $b['sample_picks']) : ($b['sample_picks'] ?? ($b['samplePicks'] ?? ''));
-        $status = strtoupper($b['status'] ?? 'ACTIVE');
-
-        if ($pdo) {
-            if ($id) {
-                $stmt = $pdo->prepare("UPDATE deliverables SET category=?, package_id=?, title=?, odds_or_prize=?, win_rate_or_category=?, description=?, sms_template=?, sample_picks=?, status=?, updated_at=NOW() WHERE id=?");
-                $stmt->execute([$category, $packageId, $title, $oddsOrPrize, $winRate, $description, $smsTemplate, $samplePicks, $status, $id]);
-            } else {
-                $stmt = $pdo->prepare("INSERT INTO deliverables (category, package_id, title, odds_or_prize, win_rate_or_category, description, sms_template, sample_picks, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$category, $packageId, $title, $oddsOrPrize, $winRate, $description, $smsTemplate, $samplePicks, $status]);
-                $id = $pdo->lastInsertId();
-            }
-        }
-
-        jsonResponse([
-            'success' => true,
-            'message' => 'Deliverable saved successfully',
-            'id' => $id,
-            'category' => $category
-        ]);
-    }
-
-    // Default GET deliverables list
-    $allDeliverables = [];
-    if ($pdo) {
-        try {
-            $stmt = $pdo->query("SELECT * FROM deliverables ORDER BY category ASC, id ASC");
-            $allDeliverables = $stmt->fetchAll();
-        } catch (Throwable $e) {}
-    }
-
-    $vipDeliverables = [];
-    $oddsDeliverables = [];
-    $jackpotDeliverables = [];
-
-    foreach ($allDeliverables as $item) {
-        $picksArr = !empty($item['sample_picks']) ? explode("\n", str_replace("\r", "", $item['sample_picks'])) : [];
-
-        $formatted = [
-            'id' => $item['id'],
-            'category' => $item['category'],
-            'packageId' => $item['package_id'],
-            'title' => $item['title'],
-            'name' => $item['title'],
-            'pack' => $item['title'],
-            'oddsOrPrize' => $item['odds_or_prize'],
-            'cashPrize' => $item['odds_or_prize'],
-            'targetOdds' => $item['odds_or_prize'],
-            'winRateOrCategory' => $item['win_rate_or_category'],
-            'winProbability' => $item['win_rate_or_category'],
-            'description' => $item['description'],
-            'smsTemplate' => $item['sms_template'],
-            'samplePicks' => $picksArr,
-            'samplePredictions' => $picksArr,
-            'status' => $item['status']
-        ];
-
-        if ($item['category'] === 'jackpot') {
-            $jackpotDeliverables[] = $formatted;
-        } elseif ($item['category'] === 'odds_pack') {
-            $oddsDeliverables[] = $formatted;
-        } else {
-            $vipDeliverables[] = $formatted;
-        }
-    }
-
-    // Fallbacks if database is empty or offline
     if (empty($vipDeliverables)) {
         $vipDeliverables = [
-            ['id' => '1', 'category' => 'vip', 'packageId' => 'vip_daily', 'title' => 'VIP Daily Pass (3+ Odds)', 'name' => 'VIP Daily Pass', 'oddsOrPrize' => '3.50+ Odds', 'winRateOrCategory' => '95% Win Rate', 'description' => '3 Ultra-Banker tips for today with high confidence.', 'smsTemplate' => "SOKA KING VIP DAILY PICKS:\n1. Man City vs Liverpool -> 1\n2. Real Madrid vs Barca -> GG\n3. Bayern vs Dortmund -> Over 2.5\nGood luck!", 'samplePicks' => ['1. Man City vs Liverpool (1)', '2. Real Madrid vs Barca (GG)', '3. Bayern vs Dortmund (Over 2.5)'], 'status' => 'ACTIVE'],
-            ['id' => '2', 'category' => 'vip', 'packageId' => 'vip_weekly', 'title' => 'VIP Weekly Pass (All Picks)', 'name' => 'VIP Weekly Pass', 'oddsOrPrize' => '5.00+ Odds Daily', 'winRateOrCategory' => '92% Win Rate', 'description' => 'Full week access to VIP Bankers, Multi-bets & Jackpot predictions.', 'smsTemplate' => "SOKA KING VIP WEEKLY PASS:\nDaily Banker: Arsenal vs Chelsea (1)\n2+ Odds: PSG vs Marseille (Over 2.5)\nWeekly JP: SportPesa #1-17 Unlocked!", 'samplePicks' => ['Daily Banker: Arsenal vs Chelsea (1)', '2+ Odds: PSG vs Marseille (Over 2.5)'], 'status' => 'ACTIVE']
+            ['match' => 'Arsenal vs Chelsea', 'league' => 'Premier League', 'prediction' => 'Home Win (1)', 'confidence' => '94%', 'odds' => '1.75'],
+            ['match' => 'Real Madrid vs Sevilla', 'league' => 'La Liga', 'prediction' => 'Over 2.5 Goals', 'confidence' => '91%', 'odds' => '1.65'],
+            ['match' => 'Bayern Munich vs Leipzig', 'league' => 'Bundesliga', 'prediction' => 'GG (Both Teams Score)', 'confidence' => '89%', 'odds' => '1.58']
         ];
     }
 
-    if (empty($jackpotDeliverables)) {
-        $jackpotDeliverables = [
-            ['id' => '3', 'category' => 'jackpot', 'packageId' => 'sportpesa_mega', 'title' => 'SportPesa Mega Jackpot (17 Games)', 'name' => 'SportPesa Mega Jackpot (17 Games)', 'cashPrize' => 'KES 385,000,000+', 'winRateOrCategory' => '17 Matches', 'description' => 'Pro-analyzed 17-game SportPesa Mega Jackpot predictions.', 'smsTemplate' => "SOKA KING SPORTPESA MEGA JP:\n#1 Man Utd vs Chelsea (1X)\n#2 Newcastle vs Spurs (2)\n#3 Everton vs Wolves (1)\n#4 Valencia vs Betis (X2)\n#5 Albacete vs Valladolid (2)", 'samplePredictions' => ['#1 Man Utd vs Chelsea (1X)', '#2 Newcastle vs Spurs (2)', '#3 Everton vs Wolves (1)'], 'status' => 'ACTIVE']
-        ];
-    }
+    // 2. Fetch Jackpot Deliverables
+    $jackpotDeliverables = [
+        [
+            'name' => 'SportPesa Mega Jackpot (17 Games)',
+            'cashPrize' => 'KES 385,000,000+',
+            'category' => '17 Matches',
+            'status' => 'ACTIVE',
+            'samplePredictions' => [
+                '#1 Man Utd vs Chelsea -> 1X',
+                '#2 Newcastle vs Spurs -> 2',
+                '#3 Everton vs Wolves -> 1',
+                '#4 Valencia vs Betis -> X2',
+                '#5 Albacete vs Valladolid -> 2'
+            ]
+        ],
+        [
+            'name' => 'Mozzart Grand Jackpot (16 Games)',
+            'cashPrize' => 'KES 200,000,000',
+            'category' => '16 Matches',
+            'status' => 'ACTIVE',
+            'samplePredictions' => [
+                '#1 Milan vs Inter -> 12',
+                '#2 Roma vs Lazio -> X',
+                '#3 Atalanta vs Torino -> 1'
+            ]
+        ],
+        [
+            'name' => 'Betika 15 Midweek Jackpot',
+            'cashPrize' => 'KES 15,000,000',
+            'category' => '15 Matches',
+            'status' => 'ACTIVE',
+            'samplePredictions' => [
+                '#1 Brest vs Monaco -> X2',
+                '#2 Lille vs Lyon -> 1'
+            ]
+        ],
+        [
+            'name' => 'Shabiki Daily Jackpot',
+            'cashPrize' => 'KES 500,000',
+            'category' => '10 Matches',
+            'status' => 'ACTIVE',
+            'samplePredictions' => [
+                '#1 Basel vs Zurich -> 1'
+            ]
+        ]
+    ];
 
-    if (empty($oddsDeliverables)) {
-        $oddsDeliverables = [
-            ['id' => '4', 'category' => 'odds_pack', 'packageId' => '2_odds', 'title' => '2+ Odds Daily Banker', 'pack' => '2+ Odds Daily Banker', 'targetOdds' => '2.15 Odds', 'winProbability' => '95% Win Rate', 'description' => '2 Ultra-Safe Double Chance & Over 1.5 Banker selections.', 'smsTemplate' => "SOKA KING 2+ ODDS BANKER:\n1. Man City vs Everton -> 1 & Over 1.5\n2. Barcelona vs Getafe -> 1\nTotal Odds: 2.15", 'samplePicks' => ['1. Man City vs Everton (1 & Over 1.5)', '2. Barcelona vs Getafe (1)'], 'status' => 'ACTIVE'],
-            ['id' => '5', 'category' => 'odds_pack', 'packageId' => '3_odds', 'title' => '3+ Odds Value Accumulator', 'pack' => '3+ Odds Value Accumulator', 'targetOdds' => '3.40 Odds', 'winProbability' => '88% Win Rate', 'description' => '3 Well-analyzed matches combining Home Win & GG markets.', 'smsTemplate' => "SOKA KING 3+ ODDS ACCUMULATOR:\n1. Arsenal vs Wolves -> 1\n2. Juventus vs Fiorentina -> GG\n3. Leipzig vs Frankfurt -> Over 2.5\nTotal Odds: 3.40", 'samplePicks' => ['1. Arsenal vs Wolves (1)', '2. Juventus vs Fiorentina (GG)'], 'status' => 'ACTIVE']
-        ];
-    }
+    // 3. Fetch High Odds Deliverables
+    $oddsDeliverables = [
+        [
+            'pack' => '2+ Odds Daily Banker',
+            'targetOdds' => '2.15',
+            'winProbability' => '95%',
+            'description' => '2 Ultra-Safe Double Chance & Over 1.5 Banker selections.'
+        ],
+        [
+            'pack' => '3+ Odds Value Accumulator',
+            'targetOdds' => '3.40',
+            'winProbability' => '88%',
+            'description' => '3 Well-analyzed matches combining Home Win & GG markets.'
+        ],
+        [
+            'pack' => '5+ Odds Multi-Bet Pack',
+            'targetOdds' => '5.80',
+            'winProbability' => '82%',
+            'description' => 'High-yield multi-bet designed for maximum return.'
+        ],
+        [
+            'pack' => '10+ Odds Daily Mega Accumulator',
+            'targetOdds' => '11.50',
+            'winProbability' => '74%',
+            'description' => 'Calculated risk high odds combo for big scorelines.'
+        ]
+    ];
 
     jsonResponse([
         'vip' => $vipDeliverables,
         'jackpots' => $jackpotDeliverables,
         'oddsPacks' => $oddsDeliverables,
-        'allItems' => array_merge($vipDeliverables, $jackpotDeliverables, $oddsDeliverables),
         'updatedAt' => date('Y-m-d H:i:s')
     ]);
 }
-
 
 // 18. Daily Automated SMS Cron Job GET & POST /api/sms/cron or /api/sms/dispatch-cron
 if ($path === '/sms/cron' || $path === '/sms/dispatch-cron') {
@@ -2115,7 +2014,7 @@ if ($path === '/sms/cron' || $path === '/sms/dispatch-cron') {
             `phone_number` varchar(32) NOT NULL,
             `package_type` varchar(64) DEFAULT 'vip',
             `package_name` varchar(128) DEFAULT 'VIP Pass',
-            `provider` varchar(32) DEFAULT 'textsms',
+            `provider` varchar(32) DEFAULT 'africastalking',
             `message_body` text NOT NULL,
             `status` enum('queued','sent','failed') NOT NULL DEFAULT 'queued',
             `error_message` text DEFAULT NULL,

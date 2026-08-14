@@ -57,7 +57,6 @@ export default function Sidebar({
     { label: "Mega JP", icon: Trophy, id: 'sportpesa-mega', color: 'text-amber-400' },
     { label: "Midweek JP", icon: Trophy, id: 'sportpesa-midweek', color: 'text-sky-400' },
     { label: "VIP", icon: Crown, id: 'vip-packages', color: 'text-amber-500' },
-    { label: "Admin Console", icon: LayoutDashboard, id: 'admin', color: 'text-indigo-500' },
   ];
 
   return (
@@ -66,15 +65,15 @@ export default function Sidebar({
       {isOpen && (
         <div 
           onClick={onClose}
-          className="fixed inset-0 bg-slate-950/50 dark:bg-black/70 z-40 lg:hidden transition-opacity duration-150 touch-manipulation"
+          className="fixed inset-0 bg-slate-950/30 dark:bg-black/40 z-40 lg:hidden backdrop-blur-[2px] transition-opacity duration-300"
         />
       )}
 
       {/* Main Sidebar Wrapper */}
       <aside className={`
         fixed top-0 left-0 h-screen w-[280px] flex-shrink-0 z-50 lg:hidden
-        bg-[var(--card)] border-r border-[var(--border)]
-        flex flex-col justify-between p-5 transition-transform duration-200 ease-out will-change-transform
+        bg-[var(--card)] border-r border-[var(--border)] backdrop-blur-[var(--backdrop)]
+        flex flex-col justify-between p-5 transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex flex-col h-full overflow-y-auto scrollbar-none space-y-6">
