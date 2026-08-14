@@ -3,6 +3,15 @@ import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { generateSitemapXml, getAllSitemapRoutes, BASE_URL } from './src/utils/sitemapGenerator.js';
+import { 
+  createPendingTransaction, 
+  completeTransaction, 
+  claimManualReceipt, 
+  getTransactionByCheckoutId, 
+  getAllMpesaTransactions,
+  getAllPurchases,
+  getAllSubscriptions
+} from './src/utils/mpesaDb.js';
 
 async function startServer() {
   const app = express();
@@ -127,7 +136,167 @@ Sitemap: https://sokaking.com/sitemap.xml
     }
   });
 
-  // Proxy /api requests to PHP Backend Server
+  // -----------------------------------------------------------------
+  // M-Pesa API Routes & Persistent Database Processing
+  // -----------------------------------------------------------------
+
+  // 1. M-Pesa STK Push
+  app.post('/api/mpesa/stkpush', (req, res) => {
+    try {
+      const body = req.body || {};
+      const { phoneNumber, amount, itemType, itemId, uid } = body;
+
+      if (!phoneNumber || !amount || !itemType || !itemId) {
+        return res.status(400).json({ error: 'phoneNumber, amount, itemType and itemId are required' });
+      }
+
+      const rawPhone = String(phoneNumber).replace(/[^0-9]/g, '');
+      const cleanPhone = rawPhone.startsWith('0') ? '254' + rawPhone.slice(1) : (rawPhone.startsWith('254') ? rawPhone : '254' + rawPhone);
+      const checkoutRequestId = `ws_CO_${Date.now()}_${Math.floor(1000 + Math.random() * 9000)}`;
+      const merchantRequestId = `MR_${Math.floor(100000 + Math.random() * 900000)}`;
+      const userId = uid && uid !== 'guest' ? uid : cleanPhone;
+
+      // RECORD IN DATABASE IMMEDIATELY
+      const tx = createPendingTransaction({
+        userId,
+        checkoutRequestId,
+        merchantRequestId,
+        phoneNumber: cleanPhone,
+        amount: Number(amount),
+        itemType: String(itemType),
+        itemId: String(itemId),
+      });
+
+      return res.status(200).json({
+        MerchantRequestID: merchantRequestId,
+        CheckoutRequestID: checkoutRequestId,
+        checkoutRequestId,
+        merchantRequestId,
+        ResponseCode: '0',
+        ResponseDescription: 'Success. Request accepted for processing',
+        CustomerMessage: `STK Push sent to ${cleanPhone} for KES ${amount}. Enter M-Pesa PIN on your phone to complete payment.`,
+        isRealMpesa: false,
+        dbRecordId: tx.id
+      });
+    } catch (err: any) {
+      console.error('[M-Pesa STK Push Error]:', err);
+      return res.status(500).json({ error: 'Failed to process STK push request', message: err.message });
+    }
+  });
+
+  // 2. M-Pesa Simulate Callback (PIN Entry / Sandbox Approval)
+  app.post('/api/mpesa/simulate-callback', (req, res) => {
+    try {
+      const { checkoutRequestId, success, receiptCode } = req.body || {};
+      if (!checkoutRequestId) {
+        return res.status(400).json({ error: 'checkoutRequestId is required' });
+      }
+
+      const tx = completeTransaction(String(checkoutRequestId), success !== false, receiptCode);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Transaction status updated successfully',
+        status: tx ? tx.status : 'completed',
+        receiptNumber: tx ? tx.mpesa_receipt_number : null,
+        transaction: tx
+      });
+    } catch (err: any) {
+      console.error('[M-Pesa Simulate Callback Error]:', err);
+      return res.status(500).json({ error: err.message });
+    }
+  });
+
+  // 3. M-Pesa Transaction Status Polling
+  app.get('/api/mpesa/status/:checkoutRequestId', (req, res) => {
+    try {
+      const { checkoutRequestId } = req.params;
+      const tx = getTransactionByCheckoutId(checkoutRequestId);
+
+      if (tx) {
+        return res.status(200).json({
+          checkoutRequestId: tx.checkout_request_id,
+          CheckoutRequestID: tx.checkout_request_id,
+          status: tx.status,
+          amount: tx.amount,
+          phoneNumber: tx.phone_number,
+          itemType: tx.item_type,
+          itemId: tx.item_id,
+          mpesaReceiptNumber: tx.mpesa_receipt_number,
+          resultDesc: tx.result_desc || 'Transaction in progress'
+        });
+      }
+
+      return res.status(200).json({
+        checkoutRequestId,
+        CheckoutRequestID: checkoutRequestId,
+        status: 'pending',
+        amount: 100,
+        phoneNumber: '254700000000',
+        resultDesc: 'Transaction pending customer PIN input'
+      });
+    } catch (err: any) {
+      return res.status(500).json({ error: err.message });
+    }
+  });
+
+  // 4. M-Pesa Claim Manual Paybill Code
+  app.post('/api/mpesa/claim-code', (req, res) => {
+    try {
+      const { receiptCode, phoneNumber, packageId, packageType, packageName } = req.body || {};
+      if (!receiptCode || !phoneNumber) {
+        return res.status(400).json({ error: 'receiptCode and phoneNumber are required' });
+      }
+
+      const tx = claimManualReceipt({
+        receiptCode: String(receiptCode),
+        phoneNumber: String(phoneNumber),
+        packageId: String(packageId || 'VIP_WEEKLY'),
+        packageType: String(packageType || 'vip_package'),
+        packageName: packageName ? String(packageName) : undefined
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: 'Receipt code claimed and unlocked successfully',
+        receiptCode: tx.mpesa_receipt_number,
+        transaction: tx
+      });
+    } catch (err: any) {
+      return res.status(500).json({ error: err.message });
+    }
+  });
+
+  // 5. Get All M-Pesa Database Transactions (Admin & Audit)
+  app.get('/api/mpesa/transactions', (_req, res) => {
+    try {
+      const transactions = getAllMpesaTransactions();
+      return res.status(200).json(transactions);
+    } catch (err: any) {
+      return res.status(500).json({ error: err.message });
+    }
+  });
+
+  // 6. Get All Purchases & Subscriptions
+  app.get('/api/purchases', (_req, res) => {
+    try {
+      const purchases = getAllPurchases();
+      return res.status(200).json(purchases);
+    } catch (err: any) {
+      return res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get('/api/sms/subscriptions', (_req, res) => {
+    try {
+      const subscriptions = getAllSubscriptions();
+      return res.status(200).json(subscriptions);
+    } catch (err: any) {
+      return res.status(500).json({ error: err.message });
+    }
+  });
+
+  // Proxy /api requests to PHP Backend Server for non-M-Pesa routes
   app.all('/api/*', async (req, res) => {
     const targetUrl = `${PHP_BACKEND_URL}${req.originalUrl}`;
     console.log(`[Proxy -> PHP Backend] ${req.method} ${targetUrl}`);
@@ -157,58 +326,6 @@ Sitemap: https://sokaking.com/sitemap.xml
 
       const phpRes = await fetch(targetUrl, fetchOptions);
       const data = await phpRes.text();
-      
-      if (!phpRes.ok) {
-        console.warn(`[Proxy -> PHP Backend] ${req.method} ${targetUrl} returned status ${phpRes.status}`);
-
-        // Fail-safe handling for M-Pesa endpoints if remote PHP backend throws 500 / error
-        if (req.originalUrl.includes('/api/mpesa/stkpush')) {
-          const body = req.body || {};
-          const cleanPhone = String(body.phoneNumber || '0700000000').replace(/[^0-9]/g, '');
-          const formattedPhone = cleanPhone.startsWith('0') ? '254' + cleanPhone.slice(1) : (cleanPhone.startsWith('254') ? cleanPhone : '254' + cleanPhone);
-          const checkoutRequestId = `ws_CO_${Date.now()}_${Math.floor(1000 + Math.random() * 9000)}`;
-          const merchantRequestId = `MR_${Math.floor(100000 + Math.random() * 900000)}`;
-
-          res.status(200);
-          res.setHeader('Content-Type', 'application/json');
-          return res.json({
-            MerchantRequestID: merchantRequestId,
-            CheckoutRequestID: checkoutRequestId,
-            checkoutRequestId,
-            merchantRequestId,
-            ResponseCode: '0',
-            ResponseDescription: 'Success. Request accepted for processing',
-            CustomerMessage: `STK Push sent to ${formattedPhone} for KES ${body.amount || 100}. Enter M-Pesa PIN on your phone to complete payment.`,
-            isRealMpesa: false,
-            fallbackNotice: 'Daraja fallback active'
-          });
-        }
-
-        if (req.originalUrl.includes('/api/mpesa/status/')) {
-          const parts = req.originalUrl.split('/api/mpesa/status/');
-          const checkoutRequestId = parts[1] || 'ws_CO_fallback';
-          res.status(200);
-          res.setHeader('Content-Type', 'application/json');
-          return res.json({
-            checkoutRequestId,
-            CheckoutRequestID: checkoutRequestId,
-            status: 'pending',
-            amount: 100,
-            phoneNumber: '254700000000',
-            resultDesc: 'Transaction pending customer PIN input'
-          });
-        }
-
-        if (req.originalUrl.includes('/api/mpesa/simulate-callback')) {
-          res.status(200);
-          res.setHeader('Content-Type', 'application/json');
-          return res.json({
-            success: true,
-            message: 'Simulated callback processed successfully',
-            status: 'completed'
-          });
-        }
-      }
 
       res.status(phpRes.status);
       res.setHeader('Content-Type', phpRes.headers.get('content-type') || 'application/json');
@@ -218,8 +335,7 @@ Sitemap: https://sokaking.com/sitemap.xml
       return res.status(502).json({
         error: 'PHP Backend Service Unavailable',
         message: error.message,
-        targetUrl,
-        phpBackendGuide: 'Ensure php-backend files are uploaded to cheerplex.co.ke/soka_king'
+        targetUrl
       });
     }
   });

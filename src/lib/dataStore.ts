@@ -329,7 +329,7 @@ export async function fetchMpesaStatus(checkoutRequestId: string, uid: string, e
   }
 }
 
-export async function simulateMpesaCallback(checkoutRequestId: string, success: boolean, uid: string, email: string) {
+export async function simulateMpesaCallback(checkoutRequestId: string, success: boolean, uid: string = 'admin', email: string = 'admin@sokaking.com') {
   const baseUrl = getApiBaseUrl();
   try {
     console.log(`[dataStore] Simulating M-Pesa payment for ${checkoutRequestId} (success: ${success})`);
