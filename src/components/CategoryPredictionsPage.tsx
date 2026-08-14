@@ -18,6 +18,7 @@ import {
   Filter
 } from 'lucide-react';
 import { Fixture } from '../types';
+import { evaluatePredictionResult } from '../utils/resultChecker';
 import { PredictionCategory, getCategoryCountText } from '../utils/predictionGenerator';
 import PredictionsList from './PredictionsList';
 import { jackpotsData } from '../jackpotsData';
@@ -68,13 +69,24 @@ export default function CategoryPredictionsPage({
     return d.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   }, []);
 
+  // Dynamically evaluate prediction outcomes against fulltime scores
+  const evaluatedFixtures = useMemo(() => {
+    return (fixtures || []).map(f => {
+      const evalRes = evaluatePredictionResult(f.prediction, f.homeScore, f.awayScore, f.status);
+      return {
+        ...f,
+        result: evalRes !== 'pending' ? evalRes : f.result
+      };
+    });
+  }, [fixtures]);
+
   // Yesterday's Performance Statistics (computed over ALL unfiltered yesterday fixtures)
   const yesterdayStats = useMemo(() => {
     if (category.id !== 'category-yesterday') return null;
 
-    const total = fixtures.length;
-    const wonCount = fixtures.filter(f => f.result === 'won').length;
-    const lostCount = fixtures.filter(f => f.result === 'lost').length;
+    const total = evaluatedFixtures.length;
+    const wonCount = evaluatedFixtures.filter(f => f.result === 'won').length;
+    const lostCount = evaluatedFixtures.filter(f => f.result === 'lost').length;
     
     // We compute percentages
     const winRate = total > 0 ? ((wonCount / total) * 100).toFixed(1) : '0.0';
@@ -87,11 +99,11 @@ export default function CategoryPredictionsPage({
       winRate,
       lossRate
     };
-  }, [fixtures, category.id]);
+  }, [evaluatedFixtures, category.id]);
 
   // Filter fixtures based on search term AND yesterday's result filter if applicable
   const filteredFixtures = useMemo(() => {
-    let result = fixtures;
+    let result = evaluatedFixtures;
 
     // Filter by won/lost/all for yesterday page
     if (category.id === 'category-yesterday') {
@@ -108,7 +120,7 @@ export default function CategoryPredictionsPage({
       f.leagueName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (f.countryName && f.countryName.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-  }, [fixtures, searchTerm, category.id, yesterdayFilter]);
+  }, [evaluatedFixtures, searchTerm, category.id, yesterdayFilter]);
 
   // Copy coupon action
   const handleCopyCoupon = () => {

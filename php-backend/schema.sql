@@ -1,4 +1,4 @@
--- SOKA Predictions - MySQL Database Dump for cheerplex.co.ke/soka_king
+-- SOKA Predictions - MySQL Database Dump for cheerplex.com/soka_king
 -- Database: `cheerple_soka_king`
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";

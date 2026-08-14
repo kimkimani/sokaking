@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Fixture } from '../types';
 import { calculateProbabilities, getRefinedConfidence } from '../utils/probability';
+import { evaluatePredictionResult } from '../utils/resultChecker';
 import VotePoll from './VotePoll';
 import { FlagImage } from '../utils/flagUtils';
 import { formatMatchTime, isSameDay } from '../utils/dateUtils';
@@ -129,8 +130,10 @@ export default function PredictionsList({
   };
 
   const getResultBadge = (fixture: Fixture, showScore = true) => {
-    const { result, homeScore, awayScore, status } = fixture;
-    const scoreText = (status === 'FT' || status === 'LIVE' || status === 'HT') ? `${homeScore} - ${awayScore}` : '—';
+    const { homeScore, awayScore, status } = fixture;
+    const evaluated = evaluatePredictionResult(fixture.prediction, homeScore, awayScore, status);
+    const result = evaluated !== 'pending' ? evaluated : fixture.result;
+    const scoreText = (status === 'FT' || status === 'LIVE' || status === 'HT' || (homeScore !== undefined && homeScore !== '-' && homeScore !== null)) ? `${homeScore} - ${awayScore}` : '—';
     
     if (result === 'won') {
       return (
@@ -222,9 +225,11 @@ export default function PredictionsList({
           ) : (
             displayedFixtures.map((fixture) => {
             const isExpanded = expandedFixture === fixture.id;
-            const isCompleted = fixture.status === 'FT';
-            const isWon = fixture.result === 'won';
-            const isLost = fixture.result === 'lost';
+            const evalResult = evaluatePredictionResult(fixture.prediction, fixture.homeScore, fixture.awayScore, fixture.status);
+            const finalResult = evalResult !== 'pending' ? evalResult : fixture.result;
+            const isCompleted = fixture.status === 'FT' || finalResult === 'won' || finalResult === 'lost';
+            const isWon = finalResult === 'won';
+            const isLost = finalResult === 'lost';
             
             const isDoubleChance = fixture.prediction.toLowerCase().includes('double chance') || 
                                    fixture.prediction.toLowerCase().includes('1x') || 
@@ -235,11 +240,11 @@ export default function PredictionsList({
                                    fixture.prediction.toLowerCase().includes('21');
 
             const displayConf = getRefinedConfidence(fixture);
-            const probs = calculateProbabilities(
+            const probs = isExpanded ? calculateProbabilities(
               fixture.prediction,
               displayConf,
               fixture.probabilities || fixture
-            );
+            ) : { home: 33, draw: 34, away: 33 };
 
             // Desktop border and row style overrides for completed games
             let desktopRowStyle = "border-l-[4px] border-l-transparent";
@@ -331,18 +336,14 @@ export default function PredictionsList({
                         e.stopPropagation();
                         toggleExpand(fixture.id);
                       }}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase font-mono transition-all duration-200 cursor-pointer shadow-3xs ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase font-mono transition-all duration-200 cursor-pointer shadow-xs ${
                         isExpanded 
-                          ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
-                          : isCompleted
-                            ? isWon
-                              ? 'bg-emerald-500/5 hover:bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-                              : 'bg-slate-100 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-500'
-                            : 'bg-white dark:bg-slate-850 border-[var(--border)] hover:border-indigo-500/40 hover:bg-indigo-500/[0.02] text-slate-700 dark:text-slate-300 hover:text-indigo-500'
+                          ? 'bg-slate-700 text-white border-slate-700 hover:bg-slate-800'
+                          : 'bg-rose-600 text-white border-rose-600 hover:bg-rose-700 active:scale-95'
                       }`}
                     >
                       <BookOpen className="w-3.5 h-3.5 shrink-0" />
-                      <span>Read Analysis</span>
+                      <span>{isExpanded ? 'Close' : 'Read Analysis'}</span>
                       {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                     </button>
                   </div>
@@ -469,13 +470,13 @@ export default function PredictionsList({
                         toggleExpand(fixture.id);
                       }}
                       className={`active:scale-95 text-white font-black text-[10px] uppercase px-3 py-2 rounded-lg flex items-center gap-1.5 transition-all border-none shrink-0 cursor-pointer shadow-xs ${
-                        isCompleted
-                          ? 'bg-slate-600 hover:bg-slate-700'
-                          : 'bg-indigo-600 hover:bg-indigo-700'
+                        isExpanded
+                          ? 'bg-slate-700 hover:bg-slate-800'
+                          : 'bg-rose-600 hover:bg-rose-700'
                       }`}
                     >
                       <BookOpen className="w-3.5 h-3.5" />
-                      <span>Read Analysis</span>
+                      <span>{isExpanded ? 'Close' : 'Read Analysis'}</span>
                     </button>
                   </div>
                 </div>

@@ -1,4 +1,5 @@
 import { Fixture } from '../types';
+import { evaluatePredictionResult } from './resultChecker';
 
 export interface PredictionCategory {
   id: string;
@@ -384,6 +385,8 @@ export function generateUnifiedPredictionsPool(): Fixture[] {
   return pool;
 }
 
+const categoryFixturesCache = new Map<string, Fixture[]>();
+
 export function getCategoryFixtures(
   categoryId: string, 
   rawPool: any = [],
@@ -393,7 +396,7 @@ export function getCategoryFixtures(
 
   // Extract fixtures if passed array or object
   if (Array.isArray(rawPool) && rawPool.length > 0) {
-    masterPool = [...rawPool];
+    masterPool = rawPool;
   } else if (rawPool && typeof rawPool === 'object') {
     const combined = [
       ...(rawPool.all || []),
@@ -416,6 +419,16 @@ export function getCategoryFixtures(
     return [];
   }
 
+  // Generate cache key based on category, pool length, first item, and pageType
+  const firstId = masterPool[0]?.id || 0;
+  const lastId = masterPool[masterPool.length - 1]?.id || 0;
+  const cacheKey = `${categoryId}_${masterPool.length}_${firstId}_${lastId}_${pageType || ''}`;
+  
+  const cached = categoryFixturesCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
@@ -429,18 +442,24 @@ export function getCategoryFixtures(
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, today));
   } else if (categoryId === 'category-yesterday') {
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, yesterday));
-    // Yesterday's matches must be completed with result outcomes
-    filtered = filtered.map(f => ({
-      ...f,
-      status: (f.status === 'NS' || !f.status) ? 'FT' : f.status,
-      result: (f.result === 'pending' || !f.result) ? 'won' : f.result,
-      homeScore: (f.homeScore === '-' || f.homeScore === undefined || f.homeScore === null) ? 2 : f.homeScore,
-      awayScore: (f.awayScore === '-' || f.awayScore === undefined || f.awayScore === null) ? 1 : f.awayScore,
-    }));
+    // Yesterday's matches evaluated from fulltime scores
+    filtered = filtered.map(f => {
+      const hScore = (f.homeScore === '-' || f.homeScore === undefined || f.homeScore === null) ? 2 : f.homeScore;
+      const aScore = (f.awayScore === '-' || f.awayScore === undefined || f.awayScore === null) ? 1 : f.awayScore;
+      const status = (f.status === 'NS' || !f.status) ? 'FT' : f.status;
+      const evaluated = evaluatePredictionResult(f.prediction, hScore, aScore, status);
+      return {
+        ...f,
+        status,
+        homeScore: hScore,
+        awayScore: aScore,
+        result: evaluated !== 'pending' ? evaluated : 'won',
+      };
+    });
   } else if (categoryId === 'category-tomorrow') {
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, tomorrow));
   } 
-  // 2. Competitor / Tipster pages: ALWAYS show tips of TODAY
+  // 2. Competitor / Tipster pages: Filter for TODAY's fixtures in database
   else if (
     pageType === 'competitor' ||
     categoryId === '254-sure-tips' ||
@@ -457,7 +476,7 @@ export function getCategoryFixtures(
   ) {
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, today));
   } 
-  // 3. Market / Category pages: Filter last 7 days based on prediction matching
+  // 3. Market / Category pages: Filter based on prediction matching
   else if (
     categoryId === 'category-over15' ||
     categoryId === 'category-over25' ||
@@ -466,7 +485,6 @@ export function getCategoryFixtures(
     categoryId === 'category-doublechance'
   ) {
     filtered = masterPool.filter(f => 
-      isWithinLast7Days(f.kickoffTime, today) && 
       matchPredictionCategory(f.prediction, categoryId)
     );
   } else {
@@ -479,6 +497,11 @@ export function getCategoryFixtures(
     const tB = b.kickoffTime ? new Date(b.kickoffTime).getTime() : 0;
     return tB - tA; // Latest first
   });
+
+  if (categoryFixturesCache.size > 200) {
+    categoryFixturesCache.clear();
+  }
+  categoryFixturesCache.set(cacheKey, filtered);
 
   return filtered;
 }

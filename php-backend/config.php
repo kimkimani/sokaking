@@ -18,8 +18,8 @@ define('DB_PORT', getenv('DB_PORT') ?: '3306');
 
 // M-Pesa Safaricom Daraja API Credentials
 define('MPESA_ENV', getenv('MPESA_ENV') ?: 'sandbox'); // 'sandbox' or 'live'
-define('MPESA_CONSUMER_KEY', getenv('MPESA_CONSUMER_KEY') ?: 'YOUR_CONSUMER_KEY');
-define('MPESA_CONSUMER_SECRET', getenv('MPESA_CONSUMER_SECRET') ?: 'YOUR_CONSUMER_SECRET');
+define('MPESA_CONSUMER_KEY', getenv('MPESA_CONSUMER_KEY') ?: 'dWIjVkNFUTNMLGGsjZXfXGuq1oFDQdkwMURrSUn1psG9ecpd');
+define('MPESA_CONSUMER_SECRET', getenv('MPESA_CONSUMER_SECRET') ?: 'bN9ujVVyuRoS2XCRcvI5gmt4EV1GILa0fUfvbvVgHX2C25wNbCf5zPE9jmMXUyfJ');
 define('MPESA_SHORTCODE', getenv('MPESA_SHORTCODE') ?: '174379');
 define('MPESA_PASSKEY', getenv('MPESA_PASSKEY') ?: 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919');
 define('MPESA_CALLBACK_URL', getenv('MPESA_CALLBACK_URL') ?: 'https://cheerplex.co.ke/soka_king/api/mpesa/callback');
@@ -30,11 +30,13 @@ define('MPESA_CALLBACK_URL', getenv('MPESA_CALLBACK_URL') ?: 'https://cheerplex.
 function sendCorsHeaders() {
     $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '*';
     header("Access-Control-Allow-Origin: $origin");
-    header("Access-Control-Allow-Credentials: true");
+    if ($origin !== '*') {
+        header("Access-Control-Allow-Credentials: true");
+    }
     header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
     header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 
-    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
         http_response_code(200);
         exit;
     }

@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { getApiBaseUrl } from '../lib/getApiBaseUrl';
 import { formatMatchTime } from '../utils/dateUtils';
 import { getRefinedConfidence } from '../utils/probability';
+import { evaluatePredictionResult } from '../utils/resultChecker';
 import { motion } from 'motion/react';
 import { 
   Trophy,
@@ -38,8 +39,18 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures }: Live
     }
   }, [propFixtures]);
 
+  const evaluatedDbFixtures = useMemo(() => {
+    return dbFixtures.map(f => {
+      const evalRes = evaluatePredictionResult(f.prediction, f.homeScore, f.awayScore, f.status);
+      return {
+        ...f,
+        result: evalRes !== 'pending' ? evalRes : f.result
+      };
+    });
+  }, [dbFixtures]);
+
   const recentWins = useMemo(() => {
-    const settledWon = dbFixtures
+    const settledWon = evaluatedDbFixtures
       .filter(f => f.result === 'won' || f.result === 'Won' || (f.status === 'FT' && f.result !== 'lost'))
       .sort((a, b) => new Date(b.kickoffTime || 0).getTime() - new Date(a.kickoffTime || 0).getTime());
 
@@ -63,15 +74,15 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures }: Live
       { teams: "Real Madrid vs Barcelona", tip: "Both Teams Score (GG)", odds: "1.91", result: "2 - 2", date: "Yesterday" },
       { teams: "Bayern Munich vs Dortmund", tip: "Home Win (1)", odds: "1.55", result: "3 - 1", date: "Yesterday" },
     ];
-  }, [dbFixtures]);
+  }, [evaluatedDbFixtures]);
 
   const metrics = useMemo(() => {
-    const total = dbFixtures.length;
-    const settled = dbFixtures.filter(f => f.status === 'FT' || f.result === 'won' || f.result === 'lost');
-    const won = dbFixtures.filter(f => f.result === 'won').length;
+    const total = evaluatedDbFixtures.length;
+    const settled = evaluatedDbFixtures.filter(f => f.status === 'FT' || f.result === 'won' || f.result === 'lost');
+    const won = evaluatedDbFixtures.filter(f => f.result === 'won').length;
     const winRate = settled.length > 0 ? ((won / settled.length) * 100).toFixed(1) : '85.7';
-    const highConf = total > 0 ? ((dbFixtures.filter(f => getRefinedConfidence(f) >= 80).length / total) * 100).toFixed(0) : '88';
-    const avgConf = total > 0 ? (dbFixtures.reduce((sum, f) => sum + getRefinedConfidence(f), 0) / total).toFixed(1) : '85.2';
+    const highConf = total > 0 ? ((evaluatedDbFixtures.filter(f => getRefinedConfidence(f) >= 80).length / total) * 100).toFixed(0) : '88';
+    const avgConf = total > 0 ? (evaluatedDbFixtures.reduce((sum, f) => sum + getRefinedConfidence(f), 0) / total).toFixed(1) : '85.2';
 
     return [
       { label: "Verified Win Accuracy", value: `${winRate}%`, trend: `${won} won out of ${settled.length || total} settled`, color: "text-emerald-600 dark:text-emerald-400" },
@@ -79,7 +90,7 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures }: Live
       { label: "High Confidence", value: `${highConf}%`, trend: "Confidence rating ≥ 80%", color: "text-amber-600 dark:text-amber-400" },
       { label: "Avg Model Score", value: `${avgConf}%`, trend: "Poisson distribution index", color: "text-emerald-600 dark:text-emerald-400" },
     ];
-  }, [dbFixtures]);
+  }, [evaluatedDbFixtures]);
 
   const testimonials = [
     { name: "Samuel K. (Nairobi)", text: "Won KES 25,000 with the Mega Jackpot VIP tips last weekend. Accuracy was top tier!", initials: "SK", winAmount: "KES 25,000" },
