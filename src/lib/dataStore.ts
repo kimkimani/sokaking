@@ -1,5 +1,4 @@
 import { getApiBaseUrl } from './getApiBaseUrl';
-import { getRefinedConfidence } from '../utils/probability';
 
 /**
  * Decoupled Frontend & Next.js API Client Store
@@ -31,14 +30,14 @@ export function calculateFixtureResult(
   }
   if (!tip) tip = 'Home Win (1)';
 
-  const confidence = getRefinedConfidence({
-    prediction: tip,
-    probabilities: probs ? {
-      home: probs.percentPredHome,
-      draw: probs.percentPredDraw,
-      away: probs.percentPredAway
-    } : null
-  });
+  let confidence = 75;
+  if (probs) {
+    const h = parseInt((probs.percentPredHome || '0').replace('%', ''), 10);
+    const d = parseInt((probs.percentPredDraw || '0').replace('%', ''), 10);
+    const a = parseInt((probs.percentPredAway || '0').replace('%', ''), 10);
+    const maxProb = Math.max(h, d, a);
+    if (maxProb > 0) confidence = maxProb;
+  }
 
   const finishedStatuses = ['FT', 'AET', 'PEN', '120', '90', 'FINISHED', 'AWD'];
   const isFinished = finishedStatuses.includes((statusShort || '').trim().toUpperCase());
@@ -329,7 +328,7 @@ export async function fetchMpesaStatus(checkoutRequestId: string, uid: string, e
   }
 }
 
-export async function simulateMpesaCallback(checkoutRequestId: string, success: boolean, uid: string = 'admin', email: string = 'admin@sokaking.com') {
+export async function simulateMpesaCallback(checkoutRequestId: string, success: boolean, uid: string, email: string) {
   const baseUrl = getApiBaseUrl();
   try {
     console.log(`[dataStore] Simulating M-Pesa payment for ${checkoutRequestId} (success: ${success})`);
@@ -349,242 +348,3 @@ export async function simulateMpesaCallback(checkoutRequestId: string, success: 
     return { message: 'Simulated payment', status: success ? 'completed' : 'failed' };
   }
 }
-
-export async function fetchMpesaTransactions() {
-  const baseUrl = getApiBaseUrl();
-  try {
-    const res = await fetch(`${baseUrl}/api/mpesa/transactions`, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (err) {
-    console.error('[dataStore] fetchMpesaTransactions failed:', err);
-    return [];
-  }
-}
-
-export async function fetchSmsSubscriptions() {
-  const baseUrl = getApiBaseUrl();
-  try {
-    const res = await fetch(`${baseUrl}/api/sms/subscriptions`, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (err) {
-    console.error('[dataStore] fetchSmsSubscriptions failed:', err);
-    return [];
-  }
-}
-
-export async function fetchSmsDispatchLogs() {
-  const baseUrl = getApiBaseUrl();
-  try {
-    const res = await fetch(`${baseUrl}/api/sms/logs`, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (err) {
-    console.error('[dataStore] fetchSmsDispatchLogs failed:', err);
-    return [];
-  }
-}
-
-export async function triggerSmsCronJob() {
-  const baseUrl = getApiBaseUrl();
-  try {
-    const res = await fetch(`${baseUrl}/api/sms/cron`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (err) {
-    console.error('[dataStore] triggerSmsCronJob failed:', err);
-    return {
-      message: 'Daily 10:00 AM EAT SMS Dispatch Cron Triggered',
-      subscribersProcessed: 1,
-      sentCount: 1,
-      failCount: 0,
-      timestamp: new Date().toISOString(),
-    };
-  }
-}
-
-export async function sendTestSms(phoneNumber: string, message?: string) {
-  const baseUrl = getApiBaseUrl();
-  try {
-    const res = await fetch(`${baseUrl}/api/sms/test-send`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phoneNumber, message }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (err: any) {
-    console.error('[dataStore] sendTestSms failed:', err);
-    return {
-      success: true,
-      phoneNumber,
-      message: message || "SOKA KING VIP Test Dispatch",
-      gatewayResult: { success: true, simulated: true, status: 'sent' }
-    };
-  }
-}
-
-export async function claimMpesaReceiptCode(
-  receiptCode: string, 
-  phoneNumber: string, 
-  packageId?: string,
-  packageType?: 'vip' | 'jackpot' | 'odds' | string,
-  packageName?: string
-) {
-  const baseUrl = getApiBaseUrl();
-  try {
-    const res = await fetch(`${baseUrl}/api/mpesa/claim-code`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ receiptCode, phoneNumber, packageId, packageType, packageName }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
-    return data;
-  } catch (err: any) {
-    console.error('[dataStore] claimMpesaReceiptCode failed:', err);
-    return {
-      success: true,
-      message: `M-Pesa Code ${receiptCode.toUpperCase()} verified and claimed! ${packageName || 'Package'} unlocked and SMS dispatched to ${phoneNumber}.`,
-      receiptCode: receiptCode.toUpperCase(),
-      phoneNumber,
-      packageId: packageId || 'VIP_WEEKLY',
-      packageType: packageType || 'vip',
-      packageName: packageName || 'VIP Pass',
-      smsResult: { success: true, status: 'sent', simulated: true }
-    };
-  }
-}
-
-export async function fetchSmsSettings() {
-  const baseUrl = getApiBaseUrl();
-  try {
-    const res = await fetch(`${baseUrl}/api/sms/settings`, { cache: 'no-store' });
-    if (res.ok) return await res.json();
-  } catch (err) {
-    console.error('[dataStore] fetchSmsSettings error:', err);
-  }
-  return {
-    smsProvider: 'africastalking',
-    atUsername: 'sandbox',
-    atApiKey: '',
-    atSenderId: 'SOKAKING',
-    textSmsPartnerId: '',
-    textSmsApiKey: '',
-    textSmsShortcode: 'TEXTSMS'
-  };
-}
-
-export async function updateSmsSettings(settings: {
-  smsProvider: 'africastalking' | 'textsms';
-  atUsername?: string;
-  atApiKey?: string;
-  atSenderId?: string;
-  textSmsPartnerId?: string;
-  textSmsApiKey?: string;
-  textSmsShortcode?: string;
-}) {
-  const baseUrl = getApiBaseUrl();
-  try {
-    const res = await fetch(`${baseUrl}/api/sms/settings`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(settings)
-    });
-    if (res.ok) return await res.json();
-  } catch (err) {
-    console.error('[dataStore] updateSmsSettings error:', err);
-  }
-  return { success: true, message: 'Settings saved', smsProvider: settings.smsProvider };
-}
-
-export async function sendVipTipsSms(phoneNumber?: string, packageType: string = 'vip', packageName: string = 'VIP Pass') {
-  const baseUrl = getApiBaseUrl();
-  try {
-    const res = await fetch(`${baseUrl}/api/sms/send-vip-tips`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phoneNumber, packageType, packageName })
-    });
-    if (res.ok) return await res.json();
-    const errData = await res.json();
-    return { success: false, error: errData.error || 'Failed to send VIP tips SMS' };
-  } catch (err: any) {
-    console.error('[dataStore] sendVipTipsSms error:', err);
-    return { success: false, error: err?.message || 'Network error sending SMS' };
-  }
-}
-
-export async function fetchDeliverablesSummary() {
-  const baseUrl = getApiBaseUrl();
-  try {
-    const res = await fetch(`${baseUrl}/api/deliverables/summary`, { cache: 'no-store' });
-    if (res.ok) return await res.json();
-  } catch (err) {
-    console.error('[dataStore] fetchDeliverablesSummary error:', err);
-  }
-  return {
-    vip: [
-      { match: 'Arsenal vs Chelsea', league: 'Premier League', prediction: 'Home Win (1)', confidence: '94%', odds: '1.75' },
-      { match: 'Real Madrid vs Sevilla', league: 'La Liga', prediction: 'Over 2.5 Goals', confidence: '91%', odds: '1.65' },
-      { match: 'Bayern Munich vs Leipzig', league: 'Bundesliga', prediction: 'GG (Both Teams Score)', confidence: '89%', odds: '1.58' }
-    ],
-    jackpots: [
-      {
-        name: 'SportPesa Mega Jackpot (17 Games)',
-        cashPrize: 'KES 385,000,000+',
-        category: '17 Matches',
-        status: 'ACTIVE',
-        samplePredictions: [
-          '#1 Man Utd vs Chelsea -> 1X',
-          '#2 Newcastle vs Spurs -> 2',
-          '#3 Everton vs Wolves -> 1',
-          '#4 Valencia vs Betis -> X2',
-          '#5 Albacete vs Valladolid -> 2'
-        ]
-      },
-      {
-        name: 'Mozzart Grand Jackpot (16 Games)',
-        cashPrize: 'KES 200,000,000',
-        category: '16 Matches',
-        status: 'ACTIVE',
-        samplePredictions: [
-          '#1 Milan vs Inter -> 12',
-          '#2 Roma vs Lazio -> X',
-          '#3 Atalanta vs Torino -> 1'
-        ]
-      },
-      {
-        name: 'Betika 15 Midweek Jackpot',
-        cashPrize: 'KES 15,000,000',
-        category: '15 Matches',
-        status: 'ACTIVE',
-        samplePredictions: [
-          '#1 Brest vs Monaco -> X2',
-          '#2 Lille vs Lyon -> 1'
-        ]
-      },
-      {
-        name: 'Shabiki Daily Jackpot',
-        cashPrize: 'KES 500,000',
-        category: '10 Matches',
-        status: 'ACTIVE',
-        samplePredictions: [
-          '#1 Basel vs Zurich -> 1'
-        ]
-      }
-    ],
-    oddsPacks: [
-      { pack: '2+ Odds Daily Banker', targetOdds: '2.15', winProbability: '95%', description: '2 Ultra-Safe Double Chance & Over 1.5 Banker selections.' },
-      { pack: '3+ Odds Value Accumulator', targetOdds: '3.40', winProbability: '88%', description: '3 Well-analyzed matches combining Home Win & GG markets.' },
-      { pack: '5+ Odds Multi-Bet Pack', targetOdds: '5.80', winProbability: '82%', description: 'High-yield multi-bet designed for maximum return.' },
-      { pack: '10+ Odds Daily Mega Accumulator', targetOdds: '11.50', winProbability: '74%', description: 'Calculated risk high odds combo for big scorelines.' }
-    ],
-    updatedAt: new Date().toISOString()
-  };
-}
-

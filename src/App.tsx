@@ -32,7 +32,6 @@ import { designIterations, vipPackages, oddsPacks } from './data';
 import { jackpotsData } from './jackpotsData';
 import { DesignIteration, Fixture, VipPackage, OddsPack } from './types';
 import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl } from './content/markdownLoader';
-import { getRefinedConfidence } from './utils/probability';
 
 import { apiFetch } from './utils/api.ts';
 import { getApiBaseUrl } from './lib/getApiBaseUrl';
@@ -769,7 +768,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                       homeScore: f.homeScore !== undefined ? f.homeScore : f.fullTimeHome !== undefined ? f.fullTimeHome : '-',
                       awayScore: f.awayScore !== undefined ? f.awayScore : f.fullTimeAway !== undefined ? f.fullTimeAway : '-',
                       kickoffTime: f.kickoffTime || f.date || f.time || new Date().toISOString(),
-                      confidence: getRefinedConfidence(f),
+                      confidence: f.confidence || 75,
                       aiAnalysis: f.aiAnalysis || f.ai_analysis || 'AI mathematical model favors this outcome based on form and tactical alignment.'
                     }))
                   };

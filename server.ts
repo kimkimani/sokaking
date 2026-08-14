@@ -127,7 +127,7 @@ Sitemap: https://sokaking.com/sitemap.xml
     }
   });
 
-  // Proxy all /api requests directly to PHP MySQL Backend Server
+  // Proxy /api requests to PHP Backend Server
   app.all('/api/*', async (req, res) => {
     const targetUrl = `${PHP_BACKEND_URL}${req.originalUrl}`;
     console.log(`[Proxy -> PHP Backend] ${req.method} ${targetUrl}`);
@@ -148,16 +148,12 @@ Sitemap: https://sokaking.com/sitemap.xml
       };
 
       if (['POST', 'PUT', 'PATCH'].includes(req.method) && req.body && Object.keys(req.body).length > 0) {
-        let bodyToSend = req.body;
-        if (req.originalUrl.includes('/api/predictions/vote') && !bodyToSend.id) {
-          bodyToSend = { id: Math.floor(Date.now() / 1000) + Math.floor(Math.random() * 1000), ...bodyToSend };
-        }
-        fetchOptions.body = JSON.stringify(bodyToSend);
+        fetchOptions.body = JSON.stringify(req.body);
       }
 
       const phpRes = await fetch(targetUrl, fetchOptions);
       const data = await phpRes.text();
-
+      
       res.status(phpRes.status);
       res.setHeader('Content-Type', phpRes.headers.get('content-type') || 'application/json');
       return res.send(data);
@@ -166,7 +162,8 @@ Sitemap: https://sokaking.com/sitemap.xml
       return res.status(502).json({
         error: 'PHP Backend Service Unavailable',
         message: error.message,
-        targetUrl
+        targetUrl,
+        phpBackendGuide: 'Ensure php-backend files are uploaded to cheerplex.co.ke/soka_king'
       });
     }
   });

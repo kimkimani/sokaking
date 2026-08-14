@@ -1,7 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
 import { getApiBaseUrl } from '../lib/getApiBaseUrl';
-import { formatMatchTime } from '../utils/dateUtils';
-import { getRefinedConfidence } from '../utils/probability';
 import { motion } from 'motion/react';
 import { 
   Trophy,
@@ -50,9 +48,9 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures }: Live
         return {
           teams: `${f.homeTeam} vs ${f.awayTeam}`,
           tip: f.prediction || 'Home Win (1)',
-          odds: (1.5 + (getRefinedConfidence(f)) / 100).toFixed(2),
+          odds: (1.5 + (f.confidence || 75) / 100).toFixed(2),
           result: `${hScore} - ${aScore}`,
-          date: f.kickoffTime ? formatMatchTime(f.kickoffTime) : 'Recently'
+          date: f.kickoffTime ? new Date(f.kickoffTime).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Recently'
         };
       });
     }
@@ -70,8 +68,8 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures }: Live
     const settled = dbFixtures.filter(f => f.status === 'FT' || f.result === 'won' || f.result === 'lost');
     const won = dbFixtures.filter(f => f.result === 'won').length;
     const winRate = settled.length > 0 ? ((won / settled.length) * 100).toFixed(1) : '85.7';
-    const highConf = total > 0 ? ((dbFixtures.filter(f => getRefinedConfidence(f) >= 80).length / total) * 100).toFixed(0) : '88';
-    const avgConf = total > 0 ? (dbFixtures.reduce((sum, f) => sum + getRefinedConfidence(f), 0) / total).toFixed(1) : '85.2';
+    const highConf = total > 0 ? ((dbFixtures.filter(f => (f.confidence || 75) >= 80).length / total) * 100).toFixed(0) : '88';
+    const avgConf = total > 0 ? (dbFixtures.reduce((sum, f) => sum + (f.confidence || 75), 0) / total).toFixed(1) : '83.5';
 
     return [
       { label: "Verified Win Accuracy", value: `${winRate}%`, trend: `${won} won out of ${settled.length || total} settled`, color: "text-emerald-600 dark:text-emerald-400" },

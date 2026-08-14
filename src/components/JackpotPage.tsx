@@ -18,7 +18,7 @@ import {
   ClipboardList
 } from 'lucide-react';
 import { JackpotConfig } from '../jackpotsData';
-import { calculateProbabilities, getRefinedConfidence } from '../utils/probability';
+import { calculateProbabilities } from '../utils/probability';
 import VotePoll from './VotePoll';
 import FaqSection from './FaqSection';
 import { getMarkdownContent } from '../content/markdownLoader';
@@ -80,7 +80,7 @@ function formatMatchDateTime(rawDate?: string | Date): string {
   try {
     const d = new Date(rawDate);
     if (isNaN(d.getTime())) return String(rawDate);
-    const formatted = d.toLocaleString('en-KE', {
+    return d.toLocaleString('en-KE', {
       timeZone: 'Africa/Nairobi',
       weekday: 'short',
       month: 'short',
@@ -89,7 +89,6 @@ function formatMatchDateTime(rawDate?: string | Date): string {
       minute: '2-digit',
       hour12: false
     });
-    return formatted;
   } catch {
     return String(rawDate);
   }
@@ -595,11 +594,10 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                                    match.prediction.toLowerCase().includes('12') ||
                                    match.prediction.toLowerCase().includes('21');
 
-            const displayConf = getRefinedConfidence(match);
             const jackpotProbs = calculateProbabilities(
               match.prediction,
-              displayConf,
-              match.probabilities || match
+              match.confidence,
+              match.explicitProbs || match.probs || { home: match.homeProb, draw: match.drawProb, away: match.awayProb, percentPredHome: match.percentPredHome, percentPredDraw: match.percentPredDraw, percentPredAway: match.percentPredAway }
             );
 
             return (
@@ -738,13 +736,13 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                       <span className={`px-2 py-1 rounded-full text-xs font-black font-mono leading-none border shadow-3xs ${
                         !isUnlocked 
                           ? 'bg-slate-100 dark:bg-slate-850 text-slate-400 border-slate-200/50 dark:border-slate-800/50' 
-                          : displayConf >= 80 
+                          : match.confidence >= 80 
                             ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 dark:bg-emerald-500/20' 
-                            : displayConf >= 70 
+                            : match.confidence >= 70 
                               ? 'bg-blue-500/10 text-blue-500 border-blue-500/20 dark:bg-blue-500/20' 
                               : 'bg-amber-500/10 text-amber-500 border-amber-500/20 dark:bg-amber-500/20'
                       }`}>
-                        {isUnlocked ? `${displayConf}%` : '—'}
+                        {isUnlocked ? `${match.confidence}%` : '—'}
                       </span>
                     </div>
 
@@ -788,7 +786,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                             <Sparkles className="w-3.5 h-3.5 text-[var(--primary)] animate-pulse" /> Mathematical Analyst Assessment
                           </span>
                           <span className="text-[10px] font-mono text-[var(--text-muted)] bg-[var(--background)] px-2 py-0.5 rounded border border-[var(--border)]">
-                            Confidence factor: <strong className="text-emerald-500 font-extrabold">{displayConf}%</strong>
+                            Confidence factor: <strong className="text-emerald-500 font-extrabold">{match.confidence}%</strong>
                           </span>
                         </div>
 
@@ -819,13 +817,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
 
                         {/* Community Poll & Voting Section */}
                         <div className="pt-1.5">
-                          <VotePoll 
-                            fixtureId={`jackpot_${jackpot.id}_${match.id}`} 
-                            isEnded={match.status === 'FT' || match.status === 'FINISHED' || match.result === 'won' || match.result === 'lost'}
-                            status={match.status}
-                            result={match.result}
-                            prediction={match.prediction}
-                          />
+                          <VotePoll fixtureId={`jackpot_${jackpot.id}_${match.id}`} />
                         </div>
                       </div>
                     </motion.div>

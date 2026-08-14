@@ -238,18 +238,18 @@ CREATE TABLE IF NOT EXISTS `mozzart_super_daily` (
 
 CREATE TABLE IF NOT EXISTS `mpesa_transactions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` varchar(255) DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
   `checkout_request_id` varchar(255) NOT NULL,
-  `merchant_request_id` varchar(255) DEFAULT NULL,
+  `merchant_request_id` varchar(255) NOT NULL,
   `phone_number` varchar(255) NOT NULL,
-  `amount` decimal(10,2) NOT NULL,
+  `amount` int(11) NOT NULL,
   `item_type` varchar(255) NOT NULL,
   `item_id` varchar(255) NOT NULL,
   `status` varchar(255) DEFAULT 'pending',
   `mpesa_receipt_number` varchar(255) DEFAULT NULL,
   `result_desc` text DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `checkout_request_id` (`checkout_request_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -353,69 +353,10 @@ CREATE TABLE IF NOT EXISTS `prediction_probabilities` (
 CREATE TABLE IF NOT EXISTS `prediction_votes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `fixture_id` varchar(255) NOT NULL,
-  `user_id` varchar(255) NOT NULL,
-  `vote` varchar(32) NOT NULL,
+  `user_id` varchar(255) DEFAULT NULL,
+  `vote` varchar(10) NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `idx_fixture` (`fixture_id`),
-  UNIQUE KEY `uniq_fixture_user` (`fixture_id`, `user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `user_subscriptions`
---
-
-CREATE TABLE IF NOT EXISTS `user_subscriptions` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` varchar(255) NOT NULL,
-  `phone_number` varchar(32) NOT NULL,
-  `package_id` varchar(64) NOT NULL,
-  `start_time` datetime NOT NULL,
-  `end_time` datetime NOT NULL,
-  `status` enum('active','expired','cancelled') NOT NULL DEFAULT 'active',
-  `last_sms_sent_at` datetime DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `idx_phone` (`phone_number`),
-  KEY `idx_user` (`user_id`),
-  KEY `idx_status_end` (`status`, `end_time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `sms_dispatch_logs`
---
-
-CREATE TABLE IF NOT EXISTS `sms_dispatch_logs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` varchar(255) NOT NULL,
-  `phone_number` varchar(32) NOT NULL,
-  `message_body` text NOT NULL,
-  `status` enum('queued','sent','failed') NOT NULL DEFAULT 'queued',
-  `error_message` text DEFAULT NULL,
-  `sent_at` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `idx_phone` (`phone_number`),
-  KEY `idx_status` (`status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `fixture_vote_counts`
---
-
-CREATE TABLE IF NOT EXISTS `fixture_vote_counts` (
-  `fixture_id` varchar(255) NOT NULL,
-  `votes_1` int(11) NOT NULL DEFAULT 0,
-  `votes_x` int(11) NOT NULL DEFAULT 0,
-  `votes_2` int(11) NOT NULL DEFAULT 0,
-  `total_votes` int(11) NOT NULL DEFAULT 0,
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`fixture_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -426,7 +367,7 @@ CREATE TABLE IF NOT EXISTS `fixture_vote_counts` (
 
 CREATE TABLE IF NOT EXISTS `purchases` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` varchar(255) DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
   `item_type` varchar(255) NOT NULL,
   `item_id` varchar(255) NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),

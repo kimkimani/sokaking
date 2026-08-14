@@ -4,7 +4,6 @@ import { Crown, Zap, Trophy, ShieldCheck, Sparkles, ArrowRight, Check, Star } fr
 import { VipPackage, OddsPack } from '../types';
 import { JackpotConfig, jackpotsData } from '../jackpotsData';
 import VipPackages from './VipPackages';
-import SmsManagement from './SmsManagement';
 import OddsPacks from './OddsPacks';
 import JackpotListPage from './JackpotListPage';
 import FaqSection from './FaqSection';
@@ -113,11 +112,6 @@ export default function VipPackagesPage({
           onOpenPayment={onOpenPayment}
           userPurchasedItemIds={userPurchasedItemIds}
         />
-      </section>
-
-      {/* AUTOMATED SMS DELIVERY & DISPATCH ENGINE */}
-      <section id="sms-dispatch-engine-section" className="space-y-4 scroll-mt-20">
-        <SmsManagement />
       </section>
 
       {/* MIDDLE SEO MARKDOWN (After VIP Section) */}

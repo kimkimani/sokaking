@@ -15,10 +15,9 @@ import {
   Calendar
 } from 'lucide-react';
 import { Fixture } from '../types';
-import { calculateProbabilities, getRefinedConfidence } from '../utils/probability';
+import { calculateProbabilities } from '../utils/probability';
 import VotePoll from './VotePoll';
 import { FlagImage } from '../utils/flagUtils';
-import { formatMatchTime, isSameDay } from '../utils/dateUtils';
 
 interface PredictionsListProps {
   fixtures: Fixture[];
@@ -63,7 +62,16 @@ export function MinimalShimmerLoader({ count = 5 }: { count?: number }) {
   );
 }
 
-
+function isSameDay(dateStr?: string, targetDate?: Date) {
+  if (!dateStr || !targetDate) return false;
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return false;
+  return (
+    d.getFullYear() === targetDate.getFullYear() &&
+    d.getMonth() === targetDate.getMonth() &&
+    d.getDate() === targetDate.getDate()
+  );
+}
 
 export default function PredictionsList({
   fixtures,
@@ -154,7 +162,38 @@ export default function PredictionsList({
   };
 
   const formatTime = (isoString: string) => {
-    return formatMatchTime(isoString, true);
+    try {
+      const d = new Date(isoString);
+      if (isNaN(d.getTime())) return '18:00';
+      const now = new Date();
+      const isToday = d.getFullYear() === now.getFullYear() &&
+                     d.getMonth() === now.getMonth() &&
+                     d.getDate() === now.getDate();
+
+      const hours = String(d.getHours()).padStart(2, '0');
+      const minutes = String(d.getMinutes()).padStart(2, '0');
+      const timeStr = `${hours}:${minutes}`;
+      if (isToday) return timeStr;
+
+      const yesterday = new Date(now);
+      yesterday.setDate(now.getDate() - 1);
+      const isYesterday = d.getFullYear() === yesterday.getFullYear() &&
+                     d.getMonth() === yesterday.getMonth() &&
+                     d.getDate() === yesterday.getDate();
+      if (isYesterday) return `Yest ${timeStr}`;
+
+      const tomorrow = new Date(now);
+      tomorrow.setDate(now.getDate() + 1);
+      const isTomorrow = d.getFullYear() === tomorrow.getFullYear() &&
+                     d.getMonth() === tomorrow.getMonth() &&
+                     d.getDate() === tomorrow.getDate();
+      if (isTomorrow) return `Tom ${timeStr}`;
+
+      const dateStr = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      return `${dateStr} ${timeStr}`;
+    } catch {
+      return '18:00';
+    }
   };
 
   const getInitials = (teamName: string) => {
@@ -234,11 +273,10 @@ export default function PredictionsList({
                                    fixture.prediction.toLowerCase().includes('12') ||
                                    fixture.prediction.toLowerCase().includes('21');
 
-            const displayConf = getRefinedConfidence(fixture);
             const probs = calculateProbabilities(
               fixture.prediction,
-              displayConf,
-              fixture.probabilities || fixture
+              fixture.confidence,
+              fixture.explicitProbs || fixture.probs || { home: fixture.homeProb, draw: fixture.drawProb, away: fixture.awayProb, percentPredHome: fixture.percentPredHome, percentPredDraw: fixture.percentPredDraw, percentPredAway: fixture.percentPredAway }
             );
 
             // Desktop border and row style overrides for completed games
@@ -316,7 +354,7 @@ export default function PredictionsList({
 
                   {/* Confidence Rating */}
                   <div className="col-span-12 md:col-span-1 flex flex-col items-center justify-center">
-                    <span className="text-xs font-black text-[var(--text)] font-mono">{displayConf}%</span>
+                    <span className="text-xs font-black text-[var(--text)] font-mono">{fixture.confidence}%</span>
                   </div>
 
                   {/* Results column */}
@@ -497,7 +535,7 @@ export default function PredictionsList({
                             <Sparkles className="w-3.5 h-3.5 text-[var(--primary)] animate-pulse" /> Live Expert Evaluation
                           </span>
                           <span className="text-[10px] font-mono text-[var(--text-muted)] bg-[var(--background)] px-2 py-0.5 rounded border border-[var(--border)]">
-                            Confidence factor: <strong className="text-sky-500 font-black">{displayConf}%</strong>
+                            Confidence factor: <strong className="text-sky-500 font-black">{fixture.confidence}%</strong>
                           </span>
                         </div>
                         <p className="text-[var(--text-muted)] leading-relaxed font-sans">
@@ -520,13 +558,7 @@ export default function PredictionsList({
 
                         {/* Community Verdict Poll */}
                         <div className="pt-1.5">
-                          <VotePoll 
-                            fixtureId={fixture.id} 
-                            isEnded={isCompleted} 
-                            status={fixture.status} 
-                            result={fixture.result} 
-                            prediction={fixture.prediction}
-                          />
+                          <VotePoll fixtureId={fixture.id} />
                         </div>
                       </div>
                     </motion.div>

@@ -17,12 +17,12 @@ define('DB_PASS', getenv('DB_PASS') ?: 'SokaKingSecret2026!'); // update with yo
 define('DB_PORT', getenv('DB_PORT') ?: '3306');
 
 // M-Pesa Safaricom Daraja API Credentials
-define('MPESA_ENV', getenv('MPESA_ENV') ?: 'sandbox'); // 'sandbox' or 'live'
+define('MPESA_ENV', 'sandbox'); // 'sandbox' or 'live'
 define('MPESA_CONSUMER_KEY', getenv('MPESA_CONSUMER_KEY') ?: 'YOUR_CONSUMER_KEY');
 define('MPESA_CONSUMER_SECRET', getenv('MPESA_CONSUMER_SECRET') ?: 'YOUR_CONSUMER_SECRET');
 define('MPESA_SHORTCODE', getenv('MPESA_SHORTCODE') ?: '174379');
 define('MPESA_PASSKEY', getenv('MPESA_PASSKEY') ?: 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919');
-define('MPESA_CALLBACK_URL', getenv('MPESA_CALLBACK_URL') ?: 'https://cheerplex.co.ke/soka_king/api/mpesa/callback');
+define('MPESA_CALLBACK_URL', 'https://cheerplex.co.ke/soka_king/api/mpesa/callback');
 
 /**
  * Send CORS Headers allowing Next.js local & remote frontend access
