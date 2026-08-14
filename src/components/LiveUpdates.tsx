@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
 import { getApiBaseUrl } from '../lib/getApiBaseUrl';
-import { formatMatchTime } from '../utils/dateUtils';
 import { getRefinedConfidence } from '../utils/probability';
 import { motion } from 'motion/react';
 import { 
@@ -52,7 +51,7 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures }: Live
           tip: f.prediction || 'Home Win (1)',
           odds: (1.5 + (getRefinedConfidence(f)) / 100).toFixed(2),
           result: `${hScore} - ${aScore}`,
-          date: f.kickoffTime ? formatMatchTime(f.kickoffTime) : 'Recently'
+          date: f.kickoffTime ? new Date(f.kickoffTime).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Recently'
         };
       });
     }
