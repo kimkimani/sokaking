@@ -353,10 +353,28 @@ CREATE TABLE IF NOT EXISTS `prediction_probabilities` (
 CREATE TABLE IF NOT EXISTS `prediction_votes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `fixture_id` varchar(255) NOT NULL,
-  `user_id` varchar(255) DEFAULT NULL,
-  `vote` varchar(10) NOT NULL,
+  `user_id` varchar(255) NOT NULL,
+  `vote` varchar(32) NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_fixture` (`fixture_id`),
+  UNIQUE KEY `uniq_fixture_user` (`fixture_id`, `user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `fixture_vote_counts`
+--
+
+CREATE TABLE IF NOT EXISTS `fixture_vote_counts` (
+  `fixture_id` varchar(255) NOT NULL,
+  `votes_1` int(11) NOT NULL DEFAULT 0,
+  `votes_x` int(11) NOT NULL DEFAULT 0,
+  `votes_2` int(11) NOT NULL DEFAULT 0,
+  `total_votes` int(11) NOT NULL DEFAULT 0,
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`fixture_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

@@ -349,41 +349,41 @@ if ($path === '/predictions' && $method === 'GET') {
 
 // 2. Voting GET & POST /api/predictions/vote or /api/vote
 if ($path === '/predictions/vote' || $path === '/vote') {
-    // Helper to ensure prediction_votes table exists and has proper auto_increment primary key in MySQL
-    $ensureTable = function() use ($pdo) {
+    // Helper to ensure database tables and indexes exist for high performance at scale
+    $ensureTables = function() use ($pdo) {
         static $done = false;
         if ($done) return;
         $done = true;
 
         try {
+            // 1. Individual votes table
             $pdo->exec("CREATE TABLE IF NOT EXISTS `prediction_votes` (
               `id` INT(11) NOT NULL AUTO_INCREMENT,
               `fixture_id` VARCHAR(255) NOT NULL,
-              `user_id` VARCHAR(255) DEFAULT NULL,
+              `user_id` VARCHAR(255) NOT NULL,
               `vote` VARCHAR(32) NOT NULL,
               `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
               PRIMARY KEY (`id`),
-              KEY `idx_fixture` (`fixture_id`)
+              KEY `idx_fixture` (`fixture_id`),
+              UNIQUE KEY `uniq_fixture_user` (`fixture_id`, `user_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        } catch (Throwable $e) {}
 
-            $pdo->exec("ALTER TABLE `prediction_votes` MODIFY `id` INT(11) NOT NULL AUTO_INCREMENT;");
-        } catch (Throwable $e) {
-            try {
-                $pdo->exec("DROP TABLE IF EXISTS `prediction_votes`;");
-                $pdo->exec("CREATE TABLE `prediction_votes` (
-                  `id` INT(11) NOT NULL AUTO_INCREMENT,
-                  `fixture_id` VARCHAR(255) NOT NULL,
-                  `user_id` VARCHAR(255) DEFAULT NULL,
-                  `vote` VARCHAR(32) NOT NULL,
-                  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-                  PRIMARY KEY (`id`),
-                  KEY `idx_fixture` (`fixture_id`)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
-            } catch (Throwable $e2) {}
-        }
+        try {
+            // 2. Summary counter table for O(1) instant stats lookups even with millions of votes
+            $pdo->exec("CREATE TABLE IF NOT EXISTS `fixture_vote_counts` (
+              `fixture_id` VARCHAR(255) NOT NULL,
+              `votes_1` INT(11) NOT NULL DEFAULT 0,
+              `votes_x` INT(11) NOT NULL DEFAULT 0,
+              `votes_2` INT(11) NOT NULL DEFAULT 0,
+              `total_votes` INT(11) NOT NULL DEFAULT 0,
+              `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+              PRIMARY KEY (`fixture_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        } catch (Throwable $e) {}
     };
 
-    $ensureTable();
+    $ensureTables();
 
     if ($method === 'GET') {
         $fixtureId = isset($_GET['fixtureId']) ? trim($_GET['fixtureId']) : '';
@@ -394,14 +394,22 @@ if ($path === '/predictions/vote' || $path === '/vote') {
         }
 
         try {
-            $stmt = $pdo->prepare("SELECT 
-                                    COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
-                                    COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
-                                    COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
-                                    COUNT(*) AS total_votes
-                                  FROM prediction_votes WHERE fixture_id = ?");
+            // First attempt instant lookup in pre-aggregated table
+            $stmt = $pdo->prepare("SELECT votes_1, votes_x, votes_2, total_votes FROM fixture_vote_counts WHERE fixture_id = ?");
             $stmt->execute([$fixtureId]);
             $stats = $stmt->fetch();
+
+            if (!$stats) {
+                // Fallback to raw table if summary row not created yet
+                $stmt = $pdo->prepare("SELECT 
+                                        COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
+                                        COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
+                                        COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
+                                        COUNT(*) AS total_votes
+                                      FROM prediction_votes WHERE fixture_id = ?");
+                $stmt->execute([$fixtureId]);
+                $stats = $stmt->fetch();
+            }
 
             $v1 = (int)($stats['votes_1'] ?? 0);
             $vx = (int)($stats['votes_x'] ?? 0);
@@ -491,13 +499,25 @@ if ($path === '/predictions/vote' || $path === '/vote') {
                 $insStmt->execute([$nextId, $fixtureId, $userId, $vote]);
             }
 
-            $debugStep = 'select_stats';
-            $stmt = $pdo->prepare("SELECT 
-                                    COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
-                                    COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
-                                    COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
-                                    COUNT(*) AS total_votes
-                                  FROM prediction_votes WHERE fixture_id = ?");
+            // Recalculate and update summary counts for this fixture in fixture_vote_counts
+            $recalcStmt = $pdo->prepare("
+                INSERT INTO fixture_vote_counts (fixture_id, votes_1, votes_x, votes_2, total_votes)
+                SELECT 
+                    ? AS fixture_id,
+                    COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
+                    COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
+                    COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
+                    COUNT(*) AS total_votes
+                FROM prediction_votes WHERE fixture_id = ?
+                ON DUPLICATE KEY UPDATE 
+                    votes_1 = VALUES(votes_1),
+                    votes_x = VALUES(votes_x),
+                    votes_2 = VALUES(votes_2),
+                    total_votes = VALUES(total_votes)
+            ");
+            $recalcStmt->execute([$fixtureId, $fixtureId]);
+
+            $stmt = $pdo->prepare("SELECT votes_1, votes_x, votes_2, total_votes FROM fixture_vote_counts WHERE fixture_id = ?");
             $stmt->execute([$fixtureId]);
             $stats = $stmt->fetch();
 
@@ -743,8 +763,142 @@ if ($path === '/purchases' && $method === 'GET') {
     jsonResponse($formatted);
 }
 
+// Safaricom M-Pesa Daraja Helper Functions
+function getMpesaDarajaUrl($endpoint) {
+    $env = defined('MPESA_ENV') ? strtolower(MPESA_ENV) : 'sandbox';
+    $baseUrl = ($env === 'live') ? 'https://api.safaricom.co.ke' : 'https://sandbox.safaricom.co.ke';
+    return $baseUrl . $endpoint;
+}
+
+function getMpesaAccessToken() {
+    try {
+        $key = defined('MPESA_CONSUMER_KEY') ? trim(MPESA_CONSUMER_KEY) : '';
+        $secret = defined('MPESA_CONSUMER_SECRET') ? trim(MPESA_CONSUMER_SECRET) : '';
+
+        if (empty($key) || empty($secret) || $key === 'YOUR_CONSUMER_KEY' || $secret === 'YOUR_CONSUMER_SECRET') {
+            return null;
+        }
+
+        if (!function_exists('curl_init')) {
+            return null;
+        }
+
+        $url = getMpesaDarajaUrl('/oauth/v1/generate?grant_type=client_credentials');
+        $credentials = base64_encode($key . ':' . $secret);
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Basic ' . $credentials]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+
+        $response = curl_exec($ch);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($error || !$response) {
+            return null;
+        }
+
+        $result = json_decode($response, true);
+        return isset($result['access_token']) ? $result['access_token'] : null;
+    } catch (Throwable $e) {
+        return null;
+    }
+}
+
+function queryMpesaDarajaStkStatus($checkoutRequestId) {
+    try {
+        $token = getMpesaAccessToken();
+        if (!$token || !function_exists('curl_init')) {
+            return null;
+        }
+
+        $shortCode = defined('MPESA_SHORTCODE') ? trim(MPESA_SHORTCODE) : '174379';
+        $passKey = defined('MPESA_PASSKEY') ? trim(MPESA_PASSKEY) : '';
+        $timestamp = date('YmdHis');
+        $password = base64_encode($shortCode . $passKey . $timestamp);
+
+        $url = getMpesaDarajaUrl('/mpesa/stkpushquery/v1/query');
+        $payload = [
+            'BusinessShortCode' => $shortCode,
+            'Password'          => $password,
+            'Timestamp'         => $timestamp,
+            'CheckoutRequestID' => $checkoutRequestId,
+        ];
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $token,
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response ? json_decode($response, true) : null;
+    } catch (Throwable $e) {
+        return null;
+    }
+}
+
 // 9. M-Pesa STK Push POST /api/mpesa/stkpush
 if ($path === '/mpesa/stkpush' && $method === 'POST') {
+    $ensureMpesaTables = function() use ($pdo) {
+        static $done = false;
+        if ($done) return;
+        $done = true;
+
+        try {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS `users` (
+              `id` INT(11) NOT NULL AUTO_INCREMENT,
+              `uid` VARCHAR(255) NOT NULL,
+              `email` VARCHAR(255) DEFAULT NULL,
+              `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+              PRIMARY KEY (`id`),
+              UNIQUE KEY `uniq_uid` (`uid`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        } catch (Throwable $e) {}
+
+        try {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS `mpesa_transactions` (
+              `id` INT(11) NOT NULL AUTO_INCREMENT,
+              `user_id` INT(11) DEFAULT NULL,
+              `checkout_request_id` VARCHAR(255) NOT NULL,
+              `merchant_request_id` VARCHAR(255) DEFAULT NULL,
+              `phone_number` VARCHAR(50) NOT NULL,
+              `amount` DECIMAL(10,2) NOT NULL,
+              `item_type` VARCHAR(50) DEFAULT NULL,
+              `item_id` VARCHAR(100) DEFAULT NULL,
+              `mpesa_receipt_number` VARCHAR(100) DEFAULT NULL,
+              `status` VARCHAR(20) DEFAULT 'pending',
+              `result_desc` TEXT DEFAULT NULL,
+              `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+              `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+              PRIMARY KEY (`id`),
+              UNIQUE KEY `uniq_checkout` (`checkout_request_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        } catch (Throwable $e) {}
+
+        try {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS `purchases` (
+              `id` INT(11) NOT NULL AUTO_INCREMENT,
+              `user_id` INT(11) DEFAULT NULL,
+              `item_type` VARCHAR(50) NOT NULL,
+              `item_id` VARCHAR(100) NOT NULL,
+              `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+              PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        } catch (Throwable $e) {}
+    };
+
+    $ensureMpesaTables();
+
     $body = getJsonInput();
     $phoneNumber = isset($body['phoneNumber']) ? trim($body['phoneNumber']) : '';
     $amount = isset($body['amount']) ? (int)$body['amount'] : 0;
@@ -763,23 +917,104 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
         $cleanPhone = '254' . $cleanPhone;
     }
 
-    $checkoutRequestId = 'ws_CO_' . date('dmYHis') . '_' . rand(1000, 9999);
-    $merchantRequestId = 'MR_' . rand(100000, 999999);
+    $userId = null;
+    try {
+        $uStmt = $pdo->prepare("SELECT id FROM users WHERE uid = ?");
+        $uStmt->execute([$uid]);
+        $uRow = $uStmt->fetch();
+        if ($uRow) {
+            $userId = $uRow['id'];
+        }
+    } catch (Throwable $e) {
+        $userId = null;
+    }
 
-    $uStmt = $pdo->prepare("SELECT id FROM users WHERE uid = ?");
-    $uStmt->execute([$uid]);
-    $uRow = $uStmt->fetch();
-    $userId = $uRow ? $uRow['id'] : 1;
+    $checkoutRequestId = null;
+    $merchantRequestId = null;
+    $customerMessage = null;
+    $isRealMpesa = false;
+    $darajaError = null;
 
-    $stmt = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, amount, item_type, item_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')");
-    $stmt->execute([$userId, $checkoutRequestId, $merchantRequestId, $cleanPhone, $amount, $itemType, $itemId]);
+    try {
+        $token = getMpesaAccessToken();
+        if ($token && function_exists('curl_init')) {
+            $shortCode = defined('MPESA_SHORTCODE') ? trim(MPESA_SHORTCODE) : '174379';
+            $passKey = defined('MPESA_PASSKEY') ? trim(MPESA_PASSKEY) : '';
+            $callbackUrl = defined('MPESA_CALLBACK_URL') ? trim(MPESA_CALLBACK_URL) : 'https://cheerplex.co.ke/soka_king/api/mpesa/callback';
+            $timestamp = date('YmdHis');
+            $password = base64_encode($shortCode . $passKey . $timestamp);
+
+            $stkUrl = getMpesaDarajaUrl('/mpesa/stkpush/v1/processrequest');
+            $stkPayload = [
+                'BusinessShortCode' => $shortCode,
+                'Password'          => $password,
+                'Timestamp'         => $timestamp,
+                'TransactionType'   => 'CustomerPayBillOnline',
+                'Amount'            => $amount,
+                'PartyA'            => $cleanPhone,
+                'PartyB'            => $shortCode,
+                'PhoneNumber'       => $cleanPhone,
+                'CallBackURL'       => $callbackUrl,
+                'AccountReference'  => substr(preg_replace('/[^a-zA-Z0-9]/', '', $itemId ?: $itemType), 0, 12) ?: 'SOKA_KING',
+                'TransactionDesc'   => 'Payment for ' . substr($itemType, 0, 12)
+            ];
+
+            $ch = curl_init($stkUrl);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $token,
+                'Content-Type: application/json'
+            ]);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($stkPayload));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+
+            $resRaw = curl_exec($ch);
+            $cError = curl_error($ch);
+            curl_close($ch);
+
+            if ($resRaw) {
+                $resData = json_decode($resRaw, true);
+                if (isset($resData['ResponseCode']) && $resData['ResponseCode'] === '0') {
+                    $checkoutRequestId = $resData['CheckoutRequestID'];
+                    $merchantRequestId = $resData['MerchantRequestID'];
+                    $customerMessage = $resData['CustomerMessage'] ?? "STK Push sent to $cleanPhone for KES $amount. Enter M-Pesa PIN on your phone line.";
+                    $isRealMpesa = true;
+                } else {
+                    $darajaError = $resData['errorMessage'] ?? ($resData['ResponseDescription'] ?? 'Daraja STK push rejected');
+                }
+            } else {
+                $darajaError = $cError ?: 'Network error connecting to Safaricom Daraja';
+            }
+        }
+    } catch (Throwable $e) {
+        $darajaError = $e->getMessage();
+    }
+
+    if (!$checkoutRequestId) {
+        $checkoutRequestId = 'ws_CO_' . date('dmYHis') . '_' . rand(1000, 9999);
+        $merchantRequestId = 'MR_' . rand(100000, 999999);
+        $customerMessage = "STK Push sent to $cleanPhone for KES $amount. Enter M-Pesa PIN on your phone to complete payment.";
+    }
+
+    try {
+        $stmt = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, amount, item_type, item_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')");
+        $stmt->execute([$userId, $checkoutRequestId, $merchantRequestId, $cleanPhone, $amount, $itemType, $itemId]);
+    } catch (Throwable $e) {
+        // Fallback log if insert fails
+    }
 
     jsonResponse([
         'MerchantRequestID' => $merchantRequestId,
         'CheckoutRequestID' => $checkoutRequestId,
+        'checkoutRequestId' => $checkoutRequestId,
+        'merchantRequestId' => $merchantRequestId,
         'ResponseCode' => '0',
         'ResponseDescription' => 'Success. Request accepted for processing',
-        'CustomerMessage' => "STK Push sent to $cleanPhone for KES $amount. Enter M-Pesa PIN on your phone to complete payment."
+        'CustomerMessage' => $customerMessage,
+        'isRealMpesa' => $isRealMpesa,
+        'darajaNotice' => $darajaError ? "Daraja Sandbox notice: $darajaError (Fallback mode active)" : null
     ]);
 }
 
@@ -813,8 +1048,12 @@ if ($path === '/mpesa/callback' && $method === 'POST') {
             $tx = $txStmt->fetch();
 
             if ($tx) {
-                $pStmt = $pdo->prepare("INSERT INTO purchases (user_id, item_type, item_id) VALUES (?, ?, ?)");
-                $pStmt->execute([$tx['user_id'], $tx['item_type'], $tx['item_id']]);
+                $checkP = $pdo->prepare("SELECT id FROM purchases WHERE user_id = ? AND item_type = ? AND item_id = ?");
+                $checkP->execute([$tx['user_id'], $tx['item_type'], $tx['item_id']]);
+                if (!$checkP->fetch()) {
+                    $pStmt = $pdo->prepare("INSERT INTO purchases (user_id, item_type, item_id) VALUES (?, ?, ?)");
+                    $pStmt->execute([$tx['user_id'], $tx['item_type'], $tx['item_id']]);
+                }
             }
         }
     }
@@ -834,13 +1073,47 @@ if (preg_match('#^/mpesa/status/([^/]+)$#', $path, $matches) && $method === 'GET
         jsonResponse(['error' => 'Transaction not found'], 404);
     }
 
+    if ($tx['status'] === 'pending') {
+        $queryResult = queryMpesaDarajaStkStatus($checkoutRequestId);
+        if ($queryResult && isset($queryResult['ResultCode'])) {
+            $qCode = (string)$queryResult['ResultCode'];
+            if ($qCode === '0') {
+                $status = 'completed';
+                $desc = $queryResult['ResultDesc'] ?? 'The service request is processed successfully.';
+                $upStmt = $pdo->prepare("UPDATE mpesa_transactions SET status = 'completed', result_desc = ?, updated_at = NOW() WHERE checkout_request_id = ?");
+                $upStmt->execute([$desc, $checkoutRequestId]);
+
+                $checkP = $pdo->prepare("SELECT id FROM purchases WHERE user_id = ? AND item_type = ? AND item_id = ?");
+                $checkP->execute([$tx['user_id'], $tx['item_type'], $tx['item_id']]);
+                if (!$checkP->fetch()) {
+                    $pStmt = $pdo->prepare("INSERT INTO purchases (user_id, item_type, item_id) VALUES (?, ?, ?)");
+                    $pStmt->execute([$tx['user_id'], $tx['item_type'], $tx['item_id']]);
+                }
+
+                $tx['status'] = 'completed';
+                $tx['result_desc'] = $desc;
+            } elseif ($qCode !== '1037') {
+                $status = 'failed';
+                $desc = $queryResult['ResultDesc'] ?? 'Transaction failed or cancelled';
+                $upStmt = $pdo->prepare("UPDATE mpesa_transactions SET status = 'failed', result_desc = ?, updated_at = NOW() WHERE checkout_request_id = ?");
+                $upStmt->execute([$desc, $checkoutRequestId]);
+
+                $tx['status'] = 'failed';
+                $tx['result_desc'] = $desc;
+            }
+        }
+    }
+
     jsonResponse([
         'checkoutRequestId' => $tx['checkout_request_id'],
+        'CheckoutRequestID' => $tx['checkout_request_id'],
         'status' => $tx['status'],
         'amount' => (int)$tx['amount'],
         'phoneNumber' => $tx['phone_number'],
         'mpesaReceiptNumber' => $tx['mpesa_receipt_number'],
-        'resultDesc' => $tx['result_desc']
+        'resultDesc' => $tx['result_desc'],
+        'itemType' => $tx['item_type'],
+        'itemId' => $tx['item_id']
     ]);
 }
 
@@ -870,8 +1143,12 @@ if ($path === '/mpesa/simulate-callback' && $method === 'POST') {
     $upStmt->execute([$status, $desc, $receipt, $checkoutRequestId]);
 
     if ($success) {
-        $pStmt = $pdo->prepare("INSERT INTO purchases (user_id, item_type, item_id) VALUES (?, ?, ?)");
-        $pStmt->execute([$tx['user_id'], $tx['item_type'], $tx['item_id']]);
+        $checkP = $pdo->prepare("SELECT id FROM purchases WHERE user_id = ? AND item_type = ? AND item_id = ?");
+        $checkP->execute([$tx['user_id'], $tx['item_type'], $tx['item_id']]);
+        if (!$checkP->fetch()) {
+            $pStmt = $pdo->prepare("INSERT INTO purchases (user_id, item_type, item_id) VALUES (?, ?, ?)");
+            $pStmt->execute([$tx['user_id'], $tx['item_type'], $tx['item_id']]);
+        }
     }
 
     jsonResponse([

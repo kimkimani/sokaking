@@ -80,7 +80,7 @@ function formatMatchDateTime(rawDate?: string | Date): string {
   try {
     const d = new Date(rawDate);
     if (isNaN(d.getTime())) return String(rawDate);
-    return d.toLocaleString('en-KE', {
+    const formatted = d.toLocaleString('en-KE', {
       timeZone: 'Africa/Nairobi',
       weekday: 'short',
       month: 'short',
@@ -89,6 +89,7 @@ function formatMatchDateTime(rawDate?: string | Date): string {
       minute: '2-digit',
       hour12: false
     });
+    return formatted;
   } catch {
     return String(rawDate);
   }

@@ -161,7 +161,8 @@ export default function PaymentModal({
         }),
       });
 
-      setCheckoutRequestId(response.checkoutRequestId);
+      const reqId = response.checkoutRequestId || response.CheckoutRequestID;
+      setCheckoutRequestId(reqId);
       setIsSubmitting(false);
       setStep('stk-sent');
       setPollingAttempts(0);
