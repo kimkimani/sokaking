@@ -226,9 +226,9 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
     const initialMap: Record<string, Fixture[]> = {
       'all': initialPool,
-      'category-today': todayPreds.length > 0 ? todayPreds : (fixturesData.today || []),
-      'category-yesterday': yesterdayPreds.length > 0 ? yesterdayPreds : (fixturesData.yesterday || []),
-      'category-tomorrow': tomorrowPreds.length > 0 ? tomorrowPreds : (fixturesData.tomorrow || []),
+      'category-today': todayPreds,
+      'category-yesterday': yesterdayPreds,
+      'category-tomorrow': tomorrowPreds,
     };
 
     return initialMap;

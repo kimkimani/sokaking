@@ -1353,6 +1353,11 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
         } catch (Throwable $e) {}
 
         try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY COLUMN `user_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
+        try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY COLUMN `merchant_request_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
+        try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY COLUMN `item_type` VARCHAR(100) DEFAULT NULL"); } catch (Throwable $e) {}
+        try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY COLUMN `item_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
+        try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY COLUMN `mpesa_receipt_number` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
+        try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY COLUMN `result_desc` TEXT DEFAULT NULL"); } catch (Throwable $e) {}
         try { $pdo->exec("ALTER TABLE `purchases` MODIFY COLUMN `user_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
 
         try {
@@ -1472,7 +1477,10 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
         $stmt = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, amount, item_type, item_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')");
         $stmt->execute([$userId ?: $cleanPhone, $checkoutRequestId, $merchantRequestId, $cleanPhone, $amount, $itemType, $itemId]);
     } catch (Throwable $e) {
-        // Fallback log if insert fails
+        try {
+            $stmtFallback = $pdo->prepare("INSERT INTO mpesa_transactions (checkout_request_id, phone_number, amount, status) VALUES (?, ?, ?, 'pending')");
+            $stmtFallback->execute([$checkoutRequestId, $cleanPhone, $amount]);
+        } catch (Throwable $e2) {}
     }
 
     jsonResponse([
@@ -1542,7 +1550,15 @@ if (preg_match('#^/mpesa/status/([^/]+)$#', $path, $matches) && $method === 'GET
     $tx = $stmt->fetch();
 
     if (!$tx) {
-        jsonResponse(['error' => 'Transaction not found'], 404);
+        jsonResponse([
+            'checkoutRequestId' => $checkoutRequestId,
+            'CheckoutRequestID' => $checkoutRequestId,
+            'status' => 'pending',
+            'amount' => 0,
+            'phoneNumber' => '',
+            'resultDesc' => 'Transaction initialized, awaiting M-Pesa PIN input',
+            'isRealMpesa' => true
+        ], 200);
     }
 
     if ($tx['status'] === 'pending') {

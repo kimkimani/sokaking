@@ -442,7 +442,7 @@ export function getCategoryFixtures(
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, today));
   } else if (categoryId === 'category-yesterday') {
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, yesterday));
-    // Yesterday's matches must be completed with result outcomes evaluated from fulltime scores
+    // Yesterday's matches evaluated from fulltime scores
     filtered = filtered.map(f => {
       const hScore = (f.homeScore === '-' || f.homeScore === undefined || f.homeScore === null) ? 2 : f.homeScore;
       const aScore = (f.awayScore === '-' || f.awayScore === undefined || f.awayScore === null) ? 1 : f.awayScore;
@@ -459,7 +459,7 @@ export function getCategoryFixtures(
   } else if (categoryId === 'category-tomorrow') {
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, tomorrow));
   } 
-  // 2. Competitor / Tipster pages: ALWAYS show tips of TODAY
+  // 2. Competitor / Tipster pages: Filter for TODAY's fixtures in database
   else if (
     pageType === 'competitor' ||
     categoryId === '254-sure-tips' ||
