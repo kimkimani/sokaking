@@ -39,94 +39,77 @@ function getJsonInput() {
  * Calculate dynamic, realistic betting probabilities and confidence indices
  */
 function computeFixtureConfidenceAndProbabilities($prediction, $hp = 0, $dp = 0, $ap = 0, $fixtureId = 1) {
+    $seed = is_numeric($fixtureId) && (int)$fixtureId > 0 ? (int)$fixtureId : abs(crc32((string)$fixtureId));
+    if ($seed === 0) $seed = 1;
+
     if ($hp > 0 || $dp > 0 || $ap > 0) {
         $total = $hp + $dp + $ap;
         if ($total > 0 && $total !== 100) {
-            $hp = round(($hp / $total) * 100);
-            $dp = round(($dp / $total) * 100);
+            $hp = (int)round(($hp / $total) * 100);
+            $dp = (int)round(($dp / $total) * 100);
             $ap = 100 - $hp - $dp;
         }
-
-        $predLower = strtolower($prediction ?? '');
-        if (strpos($predLower, '1x') !== false || strpos($predLower, 'x1') !== false) {
-            $conf = $hp + $dp;
-        } elseif (strpos($predLower, 'x2') !== false || strpos($predLower, '2x') !== false) {
-            $conf = $dp + $ap;
-        } elseif (strpos($predLower, '12') !== false || strpos($predLower, '21') !== false) {
-            $conf = $hp + $ap;
-        } elseif (strpos($predLower, '(1)') !== false || strpos($predLower, 'home win') !== false || $predLower === '1') {
-            $conf = $hp;
-        } elseif (strpos($predLower, '(x)') !== false || strpos($predLower, 'draw') !== false || $predLower === 'x') {
-            $conf = $dp;
-        } elseif (strpos($predLower, '(2)') !== false || strpos($predLower, 'away win') !== false || $predLower === '2') {
-            $conf = $ap;
-        } else {
-            $conf = max($hp, $dp, $ap, 75);
-        }
-
-        $conf = max(65, min(94, (int)$conf));
-
-        return [
-            'confidence' => $conf,
-            'probabilities' => [
-                'home' => $hp . '%',
-                'draw' => $dp . '%',
-                'away' => $ap . '%'
-            ],
-            'hp' => $hp,
-            'dp' => $dp,
-            'ap' => $ap
-        ];
-    }
-
-    // Deterministic fallback derived from prediction type and fixture seed
-    $predLower = strtolower($prediction ?? '');
-    $seed = is_numeric($fixtureId) ? (int)$fixtureId : crc32((string)$fixtureId);
-
-    if (strpos($predLower, '1x') !== false || strpos($predLower, 'x1') !== false) {
-        $conf = 78 + (abs($seed * 7) % 11); // 78 - 88%
-        $hp = round($conf * 0.55);
-        $dp = round($conf * 0.45);
-        $ap = 100 - $hp - $dp;
-    } elseif (strpos($predLower, 'x2') !== false || strpos($predLower, '2x') !== false) {
-        $conf = 76 + (abs($seed * 11) % 12); // 76 - 87%
-        $ap = round($conf * 0.55);
-        $dp = round($conf * 0.45);
-        $hp = 100 - $ap - $dp;
-    } elseif (strpos($predLower, '12') !== false || strpos($predLower, '21') !== false) {
-        $conf = 75 + (abs($seed * 13) % 12); // 75 - 86%
-        $hp = round($conf * 0.5);
-        $ap = round($conf * 0.5);
-        $dp = 100 - $hp - $ap;
-    } elseif (strpos($predLower, '(1)') !== false || strpos($predLower, 'home win') !== false || $predLower === '1') {
-        $conf = 72 + (abs($seed * 17) % 16); // 72 - 87%
-        $hp = $conf;
-        $dp = floor((100 - $conf) * 0.6);
-        $ap = 100 - $hp - $dp;
-    } elseif (strpos($predLower, '(x)') !== false || strpos($predLower, 'draw') !== false || $predLower === 'x') {
-        $conf = 66 + (abs($seed * 19) % 10); // 66 - 75%
-        $dp = $conf;
-        $hp = floor((100 - $conf) * 0.5);
-        $ap = 100 - $dp - $hp;
-    } elseif (strpos($predLower, '(2)') !== false || strpos($predLower, 'away win') !== false || $predLower === '2') {
-        $conf = 70 + (abs($seed * 23) % 16); // 70 - 85%
-        $ap = $conf;
-        $dp = floor((100 - $conf) * 0.6);
-        $hp = 100 - $ap - $dp;
     } else {
-        $conf = 74 + (abs($seed * 29) % 13); // 74 - 86%
-        $hp = $conf;
-        $dp = floor((100 - $conf) / 2);
+        $hp = 35 + ($seed * 7) % 25;
+        $dp = 22 + ($seed * 11) % 12;
         $ap = 100 - $hp - $dp;
+        if ($ap < 10) {
+            $ap = 15;
+            $hp = 100 - $dp - $ap;
+        }
     }
 
-    $hp = max(5, $hp);
-    $dp = max(5, $dp);
-    $ap = max(5, $ap);
-    $sum = $hp + $dp + $ap;
-    if ($sum !== 100) {
-        $hp += (100 - $sum);
+    $predLower = strtolower(trim($prediction ?? ''));
+    $seedVar = $seed % 9;
+
+    // Compute dynamic, fixture-specific confidence based on prediction type, team strength/probabilities, and match seed
+    if (strpos($predLower, '1x') !== false || strpos($predLower, 'x1') !== false || strpos($predLower, 'dc1x') !== false) {
+        $combined = ($hp > 0 || $dp > 0) ? ($hp + $dp) : 74;
+        $conf = $combined + ($seed % 7);
+    } elseif (strpos($predLower, 'x2') !== false || strpos($predLower, '2x') !== false || strpos($predLower, 'dcx2') !== false) {
+        $combined = ($dp > 0 || $ap > 0) ? ($dp + $ap) : 74;
+        $conf = $combined + ($seed % 7);
+    } elseif (strpos($predLower, '12') !== false || strpos($predLower, '21') !== false || strpos($predLower, 'dc12') !== false) {
+        $combined = ($hp > 0 || $ap > 0) ? ($hp + $ap) : 72;
+        $conf = $combined + ($seed % 7);
+    } elseif (strpos($predLower, '(1)') !== false || strpos($predLower, 'home win') !== false || $predLower === '1' || strpos($predLower, 'home') !== false) {
+        if ($hp > 0) {
+            $margin = max(0, $hp - $ap);
+            $conf = 65 + (int)round($hp * 0.22) + (int)round($margin * 0.25) + $seedVar;
+        } else {
+            $conf = 71 + ($seed % 18);
+        }
+    } elseif (strpos($predLower, '(2)') !== false || strpos($predLower, 'away win') !== false || $predLower === '2' || strpos($predLower, 'away') !== false) {
+        if ($ap > 0) {
+            $margin = max(0, $ap - $hp);
+            $conf = 65 + (int)round($ap * 0.22) + (int)round($margin * 0.25) + $seedVar;
+        } else {
+            $conf = 70 + ($seed % 18);
+        }
+    } elseif (strpos($predLower, '(x)') !== false || strpos($predLower, 'draw') !== false || $predLower === 'x') {
+        if ($dp > 0) {
+            $conf = 64 + (int)round($dp * 0.4) + $seedVar;
+        } else {
+            $conf = 66 + ($seed % 12);
+        }
+    } elseif (strpos($predLower, 'ov 1.5') !== false || strpos($predLower, 'over 1.5') !== false) {
+        $conf = 80 + ($seed * 13) % 14;
+    } elseif (strpos($predLower, 'ov 2.5') !== false || strpos($predLower, 'over 2.5') !== false || strpos($predLower, 'ov') !== false) {
+        $conf = 72 + ($seed * 17) % 17;
+    } elseif (strpos($predLower, 'un 2.5') !== false || strpos($predLower, 'under 2.5') !== false || strpos($predLower, 'un') !== false) {
+        $conf = 69 + ($seed * 19) % 16;
+    } elseif (strpos($predLower, 'gg') !== false || strpos($predLower, 'btts') !== false) {
+        $conf = 73 + ($seed * 23) % 16;
+    } else {
+        $maxP = max($hp, $dp, $ap);
+        if ($maxP > 0) {
+            $conf = 68 + (int)round($maxP * 0.25) + $seedVar;
+        } else {
+            $conf = 72 + ($seed % 19);
+        }
     }
+
+    $conf = max(65, min(96, (int)$conf));
 
     return [
         'confidence' => $conf,
@@ -366,6 +349,42 @@ if ($path === '/predictions' && $method === 'GET') {
 
 // 2. Voting GET & POST /api/predictions/vote or /api/vote
 if ($path === '/predictions/vote' || $path === '/vote') {
+    // Helper to ensure prediction_votes table exists and has proper auto_increment primary key in MySQL
+    $ensureTable = function() use ($pdo) {
+        static $done = false;
+        if ($done) return;
+        $done = true;
+
+        try {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS `prediction_votes` (
+              `id` INT(11) NOT NULL AUTO_INCREMENT,
+              `fixture_id` VARCHAR(255) NOT NULL,
+              `user_id` VARCHAR(255) DEFAULT NULL,
+              `vote` VARCHAR(32) NOT NULL,
+              `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+              PRIMARY KEY (`id`),
+              KEY `idx_fixture` (`fixture_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+            $pdo->exec("ALTER TABLE `prediction_votes` MODIFY `id` INT(11) NOT NULL AUTO_INCREMENT;");
+        } catch (Throwable $e) {
+            try {
+                $pdo->exec("DROP TABLE IF EXISTS `prediction_votes`;");
+                $pdo->exec("CREATE TABLE `prediction_votes` (
+                  `id` INT(11) NOT NULL AUTO_INCREMENT,
+                  `fixture_id` VARCHAR(255) NOT NULL,
+                  `user_id` VARCHAR(255) DEFAULT NULL,
+                  `vote` VARCHAR(32) NOT NULL,
+                  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+                  PRIMARY KEY (`id`),
+                  KEY `idx_fixture` (`fixture_id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+            } catch (Throwable $e2) {}
+        }
+    };
+
+    $ensureTable();
+
     if ($method === 'GET') {
         $fixtureId = isset($_GET['fixtureId']) ? trim($_GET['fixtureId']) : '';
         $userId = isset($_GET['userId']) ? trim($_GET['userId']) : '';
@@ -374,45 +393,60 @@ if ($path === '/predictions/vote' || $path === '/vote') {
             jsonResponse(['error' => 'fixtureId is required'], 400);
         }
 
-        $stmt = $pdo->prepare("SELECT 
-                                COUNT(CASE WHEN vote = '1' THEN 1 END) AS votes_1,
-                                COUNT(CASE WHEN vote = 'X' THEN 1 END) AS votes_x,
-                                COUNT(CASE WHEN vote = '2' THEN 1 END) AS votes_2,
-                                COUNT(*) AS total_votes
-                              FROM prediction_votes WHERE fixture_id = ?");
-        $stmt->execute([$fixtureId]);
-        $stats = $stmt->fetch();
+        try {
+            $stmt = $pdo->prepare("SELECT 
+                                    COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
+                                    COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
+                                    COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
+                                    COUNT(*) AS total_votes
+                                  FROM prediction_votes WHERE fixture_id = ?");
+            $stmt->execute([$fixtureId]);
+            $stats = $stmt->fetch();
 
-        $v1 = (int)($stats['votes_1'] ?? 0);
-        $vx = (int)($stats['votes_x'] ?? 0);
-        $v2 = (int)($stats['votes_2'] ?? 0);
-        $total = (int)($stats['total_votes'] ?? 0);
+            $v1 = (int)($stats['votes_1'] ?? 0);
+            $vx = (int)($stats['votes_x'] ?? 0);
+            $v2 = (int)($stats['votes_2'] ?? 0);
+            $total = (int)($stats['total_votes'] ?? 0);
 
-        $hPct = $total > 0 ? round(($v1 / $total) * 100) : 33;
-        $dPct = $total > 0 ? round(($vx / $total) * 100) : 34;
-        $aPct = $total > 0 ? round(($v2 / $total) * 100) : 33;
+            $hPct = $total > 0 ? (int)round(($v1 / $total) * 100) : 0;
+            $dPct = $total > 0 ? (int)round(($vx / $total) * 100) : 0;
+            $aPct = $total > 0 ? max(0, 100 - $hPct - $dPct) : 0;
 
-        $userVote = null;
-        if ($userId) {
-            $uStmt = $pdo->prepare("SELECT vote FROM prediction_votes WHERE fixture_id = ? AND user_id = ? ORDER BY id DESC LIMIT 1");
-            $uStmt->execute([$fixtureId, $userId]);
-            $uRow = $uStmt->fetch();
-            if ($uRow) {
-                $userVote = $uRow['vote'];
+            $userVote = null;
+            if ($userId) {
+                $uStmt = $pdo->prepare("SELECT vote FROM prediction_votes WHERE fixture_id = ? AND user_id = ? ORDER BY id DESC LIMIT 1");
+                $uStmt->execute([$fixtureId, $userId]);
+                $uRow = $uStmt->fetch();
+                if ($uRow) {
+                    $userVote = $uRow['vote'];
+                }
             }
-        }
 
-        jsonResponse([
-            'fixtureId' => $fixtureId,
-            'totalVotes' => $total,
-            'votes1' => $v1,
-            'votesX' => $vx,
-            'votes2' => $v2,
-            'homePercent' => $hPct,
-            'drawPercent' => $dPct,
-            'awayPercent' => $aPct,
-            'userVote' => $userVote
-        ]);
+            jsonResponse([
+                'fixtureId' => $fixtureId,
+                'totalVotes' => $total,
+                'votes1' => $v1,
+                'votesX' => $vx,
+                'votes2' => $v2,
+                'homePercent' => $hPct,
+                'drawPercent' => $dPct,
+                'awayPercent' => $aPct,
+                'userVote' => $userVote
+            ]);
+        } catch (Throwable $e) {
+            jsonResponse([
+                'fixtureId' => $fixtureId,
+                'totalVotes' => 0,
+                'votes1' => 0,
+                'votesX' => 0,
+                'votes2' => 0,
+                'homePercent' => 0,
+                'drawPercent' => 0,
+                'awayPercent' => 0,
+                'userVote' => null,
+                'dbError' => $e->getMessage()
+            ]);
+        }
     }
 
     if ($method === 'POST') {
@@ -420,53 +454,84 @@ if ($path === '/predictions/vote' || $path === '/vote') {
         $fixtureId = isset($body['fixtureId']) ? trim($body['fixtureId']) : '';
         $userId = isset($body['userId']) ? trim($body['userId']) : 'guest_' . uniqid();
         $vote = isset($body['vote']) ? strtoupper(trim($body['vote'])) : '';
+        $isEnded = !empty($body['isEnded']);
+        $status = isset($body['status']) ? strtoupper(trim($body['status'])) : '';
 
-        if (!$fixtureId || !in_array($vote, ['1', 'X', '2'])) {
-            jsonResponse(['error' => 'fixtureId and valid vote (1, X, 2) are required'], 400);
+        if ($isEnded || in_array($status, ['FT', 'AET', 'PEN', 'FINISHED', 'AWD', 'CANCELLED', 'POSTPONED'])) {
+            jsonResponse(['error' => 'Voting is closed because this match has ended.'], 400);
         }
 
-        // Record or update vote
-        $uStmt = $pdo->prepare("SELECT id FROM prediction_votes WHERE fixture_id = ? AND user_id = ?");
-        $uStmt->execute([$fixtureId, $userId]);
-        $existing = $uStmt->fetch();
-
-        if ($existing) {
-            $upStmt = $pdo->prepare("UPDATE prediction_votes SET vote = ?, created_at = NOW() WHERE id = ?");
-            $upStmt->execute([$vote, $existing['id']]);
-        } else {
-            $insStmt = $pdo->prepare("INSERT INTO prediction_votes (fixture_id, user_id, vote) VALUES (?, ?, ?)");
-            $insStmt->execute([$fixtureId, $userId, $vote]);
+        if (!$fixtureId || !$vote) {
+            jsonResponse(['error' => 'fixtureId and vote are required'], 400);
         }
 
-        // Return updated stats
-        $stmt = $pdo->prepare("SELECT 
-                                COUNT(CASE WHEN vote = '1' THEN 1 END) AS votes_1,
-                                COUNT(CASE WHEN vote = 'X' THEN 1 END) AS votes_x,
-                                COUNT(CASE WHEN vote = '2' THEN 1 END) AS votes_2,
-                                COUNT(*) AS total_votes
-                              FROM prediction_votes WHERE fixture_id = ?");
-        $stmt->execute([$fixtureId]);
-        $stats = $stmt->fetch();
+        try {
+            $debugStep = 'select_existing';
+            $uStmt = $pdo->prepare("SELECT id FROM prediction_votes WHERE fixture_id = ? AND user_id = ?");
+            $uStmt->execute([$fixtureId, $userId]);
+            $existing = $uStmt->fetch();
 
-        $v1 = (int)($stats['votes_1'] ?? 0);
-        $vx = (int)($stats['votes_x'] ?? 0);
-        $v2 = (int)($stats['votes_2'] ?? 0);
-        $total = (int)($stats['total_votes'] ?? 0);
+            if ($existing) {
+                $debugStep = 'update_vote';
+                $upStmt = $pdo->prepare("UPDATE prediction_votes SET vote = ?, created_at = NOW() WHERE fixture_id = ? AND user_id = ?");
+                $upStmt->execute([$vote, $fixtureId, $userId]);
+            } else {
+                $debugStep = 'calc_next_id';
+                $nextId = 1;
+                try {
+                    $nextIdStmt = $pdo->query("SELECT COALESCE(MAX(CAST(id AS UNSIGNED)), 0) + 1 AS next_id FROM prediction_votes");
+                    if ($nextIdStmt) {
+                        $val = (int)$nextIdStmt->fetchColumn();
+                        if ($val > 0) { $nextId = $val; }
+                    }
+                } catch (Throwable $eId) {}
 
-        jsonResponse([
-            'success' => true,
-            'stats' => [
-                'fixtureId' => $fixtureId,
-                'totalVotes' => $total,
-                'votes1' => $v1,
-                'votesX' => $vx,
-                'votes2' => $v2,
-                'homePercent' => $total > 0 ? round(($v1 / $total) * 100) : 33,
-                'drawPercent' => $total > 0 ? round(($vx / $total) * 100) : 34,
-                'awayPercent' => $total > 0 ? round(($v2 / $total) * 100) : 33,
-                'userVote' => $vote
-            ]
-        ]);
+                $debugStep = 'insert_vote_with_id_' . $nextId;
+                $insStmt = $pdo->prepare("INSERT INTO `prediction_votes` (`id`, `fixture_id`, `user_id`, `vote`) VALUES (?, ?, ?, ?)");
+                $insStmt->execute([$nextId, $fixtureId, $userId, $vote]);
+            }
+
+            $debugStep = 'select_stats';
+            $stmt = $pdo->prepare("SELECT 
+                                    COUNT(CASE WHEN vote IN ('1', '1X', 'GG') OR vote LIKE 'OVER%' THEN 1 END) AS votes_1,
+                                    COUNT(CASE WHEN vote IN ('X', '12') THEN 1 END) AS votes_x,
+                                    COUNT(CASE WHEN vote IN ('2', '2X', 'NG') OR vote LIKE 'UNDER%' THEN 1 END) AS votes_2,
+                                    COUNT(*) AS total_votes
+                                  FROM prediction_votes WHERE fixture_id = ?");
+            $stmt->execute([$fixtureId]);
+            $stats = $stmt->fetch();
+
+            $v1 = (int)($stats['votes_1'] ?? 0);
+            $vx = (int)($stats['votes_x'] ?? 0);
+            $v2 = (int)($stats['votes_2'] ?? 0);
+            $total = (int)($stats['total_votes'] ?? 0);
+
+            $hPct = $total > 0 ? (int)round(($v1 / $total) * 100) : 0;
+            $dPct = $total > 0 ? (int)round(($vx / $total) * 100) : 0;
+            $aPct = $total > 0 ? max(0, 100 - $hPct - $dPct) : 0;
+
+            jsonResponse([
+                'success' => true,
+                'stats' => [
+                    'fixtureId' => $fixtureId,
+                    'totalVotes' => $total,
+                    'votes1' => $v1,
+                    'votesX' => $vx,
+                    'votes2' => $v2,
+                    'homePercent' => $hPct,
+                    'drawPercent' => $dPct,
+                    'awayPercent' => $aPct,
+                    'userVote' => $vote
+                ]
+            ]);
+        } catch (Throwable $e) {
+            jsonResponse([
+                'success' => false,
+                'error' => 'Failed to save vote to database table',
+                'details' => $e->getMessage(),
+                'step' => isset($debugStep) ? $debugStep : 'unknown'
+            ], 500);
+        }
     }
 }
 

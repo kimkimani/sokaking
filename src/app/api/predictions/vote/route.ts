@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getApiBaseUrl } from '../../../../lib/getApiBaseUrl';
 
-
 export async function GET(req: NextRequest) {
   const fixtureId = req.nextUrl.searchParams.get('fixtureId') || '';
   const userId = req.nextUrl.searchParams.get('userId') || '';
-  console.log(`[Next API] GET /api/predictions/vote (fixtureId: ${fixtureId}, userId: ${userId})`);
 
   if (!fixtureId) {
     return NextResponse.json({ error: 'fixtureId parameter is required' }, { status: 400 });
@@ -14,18 +12,19 @@ export async function GET(req: NextRequest) {
   try {
     const baseUrl = getApiBaseUrl();
     const url = `${baseUrl}/api/predictions/vote?fixtureId=${encodeURIComponent(fixtureId)}&userId=${encodeURIComponent(userId)}`;
-    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    const res = await fetch(url, { headers: { Accept: 'application/json' }, cache: 'no-store' });
 
-    if (!res.ok) {
-      throw new Error(`Backend API error: ${res.status} ${res.statusText}`);
+    if (res.ok) {
+      const data = await res.json();
+      return NextResponse.json(data);
     }
 
-    const data = await res.json();
-    return NextResponse.json(data);
+    const errData = await res.json().catch(() => ({ error: 'Failed to fetch vote stats from database' }));
+    return NextResponse.json(errData, { status: res.status });
   } catch (error: any) {
     console.error('[Next API Error] GET /api/predictions/vote:', error.message || error);
     return NextResponse.json(
-      { error: 'Failed to fetch vote statistics', details: error.message },
+      { error: 'Failed to fetch vote stats from database table', details: error.message },
       { status: 500 }
     );
   }
@@ -33,33 +32,39 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { fixtureId, userId, vote } = await req.json();
-    console.log(`[Next API] POST /api/predictions/vote (fixtureId: ${fixtureId}, vote: ${vote})`);
+    const body = await req.json();
+    const { fixtureId, vote } = body;
 
     if (!fixtureId || !vote) {
       return NextResponse.json({ error: 'fixtureId and vote are required' }, { status: 400 });
     }
-    if (!['1', 'X', '2'].includes(vote)) {
-      return NextResponse.json({ error: 'Invalid vote value. Must be "1", "X", or "2"' }, { status: 400 });
-    }
+
+    const payload = {
+      id: body.id || Math.floor(Date.now() / 1000) + Math.floor(Math.random() * 1000),
+      ...body,
+    };
 
     const baseUrl = getApiBaseUrl();
     const res = await fetch(`${baseUrl}/api/predictions/vote`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ fixtureId, userId, vote }),
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload),
     });
 
-    if (!res.ok) {
-      throw new Error(`Backend API error: ${res.status} ${res.statusText}`);
+    const data = await res.json().catch(() => null);
+
+    if (res.ok && data) {
+      return NextResponse.json(data);
     }
 
-    const data = await res.json();
-    return NextResponse.json(data);
+    return NextResponse.json(
+      data || { error: 'Failed to save vote to database table' },
+      { status: res.status || 500 }
+    );
   } catch (error: any) {
     console.error('[Next API Error] POST /api/predictions/vote:', error.message || error);
     return NextResponse.json(
-      { error: 'Failed to record community vote', details: error.message },
+      { error: 'Failed to record vote in database table', details: error.message },
       { status: 500 }
     );
   }

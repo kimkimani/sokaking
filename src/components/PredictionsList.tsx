@@ -15,7 +15,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { Fixture } from '../types';
-import { calculateProbabilities } from '../utils/probability';
+import { calculateProbabilities, getRefinedConfidence } from '../utils/probability';
 import VotePoll from './VotePoll';
 import { FlagImage } from '../utils/flagUtils';
 
@@ -273,10 +273,11 @@ export default function PredictionsList({
                                    fixture.prediction.toLowerCase().includes('12') ||
                                    fixture.prediction.toLowerCase().includes('21');
 
+            const displayConf = getRefinedConfidence(fixture);
             const probs = calculateProbabilities(
               fixture.prediction,
-              fixture.confidence,
-              fixture.explicitProbs || fixture.probs || { home: fixture.homeProb, draw: fixture.drawProb, away: fixture.awayProb, percentPredHome: fixture.percentPredHome, percentPredDraw: fixture.percentPredDraw, percentPredAway: fixture.percentPredAway }
+              displayConf,
+              fixture.probabilities || fixture
             );
 
             // Desktop border and row style overrides for completed games
@@ -354,7 +355,7 @@ export default function PredictionsList({
 
                   {/* Confidence Rating */}
                   <div className="col-span-12 md:col-span-1 flex flex-col items-center justify-center">
-                    <span className="text-xs font-black text-[var(--text)] font-mono">{fixture.confidence}%</span>
+                    <span className="text-xs font-black text-[var(--text)] font-mono">{displayConf}%</span>
                   </div>
 
                   {/* Results column */}
@@ -535,7 +536,7 @@ export default function PredictionsList({
                             <Sparkles className="w-3.5 h-3.5 text-[var(--primary)] animate-pulse" /> Live Expert Evaluation
                           </span>
                           <span className="text-[10px] font-mono text-[var(--text-muted)] bg-[var(--background)] px-2 py-0.5 rounded border border-[var(--border)]">
-                            Confidence factor: <strong className="text-sky-500 font-black">{fixture.confidence}%</strong>
+                            Confidence factor: <strong className="text-sky-500 font-black">{displayConf}%</strong>
                           </span>
                         </div>
                         <p className="text-[var(--text-muted)] leading-relaxed font-sans">
@@ -558,7 +559,13 @@ export default function PredictionsList({
 
                         {/* Community Verdict Poll */}
                         <div className="pt-1.5">
-                          <VotePoll fixtureId={fixture.id} />
+                          <VotePoll 
+                            fixtureId={fixture.id} 
+                            isEnded={isCompleted} 
+                            status={fixture.status} 
+                            result={fixture.result} 
+                            prediction={fixture.prediction}
+                          />
                         </div>
                       </div>
                     </motion.div>

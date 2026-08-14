@@ -1,4 +1,5 @@
 import { getApiBaseUrl } from './getApiBaseUrl';
+import { getRefinedConfidence } from '../utils/probability';
 
 /**
  * Decoupled Frontend & Next.js API Client Store
@@ -30,14 +31,14 @@ export function calculateFixtureResult(
   }
   if (!tip) tip = 'Home Win (1)';
 
-  let confidence = 75;
-  if (probs) {
-    const h = parseInt((probs.percentPredHome || '0').replace('%', ''), 10);
-    const d = parseInt((probs.percentPredDraw || '0').replace('%', ''), 10);
-    const a = parseInt((probs.percentPredAway || '0').replace('%', ''), 10);
-    const maxProb = Math.max(h, d, a);
-    if (maxProb > 0) confidence = maxProb;
-  }
+  const confidence = getRefinedConfidence({
+    prediction: tip,
+    probabilities: probs ? {
+      home: probs.percentPredHome,
+      draw: probs.percentPredDraw,
+      away: probs.percentPredAway
+    } : null
+  });
 
   const finishedStatuses = ['FT', 'AET', 'PEN', '120', '90', 'FINISHED', 'AWD'];
   const isFinished = finishedStatuses.includes((statusShort || '').trim().toUpperCase());

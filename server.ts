@@ -148,7 +148,11 @@ Sitemap: https://sokaking.com/sitemap.xml
       };
 
       if (['POST', 'PUT', 'PATCH'].includes(req.method) && req.body && Object.keys(req.body).length > 0) {
-        fetchOptions.body = JSON.stringify(req.body);
+        let bodyToSend = req.body;
+        if (req.originalUrl.includes('/api/predictions/vote') && !bodyToSend.id) {
+          bodyToSend = { id: Math.floor(Date.now() / 1000) + Math.floor(Math.random() * 1000), ...bodyToSend };
+        }
+        fetchOptions.body = JSON.stringify(bodyToSend);
       }
 
       const phpRes = await fetch(targetUrl, fetchOptions);

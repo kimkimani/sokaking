@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { Users, CheckCircle, Sparkles } from 'lucide-react';
+import { Users, CheckCircle, Sparkles, Lock, Trophy, Award } from 'lucide-react';
 import { getApiBaseUrl } from '../lib/getApiBaseUrl';
 
-interface VoteStats {
+export interface VoteStats {
   fixtureId: string;
   totalVotes: number;
   votes1: number;
@@ -15,11 +15,239 @@ interface VoteStats {
   userVote: string | null;
 }
 
-interface VotePollProps {
+export interface VotePollProps {
   fixtureId: string | number;
+  isEnded?: boolean;
+  status?: string;
+  result?: string;
+  prediction?: string;
+}
+
+export interface PollOption {
+  key: string;       // Unique option key e.g. '1', '1X', 'GG', 'Over 2.5'
+  label: string;     // Display label e.g. 'Home (1)', '1X', 'GG (Yes)', 'Over 2.5'
+  dbKey: '1' | 'X' | '2'; // Canonical DB slot mapping
+  bgActive: string;
+  borderActive: string;
+  textColor: string;
+  progressBg: string;
+  hoverBg: string;
+  spinnerBorder: string;
+}
+
+export function detectMarketType(prediction?: string): {
+  type: '1X2' | 'DC' | 'BTTS' | 'OU';
+  options: PollOption[];
+} {
+  const p = (prediction || '').trim().toUpperCase();
+
+  // 1. Double Chance: 1X, 12, 2X, X2, X1, DC
+  if (
+    p.includes('1X') ||
+    p.includes('12') ||
+    p.includes('2X') ||
+    p.includes('X2') ||
+    p.includes('X1') ||
+    p.includes('DC') ||
+    p.includes('DOUBLE')
+  ) {
+    return {
+      type: 'DC',
+      options: [
+        {
+          key: '1X',
+          label: '1X',
+          dbKey: '1',
+          bgActive: 'bg-emerald-500/40 dark:bg-emerald-500/45 border-emerald-500 dark:border-emerald-400 text-emerald-950 dark:text-emerald-50 shadow-[0_0_20px_rgba(16,185,129,0.45)] ring-2 ring-emerald-400',
+          borderActive: 'border-emerald-500 dark:border-emerald-400',
+          textColor: 'text-emerald-800 dark:text-emerald-300',
+          progressBg: 'from-emerald-500/40 to-emerald-400/65 dark:from-emerald-500/50 dark:to-emerald-400/75',
+          hoverBg: 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-700/80 text-emerald-900 dark:text-emerald-100 hover:border-emerald-500 hover:bg-emerald-100 dark:hover:bg-emerald-900/70',
+          spinnerBorder: 'border-emerald-700',
+        },
+        {
+          key: '12',
+          label: '12',
+          dbKey: 'X',
+          bgActive: 'bg-amber-500/40 dark:bg-amber-500/45 border-amber-500 dark:border-amber-400 text-amber-950 dark:text-amber-50 shadow-[0_0_20px_rgba(245,158,11,0.45)] ring-2 ring-amber-400',
+          borderActive: 'border-amber-500 dark:border-amber-400',
+          textColor: 'text-amber-800 dark:text-amber-300',
+          progressBg: 'from-amber-500/40 to-amber-400/65 dark:from-amber-500/50 dark:to-amber-400/75',
+          hoverBg: 'bg-amber-50/90 dark:bg-amber-950/50 border-amber-300 dark:border-amber-700/80 text-amber-900 dark:text-amber-100 hover:border-amber-500 hover:bg-amber-100 dark:hover:bg-amber-900/70',
+          spinnerBorder: 'border-amber-700',
+        },
+        {
+          key: '2X',
+          label: '2X',
+          dbKey: '2',
+          bgActive: 'bg-sky-500/40 dark:bg-sky-500/45 border-sky-500 dark:border-sky-400 text-sky-950 dark:text-sky-50 shadow-[0_0_20px_rgba(14,165,233,0.45)] ring-2 ring-sky-400',
+          borderActive: 'border-sky-500 dark:border-sky-400',
+          textColor: 'text-sky-800 dark:text-sky-300',
+          progressBg: 'from-sky-500/40 to-cyan-400/65 dark:from-sky-500/50 dark:to-cyan-400/75',
+          hoverBg: 'bg-sky-50/90 dark:bg-sky-950/50 border-sky-300 dark:border-sky-700/80 text-sky-900 dark:text-sky-100 hover:border-sky-500 hover:bg-sky-100 dark:hover:bg-sky-900/70',
+          spinnerBorder: 'border-sky-700',
+        },
+      ],
+    };
+  }
+
+  // 2. Both Teams To Score (BTTS / GG / NG)
+  if (
+    p.includes('GG') ||
+    p.includes('NG') ||
+    p.includes('BTTS') ||
+    p.includes('GOAL GOAL') ||
+    p.includes('NO GOAL') ||
+    p.includes('BOTH TEAMS') ||
+    p === 'YES' ||
+    p === 'NO'
+  ) {
+    return {
+      type: 'BTTS',
+      options: [
+        {
+          key: 'GG',
+          label: 'GG (Yes)',
+          dbKey: '1',
+          bgActive: 'bg-emerald-500/40 dark:bg-emerald-500/45 border-emerald-500 dark:border-emerald-400 text-emerald-950 dark:text-emerald-50 shadow-[0_0_20px_rgba(16,185,129,0.45)] ring-2 ring-emerald-400',
+          borderActive: 'border-emerald-500 dark:border-emerald-400',
+          textColor: 'text-emerald-800 dark:text-emerald-300',
+          progressBg: 'from-emerald-500/40 to-emerald-400/65 dark:from-emerald-500/50 dark:to-emerald-400/75',
+          hoverBg: 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-700/80 text-emerald-900 dark:text-emerald-100 hover:border-emerald-500 hover:bg-emerald-100 dark:hover:bg-emerald-900/70',
+          spinnerBorder: 'border-emerald-700',
+        },
+        {
+          key: 'NG',
+          label: 'NG (No)',
+          dbKey: '2',
+          bgActive: 'bg-rose-500/40 dark:bg-rose-500/45 border-rose-500 dark:border-rose-400 text-rose-950 dark:text-rose-50 shadow-[0_0_20px_rgba(244,63,94,0.45)] ring-2 ring-rose-400',
+          borderActive: 'border-rose-500 dark:border-rose-400',
+          textColor: 'text-rose-800 dark:text-rose-300',
+          progressBg: 'from-rose-500/40 to-pink-400/65 dark:from-rose-500/50 dark:to-pink-400/75',
+          hoverBg: 'bg-rose-50/90 dark:bg-rose-950/50 border-rose-300 dark:border-rose-700/80 text-rose-900 dark:text-rose-100 hover:border-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/70',
+          spinnerBorder: 'border-rose-700',
+        },
+      ],
+    };
+  }
+
+  // 3. Over / Under Goals (1.5, 2.5, 3.5, 0.5, 4.5, etc.)
+  if (
+    p.includes('1.5') ||
+    p.includes('2.5') ||
+    p.includes('3.5') ||
+    p.includes('0.5') ||
+    p.includes('4.5') ||
+    p.includes('OVER') ||
+    p.includes('UNDER') ||
+    p.includes('OV') ||
+    p.includes('UN')
+  ) {
+    let line = '2.5';
+    if (p.includes('1.5')) line = '1.5';
+    else if (p.includes('3.5')) line = '3.5';
+    else if (p.includes('0.5')) line = '0.5';
+    else if (p.includes('4.5')) line = '4.5';
+
+    return {
+      type: 'OU',
+      options: [
+        {
+          key: `Over ${line}`,
+          label: `Over ${line}`,
+          dbKey: '1',
+          bgActive: 'bg-emerald-500/40 dark:bg-emerald-500/45 border-emerald-500 dark:border-emerald-400 text-emerald-950 dark:text-emerald-50 shadow-[0_0_20px_rgba(16,185,129,0.45)] ring-2 ring-emerald-400',
+          borderActive: 'border-emerald-500 dark:border-emerald-400',
+          textColor: 'text-emerald-800 dark:text-emerald-300',
+          progressBg: 'from-emerald-500/40 to-emerald-400/65 dark:from-emerald-500/50 dark:to-emerald-400/75',
+          hoverBg: 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-700/80 text-emerald-900 dark:text-emerald-100 hover:border-emerald-500 hover:bg-emerald-100 dark:hover:bg-emerald-900/70',
+          spinnerBorder: 'border-emerald-700',
+        },
+        {
+          key: `Under ${line}`,
+          label: `Under ${line}`,
+          dbKey: '2',
+          bgActive: 'bg-sky-500/40 dark:bg-sky-500/45 border-sky-500 dark:border-sky-400 text-sky-950 dark:text-sky-50 shadow-[0_0_20px_rgba(14,165,233,0.45)] ring-2 ring-sky-400',
+          borderActive: 'border-sky-500 dark:border-sky-400',
+          textColor: 'text-sky-800 dark:text-sky-300',
+          progressBg: 'from-sky-500/40 to-cyan-400/65 dark:from-sky-500/50 dark:to-cyan-400/75',
+          hoverBg: 'bg-sky-50/90 dark:bg-sky-950/50 border-sky-300 dark:border-sky-700/80 text-sky-900 dark:text-sky-100 hover:border-sky-500 hover:bg-sky-100 dark:hover:bg-sky-900/70',
+          spinnerBorder: 'border-sky-700',
+        },
+      ],
+    };
+  }
+
+  // 4. Default: 1X2 (Home / Draw / Away)
+  return {
+    type: '1X2',
+    options: [
+      {
+        key: '1',
+        label: 'Home (1)',
+        dbKey: '1',
+        bgActive: 'bg-emerald-500/40 dark:bg-emerald-500/45 border-emerald-500 dark:border-emerald-400 text-emerald-950 dark:text-emerald-50 shadow-[0_0_20px_rgba(16,185,129,0.45)] ring-2 ring-emerald-400',
+        borderActive: 'border-emerald-500 dark:border-emerald-400',
+        textColor: 'text-emerald-800 dark:text-emerald-300',
+        progressBg: 'from-emerald-500/40 to-emerald-400/65 dark:from-emerald-500/50 dark:to-emerald-400/75',
+        hoverBg: 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-700/80 text-emerald-900 dark:text-emerald-100 hover:border-emerald-500 hover:bg-emerald-100 dark:hover:bg-emerald-900/70',
+        spinnerBorder: 'border-emerald-700',
+      },
+      {
+        key: 'X',
+        label: 'Draw (X)',
+        dbKey: 'X',
+        bgActive: 'bg-amber-500/40 dark:bg-amber-500/45 border-amber-500 dark:border-amber-400 text-amber-950 dark:text-amber-50 shadow-[0_0_20px_rgba(245,158,11,0.45)] ring-2 ring-amber-400',
+        borderActive: 'border-amber-500 dark:border-amber-400',
+        textColor: 'text-amber-800 dark:text-amber-300',
+        progressBg: 'from-amber-500/40 to-amber-400/65 dark:from-amber-500/50 dark:to-amber-400/75',
+        hoverBg: 'bg-amber-50/90 dark:bg-amber-950/50 border-amber-300 dark:border-amber-700/80 text-amber-900 dark:text-amber-100 hover:border-amber-500 hover:bg-amber-100 dark:hover:bg-amber-900/70',
+        spinnerBorder: 'border-amber-700',
+      },
+      {
+        key: '2',
+        label: 'Away (2)',
+        dbKey: '2',
+        bgActive: 'bg-sky-500/40 dark:bg-sky-500/45 border-sky-500 dark:border-sky-400 text-sky-950 dark:text-sky-50 shadow-[0_0_20px_rgba(14,165,233,0.45)] ring-2 ring-sky-400',
+        borderActive: 'border-sky-500 dark:border-sky-400',
+        textColor: 'text-sky-800 dark:text-sky-300',
+        progressBg: 'from-sky-500/40 to-cyan-400/65 dark:from-sky-500/50 dark:to-cyan-400/75',
+        hoverBg: 'bg-sky-50/90 dark:bg-sky-950/50 border-sky-300 dark:border-sky-700/80 text-sky-900 dark:text-sky-100 hover:border-sky-500 hover:bg-sky-100 dark:hover:bg-sky-900/70',
+        spinnerBorder: 'border-sky-700',
+      },
+    ],
+  };
 }
 
 function getInitialVoteStats(fixtureId: string | number, userVote: string | null): VoteStats {
+  const fid = String(fixtureId);
+  let votes1 = 0;
+  let votesX = 0;
+  let votes2 = 0;
+
+  if (userVote === '1' || userVote === '1X' || userVote === 'GG' || (userVote && userVote.startsWith('Over'))) votes1 = 1;
+  else if (userVote === 'X' || userVote === '12') votesX = 1;
+  else if (userVote === '2' || userVote === '2X' || userVote === 'NG' || (userVote && userVote.startsWith('Under'))) votes2 = 1;
+
+  const totalVotes = votes1 + votesX + votes2;
+  const homePercent = totalVotes > 0 ? Math.round((votes1 / totalVotes) * 100) : 0;
+  const drawPercent = totalVotes > 0 ? Math.round((votesX / totalVotes) * 100) : 0;
+  const awayPercent = totalVotes > 0 ? Math.max(0, 100 - homePercent - drawPercent) : 0;
+
+  return {
+    fixtureId: fid,
+    totalVotes,
+    votes1,
+    votesX,
+    votes2,
+    homePercent,
+    drawPercent,
+    awayPercent,
+    userVote,
+  };
+}
+
+function getEndedDummyVoteStats(fixtureId: string | number, userVote: string | null): VoteStats {
   const fid = String(fixtureId);
   let hash = 0;
   for (let i = 0; i < fid.length; i++) {
@@ -35,14 +263,14 @@ function getInitialVoteStats(fixtureId: string | number, userVote: string | null
   let votesX = baseX;
   let votes2 = base2;
 
-  if (userVote === '1') votes1 += 1;
-  else if (userVote === 'X') votesX += 1;
-  else if (userVote === '2') votes2 += 1;
+  if (userVote === '1' || userVote === '1X' || userVote === 'GG' || (userVote && userVote.startsWith('Over'))) votes1 += 1;
+  else if (userVote === 'X' || userVote === '12') votesX += 1;
+  else if (userVote === '2' || userVote === '2X' || userVote === 'NG' || (userVote && userVote.startsWith('Under'))) votes2 += 1;
 
   const totalVotes = votes1 + votesX + votes2;
   const homePercent = Math.round((votes1 / totalVotes) * 100);
   const drawPercent = Math.round((votesX / totalVotes) * 100);
-  const awayPercent = 100 - homePercent - drawPercent;
+  const awayPercent = Math.max(0, 100 - homePercent - drawPercent);
 
   return {
     fixtureId: fid,
@@ -57,12 +285,20 @@ function getInitialVoteStats(fixtureId: string | number, userVote: string | null
   };
 }
 
-export default function VotePoll({ fixtureId }: VotePollProps) {
+export default function VotePoll({ fixtureId, isEnded, status, result, prediction }: VotePollProps) {
   const [stats, setStats] = useState<VoteStats | null>(null);
-  const [loading, setLoading] = useState(false);
   const [voting, setVoting] = useState<string | null>(null);
 
-  // Get or create persistent visitor guest ID for voting
+  const market = detectMarketType(prediction);
+
+  const isMatchFinished =
+    Boolean(isEnded) ||
+    ['FT', 'AET', 'PEN', 'FINISHED', 'AWD', 'CANCELLED', 'POSTPONED'].includes(
+      String(status || '').trim().toUpperCase()
+    ) ||
+    result === 'won' ||
+    result === 'lost';
+
   const [visitorId] = useState(() => {
     if (typeof window === 'undefined') return 'anonymous';
     let id = localStorage.getItem('aistudio_visitor_id');
@@ -73,12 +309,11 @@ export default function VotePoll({ fixtureId }: VotePollProps) {
     return id;
   });
 
-  // Initialize and load stats from cache & API
   useEffect(() => {
     let active = true;
-
     let savedVote: string | null = null;
     let cachedStats: VoteStats | null = null;
+
     if (typeof window !== 'undefined') {
       try {
         savedVote = localStorage.getItem(`vote_${fixtureId}`);
@@ -90,7 +325,10 @@ export default function VotePoll({ fixtureId }: VotePollProps) {
       } catch {}
     }
 
-    const initial = cachedStats || getInitialVoteStats(fixtureId, savedVote);
+    let initial = cachedStats || getInitialVoteStats(fixtureId, savedVote);
+    if (isMatchFinished && initial.totalVotes === 0) {
+      initial = getEndedDummyVoteStats(fixtureId, savedVote);
+    }
     setStats(initial);
 
     const fetchStats = async () => {
@@ -99,25 +337,29 @@ export default function VotePoll({ fixtureId }: VotePollProps) {
         const res = await fetch(`${baseUrl}/api/predictions/vote?fixtureId=${encodeURIComponent(fixtureId)}&userId=${encodeURIComponent(visitorId)}`);
         if (res.ok) {
           const data = await res.json();
-          if (active && data && typeof data.totalVotes === 'number' && data.totalVotes > 0) {
-            const serverUserVote = savedVote || data.userVote || null;
-            let v1 = data.votes1 || 0;
-            let vX = data.votesX || 0;
-            let v2 = data.votes2 || 0;
+          if (active && data) {
+            const serverUserVote = data.userVote || savedVote || null;
+            let v1 = Number(data.votes1 || 0);
+            let vX = Number(data.votesX || 0);
+            let v2 = Number(data.votes2 || 0);
 
             if (savedVote && !data.userVote) {
-              if (savedVote === '1') v1 += 1;
-              else if (savedVote === 'X') vX += 1;
-              else if (savedVote === '2') v2 += 1;
+              if (savedVote === '1' || savedVote === '1X' || savedVote === 'GG' || savedVote.startsWith('Over')) v1 += 1;
+              else if (savedVote === 'X' || savedVote === '12') vX += 1;
+              else if (savedVote === '2' || savedVote === '2X' || savedVote === 'NG' || savedVote.startsWith('Under')) v2 += 1;
             }
 
             const total = v1 + vX + v2;
-            if (total > 0) {
-              const hPct = Math.round((v1 / total) * 100);
-              const dPct = Math.round((vX / total) * 100);
-              const aPct = 100 - hPct - dPct;
+            let freshStats: VoteStats;
 
-              const freshStats: VoteStats = {
+            if (isMatchFinished && total === 0) {
+              freshStats = getEndedDummyVoteStats(fixtureId, serverUserVote);
+            } else {
+              const hPct = total > 0 ? Math.round((v1 / total) * 100) : 0;
+              const dPct = total > 0 ? Math.round((vX / total) * 100) : 0;
+              const aPct = total > 0 ? Math.max(0, 100 - hPct - dPct) : 0;
+
+              freshStats = {
                 fixtureId: String(fixtureId),
                 totalVotes: total,
                 votes1: v1,
@@ -128,53 +370,55 @@ export default function VotePoll({ fixtureId }: VotePollProps) {
                 awayPercent: aPct,
                 userVote: serverUserVote,
               };
+            }
 
-              setStats(freshStats);
-              if (typeof window !== 'undefined') {
-                try {
-                  localStorage.setItem(`vote_stats_${fixtureId}`, JSON.stringify(freshStats));
-                } catch {}
-              }
+            setStats(freshStats);
+            if (typeof window !== 'undefined') {
+              try {
+                if (serverUserVote) {
+                  localStorage.setItem(`vote_${fixtureId}`, serverUserVote);
+                }
+                localStorage.setItem(`vote_stats_${fixtureId}`, JSON.stringify(freshStats));
+              } catch {}
             }
           }
         }
-      } catch {
-        // Fallback to local state
-      }
+      } catch {}
     };
 
     fetchStats();
     return () => {
       active = false;
     };
-  }, [fixtureId, visitorId]);
+  }, [fixtureId, visitorId, isMatchFinished]);
 
-  // Cast vote with instant optimistic update
-  const castVote = async (option: '1' | 'X' | '2') => {
-    if (voting) return; // Prevent double trigger
-    setVoting(option);
+  const castVote = async (opt: PollOption) => {
+    if (isMatchFinished || voting) return;
+    setVoting(opt.key);
 
-    // Optimistic UI update
+    const oldVote = stats?.userVote;
+    const newVoteKey = opt.key;
+
     setStats((prev) => {
       const current = prev || getInitialVoteStats(fixtureId, null);
-      const oldVote = current.userVote;
       let v1 = current.votes1;
       let vX = current.votesX;
       let v2 = current.votes2;
 
-      // Adjust counts if changing or casting vote
-      if (oldVote === '1') v1 = Math.max(0, v1 - 1);
-      if (oldVote === 'X') vX = Math.max(0, vX - 1);
-      if (oldVote === '2') v2 = Math.max(0, v2 - 1);
+      if (oldVote) {
+        if (oldVote === '1' || oldVote === '1X' || oldVote === 'GG' || oldVote.startsWith('Over')) v1 = Math.max(0, v1 - 1);
+        else if (oldVote === 'X' || oldVote === '12') vX = Math.max(0, vX - 1);
+        else if (oldVote === '2' || oldVote === '2X' || oldVote === 'NG' || oldVote.startsWith('Under')) v2 = Math.max(0, v2 - 1);
+      }
 
-      if (option === '1') v1 += 1;
-      if (option === 'X') vX += 1;
-      if (option === '2') v2 += 1;
+      if (opt.dbKey === '1') v1 += 1;
+      else if (opt.dbKey === 'X') vX += 1;
+      else if (opt.dbKey === '2') v2 += 1;
 
       const total = v1 + vX + v2;
-      const hPct = Math.round((v1 / total) * 100);
-      const dPct = Math.round((vX / total) * 100);
-      const aPct = 100 - hPct - dPct;
+      const hPct = total > 0 ? Math.round((v1 / total) * 100) : 0;
+      const dPct = total > 0 ? Math.round((vX / total) * 100) : 0;
+      const aPct = total > 0 ? Math.max(0, 100 - hPct - dPct) : 0;
 
       const updatedStats: VoteStats = {
         fixtureId: String(fixtureId),
@@ -185,12 +429,12 @@ export default function VotePoll({ fixtureId }: VotePollProps) {
         homePercent: hPct,
         drawPercent: dPct,
         awayPercent: aPct,
-        userVote: option,
+        userVote: newVoteKey,
       };
 
       if (typeof window !== 'undefined') {
         try {
-          localStorage.setItem(`vote_${fixtureId}`, option);
+          localStorage.setItem(`vote_${fixtureId}`, newVoteKey);
           localStorage.setItem(`vote_stats_${fixtureId}`, JSON.stringify(updatedStats));
         } catch {}
       }
@@ -206,7 +450,9 @@ export default function VotePoll({ fixtureId }: VotePollProps) {
         body: JSON.stringify({
           fixtureId,
           userId: visitorId,
-          vote: option,
+          vote: opt.key,
+          isEnded: isMatchFinished,
+          status,
         }),
       });
 
@@ -215,7 +461,7 @@ export default function VotePoll({ fixtureId }: VotePollProps) {
         if (data.success && data.stats) {
           setStats((prev) => ({
             ...data.stats,
-            userVote: option,
+            userVote: opt.key,
           }));
         }
       }
@@ -226,141 +472,152 @@ export default function VotePoll({ fixtureId }: VotePollProps) {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="py-4 flex flex-col items-center justify-center space-y-2 text-slate-400">
-        <div className="w-4 h-4 border-2 border-slate-500 border-t-transparent rounded-full animate-spin" />
-        <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Syncing Verdict Poll...</span>
-      </div>
-    );
+  const getOptionPercentage = (opt: PollOption) => {
+    if (!stats) return 0;
+    if (market.options.length === 2) {
+      if (opt.dbKey === '1') return stats.homePercent;
+      return stats.awayPercent > 0 ? stats.awayPercent : (100 - stats.homePercent);
+    }
+    if (opt.dbKey === '1') return stats.homePercent;
+    if (opt.dbKey === 'X') return stats.drawPercent;
+    if (opt.dbKey === '2') return stats.awayPercent;
+    return 0;
+  };
+
+  const isUserSelected = (opt: PollOption) => {
+    if (!stats?.userVote) return false;
+    return stats.userVote === opt.key || stats.userVote === opt.dbKey;
+  };
+
+  const hasVoted = Boolean(stats?.userVote);
+
+  // Winner calculation for final community verdict banner
+  let winningOption = market.options[0];
+  let winningPct = getOptionPercentage(market.options[0]);
+
+  for (const opt of market.options) {
+    const pct = getOptionPercentage(opt);
+    if (pct > winningPct) {
+      winningPct = pct;
+      winningOption = opt;
+    }
   }
 
-  const hasVoted = stats?.userVote !== null;
+  const winningOutcomeLabel = winningOption ? winningOption.label : 'Verdict';
 
   return (
-    <div className="p-3 bg-slate-100/40 dark:bg-slate-900/40 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 space-y-3 text-left">
+    <div className="p-3 bg-slate-100/90 dark:bg-slate-900/90 rounded-xl border border-slate-300/80 dark:border-slate-700/80 space-y-2.5 text-left shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
-          <Users className="w-3.5 h-3.5 text-emerald-500" />
-          <span className="text-[10px] font-black uppercase tracking-wider font-mono">Community Verdict Poll</span>
+      <div className="flex items-center justify-between flex-wrap gap-1">
+        <div className="flex items-center gap-1.5 text-slate-900 dark:text-slate-100 font-extrabold">
+          <Users className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+          <span className="text-[11px] font-black uppercase tracking-wider font-mono">Community Verdict Poll</span>
         </div>
-        <span className="text-[9px] font-mono font-bold text-slate-400 bg-slate-200/50 dark:bg-slate-800 px-2 py-0.5 rounded flex items-center gap-1">
-          {stats?.totalVotes || 0} Votes Cast
+
+        <div className="flex items-center gap-2">
+          {isMatchFinished ? (
+            <span className="text-[10px] font-mono font-black text-amber-800 dark:text-amber-200 bg-amber-500/20 border border-amber-500/40 px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+              <Lock className="w-3 h-3 text-amber-500" />
+              Poll Locked (Game Ended)
+            </span>
+          ) : (
+            <span className="text-[10px] font-mono font-black text-slate-700 dark:text-slate-200 bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+              {stats?.totalVotes || 0} Votes Cast
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Final Verdict Banner when Match Has Ended */}
+      {isMatchFinished && (
+        <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-gradient-to-r from-emerald-950 via-slate-900 to-amber-950 border-2 border-emerald-400/60 text-white shadow-md">
+          <div className="flex items-center gap-2 min-w-0">
+            <Trophy className="w-5 h-5 text-amber-300 shrink-0 animate-bounce" />
+            <div className="min-w-0">
+              <span className="text-[9px] font-black font-mono uppercase text-emerald-300 block leading-tight tracking-wider">Final Community Verdict</span>
+              <span className="text-xs font-black text-white truncate block tracking-wide">
+                {winningOutcomeLabel} <span className="text-amber-300 font-extrabold">({winningPct}% Majority)</span>
+              </span>
+            </div>
+          </div>
+          <span className="text-[10px] font-mono font-black uppercase px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 border border-emerald-300 shrink-0 flex items-center gap-1 shadow-sm">
+            <Award className="w-3.5 h-3.5 text-slate-950" />
+            Verified
+          </span>
+        </div>
+      )}
+
+      {/* Dynamic Option Grid (grid-cols-2 or grid-cols-3 based on prediction type) */}
+      <div className={`grid gap-2 ${market.options.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+        {market.options.map((opt) => {
+          const pct = getOptionPercentage(opt);
+          const selected = isUserSelected(opt);
+          const isWinner = isMatchFinished && winningOption?.key === opt.key;
+
+          return (
+            <motion.button
+              key={opt.key}
+              whileHover={isMatchFinished ? undefined : { scale: 1.02 }}
+              whileTap={isMatchFinished ? undefined : { scale: 0.97 }}
+              onClick={() => castVote(opt)}
+              disabled={isMatchFinished || !!voting}
+              title={isMatchFinished ? 'Voting is closed because this match has ended.' : `Vote ${opt.label}`}
+              className={`relative overflow-hidden p-2.5 rounded-xl border-2 text-center transition-all duration-300 ${
+                isMatchFinished ? 'cursor-not-allowed' : 'cursor-pointer'
+              } ${
+                selected
+                  ? opt.bgActive
+                  : isWinner
+                    ? `${opt.bgActive} border-emerald-500 shadow-sm`
+                    : opt.hoverBg
+              }`}
+            >
+              {/* Vibrant Progress Fill Bar */}
+              <div
+                className={`absolute left-0 bottom-0 top-0 bg-gradient-to-r ${opt.progressBg} transition-all duration-500 pointer-events-none`}
+                style={{ width: `${pct}%` }}
+              />
+
+              {selected && (
+                <div className="absolute top-1.5 right-1.5 z-10">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-300 fill-emerald-100 dark:fill-emerald-950" />
+                </div>
+              )}
+              {isWinner && (
+                <div className="absolute top-1.5 left-1.5 z-10">
+                  <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-300 animate-pulse" />
+                </div>
+              )}
+
+              <span className={`relative z-10 text-[11px] font-black uppercase block ${opt.textColor} tracking-wider`}>
+                {opt.label}
+              </span>
+              <span className="relative z-10 text-xl font-black font-mono tracking-tight block text-slate-950 dark:text-white drop-shadow">
+                {pct}%
+              </span>
+
+              {voting === opt.key && (
+                <div className="absolute inset-0 z-20 bg-slate-900/40 flex items-center justify-center backdrop-blur-[1px]">
+                  <div className={`w-4 h-4 border-2 ${opt.spinnerBorder} border-t-transparent rounded-full animate-spin`} />
+                </div>
+              )}
+            </motion.button>
+          );
+        })}
+      </div>
+
+      {/* Visual Footnote Status */}
+      <div className="flex items-center justify-between text-[9px] font-mono font-extrabold text-slate-600 dark:text-slate-300 select-none pt-0.5">
+        <span>
+          {isMatchFinished 
+            ? '🔒 Game ended — Voting is locked for finished matches.' 
+            : hasVoted 
+              ? '✨ Thanks for sharing your verdict!' 
+              : '👉 Click on any prediction to register your vote'}
         </span>
-      </div>
-
-      {/* Vote Buttons or Results */}
-      <div className="grid grid-cols-3 gap-2">
-        {/* Option 1: Home */}
-        <motion.button
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => castVote('1')}
-          disabled={!!voting}
-          className={`relative overflow-hidden p-2 rounded-lg border text-center transition-all duration-300 cursor-pointer ${
-            stats?.userVote === '1'
-              ? 'bg-emerald-500/10 border-emerald-500 text-emerald-600 dark:text-emerald-400 font-extrabold shadow-[0_0_8px_rgba(16,185,129,0.15)]'
-              : 'bg-white dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
-          }`}
-        >
-          {/* Progress fill */}
-          <div
-            className="absolute left-0 bottom-0 top-0 bg-emerald-500/10 transition-all duration-500 pointer-events-none"
-            style={{ width: `${stats?.homePercent || 0}%` }}
-          />
-
-          {stats?.userVote === '1' && (
-            <div className="absolute top-1 right-1 z-10">
-              <CheckCircle className="w-3 h-3 text-emerald-500" />
-            </div>
-          )}
-          <span className="relative z-10 text-[10px] font-bold uppercase block text-slate-400">Home (1)</span>
-          <span className="relative z-10 text-sm font-black font-mono tracking-tight block">
-            {stats?.homePercent}%
-          </span>
-          {voting === '1' && (
-            <div className="absolute inset-0 z-20 bg-emerald-500/10 flex items-center justify-center">
-              <div className="w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-            </div>
-          )}
-        </motion.button>
-
-        {/* Option X: Draw */}
-        <motion.button
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => castVote('X')}
-          disabled={!!voting}
-          className={`relative overflow-hidden p-2 rounded-lg border text-center transition-all duration-300 cursor-pointer ${
-            stats?.userVote === 'X'
-              ? 'bg-amber-500/10 border-amber-500 text-amber-600 dark:text-amber-400 font-extrabold shadow-[0_0_8px_rgba(245,158,11,0.15)]'
-              : 'bg-white dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
-          }`}
-        >
-          {/* Progress fill */}
-          <div
-            className="absolute left-0 bottom-0 top-0 bg-amber-500/10 transition-all duration-500 pointer-events-none"
-            style={{ width: `${stats?.drawPercent || 0}%` }}
-          />
-
-          {stats?.userVote === 'X' && (
-            <div className="absolute top-1 right-1 z-10">
-              <CheckCircle className="w-3 h-3 text-amber-500" />
-            </div>
-          )}
-          <span className="relative z-10 text-[10px] font-bold uppercase block text-slate-400">Draw (X)</span>
-          <span className="relative z-10 text-sm font-black font-mono tracking-tight block">
-            {stats?.drawPercent}%
-          </span>
-          {voting === 'X' && (
-            <div className="absolute inset-0 z-20 bg-amber-500/10 flex items-center justify-center">
-              <div className="w-3.5 h-3.5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-            </div>
-          )}
-        </motion.button>
-
-        {/* Option 2: Away */}
-        <motion.button
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => castVote('2')}
-          disabled={!!voting}
-          className={`relative overflow-hidden p-2 rounded-lg border text-center transition-all duration-300 cursor-pointer ${
-            stats?.userVote === '2'
-              ? 'bg-sky-500/10 border-sky-500 text-sky-600 dark:text-sky-400 font-extrabold shadow-[0_0_8px_rgba(14,165,233,0.15)]'
-              : 'bg-white dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
-          }`}
-        >
-          {/* Progress fill */}
-          <div
-            className="absolute left-0 bottom-0 top-0 bg-sky-500/10 transition-all duration-500 pointer-events-none"
-            style={{ width: `${stats?.awayPercent || 0}%` }}
-          />
-
-          {stats?.userVote === '2' && (
-            <div className="absolute top-1 right-1 z-10">
-              <CheckCircle className="w-3 h-3 text-sky-500" />
-            </div>
-          )}
-          <span className="relative z-10 text-[10px] font-bold uppercase block text-slate-400">Away (2)</span>
-          <span className="relative z-10 text-sm font-black font-mono tracking-tight block">
-            {stats?.awayPercent}%
-          </span>
-          {voting === '2' && (
-            <div className="absolute inset-0 z-20 bg-sky-500/10 flex items-center justify-center">
-              <div className="w-3.5 h-3.5 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
-            </div>
-          )}
-        </motion.button>
-      </div>
-
-      {/* Visual Indicator of current User Selection */}
-      <div className="flex items-center justify-between text-[8px] font-mono font-bold text-slate-400 select-none">
-        <span>{hasVoted ? '✨ Thanks for sharing your verdict!' : '👉 Click on any prediction to register your vote'}</span>
         {hasVoted && (
-          <span className="text-emerald-500 flex items-center gap-0.5">
-            <Sparkles className="w-2.5 h-2.5 animate-pulse" /> Verified Vote Saved
+          <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5 font-black">
+            <Sparkles className="w-3 h-3 animate-pulse" /> {isMatchFinished ? 'Your Recorded Vote' : 'Verified Vote Saved'}
           </span>
         )}
       </div>
