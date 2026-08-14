@@ -219,33 +219,15 @@ export function detectMarketType(prediction?: string): {
   };
 }
 
-function classifyVoteSlot(voteStr: string | null | undefined): '1' | 'X' | '2' | null {
-  if (!voteStr) return null;
-  const u = String(voteStr).trim().toUpperCase();
-  if (!u) return null;
-
-  if (['1', '1X', 'GG', 'YES', 'GOAL GOAL'].includes(u) || u.startsWith('OVER') || u.startsWith('OV') || u.startsWith('O2') || u.startsWith('O1')) {
-    return '1';
-  }
-  if (['X', '12'].includes(u)) {
-    return 'X';
-  }
-  if (['2', '2X', 'NG', 'NO', 'NO GOAL'].includes(u) || u.startsWith('UNDER') || u.startsWith('UN') || u.startsWith('U2') || u.startsWith('U1')) {
-    return '2';
-  }
-  return null;
-}
-
 function getInitialVoteStats(fixtureId: string | number, userVote: string | null): VoteStats {
   const fid = String(fixtureId);
   let votes1 = 0;
   let votesX = 0;
   let votes2 = 0;
 
-  const slot = classifyVoteSlot(userVote);
-  if (slot === '1') votes1 = 1;
-  else if (slot === 'X') votesX = 1;
-  else if (slot === '2') votes2 = 1;
+  if (userVote === '1' || userVote === '1X' || userVote === 'GG' || (userVote && userVote.startsWith('Over'))) votes1 = 1;
+  else if (userVote === 'X' || userVote === '12') votesX = 1;
+  else if (userVote === '2' || userVote === '2X' || userVote === 'NG' || (userVote && userVote.startsWith('Under'))) votes2 = 1;
 
   const totalVotes = votes1 + votesX + votes2;
   const homePercent = totalVotes > 0 ? Math.round((votes1 / totalVotes) * 100) : 0;
@@ -281,10 +263,9 @@ function getEndedDummyVoteStats(fixtureId: string | number, userVote: string | n
   let votesX = baseX;
   let votes2 = base2;
 
-  const slot = classifyVoteSlot(userVote);
-  if (slot === '1') votes1 += 1;
-  else if (slot === 'X') votesX += 1;
-  else if (slot === '2') votes2 += 1;
+  if (userVote === '1' || userVote === '1X' || userVote === 'GG' || (userVote && userVote.startsWith('Over'))) votes1 += 1;
+  else if (userVote === 'X' || userVote === '12') votesX += 1;
+  else if (userVote === '2' || userVote === '2X' || userVote === 'NG' || (userVote && userVote.startsWith('Under'))) votes2 += 1;
 
   const totalVotes = votes1 + votesX + votes2;
   const homePercent = Math.round((votes1 / totalVotes) * 100);
@@ -363,10 +344,9 @@ export default function VotePoll({ fixtureId, isEnded, status, result, predictio
             let v2 = Number(data.votes2 || 0);
 
             if (savedVote && !data.userVote) {
-              const sSlot = classifyVoteSlot(savedVote);
-              if (sSlot === '1') v1 += 1;
-              else if (sSlot === 'X') vX += 1;
-              else if (sSlot === '2') v2 += 1;
+              if (savedVote === '1' || savedVote === '1X' || savedVote === 'GG' || savedVote.startsWith('Over')) v1 += 1;
+              else if (savedVote === 'X' || savedVote === '12') vX += 1;
+              else if (savedVote === '2' || savedVote === '2X' || savedVote === 'NG' || savedVote.startsWith('Under')) v2 += 1;
             }
 
             const total = v1 + vX + v2;
@@ -426,10 +406,9 @@ export default function VotePoll({ fixtureId, isEnded, status, result, predictio
       let v2 = current.votes2;
 
       if (oldVote) {
-        const oldSlot = classifyVoteSlot(oldVote);
-        if (oldSlot === '1') v1 = Math.max(0, v1 - 1);
-        else if (oldSlot === 'X') vX = Math.max(0, vX - 1);
-        else if (oldSlot === '2') v2 = Math.max(0, v2 - 1);
+        if (oldVote === '1' || oldVote === '1X' || oldVote === 'GG' || oldVote.startsWith('Over')) v1 = Math.max(0, v1 - 1);
+        else if (oldVote === 'X' || oldVote === '12') vX = Math.max(0, vX - 1);
+        else if (oldVote === '2' || oldVote === '2X' || oldVote === 'NG' || oldVote.startsWith('Under')) v2 = Math.max(0, v2 - 1);
       }
 
       if (opt.dbKey === '1') v1 += 1;

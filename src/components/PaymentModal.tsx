@@ -48,6 +48,7 @@ export default function PaymentModal({
   const [step, setStep] = useState<'input' | 'stk-sent' | 'pin-prompt' | 'success'>('input');
   const [pin, setPin] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [timer, setTimer] = useState(5);
   const [checkoutRequestId, setCheckoutRequestId] = useState('');
   const [pollingAttempts, setPollingAttempts] = useState(0);
   const [showSandboxSuccessBtn, setShowSandboxSuccessBtn] = useState(false);
@@ -70,6 +71,25 @@ export default function PaymentModal({
       setClaimedReceipt('');
     }
   }, [isOpen]);
+
+  // STK simulation counter to open simulated PIN keypad
+  useEffect(() => {
+    let interval: any;
+    if (step === 'stk-sent') {
+      setTimer(5);
+      interval = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            setStep('pin-prompt');
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [step]);
 
   // Polling database for transaction status
   useEffect(() => {
@@ -529,8 +549,20 @@ export default function PaymentModal({
                 <div>
                   <h3 className="font-extrabold text-sm mb-1">STK Push Broadcasted!</h3>
                   <p className="text-[var(--text-muted)] text-xs max-w-sm mx-auto leading-relaxed">
-                    An M-Pesa prompt has been sent to your phone line <strong className="text-[var(--text)]">{phoneNumber}</strong>. Please check your phone screen and enter your M-Pesa PIN to complete payment.
+                    Safaricom has received the transaction request. We are waiting for you to complete your PIN entry on your phone line <strong className="text-[var(--text)]">{phoneNumber}</strong>.
                   </p>
+                </div>
+                <div className="text-[10px] text-[var(--text-muted)] font-mono space-y-2">
+                  <div>Displaying simulated device prompt in <strong className="text-[var(--primary)]">{timer}s</strong>...</div>
+                  <div className="pt-1">
+                    <button 
+                      type="button"
+                      onClick={() => setStep('pin-prompt')}
+                      className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[var(--text)] rounded font-extrabold text-[10px] cursor-pointer border border-[var(--border)] transition-all font-mono"
+                    >
+                      ⚡ Speed Up: Open Simulated Keypad
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             )}
