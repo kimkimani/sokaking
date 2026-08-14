@@ -1,4 +1,4 @@
-# Apache Rewrite Rules for SOKA Predictions PHP REST API on cheerplex.co.ke/soka_king
+# Apache Rewrite Rules for SOKA Predictions PHP REST API on cheerplex.com/soka_king
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /soka_king/api/

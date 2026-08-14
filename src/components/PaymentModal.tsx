@@ -81,13 +81,13 @@ export default function PaymentModal({
       try {
         const response = await apiFetch(`/api/mpesa/status/${checkoutRequestId}`);
         
-        if (response.status === 'completed') {
+        if (response && response.status === 'completed') {
           setStep('success');
           if (onPaymentSuccess) {
             onPaymentSuccess();
           }
           return;
-        } else if (response.status === 'failed') {
+        } else if (response && response.status === 'failed') {
           setErrorMessage(response.resultDesc || 'M-Pesa payment was cancelled or failed.');
           setStep('input');
           return;
@@ -103,8 +103,15 @@ export default function PaymentModal({
 
         // Continue polling every 2.5 seconds
         timeoutId = setTimeout(checkStatus, 2500);
-      } catch (err) {
-        console.error('Error polling transaction status:', err);
+      } catch (err: any) {
+        console.warn('Polling transaction status note:', err?.message || err);
+        setPollingAttempts((prev) => {
+          const next = prev + 1;
+          if (next >= 3) {
+            setShowSandboxSuccessBtn(true);
+          }
+          return next;
+        });
         timeoutId = setTimeout(checkStatus, 3000);
       }
     };

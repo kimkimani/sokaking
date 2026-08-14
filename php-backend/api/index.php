@@ -1,7 +1,7 @@
 <?php
 /**
  * SOKA Predictions - Standalone PHP REST API Router
- * Host Path: cheerplex.co.ke/soka_king
+ * Host Path: cheerplex.com/soka_king
  * Database: cheerple_soka_king (MariaDB/MySQL)
  */
 
@@ -17,7 +17,7 @@ $pdo = Database::getConnection();
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Handle subfolder routing on cheerplex.co.ke/soka_king
+// Handle subfolder routing on cheerplex.com/soka_king
 $path = $uri;
 if (strpos($path, '/soka_king/api') !== false) {
     $path = substr($path, strpos($path, '/soka_king/api') + strlen('/soka_king/api'));
@@ -216,7 +216,7 @@ if ($path === '' || $path === '/' || $path === '/health') {
     jsonResponse([
         'status' => 'online',
         'service' => 'SOKA Predictions PHP MySQL Backend Server',
-        'host' => 'cheerplex.co.ke/soka_king',
+        'host' => 'cheerplex.com/soka_king',
         'database' => 'cheerple_soka_king',
         'timestamp' => date('Y-m-d H:i:s'),
         'endpoints' => [
@@ -1407,7 +1407,7 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
         if ($token && function_exists('curl_init')) {
             $shortCode = defined('MPESA_SHORTCODE') ? trim(MPESA_SHORTCODE) : '174379';
             $passKey = defined('MPESA_PASSKEY') ? trim(MPESA_PASSKEY) : '';
-            $callbackUrl = defined('MPESA_CALLBACK_URL') ? trim(MPESA_CALLBACK_URL) : 'https://cheerplex.co.ke/soka_king/api/mpesa/callback';
+            $callbackUrl = defined('MPESA_CALLBACK_URL') ? trim(MPESA_CALLBACK_URL) : 'https://cheerplex.com/soka_king/api/mpesa/callback';
             $timestamp = date('YmdHis');
             $password = base64_encode($shortCode . $passKey . $timestamp);
 
