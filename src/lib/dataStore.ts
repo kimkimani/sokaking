@@ -502,6 +502,23 @@ export async function updateSmsSettings(settings: {
   return { success: true, message: 'Settings saved', smsProvider: settings.smsProvider };
 }
 
+export async function sendVipTipsSms(phoneNumber?: string, packageType: string = 'vip', packageName: string = 'VIP Pass') {
+  const baseUrl = getApiBaseUrl();
+  try {
+    const res = await fetch(`${baseUrl}/api/sms/send-vip-tips`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phoneNumber, packageType, packageName })
+    });
+    if (res.ok) return await res.json();
+    const errData = await res.json();
+    return { success: false, error: errData.error || 'Failed to send VIP tips SMS' };
+  } catch (err: any) {
+    console.error('[dataStore] sendVipTipsSms error:', err);
+    return { success: false, error: err?.message || 'Network error sending SMS' };
+  }
+}
+
 export async function fetchDeliverablesSummary() {
   const baseUrl = getApiBaseUrl();
   try {

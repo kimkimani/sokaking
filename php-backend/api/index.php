@@ -1078,7 +1078,7 @@ function sendAfricasTalkingSms($toNumbers, $message, $pdo = null) {
 }
 
 function sendTextSmsGateway($toNumbers, $message, $pdo = null) {
-    // TextSMS.co.ke API Gateway Integration
+    // TextSMS.co.ke API Gateway Integration (https://textsms.co.ke/bulk-sms-api/)
     $partnerId = '';
     $apiKey = '';
     $shortcode = 'TEXTSMS';
@@ -1088,9 +1088,9 @@ function sendTextSmsGateway($toNumbers, $message, $pdo = null) {
             $sStmt = $pdo->query("SELECT text_sms_partner_id, text_sms_api_key, text_sms_shortcode FROM site_settings WHERE id = 1");
             $s = $sStmt->fetch();
             if ($s) {
-                if (!empty($s['text_sms_partner_id'])) $partnerId = $s['text_sms_partner_id'];
-                if (!empty($s['text_sms_api_key'])) $apiKey = $s['text_sms_api_key'];
-                if (!empty($s['text_sms_shortcode'])) $shortcode = $s['text_sms_shortcode'];
+                if (!empty($s['text_sms_partner_id'])) $partnerId = trim($s['text_sms_partner_id']);
+                if (!empty($s['text_sms_api_key'])) $apiKey = trim($s['text_sms_api_key']);
+                if (!empty($s['text_sms_shortcode'])) $shortcode = trim($s['text_sms_shortcode']);
             }
         } catch (Throwable $e) {}
     }
@@ -1102,7 +1102,7 @@ function sendTextSmsGateway($toNumbers, $message, $pdo = null) {
         $partnerId = defined('TEXTSMS_PARTNER_ID') ? TEXTSMS_PARTNER_ID : (getenv('TEXTSMS_PARTNER_ID') ?: '');
     }
 
-    // Format numbers as 2547XXXXXXXX
+    // Format numbers as 2547XXXXXXXX or 07XXXXXXXX for TextSMS API
     if (is_array($toNumbers)) {
         $recipients = implode(',', array_map(function($num) { return formatKenyanPhoneNumber($num, '254'); }, $toNumbers));
     } else {
@@ -1110,7 +1110,7 @@ function sendTextSmsGateway($toNumbers, $message, $pdo = null) {
     }
 
     if (empty($apiKey) || empty($partnerId) || $apiKey === 'your_textsms_api_key') {
-        // Local Simulation
+        // Local Simulation Mode when API credentials are not set
         return [
             'success' => true,
             'provider' => 'textsms',
@@ -1119,18 +1119,26 @@ function sendTextSmsGateway($toNumbers, $message, $pdo = null) {
             'message' => $message,
             'status' => 'sent',
             'cost' => 'KES 0.00 (Simulated)',
-            'responseData' => json_encode(['responses' => [['response-code' => 200, 'response-description' => 'Success', 'mobile' => $recipients, 'messageid' => rand(100000, 999999)]]])
+            'responseData' => json_encode([
+                'responses' => [[
+                    'response-code' => 200,
+                    'response-description' => 'Success (Simulated TextSMS API)',
+                    'mobile' => $recipients,
+                    'messageid' => rand(1000000, 9999999),
+                    'networkid' => '1'
+                ]]
+            ])
         ];
     }
 
-    // TextSMS Endpoint: https://textsms.co.ke/api/services/sendsms/
-    $url = 'https://textsms.co.ke/api/services/sendsms/';
+    // Primary TextSMS API URL according to https://textsms.co.ke/bulk-sms-api/
+    $url = 'https://sms.textsms.co.ke/api/services/sendsms/';
     $payload = [
-        'partnerID' => $partnerId,
-        'apikey'    => $apiKey,
+        'partnerID' => (string)$partnerId,
+        'apikey'    => (string)$apiKey,
         'shortcode' => $shortcode ?: 'TEXTSMS',
-        'mobile'    => $recipients,
-        'message'   => $message
+        'mobile'    => (string)$recipients,
+        'message'   => (string)$message
     ];
 
     $ch = curl_init($url);
@@ -1141,7 +1149,8 @@ function sendTextSmsGateway($toNumbers, $message, $pdo = null) {
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -1149,17 +1158,44 @@ function sendTextSmsGateway($toNumbers, $message, $pdo = null) {
     curl_close($ch);
 
     if ($curlError) {
+        // Fallback to secondary domain if sms.textsms.co.ke fails
+        $altUrl = 'https://textsms.co.ke/api/services/sendsms/';
+        $ch2 = curl_init($altUrl);
+        curl_setopt($ch2, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Accept: application/json']);
+        curl_setopt($ch2, CURLOPT_POST, true);
+        curl_setopt($ch2, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch2, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch2, CURLOPT_TIMEOUT, 20);
+        $response = curl_exec($ch2);
+        $httpCode = curl_getinfo($ch2, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch2);
+        curl_close($ch2);
+    }
+
+    if ($curlError) {
         return [
             'success' => false, 
             'provider' => 'textsms', 
-            'error' => "cURL Error: $curlError", 
+            'error' => "TextSMS cURL Error: $curlError", 
             'status' => 'failed',
             'responseData' => $curlError
         ];
     }
 
     $data = json_decode($response, true);
+    $isSuccess = false;
     if ($httpCode >= 200 && $httpCode < 300) {
+        if (isset($data['responses'][0]['response-code']) && (int)$data['responses'][0]['response-code'] === 200) {
+            $isSuccess = true;
+        } elseif (isset($data['success']) && $data['success']) {
+            $isSuccess = true;
+        } elseif (!isset($data['error'])) {
+            $isSuccess = true;
+        }
+    }
+
+    if ($isSuccess) {
         return [
             'success' => true,
             'provider' => 'textsms',
@@ -1173,7 +1209,7 @@ function sendTextSmsGateway($toNumbers, $message, $pdo = null) {
     return [
         'success' => false,
         'provider' => 'textsms',
-        'error' => "HTTP $httpCode: " . ($data['response-description'] ?? $response),
+        'error' => "HTTP $httpCode: " . ($data['responses'][0]['response-description'] ?? ($data['message'] ?? $response)),
         'status' => 'failed',
         'responseData' => $response
     ];
@@ -1403,6 +1439,7 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
               `checkout_request_id` VARCHAR(255) NOT NULL,
               `merchant_request_id` VARCHAR(255) DEFAULT NULL,
               `phone_number` VARCHAR(50) NOT NULL,
+              `customer_name` VARCHAR(255) DEFAULT NULL,
               `amount` DECIMAL(10,2) NOT NULL,
               `item_type` VARCHAR(50) DEFAULT NULL,
               `item_id` VARCHAR(100) DEFAULT NULL,
@@ -1430,6 +1467,7 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
         // Migrations: Modify columns in case table was created with INT NOT NULL from previous imports
         try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY `user_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
         try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY `merchant_request_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
+        try { $pdo->exec("ALTER TABLE `mpesa_transactions` ADD COLUMN `customer_name` VARCHAR(255) DEFAULT NULL AFTER `phone_number`"); } catch (Throwable $e) {}
         try { $pdo->exec("ALTER TABLE `purchases` MODIFY `user_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
         try { $pdo->exec("ALTER TABLE `user_subscriptions` MODIFY `user_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
     };
@@ -1438,6 +1476,7 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
 
     $body = getJsonInput();
     $phoneNumber = isset($body['phoneNumber']) ? trim($body['phoneNumber']) : '';
+    $customerName = isset($body['customerName']) ? trim($body['customerName']) : (isset($body['name']) ? trim($body['name']) : null);
     $amount = isset($body['amount']) ? (int)$body['amount'] : 0;
     $itemType = isset($body['itemType']) ? trim($body['itemType']) : '';
     $itemId = isset($body['itemId']) ? trim($body['itemId']) : '';
@@ -1536,8 +1575,8 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
     }
 
     try {
-        $stmt = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, amount, item_type, item_id, status, result_desc) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', 'STK Push request broadcasted') ON DUPLICATE KEY UPDATE status='pending', phone_number=VALUES(phone_number), amount=VALUES(amount), item_type=VALUES(item_type), item_id=VALUES(item_id), updated_at=NOW()");
-        $stmt->execute([$userId, $checkoutRequestId, $merchantRequestId, $cleanPhone, $amount, $itemType, $itemId]);
+        $stmt = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, customer_name, amount, item_type, item_id, status, result_desc) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'STK Push request broadcasted') ON DUPLICATE KEY UPDATE status='pending', phone_number=VALUES(phone_number), customer_name=COALESCE(VALUES(customer_name), customer_name), amount=VALUES(amount), item_type=VALUES(item_type), item_id=VALUES(item_id), updated_at=NOW()");
+        $stmt->execute([$userId, $checkoutRequestId, $merchantRequestId, $cleanPhone, $customerName, $amount, $itemType, $itemId]);
     } catch (Throwable $e) {
         error_log("[M-Pesa STK DB Error] " . $e->getMessage());
     }
@@ -1566,18 +1605,33 @@ if ($path === '/mpesa/callback' && $method === 'POST') {
         $resultDesc = $stk['ResultDesc'];
 
         $mpesaCode = null;
+        $customerNameFromCallback = null;
         if ($resultCode === 0 && isset($stk['CallbackMetadata']['Item'])) {
+            $nameParts = [];
             foreach ($stk['CallbackMetadata']['Item'] as $item) {
                 if ($item['Name'] === 'MpesaReceiptNumber') {
                     $mpesaCode = $item['Value'];
                 }
+                if ($item['Name'] === 'FirstName' || $item['Name'] === 'MiddleName' || $item['Name'] === 'LastName' || $item['Name'] === 'Name' || $item['Name'] === 'CustomerName') {
+                    if (!empty($item['Value'])) {
+                        $nameParts[] = trim((string)$item['Value']);
+                    }
+                }
+            }
+            if (!empty($nameParts)) {
+                $customerNameFromCallback = implode(' ', $nameParts);
             }
         }
 
         $status = $resultCode === 0 ? 'completed' : 'failed';
 
-        $stmt = $pdo->prepare("UPDATE mpesa_transactions SET status = ?, result_desc = ?, mpesa_receipt_number = ?, updated_at = NOW() WHERE checkout_request_id = ?");
-        $stmt->execute([$status, $resultDesc, $mpesaCode, $checkoutRequestId]);
+        if ($customerNameFromCallback) {
+            $stmt = $pdo->prepare("UPDATE mpesa_transactions SET status = ?, result_desc = ?, mpesa_receipt_number = ?, customer_name = COALESCE(?, customer_name), updated_at = NOW() WHERE checkout_request_id = ?");
+            $stmt->execute([$status, $resultDesc, $mpesaCode, $customerNameFromCallback, $checkoutRequestId]);
+        } else {
+            $stmt = $pdo->prepare("UPDATE mpesa_transactions SET status = ?, result_desc = ?, mpesa_receipt_number = ?, updated_at = NOW() WHERE checkout_request_id = ?");
+            $stmt->execute([$status, $resultDesc, $mpesaCode, $checkoutRequestId]);
+        }
 
         if ($status === 'completed') {
             $txStmt = $pdo->prepare("SELECT * FROM mpesa_transactions WHERE checkout_request_id = ?");
@@ -1591,7 +1645,7 @@ if ($path === '/mpesa/callback' && $method === 'POST') {
                     $pStmt = $pdo->prepare("INSERT INTO purchases (user_id, item_type, item_id) VALUES (?, ?, ?)");
                     $pStmt->execute([$tx['user_id'], $tx['item_type'], $tx['item_id']]);
                 }
-                // Trigger Instant SMS Delivery & Activate Subscription
+                // Trigger Instant SMS Delivery & Activate Subscription via TextSMS / active gateway
                 activateSubscriptionAndSendInstantSms($tx['user_id'], $tx['phone_number'], $tx['item_id'], $pdo);
             }
         }
@@ -1650,6 +1704,8 @@ if (preg_match('#^/mpesa/status/([^/]+)$#', $path, $matches) && $method === 'GET
         'status' => $tx['status'],
         'amount' => (int)$tx['amount'],
         'phoneNumber' => $tx['phone_number'],
+        'customerName' => $tx['customer_name'] ?? null,
+        'customer_name' => $tx['customer_name'] ?? null,
         'mpesaReceiptNumber' => $tx['mpesa_receipt_number'],
         'resultDesc' => $tx['result_desc'],
         'itemType' => $tx['item_type'],
@@ -1662,6 +1718,7 @@ if ($path === '/mpesa/simulate-callback' && $method === 'POST') {
     $body = getJsonInput();
     $checkoutRequestId = isset($body['checkoutRequestId']) ? trim($body['checkoutRequestId']) : '';
     $success = isset($body['success']) ? (bool)$body['success'] : true;
+    $customerName = isset($body['customerName']) ? trim($body['customerName']) : (isset($body['name']) ? trim($body['name']) : 'John Doe');
 
     if (!$checkoutRequestId) {
         jsonResponse(['error' => 'checkoutRequestId is required'], 400);
@@ -1681,13 +1738,14 @@ if ($path === '/mpesa/simulate-callback' && $method === 'POST') {
         $itemType = isset($body['itemType']) ? trim($body['itemType']) : 'vip_package';
         $itemId = isset($body['itemId']) ? trim($body['itemId']) : 'VIP_WEEKLY';
 
-        $ins = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, amount, item_type, item_id, status, result_desc, mpesa_receipt_number) VALUES (?, ?, 'MR_SIMULATED', ?, ?, ?, ?, ?, ?, ?)");
-        $ins->execute([$phone, $checkoutRequestId, $phone, $amount, $itemType, $itemId, $status, $desc, $receipt]);
+        $ins = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, customer_name, amount, item_type, item_id, status, result_desc, mpesa_receipt_number) VALUES (?, ?, 'MR_SIMULATED', ?, ?, ?, ?, ?, ?, ?, ?)");
+        $ins->execute([$phone, $checkoutRequestId, $phone, $customerName, $amount, $itemType, $itemId, $status, $desc, $receipt]);
 
         $tx = [
             'user_id' => $phone,
             'checkout_request_id' => $checkoutRequestId,
             'phone_number' => $phone,
+            'customer_name' => $customerName,
             'amount' => $amount,
             'item_type' => $itemType,
             'item_id' => $itemId,
@@ -1695,8 +1753,8 @@ if ($path === '/mpesa/simulate-callback' && $method === 'POST') {
             'mpesa_receipt_number' => $receipt
         ];
     } else {
-        $upStmt = $pdo->prepare("UPDATE mpesa_transactions SET status = ?, result_desc = ?, mpesa_receipt_number = ?, updated_at = NOW() WHERE checkout_request_id = ?");
-        $upStmt->execute([$status, $desc, $receipt, $checkoutRequestId]);
+        $upStmt = $pdo->prepare("UPDATE mpesa_transactions SET status = ?, result_desc = ?, mpesa_receipt_number = ?, customer_name = COALESCE(?, customer_name), updated_at = NOW() WHERE checkout_request_id = ?");
+        $upStmt->execute([$status, $desc, $receipt, $customerName, $checkoutRequestId]);
     }
 
     if ($success) {
@@ -1712,6 +1770,7 @@ if ($path === '/mpesa/simulate-callback' && $method === 'POST') {
     jsonResponse([
         'message' => 'Simulated callback executed',
         'status' => $status,
+        'customerName' => $customerName,
         'mpesaReceiptNumber' => $receipt
     ]);
 }
@@ -1725,7 +1784,6 @@ if ($path === '/mpesa/transactions' && $method === 'GET') {
 
 // 12b. Safaricom M-Pesa C2B Direct Paybill/Till Webhooks (Validation & Confirmation)
 if ($path === '/mpesa/c2b/validation') {
-    // Safaricom validation callback requires a JSON response acknowledging receipt
     jsonResponse([
         'ResultCode' => 0,
         'ResultDesc' => 'Accepted'
@@ -1742,8 +1800,9 @@ if ($path === '/mpesa/c2b/confirmation') {
     $businessShortCode = $c2bData['BusinessShortCode'] ?? '';
     $billRefNumber   = trim($c2bData['BillRefNumber'] ?? '');
     $msisdn          = trim($c2bData['MSISDN'] ?? '');
-    $firstName       = $c2bData['FirstName'] ?? '';
-    $lastName        = $c2bData['LastName'] ?? '';
+    $firstName       = trim($c2bData['FirstName'] ?? '');
+    $lastName        = trim($c2bData['LastName'] ?? '');
+    $customerName    = trim("$firstName $lastName");
 
     if (!empty($transID) && !empty($msisdn) && $transAmount > 0) {
         $formattedPhone = formatKenyanPhoneNumber($msisdn);
@@ -1761,8 +1820,8 @@ if ($path === '/mpesa/c2b/confirmation') {
         $chkStmt->execute([$transID]);
         if (!$chkStmt->fetch()) {
             $fakeCheckoutId = 'C2B_' . $transID;
-            $insStmt = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, amount, item_type, item_id, mpesa_receipt_number, status, result_desc) VALUES (?, ?, ?, ?, ?, 'vip_package', ?, ?, 'completed', 'Paybill C2B Payment Confirmed')");
-            $insStmt->execute([$formattedPhone, $fakeCheckoutId, $businessShortCode, $formattedPhone, $transAmount, $itemId, $transID]);
+            $insStmt = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, customer_name, amount, item_type, item_id, mpesa_receipt_number, status, result_desc) VALUES (?, ?, ?, ?, ?, ?, 'vip_package', ?, ?, 'completed', 'Paybill C2B Payment Confirmed')");
+            $insStmt->execute([$formattedPhone, $fakeCheckoutId, $businessShortCode, $formattedPhone, $customerName ?: 'Paybill Customer', $transAmount, $itemId, $transID]);
 
             // Activate Subscription & Send Instant VIP SMS
             activateSubscriptionAndSendInstantSms($formattedPhone, $formattedPhone, $itemId, $pdo);
@@ -1780,6 +1839,7 @@ if ($path === '/mpesa/claim-code' && $method === 'POST') {
     $body = getJsonInput();
     $receiptCode = strtoupper(trim($body['receiptCode'] ?? ''));
     $phoneNumber = trim($body['phoneNumber'] ?? '');
+    $customerName = trim($body['customerName'] ?? ($body['name'] ?? ''));
     $packageId   = trim($body['packageId'] ?? 'VIP_WEEKLY');
     $packageType = trim($body['packageType'] ?? 'vip');
     $packageName = trim($body['packageName'] ?? '');
@@ -1798,6 +1858,10 @@ if ($path === '/mpesa/claim-code' && $method === 'POST') {
 
     if ($existingTx) {
         if ($existingTx['status'] === 'completed') {
+            if ($customerName && empty($existingTx['customer_name'])) {
+                $uStmt = $pdo->prepare("UPDATE mpesa_transactions SET customer_name = ? WHERE id = ?");
+                $uStmt->execute([$customerName, $existingTx['id']]);
+            }
             // Re-trigger activation and send instant SMS
             $resSms = activateSubscriptionAndSendInstantSms($formattedPhone, $formattedPhone, $existingTx['item_id'] ?: $packageId, $pdo, $packageType, $packageName);
             jsonResponse([
@@ -1805,6 +1869,7 @@ if ($path === '/mpesa/claim-code' && $method === 'POST') {
                 'message' => 'M-Pesa Receipt Code verified! Your subscription has been activated and tips dispatched via SMS.',
                 'receiptCode' => $receiptCode,
                 'phoneNumber' => $formattedPhone,
+                'customerName' => $existingTx['customer_name'] ?: $customerName,
                 'packageId' => $existingTx['item_id'] ?: $packageId,
                 'packageType' => $packageType,
                 'packageName' => $packageName,
@@ -1815,10 +1880,9 @@ if ($path === '/mpesa/claim-code' && $method === 'POST') {
         }
     } else {
         // Direct Paybill / Manual Entry Claim Verification
-        // Save manual transaction record
         $fakeCheckout = 'MANUAL_' . $receiptCode;
-        $insStmt = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, amount, item_type, item_id, mpesa_receipt_number, status, result_desc) VALUES (?, ?, 'PAYBILL_MANUAL', ?, 100.00, ?, ?, ?, 'completed', 'Manual M-Pesa Receipt Code Verified')");
-        $insStmt->execute([$formattedPhone, $fakeCheckout, $formattedPhone, $itemType, $packageId, $receiptCode]);
+        $insStmt = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, customer_name, amount, item_type, item_id, mpesa_receipt_number, status, result_desc) VALUES (?, ?, 'PAYBILL_MANUAL', ?, ?, 100.00, ?, ?, ?, 'completed', 'Manual M-Pesa Receipt Code Verified')");
+        $insStmt->execute([$formattedPhone, $fakeCheckout, $formattedPhone, $customerName ?: 'VIP Subscriber', $itemType, $packageId, $receiptCode]);
 
         // Activate & Send Instant SMS
         $resSms = activateSubscriptionAndSendInstantSms($formattedPhone, $formattedPhone, $packageId, $pdo, $packageType, $packageName);
@@ -1828,12 +1892,65 @@ if ($path === '/mpesa/claim-code' && $method === 'POST') {
             'message' => "M-Pesa Receipt Code $receiptCode successfully verified and claimed! Tips dispatched to $formattedPhone.",
             'receiptCode' => $receiptCode,
             'phoneNumber' => $formattedPhone,
+            'customerName' => $customerName ?: 'VIP Subscriber',
             'packageId' => $packageId,
             'packageType' => $packageType,
             'packageName' => $packageName,
             'smsResult' => $resSms
         ]);
     }
+}
+
+// 12e. Direct Send VIP Subscription Tips via TextSMS POST /api/sms/send-vip-tips
+if ($path === '/sms/send-vip-tips' && $method === 'POST') {
+    $body = getJsonInput();
+    $targetPhone = isset($body['phoneNumber']) ? trim($body['phoneNumber']) : '';
+    $packageType = isset($body['packageType']) ? trim($body['packageType']) : 'vip';
+    $packageName = isset($body['packageName']) ? trim($body['packageName']) : 'VIP Pass';
+
+    $recipients = [];
+    if (!empty($targetPhone)) {
+        $recipients[] = formatKenyanPhoneNumber($targetPhone);
+    } else {
+        // Broadcast to all active subscribers
+        try {
+            $subStmt = $pdo->query("SELECT DISTINCT phone_number FROM user_subscriptions WHERE status = 'active' AND end_time > NOW()");
+            while ($row = $subStmt->fetch()) {
+                if (!empty($row['phone_number'])) {
+                    $recipients[] = formatKenyanPhoneNumber($row['phone_number']);
+                }
+            }
+        } catch (Throwable $e) {}
+    }
+
+    if (empty($recipients)) {
+        jsonResponse(['error' => 'No active SMS subscribers found to send VIP tips.'], 400);
+    }
+
+    $messageBody = assembleVipAndJackpotSmsText($pdo, $packageName, $packageType);
+    $smsResult = sendSmsDispatch($pdo, $recipients, $messageBody, $packageType, $packageName);
+
+    // Log the dispatch
+    $status = $smsResult['status'] ?? ($smsResult['success'] ? 'sent' : 'failed');
+    $errMsg = $smsResult['error'] ?? null;
+    $provider = $smsResult['provider'] ?? 'textsms';
+    $respData = $smsResult['responseData'] ?? json_encode($smsResult);
+
+    foreach ($recipients as $recPhone) {
+        try {
+            $logStmt = $pdo->prepare("INSERT INTO sms_dispatch_logs (user_id, phone_number, package_type, package_name, provider, message_body, status, error_message, response_data, sent_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+            $logStmt->execute([$recPhone, $recPhone, $packageType, $packageName, $provider, $messageBody, $status, $errMsg, $respData]);
+        } catch (Throwable $e) {}
+    }
+
+    jsonResponse([
+        'success' => $smsResult['success'] ?? true,
+        'message' => 'VIP Tips dispatch executed via ' . strtoupper($provider),
+        'recipientsCount' => count($recipients),
+        'recipients' => $recipients,
+        'provider' => $provider,
+        'smsResult' => $smsResult
+    ]);
 }
 
 // 13. Site Settings GET & POST /api/site-settings

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { 
   fetchSmsSubscriptions, fetchSmsDispatchLogs, triggerSmsCronJob, sendTestSms,
-  fetchSmsSettings, updateSmsSettings, fetchDeliverablesSummary, fetchMpesaTransactions, simulateMpesaCallback
+  fetchSmsSettings, updateSmsSettings, fetchDeliverablesSummary, fetchMpesaTransactions, simulateMpesaCallback, sendVipTipsSms
 } from '../lib/dataStore';
 
 export default function SmsManagement() {
@@ -865,10 +865,11 @@ export default function SmsManagement() {
                 <thead>
                   <tr className="border-b border-[var(--border)] text-[10px] uppercase text-[var(--text-muted)] bg-[var(--background)]">
                     <th className="py-2.5 px-3">Tx ID / Date</th>
+                    <th className="py-2.5 px-3">Customer Name</th>
                     <th className="py-2.5 px-3">Phone Line</th>
                     <th className="py-2.5 px-3">Item / Package</th>
                     <th className="py-2.5 px-3">Amount</th>
-                    <th className="py-2.5 px-3">Receipt Ref</th>
+                    <th className="py-2.5 px-3">Receipt Code</th>
                     <th className="py-2.5 px-3">Status</th>
                     <th className="py-2.5 px-3 text-right">Action</th>
                   </tr>
@@ -879,6 +880,9 @@ export default function SmsManagement() {
                       <td className="py-3 px-3 whitespace-nowrap">
                         <div className="font-bold">#{tx.id}</div>
                         <div className="text-[9px] text-[var(--text-muted)]">{tx.created_at || 'Just now'}</div>
+                      </td>
+                      <td className="py-3 px-3 whitespace-nowrap font-bold text-amber-600 dark:text-amber-400">
+                        {tx.customer_name || tx.customerName || <span className="text-[var(--text-muted)] font-normal italic text-[10px]">VIP Subscriber</span>}
                       </td>
                       <td className="py-3 px-3 font-bold whitespace-nowrap text-[var(--text)]">
                         {tx.phone_number}
