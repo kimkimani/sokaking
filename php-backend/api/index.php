@@ -125,6 +125,85 @@ function computeFixtureConfidenceAndProbabilities($prediction, $hp = 0, $dp = 0,
 }
 
 /**
+ * Calculate prediction outcome correctness strictly using Fulltime Scores from the DB.
+ * Never assume FT results. Return 'pending' if fulltime score is missing or match is not finished.
+ */
+function evaluatePredictionOutcome($prediction, $homeScore, $awayScore, $statusShort = 'NS') {
+    $finishedStatuses = ['FT', 'AET', 'PEN', '120', '90', 'FINISHED', 'AWD'];
+    $statusUpper = strtoupper(trim((string)$statusShort));
+
+    // Check if match is finished AND fulltime scores are strictly present in the database
+    if (!in_array($statusUpper, $finishedStatuses, true)) {
+        return 'pending';
+    }
+
+    if ($homeScore === null || $awayScore === null || $homeScore === '' || $awayScore === '' || $homeScore === '-' || $awayScore === '-') {
+        return 'pending';
+    }
+
+    $hs = (int)$homeScore;
+    $as = (int)$awayScore;
+    $totalGoals = $hs + $as;
+    $bothScored = ($hs > 0 && $as > 0);
+    $actual1X2 = ($hs > $as) ? '1' : (($hs === $as) ? 'X' : '2');
+
+    $pred = strtolower(trim((string)$prediction));
+
+    // 1. Over / Under Markets
+    if (strpos($pred, 'over 2.5') !== false || strpos($pred, 'ov 2.5') !== false || strpos($pred, 'o2.5') !== false || strpos($pred, 'over25') !== false) {
+        return ($totalGoals > 2.5) ? 'won' : 'lost';
+    }
+    if (strpos($pred, 'under 2.5') !== false || strpos($pred, 'un 2.5') !== false || strpos($pred, 'u2.5') !== false || strpos($pred, 'under25') !== false) {
+        return ($totalGoals < 2.5) ? 'won' : 'lost';
+    }
+    if (strpos($pred, 'over 1.5') !== false || strpos($pred, 'ov 1.5') !== false || strpos($pred, 'o1.5') !== false || strpos($pred, 'over15') !== false) {
+        return ($totalGoals > 1.5) ? 'won' : 'lost';
+    }
+    if (strpos($pred, 'under 1.5') !== false || strpos($pred, 'un 1.5') !== false || strpos($pred, 'u1.5') !== false || strpos($pred, 'under15') !== false) {
+        return ($totalGoals < 1.5) ? 'won' : 'lost';
+    }
+    if (strpos($pred, 'over 3.5') !== false || strpos($pred, 'ov 3.5') !== false || strpos($pred, 'o3.5') !== false) {
+        return ($totalGoals > 3.5) ? 'won' : 'lost';
+    }
+    if (strpos($pred, 'under 3.5') !== false || strpos($pred, 'un 3.5') !== false || strpos($pred, 'u3.5') !== false) {
+        return ($totalGoals < 3.5) ? 'won' : 'lost';
+    }
+
+    // 2. Both Teams To Score (BTTS / GG / NG)
+    if (strpos($pred, 'gg') !== false || strpos($pred, 'btts') !== false || strpos($pred, 'both teams') !== false || $pred === 'yes') {
+        return $bothScored ? 'won' : 'lost';
+    }
+    if (strpos($pred, 'ng') !== false || strpos($pred, 'no goal') !== false || $pred === 'no') {
+        return !$bothScored ? 'won' : 'lost';
+    }
+
+    // 3. Double Chance (1X, X2, 12)
+    if (strpos($pred, '1x') !== false || strpos($pred, 'dc1x') !== false || strpos($pred, 'dc 1x') !== false) {
+        return ($actual1X2 === '1' || $actual1X2 === 'X') ? 'won' : 'lost';
+    }
+    if (strpos($pred, 'x2') !== false || strpos($pred, 'dcx2') !== false || strpos($pred, 'dc x2') !== false) {
+        return ($actual1X2 === 'X' || $actual1X2 === '2') ? 'won' : 'lost';
+    }
+    if (strpos($pred, '12') !== false || strpos($pred, 'dc12') !== false || strpos($pred, 'dc 12') !== false) {
+        return ($actual1X2 === '1' || $actual1X2 === '2') ? 'won' : 'lost';
+    }
+
+    // 4. Standard 1X2
+    if (strpos($pred, '(1)') !== false || strpos($pred, 'home') !== false || $pred === '1' || strpos($pred, '1 (home') !== false) {
+        return ($actual1X2 === '1') ? 'won' : 'lost';
+    }
+    if (strpos($pred, '(x)') !== false || strpos($pred, 'draw') !== false || $pred === 'x' || strpos($pred, 'x (draw') !== false) {
+        return ($actual1X2 === 'X') ? 'won' : 'lost';
+    }
+    if (strpos($pred, '(2)') !== false || strpos($pred, 'away') !== false || $pred === '2' || strpos($pred, '2 (away') !== false) {
+        return ($actual1X2 === '2') ? 'won' : 'lost';
+    }
+
+    // Default fallback based on actual 1X2 matching home win
+    return ($actual1X2 === '1') ? 'won' : 'lost';
+}
+
+/**
  * Format a jackpot match row into a full, standardized fixture object
  */
 function formatJackpotGame($g, $pdo = null) {
@@ -162,7 +241,7 @@ function formatJackpotGame($g, $pdo = null) {
     }
 
     $statusShort = $g['status_short'] ?? $g['status'] ?? 'NS';
-    $result = ($statusShort === 'FT' || $statusShort === 'AET' || $statusShort === 'AP') ? 'won' : 'pending';
+    $result = evaluatePredictionOutcome($tip, $homeScore, $awayScore, $statusShort);
 
     $pos = (int)($g['jackpot_position'] ?? $g['position'] ?? $g['fixtureNumber'] ?? 1);
 
@@ -304,18 +383,15 @@ if ($path === '/predictions' && $method === 'GET') {
 
     $formatted = array_map(function($row) {
         $statusShort = $row['status'] ?: 'NS';
-        $result = 'pending';
-        if ($statusShort === 'FT') {
-            $result = 'won'; // Default verified outcome metric
-        }
+        $predictionStr = $row['prediction'] ?: 'Home Win (1)';
+        $fixtureId = $row['id'] ?: 1;
+
+        $result = evaluatePredictionOutcome($predictionStr, $row['homeScore'], $row['awayScore'], $statusShort);
 
         // Clean raw probabilities from DB if present
         $hpRaw = (int)preg_replace('/[^0-9]/', '', $row['homeProbability'] ?? '');
         $dpRaw = (int)preg_replace('/[^0-9]/', '', $row['drawProbability'] ?? '');
         $apRaw = (int)preg_replace('/[^0-9]/', '', $row['awayProbability'] ?? '');
-
-        $predictionStr = $row['prediction'] ?: 'Home Win (1)';
-        $fixtureId = $row['id'] ?: 1;
 
         $probCalc = computeFixtureConfidenceAndProbabilities($predictionStr, $hpRaw, $dpRaw, $apRaw, $fixtureId);
 
