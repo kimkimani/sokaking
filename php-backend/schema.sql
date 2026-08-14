@@ -238,18 +238,18 @@ CREATE TABLE IF NOT EXISTS `mozzart_super_daily` (
 
 CREATE TABLE IF NOT EXISTS `mpesa_transactions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
+  `user_id` varchar(255) DEFAULT NULL,
   `checkout_request_id` varchar(255) NOT NULL,
-  `merchant_request_id` varchar(255) NOT NULL,
+  `merchant_request_id` varchar(255) DEFAULT NULL,
   `phone_number` varchar(255) NOT NULL,
-  `amount` int(11) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
   `item_type` varchar(255) NOT NULL,
   `item_id` varchar(255) NOT NULL,
   `status` varchar(255) DEFAULT 'pending',
   `mpesa_receipt_number` varchar(255) DEFAULT NULL,
   `result_desc` text DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `checkout_request_id` (`checkout_request_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -426,7 +426,7 @@ CREATE TABLE IF NOT EXISTS `fixture_vote_counts` (
 
 CREATE TABLE IF NOT EXISTS `purchases` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
+  `user_id` varchar(255) DEFAULT NULL,
   `item_type` varchar(255) NOT NULL,
   `item_id` varchar(255) NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),

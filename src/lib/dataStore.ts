@@ -350,6 +350,18 @@ export async function simulateMpesaCallback(checkoutRequestId: string, success: 
   }
 }
 
+export async function fetchMpesaTransactions() {
+  const baseUrl = getApiBaseUrl();
+  try {
+    const res = await fetch(`${baseUrl}/api/mpesa/transactions`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error('[dataStore] fetchMpesaTransactions failed:', err);
+    return [];
+  }
+}
+
 export async function fetchSmsSubscriptions() {
   const baseUrl = getApiBaseUrl();
   try {

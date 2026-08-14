@@ -1323,7 +1323,7 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
         try {
             $pdo->exec("CREATE TABLE IF NOT EXISTS `mpesa_transactions` (
               `id` INT(11) NOT NULL AUTO_INCREMENT,
-              `user_id` INT(11) DEFAULT NULL,
+              `user_id` VARCHAR(255) DEFAULT NULL,
               `checkout_request_id` VARCHAR(255) NOT NULL,
               `merchant_request_id` VARCHAR(255) DEFAULT NULL,
               `phone_number` VARCHAR(50) NOT NULL,
@@ -1343,13 +1343,19 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
         try {
             $pdo->exec("CREATE TABLE IF NOT EXISTS `purchases` (
               `id` INT(11) NOT NULL AUTO_INCREMENT,
-              `user_id` INT(11) DEFAULT NULL,
+              `user_id` VARCHAR(255) DEFAULT NULL,
               `item_type` VARCHAR(50) NOT NULL,
               `item_id` VARCHAR(100) NOT NULL,
               `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
         } catch (Throwable $e) {}
+
+        // Migrations: Modify columns in case table was created with INT NOT NULL from previous imports
+        try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY `user_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
+        try { $pdo->exec("ALTER TABLE `mpesa_transactions` MODIFY `merchant_request_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
+        try { $pdo->exec("ALTER TABLE `purchases` MODIFY `user_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
+        try { $pdo->exec("ALTER TABLE `user_subscriptions` MODIFY `user_id` VARCHAR(255) DEFAULT NULL"); } catch (Throwable $e) {}
     };
 
     $ensureMpesaTables();
@@ -1372,16 +1378,16 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
         $cleanPhone = '254' . $cleanPhone;
     }
 
-    $userId = null;
+    $userId = !empty($uid) && $uid !== 'guest' ? $uid : $cleanPhone;
     try {
         $uStmt = $pdo->prepare("SELECT id FROM users WHERE uid = ?");
         $uStmt->execute([$uid]);
         $uRow = $uStmt->fetch();
         if ($uRow) {
-            $userId = $uRow['id'];
+            $userId = (string)$uRow['id'];
         }
     } catch (Throwable $e) {
-        $userId = null;
+        $userId = $cleanPhone;
     }
 
     $checkoutRequestId = null;
@@ -1454,10 +1460,10 @@ if ($path === '/mpesa/stkpush' && $method === 'POST') {
     }
 
     try {
-        $stmt = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, amount, item_type, item_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')");
+        $stmt = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, amount, item_type, item_id, status, result_desc) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', 'STK Push request broadcasted') ON DUPLICATE KEY UPDATE status='pending', phone_number=VALUES(phone_number), amount=VALUES(amount), item_type=VALUES(item_type), item_id=VALUES(item_id), updated_at=NOW()");
         $stmt->execute([$userId, $checkoutRequestId, $merchantRequestId, $cleanPhone, $amount, $itemType, $itemId]);
     } catch (Throwable $e) {
-        // Fallback log if insert fails
+        error_log("[M-Pesa STK DB Error] " . $e->getMessage());
     }
 
     jsonResponse([
@@ -1589,16 +1595,33 @@ if ($path === '/mpesa/simulate-callback' && $method === 'POST') {
     $stmt->execute([$checkoutRequestId]);
     $tx = $stmt->fetch();
 
-    if (!$tx) {
-        jsonResponse(['error' => 'Transaction not found'], 404);
-    }
-
     $status = $success ? 'completed' : 'failed';
     $receipt = $success ? 'MP' . strtoupper(substr(md5(uniqid()), 0, 8)) : null;
     $desc = $success ? 'The service request is processed successfully.' : 'Request cancelled by user.';
 
-    $upStmt = $pdo->prepare("UPDATE mpesa_transactions SET status = ?, result_desc = ?, mpesa_receipt_number = ?, updated_at = NOW() WHERE checkout_request_id = ?");
-    $upStmt->execute([$status, $desc, $receipt, $checkoutRequestId]);
+    if (!$tx) {
+        $phone = isset($body['phoneNumber']) ? trim($body['phoneNumber']) : '254700000000';
+        $amount = isset($body['amount']) ? (int)$body['amount'] : 100;
+        $itemType = isset($body['itemType']) ? trim($body['itemType']) : 'vip_package';
+        $itemId = isset($body['itemId']) ? trim($body['itemId']) : 'VIP_WEEKLY';
+
+        $ins = $pdo->prepare("INSERT INTO mpesa_transactions (user_id, checkout_request_id, merchant_request_id, phone_number, amount, item_type, item_id, status, result_desc, mpesa_receipt_number) VALUES (?, ?, 'MR_SIMULATED', ?, ?, ?, ?, ?, ?, ?)");
+        $ins->execute([$phone, $checkoutRequestId, $phone, $amount, $itemType, $itemId, $status, $desc, $receipt]);
+
+        $tx = [
+            'user_id' => $phone,
+            'checkout_request_id' => $checkoutRequestId,
+            'phone_number' => $phone,
+            'amount' => $amount,
+            'item_type' => $itemType,
+            'item_id' => $itemId,
+            'status' => $status,
+            'mpesa_receipt_number' => $receipt
+        ];
+    } else {
+        $upStmt = $pdo->prepare("UPDATE mpesa_transactions SET status = ?, result_desc = ?, mpesa_receipt_number = ?, updated_at = NOW() WHERE checkout_request_id = ?");
+        $upStmt->execute([$status, $desc, $receipt, $checkoutRequestId]);
+    }
 
     if ($success) {
         $checkP = $pdo->prepare("SELECT id FROM purchases WHERE user_id = ? AND item_type = ? AND item_id = ?");
@@ -1615,6 +1638,13 @@ if ($path === '/mpesa/simulate-callback' && $method === 'POST') {
         'status' => $status,
         'mpesaReceiptNumber' => $receipt
     ]);
+}
+
+// 12d. Get All M-Pesa Transactions GET /api/mpesa/transactions
+if ($path === '/mpesa/transactions' && $method === 'GET') {
+    $stmt = $pdo->query("SELECT * FROM mpesa_transactions ORDER BY id DESC LIMIT 100");
+    $txs = $stmt->fetchAll();
+    jsonResponse(is_array($txs) ? $txs : []);
 }
 
 // 12b. Safaricom M-Pesa C2B Direct Paybill/Till Webhooks (Validation & Confirmation)

@@ -7,14 +7,15 @@ import {
 } from 'lucide-react';
 import { 
   fetchSmsSubscriptions, fetchSmsDispatchLogs, triggerSmsCronJob, sendTestSms,
-  fetchSmsSettings, updateSmsSettings, fetchDeliverablesSummary
+  fetchSmsSettings, updateSmsSettings, fetchDeliverablesSummary, fetchMpesaTransactions, simulateMpesaCallback
 } from '../lib/dataStore';
 
 export default function SmsManagement() {
-  const [activeTab, setActiveTab] = useState<'gateway' | 'deliverables' | 'subscriptions' | 'logs'>('gateway');
+  const [activeTab, setActiveTab] = useState<'gateway' | 'deliverables' | 'subscriptions' | 'logs' | 'mpesa'>('gateway');
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [logs, setLogs] = useState<any[]>([]);
   const [deliverables, setDeliverables] = useState<any>(null);
+  const [mpesaTransactions, setMpesaTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Gateway Settings
@@ -67,16 +68,18 @@ export default function SmsManagement() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [subsData, logsData, settingsData, delivData] = await Promise.all([
+      const [subsData, logsData, settingsData, delivData, mpesaData] = await Promise.all([
         fetchSmsSubscriptions(),
         fetchSmsDispatchLogs(),
         fetchSmsSettings(),
-        fetchDeliverablesSummary()
+        fetchDeliverablesSummary(),
+        fetchMpesaTransactions()
       ]);
 
       setSubscriptions(Array.isArray(subsData) ? subsData : []);
       setLogs(Array.isArray(logsData) ? logsData : []);
       setDeliverables(delivData);
+      setMpesaTransactions(Array.isArray(mpesaData) ? mpesaData : []);
 
       if (settingsData) {
         setSmsProvider(settingsData.smsProvider === 'textsms' ? 'textsms' : 'africastalking');
@@ -225,6 +228,16 @@ export default function SmsManagement() {
           }`}
         >
           <ShieldCheck className="w-4 h-4 text-emerald-500" /> Dispatched SMS Logs ({logs.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('mpesa')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-t-md font-mono text-xs font-bold transition-all cursor-pointer border-b-2 ${
+            activeTab === 'mpesa'
+              ? 'border-[var(--primary)] text-[var(--primary)] bg-[var(--card)]'
+              : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text)]'
+          }`}
+        >
+          <Smartphone className="w-4 h-4 text-emerald-600" /> M-Pesa Database Records ({mpesaTransactions.length})
         </button>
       </div>
 
@@ -808,6 +821,108 @@ export default function SmsManagement() {
                         >
                           View Response
                         </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 5: M-PESA DATABASE TRANSACTIONS */}
+      {activeTab === 'mpesa' && (
+        <div className="p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-[var(--border)] pb-3">
+            <div>
+              <h3 className="text-sm font-extrabold flex items-center gap-2">
+                <Smartphone className="w-4 h-4 text-emerald-500" />
+                M-Pesa Payment Audit Trail (`mpesa_transactions`)
+              </h3>
+              <p className="text-[11px] text-[var(--text-muted)]">
+                All M-Pesa payments recorded in the MySQL database table. Status updates automatically when callback or polling succeeds.
+              </p>
+            </div>
+            <button
+              onClick={loadData}
+              className="px-3 py-1.5 bg-[var(--background)] hover:bg-slate-200 dark:hover:bg-slate-800 text-[var(--text)] font-mono text-xs font-bold rounded border border-[var(--border)] cursor-pointer flex items-center gap-1.5 self-start md:self-auto"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[var(--primary)]' : ''}`} />
+              Refresh Table
+            </button>
+          </div>
+
+          {mpesaTransactions.length === 0 ? (
+            <div className="py-12 text-center text-[var(--text-muted)] space-y-2">
+              <Smartphone className="w-8 h-8 mx-auto opacity-30 text-emerald-500" />
+              <p className="text-xs font-mono font-bold">No M-Pesa transactions logged in database yet.</p>
+              <p className="text-[10px]">Initiate an STK push or manual paybill payment to see live database records here.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs font-mono">
+                <thead>
+                  <tr className="border-b border-[var(--border)] text-[10px] uppercase text-[var(--text-muted)] bg-[var(--background)]">
+                    <th className="py-2.5 px-3">Tx ID / Date</th>
+                    <th className="py-2.5 px-3">Phone Line</th>
+                    <th className="py-2.5 px-3">Item / Package</th>
+                    <th className="py-2.5 px-3">Amount</th>
+                    <th className="py-2.5 px-3">Receipt Ref</th>
+                    <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-3 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border)]">
+                  {mpesaTransactions.map((tx: any) => (
+                    <tr key={tx.id || tx.checkout_request_id} className="hover:bg-[var(--background)] transition-colors">
+                      <td className="py-3 px-3 whitespace-nowrap">
+                        <div className="font-bold">#{tx.id}</div>
+                        <div className="text-[9px] text-[var(--text-muted)]">{tx.created_at || 'Just now'}</div>
+                      </td>
+                      <td className="py-3 px-3 font-bold whitespace-nowrap text-[var(--text)]">
+                        {tx.phone_number}
+                      </td>
+                      <td className="py-3 px-3 whitespace-nowrap">
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-slate-100 dark:bg-slate-800 text-[var(--text)] border border-[var(--border)]">
+                          {tx.item_type || 'Package'}: {tx.item_id || 'VIP'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 font-black text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
+                        KES {tx.amount}
+                      </td>
+                      <td className="py-3 px-3 font-bold text-sky-600 dark:text-sky-400 uppercase whitespace-nowrap">
+                        {tx.mpesa_receipt_number || <span className="text-[var(--text-muted)] font-normal text-[10px]">Pending</span>}
+                      </td>
+                      <td className="py-3 px-3 whitespace-nowrap">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${
+                            tx.status === 'completed'
+                              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+                              : tx.status === 'failed'
+                              ? 'bg-rose-500/10 text-rose-600 border border-rose-500/30'
+                              : 'bg-amber-500/10 text-amber-600 border border-amber-500/30'
+                          }`}
+                        >
+                          {tx.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 text-right whitespace-nowrap">
+                        {tx.status === 'pending' && (
+                          <button
+                            onClick={async () => {
+                              try {
+                                await simulateMpesaCallback(tx.checkout_request_id, true);
+                                await loadData();
+                              } catch (e) {
+                                console.error(e);
+                              }
+                            }}
+                            className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-mono cursor-pointer font-bold transition-all shadow-xs"
+                          >
+                            Approve Sandbox
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
