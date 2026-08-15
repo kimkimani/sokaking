@@ -1,9 +1,9 @@
 ---
-title: "254 Cheza Tips Today - Fixed Odds & High Confidence Predictions"
-description: "Cheza daily 254 sure tips, high winning accuracy football predictions, and expert banker picks for Kenyan and global matches."
-keywords: "Cheza Cheza tips, sure bets Kenya, high odds tips, banker predictions, free sure tips Kenya"
+title: "254 Sure Tips Today - Fixed Odds & High Confidence Predictions"
+description: "Get daily 254 sure tips, high winning accuracy football predictions, and expert banker picks for Kenyan and global matches."
+keywords: "254 sure tips, sure bets Kenya, high odds tips, banker predictions, free sure tips Kenya"
 link: "/254-sure-tips"
-displayTitle: "Cheza Cheza Tips Cheza - Fixed Odds & High Confidence Predictions"
+displayTitle: "254 Sure Tips Today - Fixed Odds & High Confidence Predictions"
 authorName: "John K. Mwangi"
 authorTitle: "Lead Football Analyst & Poisson Model Expert"
 authorDescription: "John has over 9 years of experience modeling European & African football leagues using Poisson probability distribution."

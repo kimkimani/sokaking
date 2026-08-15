@@ -165,19 +165,19 @@ export default function JackpotListPage({
             if (hasEnded) {
               statusBadge = (
                 <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider font-mono bg-rose-500/10 text-rose-500 border border-rose-500/20">
-                  Closed
+                  Completed & Closed
                 </span>
               );
             } else if (hasStarted) {
               statusBadge = (
                 <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider font-mono bg-amber-500/15 text-amber-500 border border-amber-500/30 animate-pulse">
-                  Live
+                  Live In Progress
                 </span>
               );
             } else {
               statusBadge = (
                 <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider font-mono bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                  Open
+                  Open • Not started
                 </span>
               );
             }
@@ -234,7 +234,7 @@ export default function JackpotListPage({
                     <div className="flex items-center gap-2 text-[var(--text-muted)]">
                       <Clock className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                       <span className="font-bold text-[11px] font-mono truncate text-[var(--text)]">
-                        {hasEnded ? 'Ended (Matches Played)' : hasStarted ? 'Live In Progress' : (jackpot.nextGameStartTime || '').replace('EAT (Nairobi)', '').trim()}
+                        {hasEnded ? 'Completed and closed' : hasStarted ? 'Live In Progress' : `Open (Not started) • ${jackpot.nextGameStartTime || ''}`}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-[11px]">

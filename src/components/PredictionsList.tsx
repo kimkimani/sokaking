@@ -18,6 +18,7 @@ import { Fixture } from '../types';
 import { calculateProbabilities, getRefinedConfidence } from '../utils/probability';
 import VotePoll from './VotePoll';
 import { FlagImage } from '../utils/flagUtils';
+import { formatKickoffTimeEAT } from '../utils/timeUtils';
 
 interface PredictionsListProps {
   fixtures: Fixture[];
@@ -162,38 +163,7 @@ export default function PredictionsList({
   };
 
   const formatTime = (isoString: string) => {
-    try {
-      const d = new Date(isoString);
-      if (isNaN(d.getTime())) return '18:00';
-      const now = new Date();
-      const isToday = d.getFullYear() === now.getFullYear() &&
-                     d.getMonth() === now.getMonth() &&
-                     d.getDate() === now.getDate();
-
-      const hours = String(d.getHours()).padStart(2, '0');
-      const minutes = String(d.getMinutes()).padStart(2, '0');
-      const timeStr = `${hours}:${minutes}`;
-      if (isToday) return timeStr;
-
-      const yesterday = new Date(now);
-      yesterday.setDate(now.getDate() - 1);
-      const isYesterday = d.getFullYear() === yesterday.getFullYear() &&
-                     d.getMonth() === yesterday.getMonth() &&
-                     d.getDate() === yesterday.getDate();
-      if (isYesterday) return `Yest ${timeStr}`;
-
-      const tomorrow = new Date(now);
-      tomorrow.setDate(now.getDate() + 1);
-      const isTomorrow = d.getFullYear() === tomorrow.getFullYear() &&
-                     d.getMonth() === tomorrow.getMonth() &&
-                     d.getDate() === tomorrow.getDate();
-      if (isTomorrow) return `Tom ${timeStr}`;
-
-      const dateStr = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
-      return `${dateStr} ${timeStr}`;
-    } catch {
-      return '18:00';
-    }
+    return formatKickoffTimeEAT(isoString);
   };
 
   const getInitials = (teamName: string) => {

@@ -650,6 +650,11 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-850 border border-[var(--border)] text-[10px] font-mono font-bold text-[var(--text-muted)] select-none" title="Match times formatted in Kenya East Africa Time (EAT)">
+              <span className="text-xs">🇰🇪</span>
+              <span>EAT (UTC+3)</span>
+            </div>
+
             <button
               onClick={() => {
                 if (dbVipPackages.length > 0) {

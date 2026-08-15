@@ -26,6 +26,7 @@ import MarkdownRenderer from './MarkdownRenderer';
 import { FlagImage } from '../utils/flagUtils';
 import { AuthorCard } from './AuthorCard';
 import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
+import { formatMatchFullDateTimeEAT } from '../utils/timeUtils';
 
 interface JackpotPageProps {
   jackpot: JackpotConfig;
@@ -76,22 +77,7 @@ export function JackpotShimmerLoader({ count = 10 }: { count?: number }) {
 }
 
 function formatMatchDateTime(rawDate?: string | Date): string {
-  if (!rawDate) return 'Kickoff TBA';
-  try {
-    const d = new Date(rawDate);
-    if (isNaN(d.getTime())) return String(rawDate);
-    return d.toLocaleString('en-KE', {
-      timeZone: 'Africa/Nairobi',
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-  } catch {
-    return String(rawDate);
-  }
+  return formatMatchFullDateTimeEAT(rawDate);
 }
 
 export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToList, pageId, isLoading = false }: JackpotPageProps) {
@@ -440,15 +426,15 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                     ? 'bg-amber-400 text-slate-950 font-black animate-pulse' 
                     : 'bg-emerald-400 text-slate-950 font-black'
               }`}>
-                <Sparkles className="w-2.5 h-2.5" /> {hasEnded ? 'ENDED' : hasStarted ? 'LIVE NOW' : 'STARTS IN'}
+                <Sparkles className="w-2.5 h-2.5" /> {hasEnded ? 'COMPLETED & CLOSED' : hasStarted ? 'LIVE IN PROGRESS' : 'OPEN • NOT STARTED'}
               </span>
               <span className="text-xs font-black font-mono text-slate-200">
-                {hasEnded ? 'Jackpot Ended' : hasStarted ? 'Jackpot In Progress' : 'Kickoff Countdown'}
+                {hasEnded ? 'Completed and closed' : hasStarted ? 'Jackpot In Progress' : 'Open / Not started'}
               </span>
             </div>
             <p className="text-[10px] sm:text-[11px] font-mono font-bold text-slate-400 tracking-tight leading-none truncate">
               {hasEnded 
-                ? `Finished: ${latestTime ? formatMatchDateTime(new Date(latestTime)) : 'Recently'}` 
+                ? `Completed & closed: ${latestTime ? formatMatchDateTime(new Date(latestTime)) : 'Recently'}` 
                 : hasStarted 
                   ? `Live Matches (${earliestTime ? formatMatchDateTime(new Date(earliestTime)) : ''})` 
                   : `Starts: ${earliestTime ? formatMatchDateTime(new Date(earliestTime)) : jackpot.nextGameStartTime}`

@@ -39,6 +39,37 @@ export function getJackpotStatus(fixtures: any[]): 'upcoming' | 'started' | 'end
   return 'upcoming';
 }
 
+export function getJackpotStatusDisplay(fixtures: any[]): {
+  status: 'upcoming' | 'started' | 'ended';
+  label: string;
+  badgeText: string;
+  badgeClass: string;
+} {
+  const status = getJackpotStatus(fixtures);
+  if (status === 'ended') {
+    return {
+      status: 'ended',
+      label: 'Completed and closed',
+      badgeText: 'Completed & Closed',
+      badgeClass: 'bg-rose-500/10 text-rose-500 border border-rose-500/20'
+    };
+  }
+  if (status === 'started') {
+    return {
+      status: 'started',
+      label: 'Live In Progress',
+      badgeText: 'Live In Progress',
+      badgeClass: 'bg-amber-500/15 text-amber-500 border border-amber-500/30 animate-pulse'
+    };
+  }
+  return {
+    status: 'upcoming',
+    label: 'Open / Not started',
+    badgeText: 'Open • Not started',
+    badgeClass: 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+  };
+}
+
 export function getTargetDateForJackpot(jackpotId: string, referenceDate?: Date): Date {
   const now = referenceDate || new Date();
   const target = new Date(now);
