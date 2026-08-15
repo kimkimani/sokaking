@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { getApiBaseUrl } from '../lib/getApiBaseUrl';
 import { getRefinedConfidence } from '../utils/probability';
+import { parseKickoffDateToUTC, formatMatchFullDateTimeEAT } from '../utils/timeUtils';
 import { motion } from 'motion/react';
 import { 
   Trophy,
@@ -40,7 +41,7 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures }: Live
   const recentWins = useMemo(() => {
     const settledWon = dbFixtures
       .filter(f => f.result === 'won' || f.result === 'Won' || (f.status === 'FT' && f.result !== 'lost'))
-      .sort((a, b) => new Date(b.kickoffTime || 0).getTime() - new Date(a.kickoffTime || 0).getTime());
+      .sort((a, b) => (parseKickoffDateToUTC(b.kickoffTime)?.getTime() || 0) - (parseKickoffDateToUTC(a.kickoffTime)?.getTime() || 0));
 
     if (settledWon.length > 0) {
       return settledWon.slice(0, 4).map(f => {
@@ -51,7 +52,7 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures }: Live
           tip: f.prediction || 'Home Win (1)',
           odds: (1.5 + (getRefinedConfidence(f)) / 100).toFixed(2),
           result: `${hScore} - ${aScore}`,
-          date: f.kickoffTime ? new Date(f.kickoffTime).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Recently'
+          date: f.kickoffTime ? formatMatchFullDateTimeEAT(f.kickoffTime) : 'Recently'
         };
       });
     }

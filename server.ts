@@ -26,6 +26,75 @@ async function startServer() {
 
   console.log(`[SOKA King Frontend Server] Connected to PHP Backend at: ${PHP_BACKEND_URL}`);
 
+  // Persistent in-memory vote store fallback if remote database endpoint fails
+  const memoryVotesStore = new Map<string, {
+    votes1: number;
+    votesX: number;
+    votes2: number;
+    totalVotes: number;
+    userVotes: Record<string, string>;
+  }>();
+
+  function getMemoryVoteStats(fixtureId: string, userId?: string) {
+    const current = memoryVotesStore.get(fixtureId) || {
+      votes1: 0,
+      votesX: 0,
+      votes2: 0,
+      totalVotes: 0,
+      userVotes: {}
+    };
+
+    const total = current.votes1 + current.votesX + current.votes2;
+    const hPct = total > 0 ? Math.round((current.votes1 / total) * 100) : 0;
+    const dPct = total > 0 ? Math.round((current.votesX / total) * 100) : 0;
+    const aPct = total > 0 ? Math.max(0, 100 - hPct - dPct) : 0;
+
+    return {
+      fixtureId,
+      totalVotes: total,
+      votes1: current.votes1,
+      votesX: current.votesX,
+      votes2: current.votes2,
+      homePercent: hPct,
+      drawPercent: dPct,
+      awayPercent: aPct,
+      userVote: userId ? (current.userVotes[userId] || null) : null
+    };
+  }
+
+  function recordMemoryVote(fixtureId: string, userId: string, vote: string) {
+    let current = memoryVotesStore.get(fixtureId);
+    if (!current) {
+      current = {
+        votes1: 0,
+        votesX: 0,
+        votes2: 0,
+        totalVotes: 0,
+        userVotes: {}
+      };
+      memoryVotesStore.set(fixtureId, current);
+    }
+
+    const prevVote = current.userVotes[userId];
+    if (prevVote) {
+      if (prevVote === '1' || prevVote === '1X' || prevVote === 'GG' || prevVote.startsWith('OVER')) current.votes1 = Math.max(0, current.votes1 - 1);
+      else if (prevVote === 'X' || prevVote === '12') current.votesX = Math.max(0, current.votesX - 1);
+      else if (prevVote === '2' || prevVote === '2X' || prevVote === 'NG' || prevVote.startsWith('UNDER')) current.votes2 = Math.max(0, current.votes2 - 1);
+    }
+
+    current.userVotes[userId] = vote;
+    if (vote === '1' || vote === '1X' || vote === 'GG' || vote.startsWith('OVER')) {
+      current.votes1 += 1;
+    } else if (vote === 'X' || vote === '12') {
+      current.votesX += 1;
+    } else if (vote === '2' || vote === '2X' || vote === 'NG' || vote.startsWith('UNDER')) {
+      current.votes2 += 1;
+    }
+
+    current.totalVotes = current.votes1 + current.votesX + current.votes2;
+    return getMemoryVoteStats(fixtureId, userId);
+  }
+
   // Sitemap & Robots.txt Routes
   app.get(['/sitemap.xml', '/sitemap', '/api/sitemap.xml'], (_req, res) => {
     try {
@@ -160,6 +229,34 @@ Sitemap: https://sokaking.com/sitemap.xml
       
       if (!phpRes.ok) {
         console.warn(`[Proxy -> PHP Backend] ${req.method} ${targetUrl} returned status ${phpRes.status}`);
+
+        // Fail-safe handling for Voting endpoints
+        if (req.originalUrl.includes('/api/predictions/vote') || req.originalUrl.includes('/api/vote')) {
+          if (req.method === 'GET') {
+            const fixtureId = String(req.query.fixtureId || '1');
+            const userId = String(req.query.userId || '');
+            const stats = getMemoryVoteStats(fixtureId, userId);
+
+            res.status(200);
+            res.setHeader('Content-Type', 'application/json');
+            return res.json(stats);
+          }
+
+          if (req.method === 'POST') {
+            const body = req.body || {};
+            const fixtureId = String(body.fixtureId || '1');
+            const vote = String(body.vote || '1');
+            const userId = String(body.userId || 'guest');
+            const stats = recordMemoryVote(fixtureId, userId, vote);
+
+            res.status(200);
+            res.setHeader('Content-Type', 'application/json');
+            return res.json({
+              success: true,
+              stats
+            });
+          }
+        }
 
         // Fail-safe handling for M-Pesa endpoints if remote PHP backend throws 500 / error
         if (req.originalUrl.includes('/api/mpesa/stkpush')) {

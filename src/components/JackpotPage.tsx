@@ -20,13 +20,14 @@ import {
 import { JackpotConfig } from '../jackpotsData';
 import { calculateProbabilities, getRefinedConfidence } from '../utils/probability';
 import VotePoll from './VotePoll';
+import VoteNudgeSnippet from './VoteNudgeSnippet';
 import FaqSection from './FaqSection';
 import { getMarkdownContent } from '../content/markdownLoader';
 import MarkdownRenderer from './MarkdownRenderer';
 import { FlagImage } from '../utils/flagUtils';
 import { AuthorCard } from './AuthorCard';
 import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
-import { formatMatchFullDateTimeEAT } from '../utils/timeUtils';
+import { formatMatchFullDateTimeEAT, parseKickoffDateToUTC } from '../utils/timeUtils';
 
 interface JackpotPageProps {
   jackpot: JackpotConfig;
@@ -84,77 +85,13 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
   const [expandedFixture, setExpandedFixture] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState({ days: 2, hours: 14, minutes: 45, seconds: 22 });
   const pageMd = getMarkdownContent(pageId || jackpot.id);
-  
-  // Local state for user votes saved in localStorage
-  const [userVotes, setUserVotes] = useState<Record<string, '1' | 'X' | '2'>>(() => {
-    try {
-      const saved = localStorage.getItem(`votes-${jackpot.id}`);
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  });
-
-  const handleVote = (fixtureId: number, option: '1' | 'X' | '2') => {
-    const updated = { ...userVotes, [fixtureId]: option };
-    setUserVotes(updated);
-    try {
-      localStorage.setItem(`votes-${jackpot.id}`, JSON.stringify(updated));
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const getCommunityVotes = (fixtureId: number, userVote?: '1' | 'X' | '2') => {
-    // Generate deterministic baseline based on fixtureId & name length
-    const prime = (fixtureId * 17) % 100;
-    
-    // Baseline percentages that add up to 100
-    let v1 = 35 + (prime % 25); // 35 to 59
-    let vX = 15 + ((prime * 7) % 20); // 15 to 34
-    let v2 = 100 - v1 - vX;
-    
-    // Safety check
-    if (v2 < 10) {
-      v2 = 12;
-      v1 = 100 - vX - v2;
-    }
-
-    // Apply user vote modifier if they voted
-    if (userVote === '1') {
-      v1 += 12;
-      const sum = v1 + vX + v2;
-      v1 = Math.round((v1 / sum) * 100);
-      vX = Math.round((vX / sum) * 100);
-      v2 = 100 - v1 - vX;
-    } else if (userVote === 'X') {
-      vX += 12;
-      const sum = v1 + vX + v2;
-      v1 = Math.round((v1 / sum) * 100);
-      vX = Math.round((vX / sum) * 100);
-      v2 = 100 - v1 - vX;
-    } else if (userVote === '2') {
-      v2 += 12;
-      const sum = v1 + vX + v2;
-      v1 = Math.round((v1 / sum) * 100);
-      vX = Math.round((vX / sum) * 100);
-      v2 = 100 - v1 - vX;
-    }
-
-    // Ensure they sum to exactly 100
-    const total = v1 + vX + v2;
-    if (total !== 100) {
-      v2 += (100 - total);
-    }
-
-    return { v1, vX, v2 };
-  };
 
   // Compute earliest and latest match times for started/ended statuses
   const fixtureTimes = (jackpot.fixtures || [])
     .map(f => {
       const val = f.kickoffTime || f.date || f.time;
-      return val ? new Date(val).getTime() : null;
+      const d = parseKickoffDateToUTC(val);
+      return d ? d.getTime() : null;
     })
     .filter((t): t is number => t !== null && !isNaN(t));
 
@@ -663,6 +600,21 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                           </span>
                         </div>
                       </div>
+
+                      {/* Community Vote Nudge Snippet (Mobile Only) */}
+                      <div className="pt-1.5 flex items-center md:hidden">
+                        <VoteNudgeSnippet 
+                          fixtureId={match.fixtureId || `jackpot_${jackpot.id}_${match.id}`} 
+                          prediction={match.prediction} 
+                          homeTeam={match.homeTeam}
+                          awayTeam={match.awayTeam}
+                          status={match.status} 
+                          result={match.result} 
+                          isEnded={match.status === 'FT'} 
+                          onExpand={() => toggleExpand(match.id)}
+                          variant="compact"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -806,6 +758,8 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                         <div className="pt-1.5">
                           <VotePoll 
                             fixtureId={`jackpot_${jackpot.id}_${match.id}`} 
+                            homeTeam={match.homeTeam}
+                            awayTeam={match.awayTeam}
                             isEnded={match.status === 'FT' || match.status === 'FINISHED' || match.result === 'won' || match.result === 'lost'}
                             status={match.status}
                             result={match.result}

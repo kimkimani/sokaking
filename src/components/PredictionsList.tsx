@@ -17,8 +17,9 @@ import {
 import { Fixture } from '../types';
 import { calculateProbabilities, getRefinedConfidence } from '../utils/probability';
 import VotePoll from './VotePoll';
+import VoteNudgeSnippet from './VoteNudgeSnippet';
 import { FlagImage } from '../utils/flagUtils';
-import { formatKickoffTimeEAT } from '../utils/timeUtils';
+import { formatKickoffTimeEAT, parseKickoffDateToUTC, isSameDayInTargetTimezone } from '../utils/timeUtils';
 
 interface PredictionsListProps {
   fixtures: Fixture[];
@@ -65,13 +66,7 @@ export function MinimalShimmerLoader({ count = 5 }: { count?: number }) {
 
 function isSameDay(dateStr?: string, targetDate?: Date) {
   if (!dateStr || !targetDate) return false;
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return false;
-  return (
-    d.getFullYear() === targetDate.getFullYear() &&
-    d.getMonth() === targetDate.getMonth() &&
-    d.getDate() === targetDate.getDate()
-  );
+  return isSameDayInTargetTimezone(dateStr, targetDate);
 }
 
 export default function PredictionsList({
@@ -91,27 +86,25 @@ export default function PredictionsList({
     });
     const list = Array.from(map.values());
     return list.sort((a, b) => {
-      const timeA = a.kickoffTime ? new Date(a.kickoffTime).getTime() : 0;
-      const timeB = b.kickoffTime ? new Date(b.kickoffTime).getTime() : 0;
+      const timeA = a.kickoffTime ? (parseKickoffDateToUTC(a.kickoffTime)?.getTime() || 0) : 0;
+      const timeB = b.kickoffTime ? (parseKickoffDateToUTC(b.kickoffTime)?.getTime() || 0) : 0;
       return timeB - timeA;
     });
   }, [fixtures]);
 
   const displayedFixtures = useMemo(() => {
     const now = new Date();
-    const yesterday = new Date(now);
-    yesterday.setDate(now.getDate() - 1);
-    const tomorrow = new Date(now);
-    tomorrow.setDate(now.getDate() + 1);
+    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
     if (dateFilter === 'yesterday') {
-      return sortedFixtures.filter(f => isSameDay(f.kickoffTime, yesterday));
+      return sortedFixtures.filter(f => isSameDayInTargetTimezone(f.kickoffTime, yesterday));
     }
     if (dateFilter === 'today') {
-      return sortedFixtures.filter(f => isSameDay(f.kickoffTime, now));
+      return sortedFixtures.filter(f => isSameDayInTargetTimezone(f.kickoffTime, now));
     }
     if (dateFilter === 'tomorrow') {
-      return sortedFixtures.filter(f => isSameDay(f.kickoffTime, tomorrow));
+      return sortedFixtures.filter(f => isSameDayInTargetTimezone(f.kickoffTime, tomorrow));
     }
     return sortedFixtures;
   }, [sortedFixtures, dateFilter]);
@@ -452,6 +445,21 @@ export default function PredictionsList({
                     </div>
                   </div>
 
+                  {/* Community Fan Poll Card (Mobile) */}
+                  <div className="pt-0.5">
+                    <VoteNudgeSnippet 
+                      fixtureId={fixture.id} 
+                      prediction={fixture.prediction} 
+                      homeTeam={fixture.homeTeam}
+                      awayTeam={fixture.awayTeam}
+                      status={fixture.status} 
+                      result={fixture.result} 
+                      isEnded={isCompleted} 
+                      onExpand={() => toggleExpand(fixture.id)}
+                      variant="card"
+                    />
+                  </div>
+
                   {/* ACTION/TIP BOTTOM BAR & READ ANALYSIS TRIGGER (MOBILE) */}
                   <div className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 transition-all ${
                     isCompleted
@@ -531,6 +539,8 @@ export default function PredictionsList({
                         <div className="pt-1.5">
                           <VotePoll 
                             fixtureId={fixture.id} 
+                            homeTeam={fixture.homeTeam}
+                            awayTeam={fixture.awayTeam}
                             isEnded={isCompleted} 
                             status={fixture.status} 
                             result={fixture.result} 

@@ -1,9 +1,12 @@
+import { parseKickoffDateToUTC, formatMatchFullDateTimeEAT } from './timeUtils';
+
 export function getJackpotEarliestTime(fixtures: any[]): Date | null {
   if (!fixtures || fixtures.length === 0) return null;
   const times = fixtures
     .map(f => {
       const val = f.kickoffTime || f.date || f.kickoff_time || f.time;
-      return val ? new Date(val).getTime() : null;
+      const d = parseKickoffDateToUTC(val);
+      return d ? d.getTime() : null;
     })
     .filter((t): t is number => t !== null && !isNaN(t));
   if (times.length === 0) return null;
@@ -15,7 +18,8 @@ export function getJackpotLatestTime(fixtures: any[]): Date | null {
   const times = fixtures
     .map(f => {
       const val = f.kickoffTime || f.date || f.kickoff_time || f.time;
-      return val ? new Date(val).getTime() : null;
+      const d = parseKickoffDateToUTC(val);
+      return d ? d.getTime() : null;
     })
     .filter((t): t is number => t !== null && !isNaN(t));
   if (times.length === 0) return null;

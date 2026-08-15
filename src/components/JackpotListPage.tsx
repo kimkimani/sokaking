@@ -8,6 +8,7 @@ import { AuthorCard } from './AuthorCard';
 import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
 import { FlagImage } from '../utils/flagUtils';
 import { sortJackpotsByStatusAndTime } from '../utils/jackpotDateShifter';
+import { parseKickoffDateToUTC, formatMatchFullDateTimeEAT } from '../utils/timeUtils';
 
 interface JackpotListPageProps {
   onSelectJackpot: (jackpotId: string) => void;
@@ -152,7 +153,11 @@ export default function JackpotListPage({
             const isUnlocked = unlockedJackpots.includes(jackpot.id) || hasPaidJackpot;
 
             const times = (jackpot.fixtures || [])
-              .map(f => f.kickoffTime ? new Date(f.kickoffTime).getTime() : null)
+              .map(f => {
+                const val = f.kickoffTime || f.date || f.time;
+                const d = parseKickoffDateToUTC(val);
+                return d ? d.getTime() : null;
+              })
               .filter((t): t is number => t !== null && !isNaN(t));
             const earliestTime = times.length > 0 ? Math.min(...times) : null;
             const latestTime = times.length > 0 ? Math.max(...times) : null;
@@ -165,7 +170,7 @@ export default function JackpotListPage({
             if (hasEnded) {
               statusBadge = (
                 <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider font-mono bg-rose-500/10 text-rose-500 border border-rose-500/20">
-                  Completed & Closed
+                  Completed and closed
                 </span>
               );
             } else if (hasStarted) {

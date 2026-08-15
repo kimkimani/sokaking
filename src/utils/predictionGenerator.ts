@@ -1,4 +1,5 @@
 import { Fixture } from '../types';
+import { parseKickoffDateToUTC, isSameDayInTargetTimezone } from './timeUtils';
 
 export interface PredictionCategory {
   id: string;
@@ -181,20 +182,14 @@ const EUROPEAN_TEAMS = [
 
 // Helper functions for date comparison
 export function isSameDay(dateStr: string, targetDate: Date): boolean {
-  if (!dateStr) return false;
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return false;
-  return (
-    d.getFullYear() === targetDate.getFullYear() &&
-    d.getMonth() === targetDate.getMonth() &&
-    d.getDate() === targetDate.getDate()
-  );
+  if (!dateStr || !targetDate) return false;
+  return isSameDayInTargetTimezone(dateStr, targetDate);
 }
 
 export function isWithinLast7Days(dateStr: string, refDate: Date = new Date()): boolean {
   if (!dateStr) return false;
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return false;
+  const d = parseKickoffDateToUTC(dateStr);
+  if (!d) return false;
 
   const start = new Date(refDate);
   start.setHours(0, 0, 0, 0);
