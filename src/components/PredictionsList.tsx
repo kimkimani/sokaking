@@ -19,7 +19,6 @@ import { calculateProbabilities, getRefinedConfidence } from '../utils/probabili
 import VotePoll from './VotePoll';
 import VoteNudgeSnippet from './VoteNudgeSnippet';
 import { FlagImage } from '../utils/flagUtils';
-import { formatKickoffTimeEAT, parseKickoffDateToUTC, isSameDayInTargetTimezone } from '../utils/timeUtils';
 
 interface PredictionsListProps {
   fixtures: Fixture[];
@@ -66,7 +65,9 @@ export function MinimalShimmerLoader({ count = 5 }: { count?: number }) {
 
 function isSameDay(dateStr?: string, targetDate?: Date) {
   if (!dateStr || !targetDate) return false;
-  return isSameDayInTargetTimezone(dateStr, targetDate);
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return true;
+  return d.toDateString() === targetDate.toDateString();
 }
 
 export default function PredictionsList({
@@ -86,8 +87,8 @@ export default function PredictionsList({
     });
     const list = Array.from(map.values());
     return list.sort((a, b) => {
-      const timeA = a.kickoffTime ? (parseKickoffDateToUTC(a.kickoffTime)?.getTime() || 0) : 0;
-      const timeB = b.kickoffTime ? (parseKickoffDateToUTC(b.kickoffTime)?.getTime() || 0) : 0;
+      const timeA = a.kickoffTime ? new Date(a.kickoffTime).getTime() || 0 : 0;
+      const timeB = b.kickoffTime ? new Date(b.kickoffTime).getTime() || 0 : 0;
       return timeB - timeA;
     });
   }, [fixtures]);
@@ -98,13 +99,13 @@ export default function PredictionsList({
     const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
     if (dateFilter === 'yesterday') {
-      return sortedFixtures.filter(f => isSameDayInTargetTimezone(f.kickoffTime, yesterday));
+      return sortedFixtures.filter(f => isSameDay(f.kickoffTime, yesterday));
     }
     if (dateFilter === 'today') {
-      return sortedFixtures.filter(f => isSameDayInTargetTimezone(f.kickoffTime, now));
+      return sortedFixtures.filter(f => isSameDay(f.kickoffTime, now));
     }
     if (dateFilter === 'tomorrow') {
-      return sortedFixtures.filter(f => isSameDayInTargetTimezone(f.kickoffTime, tomorrow));
+      return sortedFixtures.filter(f => isSameDay(f.kickoffTime, tomorrow));
     }
     return sortedFixtures;
   }, [sortedFixtures, dateFilter]);
@@ -155,8 +156,8 @@ export default function PredictionsList({
     );
   };
 
-  const formatTime = (isoString: string) => {
-    return formatKickoffTimeEAT(isoString);
+  const formatTime = (timeStr: string) => {
+    return timeStr || '18:00';
   };
 
   const getInitials = (teamName: string) => {

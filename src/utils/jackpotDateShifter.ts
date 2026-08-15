@@ -1,12 +1,10 @@
-import { parseKickoffDateToUTC, formatMatchFullDateTimeEAT } from './timeUtils';
-
 export function getJackpotEarliestTime(fixtures: any[]): Date | null {
   if (!fixtures || fixtures.length === 0) return null;
   const times = fixtures
     .map(f => {
       const val = f.kickoffTime || f.date || f.kickoff_time || f.time;
-      const d = parseKickoffDateToUTC(val);
-      return d ? d.getTime() : null;
+      const d = val ? new Date(val) : null;
+      return d && !isNaN(d.getTime()) ? d.getTime() : null;
     })
     .filter((t): t is number => t !== null && !isNaN(t));
   if (times.length === 0) return null;
@@ -18,8 +16,8 @@ export function getJackpotLatestTime(fixtures: any[]): Date | null {
   const times = fixtures
     .map(f => {
       const val = f.kickoffTime || f.date || f.kickoff_time || f.time;
-      const d = parseKickoffDateToUTC(val);
-      return d ? d.getTime() : null;
+      const d = val ? new Date(val) : null;
+      return d && !isNaN(d.getTime()) ? d.getTime() : null;
     })
     .filter((t): t is number => t !== null && !isNaN(t));
   if (times.length === 0) return null;
@@ -196,29 +194,5 @@ export function sortJackpotsByStatusAndTime<T extends { fixtures?: any[]; id?: s
 }
 
 export function formatJackpotStartTime(fixtures: any[], defaultVal: string): string {
-  const earliest = getJackpotEarliestTime(fixtures);
-  const latest = getJackpotLatestTime(fixtures);
-  if (!earliest) return defaultVal;
-
-  try {
-    const fmt = (d: Date) => d.toLocaleString('en-KE', {
-      timeZone: 'Africa/Nairobi',
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-
-    const startStr = fmt(earliest);
-    const endStr = latest ? fmt(latest) : '';
-
-    if (endStr && startStr !== endStr) {
-      return `Start: ${startStr} • End: ${endStr} EAT`;
-    }
-    return `Starts ${startStr} EAT`;
-  } catch (e) {
-    return defaultVal;
-  }
+  return defaultVal;
 }

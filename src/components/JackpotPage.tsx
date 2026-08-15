@@ -27,7 +27,6 @@ import MarkdownRenderer from './MarkdownRenderer';
 import { FlagImage } from '../utils/flagUtils';
 import { AuthorCard } from './AuthorCard';
 import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
-import { formatMatchFullDateTimeEAT, parseKickoffDateToUTC } from '../utils/timeUtils';
 
 interface JackpotPageProps {
   jackpot: JackpotConfig;
@@ -78,7 +77,8 @@ export function JackpotShimmerLoader({ count = 10 }: { count?: number }) {
 }
 
 function formatMatchDateTime(rawDate?: string | Date): string {
-  return formatMatchFullDateTimeEAT(rawDate);
+  if (!rawDate) return '';
+  return String(rawDate);
 }
 
 export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToList, pageId, isLoading = false }: JackpotPageProps) {
@@ -90,8 +90,8 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
   const fixtureTimes = (jackpot.fixtures || [])
     .map(f => {
       const val = f.kickoffTime || f.date || f.time;
-      const d = parseKickoffDateToUTC(val);
-      return d ? d.getTime() : null;
+      const d = val ? new Date(val) : null;
+      return d && !isNaN(d.getTime()) ? d.getTime() : null;
     })
     .filter((t): t is number => t !== null && !isNaN(t));
 

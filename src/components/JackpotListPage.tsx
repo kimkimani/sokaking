@@ -8,7 +8,6 @@ import { AuthorCard } from './AuthorCard';
 import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
 import { FlagImage } from '../utils/flagUtils';
 import { sortJackpotsByStatusAndTime } from '../utils/jackpotDateShifter';
-import { parseKickoffDateToUTC, formatMatchFullDateTimeEAT } from '../utils/timeUtils';
 
 interface JackpotListPageProps {
   onSelectJackpot: (jackpotId: string) => void;
@@ -155,8 +154,8 @@ export default function JackpotListPage({
             const times = (jackpot.fixtures || [])
               .map(f => {
                 const val = f.kickoffTime || f.date || f.time;
-                const d = parseKickoffDateToUTC(val);
-                return d ? d.getTime() : null;
+                const d = val ? new Date(val) : null;
+                return d && !isNaN(d.getTime()) ? d.getTime() : null;
               })
               .filter((t): t is number => t !== null && !isNaN(t));
             const earliestTime = times.length > 0 ? Math.min(...times) : null;
