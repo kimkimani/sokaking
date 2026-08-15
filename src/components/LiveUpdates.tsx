@@ -20,22 +20,8 @@ interface LiveUpdatesProps {
   fixtures?: any[];
 }
 
-export default function LiveUpdates({ onScrollTo, fixtures: propFixtures }: LiveUpdatesProps) {
-  const [dbFixtures, setDbFixtures] = useState<any[]>(propFixtures || []);
-
-  useEffect(() => {
-    if (propFixtures && propFixtures.length > 0) {
-      setDbFixtures(propFixtures);
-    } else {
-      const baseUrl = getApiBaseUrl();
-      fetch(`${baseUrl}/api/predictions`)
-        .then(r => r.ok ? r.json() : [])
-        .then(data => {
-          if (Array.isArray(data)) setDbFixtures(data);
-        })
-        .catch(() => {});
-    }
-  }, [propFixtures]);
+export default function LiveUpdates({ onScrollTo, fixtures: propFixtures = [] }: LiveUpdatesProps) {
+  const dbFixtures = propFixtures;
 
   const recentWins = useMemo(() => {
     const settledWon = dbFixtures

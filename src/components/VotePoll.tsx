@@ -258,6 +258,63 @@ export function calculateExactPercentages(
   return { pcts, total };
 }
 
+// Global in-memory cache to prevent redundant fetches
+const voteStatsCache = new Map<string, VoteStats>();
+const pendingVoteFetches = new Map<string, Promise<VoteStats | null>>();
+
+async function fetchVoteData(fixtureId: string | number, visitorId: string, savedVote: string | null): Promise<VoteStats | null> {
+  const fId = String(fixtureId);
+  if (voteStatsCache.has(fId)) {
+    return voteStatsCache.get(fId)!;
+  }
+  if (pendingVoteFetches.has(fId)) {
+    return pendingVoteFetches.get(fId)!;
+  }
+
+  const fetchPromise = (async () => {
+    try {
+      const baseUrl = getApiBaseUrl();
+      const res = await fetch(`${baseUrl}/api/predictions/vote?fixtureId=${encodeURIComponent(fId)}&userId=${encodeURIComponent(visitorId)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data) {
+          const serverUserVote = data.userVote || savedVote || null;
+          const v1 = Number(data.votes1 || 0);
+          const vX = Number(data.votesX || 0);
+          const v2 = Number(data.votes2 || 0);
+          const total = v1 + vX + v2;
+
+          const hPct = total > 0 ? Math.round((v1 / total) * 100) : 0;
+          const dPct = total > 0 ? Math.round((vX / total) * 100) : 0;
+          const aPct = total > 0 ? Math.max(0, 100 - hPct - dPct) : 0;
+
+          const freshStats: VoteStats = {
+            fixtureId: fId,
+            totalVotes: total,
+            votes1: v1,
+            votesX: vX,
+            votes2: v2,
+            homePercent: hPct,
+            drawPercent: dPct,
+            awayPercent: aPct,
+            userVote: serverUserVote,
+          };
+          voteStatsCache.set(fId, freshStats);
+          return freshStats;
+        }
+      }
+    } catch {
+      // Fallback
+    } finally {
+      pendingVoteFetches.delete(fId);
+    }
+    return null;
+  })();
+
+  pendingVoteFetches.set(fId, fetchPromise);
+  return fetchPromise;
+}
+
 export default function VotePoll({ 
   fixtureId, 
   homeTeam, 
@@ -270,16 +327,28 @@ export default function VotePoll({
   onExpand,
   className = ''
 }: VotePollProps) {
-  const [stats, setStats] = useState<VoteStats>({
-    fixtureId: String(fixtureId),
-    totalVotes: 0,
-    votes1: 0,
-    votesX: 0,
-    votes2: 0,
-    homePercent: 0,
-    drawPercent: 0,
-    awayPercent: 0,
-    userVote: null,
+  const fId = String(fixtureId);
+  const [stats, setStats] = useState<VoteStats>(() => {
+    if (voteStatsCache.has(fId)) {
+      return voteStatsCache.get(fId)!;
+    }
+    let savedVote: string | null = null;
+    if (typeof window !== 'undefined') {
+      try {
+        savedVote = localStorage.getItem(`vote_${fId}`);
+      } catch {}
+    }
+    return {
+      fixtureId: fId,
+      totalVotes: 0,
+      votes1: 0,
+      votesX: 0,
+      votes2: 0,
+      homePercent: 0,
+      drawPercent: 0,
+      awayPercent: 0,
+      userVote: savedVote,
+    };
   });
   const [voting, setVoting] = useState<string | null>(null);
 
@@ -303,6 +372,7 @@ export default function VotePoll({
     return id;
   });
 
+  // Only fetch network vote data on mount if variant is 'full' (user expanded view) or if already cached
   useEffect(() => {
     let active = true;
     let savedVote: string | null = null;
@@ -313,54 +383,30 @@ export default function VotePoll({
       } catch {}
     }
 
-    // Fetch directly from live database backend
-    const fetchDbVotes = async () => {
-      try {
-        const baseUrl = getApiBaseUrl();
-        const res = await fetch(`${baseUrl}/api/predictions/vote?fixtureId=${encodeURIComponent(fixtureId)}&userId=${encodeURIComponent(visitorId)}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (active && data) {
-            const serverUserVote = data.userVote || savedVote || null;
-            const v1 = Number(data.votes1 || 0);
-            const vX = Number(data.votesX || 0);
-            const v2 = Number(data.votes2 || 0);
-            const total = v1 + vX + v2;
+    if (voteStatsCache.has(fId)) {
+      const cached = voteStatsCache.get(fId)!;
+      setStats(cached);
+      return;
+    }
 
-            const hPct = total > 0 ? Math.round((v1 / total) * 100) : 0;
-            const dPct = total > 0 ? Math.round((vX / total) * 100) : 0;
-            const aPct = total > 0 ? Math.max(0, 100 - hPct - dPct) : 0;
-
-            const freshStats: VoteStats = {
-              fixtureId: String(fixtureId),
-              totalVotes: total,
-              votes1: v1,
-              votesX: vX,
-              votes2: v2,
-              homePercent: hPct,
-              drawPercent: dPct,
-              awayPercent: aPct,
-              userVote: serverUserVote,
-            };
-
-            setStats(freshStats);
-            if (typeof window !== 'undefined' && serverUserVote) {
-              try {
-                localStorage.setItem(`vote_${fixtureId}`, serverUserVote);
-              } catch {}
-            }
+    // Only fetch for full expanded variant to avoid flooding 40+ HTTP calls during critical initial render
+    if (variant === 'full') {
+      fetchVoteData(fixtureId, visitorId, savedVote).then((res) => {
+        if (active && res) {
+          setStats(res);
+          if (typeof window !== 'undefined' && res.userVote) {
+            try {
+              localStorage.setItem(`vote_${fixtureId}`, res.userVote);
+            } catch {}
           }
         }
-      } catch (err) {
-        console.warn('DB vote fetch fallback:', err);
-      }
-    };
+      });
+    }
 
-    fetchDbVotes();
     return () => {
       active = false;
     };
-  }, [fixtureId, visitorId]);
+  }, [fixtureId, visitorId, variant, fId]);
 
   const castVote = async (opt: PollOption) => {
     if (isMatchFinished || voting) return;
@@ -402,6 +448,8 @@ export default function VotePoll({
         userVote: newVoteKey,
       };
 
+      voteStatsCache.set(String(fixtureId), updatedStats);
+
       if (typeof window !== 'undefined') {
         try {
           localStorage.setItem(`vote_${fixtureId}`, newVoteKey);
@@ -438,7 +486,7 @@ export default function VotePoll({
           const dPct = total > 0 ? Math.round((vX / total) * 100) : 0;
           const aPct = total > 0 ? Math.max(0, 100 - hPct - dPct) : 0;
 
-          setStats({
+          const fresh: VoteStats = {
             fixtureId: String(fixtureId),
             totalVotes: total,
             votes1: v1,
@@ -448,7 +496,9 @@ export default function VotePoll({
             drawPercent: dPct,
             awayPercent: aPct,
             userVote: s.userVote || newVoteKey
-          });
+          };
+          voteStatsCache.set(String(fixtureId), fresh);
+          setStats(fresh);
         }
       }
     } catch (err) {
