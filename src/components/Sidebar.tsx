@@ -40,10 +40,12 @@ export default function Sidebar({
   const handleNavClick = (pageId: string) => {
     if (pageId === 'odds-packs') {
       onSelectPage('home');
-      setTimeout(() => {
-        const el = document.getElementById('odds-packs');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const el = document.getElementById('odds-packs');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      });
     } else {
       onSelectPage(pageId);
     }

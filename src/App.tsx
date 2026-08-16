@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, lazy, Suspense } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { 
   Menu, 
   Zap, 
@@ -28,7 +27,7 @@ import {
   Youtube
 } from 'lucide-react';
 
-import { designIterations, vipPackages, oddsPacks } from './data';
+import { designIterations, vipPackages, oddsPacks, fixturesData } from './data';
 import { jackpotsData } from './jackpotsData';
 import { DesignIteration, Fixture, VipPackage, OddsPack } from './types';
 import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl } from './content/markdownLoader';
@@ -44,6 +43,8 @@ import PredictionsList from './components/PredictionsList';
 import VipPackages from './components/VipPackages';
 import OddsPacks from './components/OddsPacks';
 import PredictionsSidebar from './components/PredictionsSidebar';
+import LiveUpdates from './components/LiveUpdates';
+import JackpotSidebar from './components/JackpotSidebar';
 import { AuthorCard } from './components/AuthorCard';
 import { ResponsibleGamblingNotice } from './components/ResponsibleGamblingNotice';
 
@@ -53,8 +54,6 @@ const JackpotListPage = lazy(() => import('./components/JackpotListPage'));
 const VipPackagesPage = lazy(() => import('./components/VipPackagesPage'));
 const CategoryPredictionsPage = lazy(() => import('./components/CategoryPredictionsPage'));
 const StaticPages = lazy(() => import('./components/StaticPages'));
-const LiveUpdates = lazy(() => import('./components/LiveUpdates'));
-const JackpotSidebar = lazy(() => import('./components/JackpotSidebar'));
 const PaymentModal = lazy(() => import('./components/PaymentModal'));
 const FaqSection = lazy(() => import('./components/FaqSection'));
 const MarkdownRenderer = lazy(() => import('./components/MarkdownRenderer'));
@@ -199,7 +198,12 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   const [dbOddsPacks, setDbOddsPacks] = useState<OddsPack[]>(() => oddsPacks);
   const [dbPredictions, setDbPredictions] = useState<Record<string, Fixture[]>>(() => {
     const hasInitial = Array.isArray(initialPredictions) && initialPredictions.length > 0;
-    const initialPool = hasInitial ? initialPredictions : [];
+    const defaultSeedPool = [
+      ...(fixturesData.today || []),
+      ...(fixturesData.yesterday || []),
+      ...(fixturesData.tomorrow || [])
+    ];
+    const initialPool = hasInitial ? initialPredictions : defaultSeedPool;
     const clientToday = new Date();
     const clientYesterday = new Date();
     clientYesterday.setDate(clientToday.getDate() - 1);
@@ -212,9 +216,9 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
     const initialMap: Record<string, Fixture[]> = {
       'all': initialPool,
-      'category-today': todayPreds,
-      'category-yesterday': yesterdayPreds,
-      'category-tomorrow': tomorrowPreds,
+      'category-today': todayPreds.length > 0 ? todayPreds : (fixturesData.today || []),
+      'category-yesterday': yesterdayPreds.length > 0 ? yesterdayPreds : (fixturesData.yesterday || []),
+      'category-tomorrow': tomorrowPreds.length > 0 ? tomorrowPreds : (fixturesData.tomorrow || []),
     };
 
     return initialMap;
@@ -442,13 +446,15 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   };
 
   const handleScrollTo = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
+    requestAnimationFrame(() => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
   };
 
   const handleSelectPage = (pageId: string) => {
@@ -623,11 +629,12 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
             </button>
             <button 
               onClick={() => {
-                handleSelectPage('home');
-                setTimeout(() => {
-                  const el = document.getElementById('odds-packs');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
+                if (activePage.startsWith('category-') || activePage === 'home') {
+                  handleScrollTo('odds-packs');
+                } else {
+                  handleSelectPage('home');
+                  setTimeout(() => handleScrollTo('odds-packs'), 100);
+                }
               }}
               className="px-3.5 py-1.5 text-xs font-bold transition-all bg-transparent border-none cursor-pointer rounded-full text-[var(--text-muted)] hover:text-[var(--primary)]"
             >
@@ -704,26 +711,16 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     pageMd.type
                   );
                   return (
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={category.id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.15 }}
-                      >
-                        <CategoryPredictionsPage 
-                          category={category}
-                          fixtures={categoryFixtures}
-                          isLoading={loadingDb || loadingCategory}
-                          onBackToHome={() => handleSelectPage('home')}
-                          onSelectPage={handleSelectPage}
-                          onOpenPayment={handleOpenPayment}
-                          jackpots={dbJackpots}
-                          pageId={activePage}
-                        />
-                      </motion.div>
-                    </AnimatePresence>
+                    <CategoryPredictionsPage 
+                      category={category}
+                      fixtures={categoryFixtures}
+                      isLoading={loadingDb || loadingCategory}
+                      onBackToHome={() => handleSelectPage('home')}
+                      onSelectPage={handleSelectPage}
+                      onOpenPayment={handleOpenPayment}
+                      jackpots={dbJackpots}
+                      pageId={activePage}
+                    />
                   );
                 }
 
@@ -783,68 +780,38 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   const isJackpotUnlocked = unlockedJackpots.includes(formattedJackpot.id) || unlockedJackpots.includes(targetJackpotId);
 
                   return (
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={activePage}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.15 }}
-                      >
-                        <JackpotPage 
-                          jackpot={formattedJackpot}
-                          hasPaid={isJackpotUnlocked}
-                          isLoading={loadingDb}
-                          onOpenPayment={handleOpenPayment}
-                          onBackToList={() => handleSelectPage('jackpot-list')}
-                          pageId={activePage}
-                        />
-                      </motion.div>
-                    </AnimatePresence>
+                    <JackpotPage 
+                      jackpot={formattedJackpot}
+                      hasPaid={isJackpotUnlocked}
+                      isLoading={loadingDb}
+                      onOpenPayment={handleOpenPayment}
+                      onBackToList={() => handleSelectPage('jackpot-list')}
+                      pageId={activePage}
+                    />
                   );
                 }
 
                 if (['vip-packages', 'vip', 'odds'].includes(activePage)) {
                   return (
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key="vip-packages-page"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.15 }}
-                      >
-                        <VipPackagesPage 
-                          vipPackages={dbVipPackages}
-                          oddsPacks={dbOddsPacks}
-                          jackpots={dbJackpots}
-                          unlockedJackpots={unlockedJackpots}
-                          userPurchasedItemIds={userPurchasedItemIds}
-                          onOpenPayment={handleOpenPayment}
-                          onSelectJackpot={(id) => handleSelectPage(id)}
-                          onBackToHome={() => handleSelectPage('home')}
-                        />
-                      </motion.div>
-                    </AnimatePresence>
+                    <VipPackagesPage 
+                      vipPackages={dbVipPackages}
+                      oddsPacks={dbOddsPacks}
+                      jackpots={dbJackpots}
+                      unlockedJackpots={unlockedJackpots}
+                      userPurchasedItemIds={userPurchasedItemIds}
+                      onOpenPayment={handleOpenPayment}
+                      onSelectJackpot={(id) => handleSelectPage(id)}
+                      onBackToHome={() => handleSelectPage('home')}
+                    />
                   );
                 }
 
                 if (['about', 'partners', 'responsible-gambling', 'privacy-policy', 'terms-of-use', 'contact'].includes(activePage)) {
                   return (
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={activePage}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.15 }}
-                      >
-                        <StaticPages 
-                          pageId={activePage}
-                          onBackToHome={() => handleSelectPage('home')}
-                        />
-                      </motion.div>
-                    </AnimatePresence>
+                    <StaticPages 
+                      pageId={activePage}
+                      onBackToHome={() => handleSelectPage('home')}
+                    />
                   );
                 }
 
@@ -859,24 +826,14 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     if (activeJackpot) {
                       const isJackpotUnlocked = unlockedJackpots.includes(activeJackpot.id);
                       return (
-                        <AnimatePresence mode="wait">
-                          <motion.div
-                            key={activePage}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.15 }}
-                          >
-                            <JackpotPage 
-                              jackpot={activeJackpot}
-                              hasPaid={isJackpotUnlocked}
-                              isLoading={loadingDb}
-                              onOpenPayment={handleOpenPayment}
-                              onBackToList={() => handleSelectPage('jackpot-list')}
-                              pageId={activePage}
-                            />
-                          </motion.div>
-                        </AnimatePresence>
+                        <JackpotPage 
+                          jackpot={activeJackpot}
+                          hasPaid={isJackpotUnlocked}
+                          isLoading={loadingDb}
+                          onOpenPayment={handleOpenPayment}
+                          onBackToList={() => handleSelectPage('jackpot-list')}
+                          pageId={activePage}
+                        />
                       );
                     }
                   }
@@ -900,26 +857,16 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     );
 
                     return (
-                      <AnimatePresence mode="wait">
-                        <motion.div
-                          key={activePage}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.15 }}
-                        >
-                          <CategoryPredictionsPage 
-                            category={dynamicCategory}
-                            fixtures={categoryFixtures}
-                            isLoading={loadingDb || loadingCategory}
-                            onBackToHome={() => handleSelectPage('home')}
-                            onSelectPage={handleSelectPage}
-                            onOpenPayment={handleOpenPayment}
-                            jackpots={dbJackpots}
-                            pageId={activePage}
-                          />
-                        </motion.div>
-                      </AnimatePresence>
+                      <CategoryPredictionsPage 
+                        category={dynamicCategory}
+                        fixtures={categoryFixtures}
+                        isLoading={loadingDb || loadingCategory}
+                        onBackToHome={() => handleSelectPage('home')}
+                        onSelectPage={handleSelectPage}
+                        onOpenPayment={handleOpenPayment}
+                        jackpots={dbJackpots}
+                        pageId={activePage}
+                      />
                     );
                   }
                 }
@@ -1107,64 +1054,53 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
             {/* RIGHT SIDEBAR PANEL */}
             <aside className="w-full lg:w-[320px] flex-shrink-0 space-y-6">
-              <Suspense fallback={<div className="h-64 rounded-xl bg-[var(--card)] border border-[var(--border)] animate-pulse" />}>
-                {['jackpot-list', ...ALL_JACKPOT_IDS].includes(activePage) ? (
-                  <JackpotSidebar 
-                    jackpotId={activePage} 
-                    jackpotName={dbJackpots.find(j => j.id === activePage || j.slug === activePage)?.name}
-                    hasPaid={unlockedJackpots.includes(activePage)}
+              {['jackpot-list', ...ALL_JACKPOT_IDS].includes(activePage) ? (
+                <JackpotSidebar 
+                  jackpotId={activePage} 
+                  jackpotName={dbJackpots.find(j => j.id === activePage || j.slug === activePage)?.name}
+                  hasPaid={unlockedJackpots.includes(activePage)}
+                />
+              ) : (
+                <>
+                  <PredictionsSidebar 
+                    activeCategoryId={activePage}
+                    onSelectCategory={(id) => handleSelectPage(id)}
+                    fixtures={Array.isArray(dbPredictions) ? dbPredictions : (dbPredictions.all || [])}
                   />
-                ) : (
-                  <>
-                    <PredictionsSidebar 
-                      activeCategoryId={activePage}
-                      onSelectCategory={(id) => handleSelectPage(id)}
-                      fixtures={Array.isArray(dbPredictions) ? dbPredictions : (dbPredictions.all || [])}
-                    />
-                    <LiveUpdates 
-                      onScrollTo={handleScrollTo} 
-                      fixtures={Array.isArray(dbPredictions) ? dbPredictions : (dbPredictions.all || [])} 
-                    />
-                  </>
-                )}
-              </Suspense>
+                  <LiveUpdates 
+                    onScrollTo={handleScrollTo} 
+                    fixtures={Array.isArray(dbPredictions) ? dbPredictions : (dbPredictions.all || [])} 
+                  />
+                </>
+              )}
             </aside>
 
           </div>
       </div>
 
       {/* 4. MODAL FOR INTEGRATED SECURE PAYMENTS */}
-      <AnimatePresence>
-        {paymentOpen && (
-          <Suspense fallback={null}>
-            <PaymentModal 
-              isOpen={paymentOpen}
-              onClose={() => setPaymentOpen(false)}
-              packageName={payPackageName}
-              price={payPrice}
-              packageId={payId}
-              packageSlug={paySlug}
-              packageType={payType}
-              onPaymentSuccess={handlePaymentSuccess}
-            />
-          </Suspense>
-        )}
-      </AnimatePresence>
+      {paymentOpen && (
+        <Suspense fallback={null}>
+          <PaymentModal 
+            isOpen={paymentOpen}
+            onClose={() => setPaymentOpen(false)}
+            packageName={payPackageName}
+            price={payPrice}
+            packageId={payId}
+            packageSlug={paySlug}
+            packageType={payType}
+            onPaymentSuccess={handlePaymentSuccess}
+          />
+        </Suspense>
+      )}
 
       {/* 5. INTERACTIVE FLOOR TOAST ALERTS */}
-      <AnimatePresence>
-        {toastMessage && (
-          <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 50, opacity: 0 }}
-            className="fixed bottom-6 left-6 z-50 px-4 py-3 rounded-lg bg-neutral-900 border border-neutral-800 text-white shadow-xl text-xs flex items-center gap-2"
-          >
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            <span>{toastMessage}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {toastMessage && (
+        <div className="fixed bottom-6 left-6 z-50 px-4 py-3 rounded-lg bg-neutral-900 border border-neutral-800 text-white shadow-xl text-xs flex items-center gap-2 transition-all duration-300 animate-in fade-in slide-in-from-bottom-5">
+          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
 
       {/* 6. FLOATING WHATSAPP BUTTON */}
       <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40">

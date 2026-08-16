@@ -142,3 +142,25 @@ html, body {
 .glow-glow {
   animation: pulseGlow 3s infinite ease-in-out;
 }
+
+/* Mobile Layout Stability & Performance Rules */
+@media (max-width: 1024px) {
+  /* Prevent layout shift when sidebar stacks below main content */
+  aside {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 450px;
+  }
+}
+
+/* Below-the-fold content visibility containment for fast mobile scrolling & 0 forced reflows */
+#odds-packs, #faq-section, #vip-packages, #middle-insights, #jackpot-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+/* Touch target optimizations for mobile */
+@media (pointer: coarse) {
+  button, a {
+    touch-action: manipulation;
+  }
+}

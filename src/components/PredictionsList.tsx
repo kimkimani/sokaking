@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { 
   CheckCircle2, 
   XCircle, 
@@ -527,16 +526,14 @@ export default function PredictionsList({
                 </div>
 
                 {/* Expanding Analyst Assessment (Free Predictions) */}
-                <AnimatePresence>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="bg-slate-50/50 dark:bg-slate-900/10 border-t border-[var(--border)] overflow-hidden"
-                      onClick={(e) => e.stopPropagation()} // Prevent double trigger
-                    >
+                <div 
+                  className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out bg-slate-50/50 dark:bg-slate-900/10 border-t border-[var(--border)] overflow-hidden ${
+                    isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 border-t-0'
+                  }`}
+                  onClick={(e) => e.stopPropagation()} // Prevent double trigger
+                >
+                  <div className="overflow-hidden">
+                    {isExpanded && (
                       <div className="p-4 text-xs space-y-3 leading-relaxed text-left">
                         <div className="flex items-center justify-between">
                           <span className="font-bold flex items-center gap-1 text-[var(--primary)] font-mono uppercase tracking-wider text-[10px]">
@@ -577,9 +574,9 @@ export default function PredictionsList({
                           />
                         </div>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                    )}
+                  </div>
+                </div>
               </div>
             );
           })

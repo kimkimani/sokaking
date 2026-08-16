@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
 import { Users, CheckCircle2, Lock } from 'lucide-react';
 import { getApiBaseUrl } from '../lib/getApiBaseUrl';
 
@@ -687,12 +686,12 @@ export default function VotePoll({
           const selected = isUserSelected(opt);
 
           return (
-            <motion.button
+            <button
               key={opt.key}
-              whileTap={isMatchFinished ? undefined : { scale: 0.98 }}
+              type="button"
               onClick={() => castVote(opt)}
-              disabled={isMatchFinished || !!voting}
-              className={`relative overflow-hidden p-2.5 sm:p-3 rounded-xl border text-center transition-all duration-200 flex flex-col items-center justify-between min-h-[64px] sm:min-h-[72px] ${
+              disabled={isMatchFinished || !voting}
+              className={`relative overflow-hidden p-2.5 sm:p-3 rounded-xl border text-center transition-all duration-200 flex flex-col items-center justify-between min-h-[64px] sm:min-h-[72px] active:scale-[0.98] ${
                 isMatchFinished ? 'cursor-not-allowed opacity-90' : 'cursor-pointer hover:shadow-xs'
               } ${
                 selected
@@ -739,7 +738,7 @@ export default function VotePoll({
               }`}>
                 {pct}%
               </span>
-            </motion.button>
+            </button>
           );
         })}
       </div>
