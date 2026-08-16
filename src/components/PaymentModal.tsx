@@ -1,17 +1,15 @@
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, 
   Smartphone, 
   ShieldCheck, 
-  CreditCard, 
-  CheckCircle2, 
-  Loader2, 
-  ChevronRight, 
   Coins,
-  DollarSign
+  Copy,
+  Check,
+  PhoneCall,
+  ExternalLink
 } from 'lucide-react';
-import { apiFetch } from '../utils/api.ts';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -25,6 +23,183 @@ interface PaymentModalProps {
 }
 
 export default function PaymentModal({
+  isOpen,
+  onClose,
+  packageName,
+  price,
+}: PaymentModalProps) {
+  // POCHI LA BIASHARA PAYMENT CONFIGURATION
+  const POCHI_PHONE_NUMBER = '0740841375';
+  const POCHI_ACCOUNT_NAME = 'SOKA KING';
+
+  const [isCopied, setIsCopied] = useState(false);
+
+  // Reset modal state on open
+  useEffect(() => {
+    if (isOpen) {
+      setIsCopied(false);
+    }
+  }, [isOpen]);
+
+  const handleCopyNumber = () => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(POCHI_PHONE_NUMBER);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 3000);
+    }
+  };
+
+  const whatsappMessage = encodeURIComponent(
+    `Hello Soka King Support, I have paid KES ${price} via Pochi La Biashara (${POCHI_PHONE_NUMBER}) for "${packageName}". Please confirm and activate my access.`
+  );
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/40 dark:bg-black/60 backdrop-blur-[3px] transition-opacity duration-200">
+      <motion.div 
+        initial={{ scale: 0.95, opacity: 0, y: 10 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0, y: 10 }}
+        className="w-full max-w-lg bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden text-xs relative max-h-[92vh] flex flex-col"
+      >
+        {/* Modal Close Button */}
+        <button 
+          onClick={onClose}
+          id="modalClose"
+          aria-label="Close payment modal"
+          className="absolute top-3.5 right-3.5 p-1.5 rounded-full bg-[var(--background)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors cursor-pointer z-10"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* Modal Header */}
+        <div className="p-4 sm:p-5 border-b border-[var(--border)] bg-gradient-to-r from-emerald-500/10 via-indigo-500/5 to-transparent text-left shrink-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-mono text-[9px] font-extrabold uppercase tracking-wider border border-emerald-500/25">
+              Lipa na M-Pesa • Pochi La Biashara
+            </span>
+          </div>
+          <h2 className="text-base sm:text-lg font-black text-[var(--text)] flex items-center gap-2 tracking-tight">
+            <Coins className="w-5 h-5 text-emerald-500 shrink-0" />
+            Unlock: {packageName}
+          </h2>
+          <p className="text-[var(--text-muted)] text-[11px] mt-0.5">
+            Instant mathematical betting intelligence unlocked directly to your device.
+          </p>
+        </div>
+
+        {/* Modal Content Scrollable Area */}
+        <div className="p-4 sm:p-5 overflow-y-auto space-y-4 text-left">
+          <div className="space-y-4">
+            {/* Billing Summary Box */}
+            <div className="p-3 sm:p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 flex justify-between items-center">
+              <div>
+                <span className="text-[9px] text-[var(--text-muted)] uppercase block font-mono font-bold">Selected Item</span>
+                <strong className="text-[var(--text)] text-xs sm:text-sm font-extrabold">{packageName}</strong>
+              </div>
+              <div className="text-right">
+                <span className="text-[9px] text-[var(--text-muted)] uppercase block font-mono font-bold">Payable Amount</span>
+                <strong className="text-emerald-600 dark:text-emerald-400 text-sm sm:text-base font-black font-mono">
+                  KES {price}
+                </strong>
+              </div>
+            </div>
+
+            {/* POCHI LA BIASHARA PAYMENT CARD */}
+            <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/[0.08] to-emerald-500/[0.02] border-2 border-emerald-500/30 dark:border-emerald-500/40 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono font-extrabold uppercase text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                  <Smartphone className="w-4 h-4 text-emerald-500" />
+                  Pochi La Biashara Number
+                </span>
+                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                  Receiver: <strong className="text-[var(--text)]">{POCHI_ACCOUNT_NAME}</strong>
+                </span>
+              </div>
+
+              {/* Copyable Phone Number Banner */}
+              <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-emerald-500/30 shadow-xs">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-sm sm:text-base font-black font-mono text-[var(--text)] tracking-wider">
+                    {POCHI_PHONE_NUMBER}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleCopyNumber}
+                  className="px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-[10px] font-bold flex items-center gap-1.5 cursor-pointer border-none transition-all active:scale-95 shrink-0"
+                >
+                  {isCopied ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-white" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-white" />
+                      <span>Copy Number</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Step-by-Step Payment Instructions */}
+              <div className="space-y-1.5 text-[11px] text-[var(--text)] bg-white/60 dark:bg-slate-900/40 p-3 rounded-lg border border-emerald-500/20">
+                <div className="font-bold text-emerald-800 dark:text-emerald-300 text-[10px] uppercase font-mono mb-1 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                  How to Pay via Pochi La Biashara:
+                </div>
+                <p className="flex items-start gap-1.5">
+                  <span className="font-mono font-bold text-emerald-600 shrink-0">1.</span>
+                  <span>Go to <strong>M-Pesa</strong> &gt; Select <strong>Lipa na M-Pesa</strong>.</span>
+                </p>
+                <p className="flex items-start gap-1.5">
+                  <span className="font-mono font-bold text-emerald-600 shrink-0">2.</span>
+                  <span>Select <strong>Pochi La Biashara</strong>.</span>
+                </p>
+                <p className="flex items-start gap-1.5">
+                  <span className="font-mono font-bold text-emerald-600 shrink-0">3.</span>
+                  <span>Enter Phone: <strong className="font-mono text-emerald-700 dark:text-emerald-300">{POCHI_PHONE_NUMBER}</strong></span>
+                </p>
+                <p className="flex items-start gap-1.5">
+                  <span className="font-mono font-bold text-emerald-600 shrink-0">4.</span>
+                  <span>Enter Amount: <strong className="font-mono text-emerald-700 dark:text-emerald-300">KES {price}</strong></span>
+                </p>
+                <p className="flex items-start gap-1.5">
+                  <span className="font-mono font-bold text-emerald-600 shrink-0">5.</span>
+                  <span>Enter your <strong>M-Pesa PIN</strong> and complete the transaction.</span>
+                </p>
+              </div>
+            </div>
+
+            {/* WhatsApp Direct Action Button */}
+            <div className="pt-2">
+              <a
+                href={`https://wa.me/254${POCHI_PHONE_NUMBER.replace(/^0/, '')}?text=${whatsappMessage}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-mono text-xs font-black flex items-center justify-center gap-2 shadow-md no-underline cursor-pointer transition-all uppercase tracking-wider border-none"
+              >
+                <PhoneCall className="w-4 h-4 text-white" />
+                <span>Paid? Chat on WhatsApp</span>
+                <ExternalLink className="w-3.5 h-3.5 text-white" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+/* =========================================================================
+   PREVIOUS STK PUSH & SIMULATED PIN KEYPAD IMPLEMENTATION
+   (COMMENTED OUT AS REQUESTED - DO NOT REMOVE - CAN BE UNCOMMENTED LATER)
+   =========================================================================
+
+export function PreviousStkPaymentModal({
   isOpen,
   onClose,
   packageName,
@@ -213,7 +388,6 @@ export default function PaymentModal({
         exit={{ scale: 0.95, opacity: 0 }}
         className="w-full max-w-lg bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] shadow-2xl overflow-hidden text-xs relative"
       >
-        {/* Modal Close Button */}
         <button 
           onClick={onClose}
           id="modalClose"
@@ -223,7 +397,6 @@ export default function PaymentModal({
           <X className="w-4 h-4" />
         </button>
 
-        {/* Modal Header */}
         <div className="p-5 border-b border-[var(--border)] bg-[var(--background)] bg-opacity-50">
           <span className="text-[9px] font-mono font-extrabold text-[var(--primary)] uppercase tracking-wider block mb-1">
             Secure checkout gateway
@@ -237,10 +410,8 @@ export default function PaymentModal({
           </p>
         </div>
 
-        {/* Modal Content */}
         <div className="p-5">
           <AnimatePresence mode="wait">
-            {/* STEP 1: INPUT CREDENTIALS */}
             {step === 'input' && (
               <motion.form 
                 key="input-form"
@@ -250,7 +421,6 @@ export default function PaymentModal({
                 onSubmit={handleInitiateSTK}
                 className="space-y-4"
               >
-                {/* Billing Summary */}
                 <div className="p-3.5 rounded-[var(--radius)] bg-[var(--background)] border border-[var(--border)] flex justify-between items-center">
                   <div>
                     <span className="text-[9px] text-[var(--text-muted)] uppercase block font-mono font-bold">Package Name</span>
@@ -268,7 +438,6 @@ export default function PaymentModal({
                   </div>
                 )}
 
-                {/* Form Inputs */}
                 <div className="space-y-3">
                   <div>
                     <label htmlFor="mPesaPhoneNumber" className="block text-[10px] text-[var(--text-muted)] font-mono font-bold uppercase mb-1.5">
@@ -301,7 +470,6 @@ export default function PaymentModal({
                   </div>
                 </div>
 
-                {/* Payment Instructions list */}
                 <div className="p-3 rounded-[var(--radius)] bg-[var(--background)] bg-opacity-40 border border-[var(--border)] space-y-1.5 text-[10px] text-[var(--text-muted)]">
                   <div className="font-bold text-[var(--text)] flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5 text-[var(--secondary)]" /> Payment Instructions:
@@ -311,7 +479,6 @@ export default function PaymentModal({
                   <p>3. Authorize the prompt on your phone screen to instantly unlock access.</p>
                 </div>
 
-                {/* Trigger Button */}
                 <button
                   type="submit"
                   id="payButton"
@@ -333,7 +500,6 @@ export default function PaymentModal({
               </motion.form>
             )}
 
-            {/* STEP 2: STK SENT LOADING SCREEN */}
             {step === 'stk-sent' && (
               <motion.div 
                 key="stk-sent"
@@ -366,7 +532,6 @@ export default function PaymentModal({
               </motion.div>
             )}
 
-            {/* STEP 3: INTERACTIVE M-PESA POPUP SIMULATOR */}
             {step === 'pin-prompt' && (
               <motion.div 
                 key="pin-prompt"
@@ -375,20 +540,15 @@ export default function PaymentModal({
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="py-4 flex flex-col items-center"
               >
-                {/* Simulated Phone Shell */}
                 <div className="w-full max-w-[280px] bg-neutral-900 border-4 border-neutral-700 rounded-[32px] p-3.5 shadow-2xl relative overflow-hidden text-[11px] text-black">
-                  {/* Camera notch */}
                   <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-3 bg-black rounded-full" />
                   
-                  {/* Phone screen canvas */}
                   <div className="bg-neutral-800 rounded-2xl p-3 min-h-[320px] flex flex-col justify-between pt-6">
-                    {/* Phone stats header */}
                     <div className="flex justify-between text-[8px] text-gray-400 font-mono mb-2">
                       <span>Safaricom LTE</span>
                       <span>12:00 PM</span>
                     </div>
 
-                    {/* Simulating STK Prompt Window overlay */}
                     <div className="bg-white rounded-xl p-3.5 border-t-4 border-emerald-500 shadow-xl space-y-3.5 mt-8">
                       <div className="font-extrabold text-[12px] text-emerald-600 flex items-center gap-1">
                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 block" /> M-PESA
@@ -462,7 +622,6 @@ export default function PaymentModal({
               </motion.div>
             )}
 
-            {/* STEP 4: SUCCESS TRANSACTION RECEIPT */}
             {step === 'success' && (
               <motion.div 
                 key="success"
@@ -481,7 +640,6 @@ export default function PaymentModal({
                   </p>
                 </div>
 
-                {/* Simulated payment invoice receipt */}
                 <div className="p-4 rounded-[var(--radius)] bg-[var(--background)] bg-opacity-80 border border-[var(--border)] max-w-xs mx-auto text-left space-y-2 font-mono text-[10px]">
                   <div className="flex justify-between">
                     <span className="text-[var(--text-muted)]">Receipt Ref:</span>
@@ -517,3 +675,4 @@ export default function PaymentModal({
     </div>
   );
 }
+*/

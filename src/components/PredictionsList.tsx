@@ -79,7 +79,7 @@ export default function PredictionsList({
   const [expandedFixture, setExpandedFixture] = useState<number | null>(null);
   const [dateFilter, setDateFilter] = useState<'all' | 'yesterday' | 'today' | 'tomorrow'>('all');
 
-  // Deduplicate & Sort fixtures by kickoff time, starting with latest date/time first
+  // Deduplicate & Sort fixtures by kickoff time, starting with earliest kickoff first up to latest
   const sortedFixtures = useMemo(() => {
     const map = new Map<number, Fixture>();
     (fixtures || []).forEach(f => {
@@ -89,7 +89,7 @@ export default function PredictionsList({
     return list.sort((a, b) => {
       const timeA = a.kickoffTime ? new Date(a.kickoffTime).getTime() || 0 : 0;
       const timeB = b.kickoffTime ? new Date(b.kickoffTime).getTime() || 0 : 0;
-      return timeB - timeA;
+      return timeA - timeB; // Earliest kickoff first
     });
   }, [fixtures]);
 
@@ -157,7 +157,35 @@ export default function PredictionsList({
   };
 
   const formatTime = (timeStr: string) => {
-    return timeStr || '18:00';
+    if (!timeStr) return '18:00';
+    // If it's already a plain HH:mm format without date
+    if (/^\d{1,2}:\d{2}$/.test(timeStr.trim())) {
+      return timeStr.trim();
+    }
+    try {
+      // If datetime does not specify timezone offset or Z, assume UTC from database
+      let normalized = timeStr.trim();
+      if (normalized.includes(' ') && !normalized.includes('T')) {
+        normalized = normalized.replace(' ', 'T');
+      }
+      if (!normalized.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(normalized)) {
+        normalized += 'Z';
+      }
+      
+      const d = new Date(normalized);
+      if (!isNaN(d.getTime())) {
+        // Format strictly in Kenya (EAT / Africa/Nairobi) timezone (UTC+3)
+        return d.toLocaleTimeString('en-GB', { 
+          timeZone: 'Africa/Nairobi', 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          hour12: false 
+        });
+      }
+    } catch {
+      // Fallback
+    }
+    return timeStr;
   };
 
   const getInitials = (teamName: string) => {

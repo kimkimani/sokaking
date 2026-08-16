@@ -273,9 +273,13 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
 
           {/* Buy Button */}
           <div className="pt-3 border-t border-[var(--border)]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <span className="text-[9px] font-mono font-bold text-[var(--text-muted)] uppercase block">Subscription Rate</span>
-              <span className="text-sm font-black font-mono text-amber-500">KES {jackpot.price}</span>
+            <div className="flex items-center gap-2">
+              <div>
+                <span className="text-[9px] font-mono font-extrabold text-[var(--text-muted)] uppercase block">Subscription Rate</span>
+                <span className="text-sm sm:text-base font-black font-mono text-amber-600 dark:text-amber-400 bg-amber-500/10 dark:bg-amber-400/15 px-2.5 py-0.5 rounded-md border border-amber-500/30 inline-block mt-0.5">
+                  KES {jackpot.price}
+                </span>
+              </div>
             </div>
             <button 
               onClick={() => onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
@@ -601,8 +605,8 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                         </div>
                       </div>
 
-                      {/* Community Vote Nudge Snippet (Mobile Only) */}
-                      <div className="pt-1.5 flex items-center md:hidden">
+                      {/* Community Vote Nudge Snippet (Mobile Only - Matching PredictionsList Card Variant) */}
+                      <div className="pt-0.5 md:hidden">
                         <VoteNudgeSnippet 
                           fixtureId={match.fixtureId || `jackpot_${jackpot.id}_${match.id}`} 
                           prediction={match.prediction} 
@@ -612,7 +616,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                           result={match.result} 
                           isEnded={match.status === 'FT'} 
                           onExpand={() => toggleExpand(match.id)}
-                          variant="compact"
+                          variant="card"
                         />
                       </div>
                     </div>
@@ -805,7 +809,10 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
           </div>
 
           <div className="max-w-xs mx-auto pt-1">
-            <button className="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 border-none">
+            <button 
+              onClick={() => onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
+              className="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 active:scale-98 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 border-none cursor-pointer"
+            >
               <Smartphone className="w-4 h-4 text-white" />
               <span>Unlock Jackpot Selections • KES {jackpot.price}</span>
             </button>

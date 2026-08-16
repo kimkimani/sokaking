@@ -474,11 +474,11 @@ export function getCategoryFixtures(
     filtered = [...masterPool];
   }
 
-  // 4. ORDER ALL FIXTURES BY KICKOFF DATE/TIME (latest date/time first down to earliest)
+  // 4. ORDER ALL FIXTURES BY KICKOFF DATE/TIME (earliest kickoff first up to latest)
   filtered.sort((a, b) => {
     const tA = a.kickoffTime ? new Date(a.kickoffTime).getTime() : 0;
     const tB = b.kickoffTime ? new Date(b.kickoffTime).getTime() : 0;
-    return tB - tA; // Latest first
+    return tA - tB; // Earliest first
   });
 
   return filtered;

@@ -196,25 +196,35 @@ export default function JackpotListPage({
                 <div className="absolute top-0 left-0 right-0 h-[2px] bg-slate-100 dark:bg-slate-805 group-hover:bg-emerald-500 transition-colors" />
 
                 <div className="space-y-4">
-                  {/* Top: Brand Badge & Games Count */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-0.5 rounded text-[9px] font-mono font-black uppercase tracking-wider border ${brandInfo.bgClass}`}>
+                  {/* Top First Line: Brand, Country, Matches, Status, & Price (Fully Responsive) */}
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0">
+                      {/* Brand Badge */}
+                      <span className={`px-2 py-0.5 rounded text-[9px] font-mono font-black uppercase tracking-wider border shrink-0 whitespace-nowrap ${brandInfo.bgClass}`}>
                         {brandInfo.brand}
                       </span>
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+
+                      {/* Country Flag & Name */}
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shrink-0 whitespace-nowrap">
                         <FlagImage countryFlag={(jackpot as any).countryFlag || (jackpot as any).country_flag} flag={(jackpot as any).leagueFlag} countryName={(jackpot as any).countryName || (jackpot as any).country_name || (jackpot as any).country || "Kenya"} />
                         <span className="capitalize">{(jackpot as any).countryName || (jackpot as any).country_name || (jackpot as any).country || "Kenya"}</span>
                       </span>
-                      <span className="text-[10px] text-slate-400 font-mono font-bold">
+
+                      {/* Matches Count Badge */}
+                      <span className="px-1.5 py-0.5 rounded text-[9px] text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 font-mono font-bold shrink-0 whitespace-nowrap">
                         {jackpot.gamesCount} Matches
                       </span>
-                      {statusBadge}
+
+                      {/* Status Badge */}
+                      <div className="shrink-0 whitespace-nowrap">
+                        {statusBadge}
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] text-[var(--text-muted)] font-mono font-bold">Price:</span>
-                      <span className="text-xs font-black text-[var(--primary)] font-mono">KES {jackpot.price}</span>
+                    {/* Price Pill - High Contrast & Distinctive */}
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 font-mono shadow-sm shrink-0 whitespace-nowrap ring-1 ring-emerald-700/20 dark:ring-emerald-400/30">
+                      <span className="text-[9px] font-extrabold uppercase tracking-wider opacity-90">Price:</span>
+                      <span className="text-xs sm:text-[13px] font-black tracking-tight">KES {jackpot.price}</span>
                     </div>
                   </div>
 
