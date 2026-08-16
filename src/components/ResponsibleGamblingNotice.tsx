@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { ShieldAlert, AlertTriangle } from 'lucide-react';
-import MarkdownRenderer from './MarkdownRenderer';
+
+const MarkdownRenderer = lazy(() => import('./MarkdownRenderer'));
 
 interface ResponsibleGamblingNoticeProps {
   notice?: string;
@@ -27,7 +28,9 @@ export const ResponsibleGamblingNotice: React.FC<ResponsibleGamblingNoticeProps>
           </div>
 
           <div className="text-xs text-amber-950 dark:text-amber-200 leading-relaxed font-medium">
-            <MarkdownRenderer content={notice} />
+            <Suspense fallback={<p className="text-xs text-amber-900 leading-relaxed">{notice.replace(/[#*`_]/g, '')}</p>}>
+              <MarkdownRenderer content={notice} />
+            </Suspense>
           </div>
         </div>
       </div>

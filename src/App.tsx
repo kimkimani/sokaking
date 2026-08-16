@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Menu, 
@@ -38,8 +38,26 @@ import { apiFetch } from './utils/api.ts';
 import { getApiBaseUrl } from './lib/getApiBaseUrl';
 import { PredictionCategory, getCategoryCountText, PREDICTION_CATEGORIES, getCategoryFixtures, isSameDay } from './utils/predictionGenerator';
 
-// Import subcomponents
+// Import essential initial UI components
 import Sidebar from './components/Sidebar';
+import PredictionsList from './components/PredictionsList';
+import VipPackages from './components/VipPackages';
+import OddsPacks from './components/OddsPacks';
+import PredictionsSidebar from './components/PredictionsSidebar';
+import { AuthorCard } from './components/AuthorCard';
+import { ResponsibleGamblingNotice } from './components/ResponsibleGamblingNotice';
+
+// Code-split routes and heavy overlay components to reduce initial mobile JS bundle
+const JackpotPage = lazy(() => import('./components/JackpotPage'));
+const JackpotListPage = lazy(() => import('./components/JackpotListPage'));
+const VipPackagesPage = lazy(() => import('./components/VipPackagesPage'));
+const CategoryPredictionsPage = lazy(() => import('./components/CategoryPredictionsPage'));
+const StaticPages = lazy(() => import('./components/StaticPages'));
+const LiveUpdates = lazy(() => import('./components/LiveUpdates'));
+const JackpotSidebar = lazy(() => import('./components/JackpotSidebar'));
+const PaymentModal = lazy(() => import('./components/PaymentModal'));
+const FaqSection = lazy(() => import('./components/FaqSection'));
+const MarkdownRenderer = lazy(() => import('./components/MarkdownRenderer'));
 
 const BASE_URL_TO_PAGE_MAP: Record<string, string> = {
   '/': 'home',
@@ -163,24 +181,6 @@ const getInitialJackpot = (initialPage: string) => {
   }
   return 'sportpesa-mega';
 };
-import PredictionsList from './components/PredictionsList';
-import JackpotPage from './components/JackpotPage';
-import JackpotListPage from './components/JackpotListPage';
-import VipPackages from './components/VipPackages';
-import OddsPacks from './components/OddsPacks';
-import VipPackagesPage from './components/VipPackagesPage';
-import LiveUpdates from './components/LiveUpdates';
-import JackpotSidebar from './components/JackpotSidebar';
-import PaymentModal from './components/PaymentModal';
-
-// Category Predictions Import
-import PredictionsSidebar from './components/PredictionsSidebar';
-import CategoryPredictionsPage from './components/CategoryPredictionsPage';
-import StaticPages from './components/StaticPages';
-import FaqSection from './components/FaqSection';
-import MarkdownRenderer from './components/MarkdownRenderer';
-import { AuthorCard } from './components/AuthorCard';
-import { ResponsibleGamblingNotice } from './components/ResponsibleGamblingNotice';
 export interface AppProps {
   initialPage?: string;
   initialJackpotId?: string;
@@ -682,7 +682,14 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
           
           {/* MAIN CENTER DASHBOARD CONTAINER */}
             <main id="main-content" className="flex-1 w-full space-y-8 min-h-[650px] md:min-h-[850px] overflow-hidden">
-              
+              <Suspense fallback={
+                <div className="min-h-[400px] flex items-center justify-center p-8">
+                  <div className="flex flex-col items-center gap-3">
+                    <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin" />
+                    <span className="text-xs text-[var(--text-muted)] font-mono">Loading content...</span>
+                  </div>
+                </div>
+              }>
               {(() => {
                 const category = PREDICTION_CATEGORIES.find(c => 
                   c.id === activePage || 
@@ -1095,30 +1102,32 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   </div>
                 );
               })()}
-
+              </Suspense>
             </main>
 
             {/* RIGHT SIDEBAR PANEL */}
             <aside className="w-full lg:w-[320px] flex-shrink-0 space-y-6">
-              {['jackpot-list', ...ALL_JACKPOT_IDS].includes(activePage) ? (
-                <JackpotSidebar 
-                  jackpotId={activePage} 
-                  jackpotName={dbJackpots.find(j => j.id === activePage || j.slug === activePage)?.name}
-                  hasPaid={unlockedJackpots.includes(activePage)}
-                />
-              ) : (
-                <>
-                  <PredictionsSidebar 
-                    activeCategoryId={activePage}
-                    onSelectCategory={(id) => handleSelectPage(id)}
-                    fixtures={Array.isArray(dbPredictions) ? dbPredictions : (dbPredictions.all || [])}
+              <Suspense fallback={<div className="h-64 rounded-xl bg-[var(--card)] border border-[var(--border)] animate-pulse" />}>
+                {['jackpot-list', ...ALL_JACKPOT_IDS].includes(activePage) ? (
+                  <JackpotSidebar 
+                    jackpotId={activePage} 
+                    jackpotName={dbJackpots.find(j => j.id === activePage || j.slug === activePage)?.name}
+                    hasPaid={unlockedJackpots.includes(activePage)}
                   />
-                  <LiveUpdates 
-                    onScrollTo={handleScrollTo} 
-                    fixtures={Array.isArray(dbPredictions) ? dbPredictions : (dbPredictions.all || [])} 
-                  />
-                </>
-              )}
+                ) : (
+                  <>
+                    <PredictionsSidebar 
+                      activeCategoryId={activePage}
+                      onSelectCategory={(id) => handleSelectPage(id)}
+                      fixtures={Array.isArray(dbPredictions) ? dbPredictions : (dbPredictions.all || [])}
+                    />
+                    <LiveUpdates 
+                      onScrollTo={handleScrollTo} 
+                      fixtures={Array.isArray(dbPredictions) ? dbPredictions : (dbPredictions.all || [])} 
+                    />
+                  </>
+                )}
+              </Suspense>
             </aside>
 
           </div>
@@ -1127,16 +1136,18 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
       {/* 4. MODAL FOR INTEGRATED SECURE PAYMENTS */}
       <AnimatePresence>
         {paymentOpen && (
-          <PaymentModal 
-            isOpen={paymentOpen}
-            onClose={() => setPaymentOpen(false)}
-            packageName={payPackageName}
-            price={payPrice}
-            packageId={payId}
-            packageSlug={paySlug}
-            packageType={payType}
-            onPaymentSuccess={handlePaymentSuccess}
-          />
+          <Suspense fallback={null}>
+            <PaymentModal 
+              isOpen={paymentOpen}
+              onClose={() => setPaymentOpen(false)}
+              packageName={payPackageName}
+              price={payPrice}
+              packageId={payId}
+              packageSlug={paySlug}
+              packageType={payType}
+              onPaymentSuccess={handlePaymentSuccess}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
 
