@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, 
   Smartphone, 
@@ -57,11 +56,8 @@ export default function PaymentModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/40 dark:bg-black/60 backdrop-blur-[3px] transition-opacity duration-200">
-      <motion.div 
-        initial={{ scale: 0.95, opacity: 0, y: 10 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.95, opacity: 0, y: 10 }}
-        className="w-full max-w-lg bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden text-xs relative max-h-[92vh] flex flex-col"
+      <div 
+        className="w-full max-w-lg bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden text-xs relative max-h-[92vh] flex flex-col transform transition-all duration-200"
       >
         {/* Modal Close Button */}
         <button 
@@ -189,7 +185,7 @@ export default function PaymentModal({
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

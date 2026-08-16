@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { 
   Trophy, 
   Clock, 
@@ -459,9 +458,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
 
       {/* 3. SLIP SUMMARY QUICK STATS PANEL (If Unlocked) */}
       {hasPaid && (
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div 
           className="p-3.5 rounded-[var(--radius)] bg-slate-50 dark:bg-slate-900/20 border border-[var(--border)] flex flex-wrap items-center justify-between gap-4 text-left"
         >
           <div className="flex items-center gap-2">
@@ -489,7 +486,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
               {slipSummary.awayWins} Away Wins
             </span>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* 4. MODERN ULTRA-COMPACT 1X2 FIXTURE BETSLIP GRID */}
@@ -714,66 +711,58 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                 </div>
 
                 {/* Analytical expansion */}
-                <AnimatePresence>
-                  {isUnlocked && isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="bg-slate-50/50 dark:bg-slate-900/20 border-t border-[var(--border)] overflow-hidden"
-                    >
-                      <div className="p-4 text-xs space-y-3 leading-relaxed text-left">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold flex items-center gap-1 text-[var(--primary)] font-mono uppercase tracking-wider text-[10px]">
-                            <Sparkles className="w-3.5 h-3.5 text-[var(--primary)] animate-pulse" /> Mathematical Analyst Assessment
-                          </span>
-                          <span className="text-[10px] font-mono text-[var(--text-muted)] bg-[var(--background)] px-2 py-0.5 rounded border border-[var(--border)]">
-                            Confidence factor: <strong className="text-emerald-500 font-extrabold">{displayConf}%</strong>
-                          </span>
+                <div className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out ${isUnlocked && isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
+                  <div className="overflow-hidden bg-slate-50/50 dark:bg-slate-900/20 border-t border-[var(--border)]">
+                    <div className="p-4 text-xs space-y-3 leading-relaxed text-left">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold flex items-center gap-1 text-[var(--primary)] font-mono uppercase tracking-wider text-[10px]">
+                          <Sparkles className="w-3.5 h-3.5 text-[var(--primary)] animate-pulse" /> Mathematical Analyst Assessment
+                        </span>
+                        <span className="text-[10px] font-mono text-[var(--text-muted)] bg-[var(--background)] px-2 py-0.5 rounded border border-[var(--border)]">
+                          Confidence factor: <strong className="text-emerald-500 font-extrabold">{displayConf}%</strong>
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide">Expert Tip:</span>
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-[10px] font-black font-mono">
+                          {match.prediction}
+                        </span>
+                      </div>
+
+                      <p className="text-[var(--text-muted)] leading-relaxed font-sans">
+                        {match.aiAnalysis || "Advanced computer equations favor selected outcomes based on high offensive conversion metrics and defensive low-block performance factors. Current dynamic odds trend heavily towards recommendations."}
+                      </p>
+
+                      {/* Probability Split bar */}
+                      <div className="pt-1.5">
+                        <div className="flex justify-between text-[9px] font-mono font-extrabold text-[var(--text-muted)] mb-1 uppercase">
+                          <span className="text-emerald-500">Home (1): {jackpotProbs.home}%</span>
+                          <span className="text-amber-500">Draw (X): {jackpotProbs.draw}%</span>
+                          <span className="text-sky-500">Away (2): {jackpotProbs.away}%</span>
                         </div>
-
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide">Expert Tip:</span>
-                          <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-[10px] font-black font-mono">
-                            {match.prediction}
-                          </span>
-                        </div>
-
-                        <p className="text-[var(--text-muted)] leading-relaxed font-sans">
-                          {match.aiAnalysis || "Advanced computer equations favor selected outcomes based on high offensive conversion metrics and defensive low-block performance factors. Current dynamic odds trend heavily towards recommendations."}
-                        </p>
-
-                        {/* Probability Split bar */}
-                        <div className="pt-1.5">
-                          <div className="flex justify-between text-[9px] font-mono font-extrabold text-[var(--text-muted)] mb-1 uppercase">
-                            <span className="text-emerald-500">Home (1): {jackpotProbs.home}%</span>
-                            <span className="text-amber-500">Draw (X): {jackpotProbs.draw}%</span>
-                            <span className="text-sky-500">Away (2): {jackpotProbs.away}%</span>
-                          </div>
-                          <div className="w-full h-1.5 bg-[var(--border)] rounded-full overflow-hidden flex">
-                            <div className="h-full bg-emerald-500" style={{ width: `${jackpotProbs.home}%` }} />
-                            <div className="h-full bg-amber-500" style={{ width: `${jackpotProbs.draw}%` }} />
-                            <div className="h-full bg-sky-500" style={{ width: `${jackpotProbs.away}%` }} />
-                          </div>
-                        </div>
-
-                        {/* Community Poll & Voting Section */}
-                        <div className="pt-1.5">
-                          <VotePoll 
-                            fixtureId={`jackpot_${jackpot.id}_${match.id}`} 
-                            homeTeam={match.homeTeam}
-                            awayTeam={match.awayTeam}
-                            isEnded={match.status === 'FT' || match.status === 'FINISHED' || match.result === 'won' || match.result === 'lost'}
-                            status={match.status}
-                            result={match.result}
-                            prediction={match.prediction}
-                          />
+                        <div className="w-full h-1.5 bg-[var(--border)] rounded-full overflow-hidden flex">
+                          <div className="h-full bg-emerald-500" style={{ width: `${jackpotProbs.home}%` }} />
+                          <div className="h-full bg-amber-500" style={{ width: `${jackpotProbs.draw}%` }} />
+                          <div className="h-full bg-sky-500" style={{ width: `${jackpotProbs.away}%` }} />
                         </div>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+
+                      {/* Community Poll & Voting Section */}
+                      <div className="pt-1.5">
+                        <VotePoll 
+                          fixtureId={`jackpot_${jackpot.id}_${match.id}`} 
+                          homeTeam={match.homeTeam}
+                          awayTeam={match.awayTeam}
+                          isEnded={match.status === 'FT' || match.status === 'FINISHED' || match.result === 'won' || match.result === 'lost'}
+                          status={match.status}
+                          result={match.result}
+                          prediction={match.prediction}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             );
           }))}

@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import compression from 'compression';
 import { createServer as createViteServer } from 'vite';
 import { generateSitemapXml, getAllSitemapRoutes, BASE_URL } from './src/utils/sitemapGenerator.js';
 
@@ -9,7 +10,27 @@ async function startServer() {
   const PORT = Number(process.env.PORT) || 3000;
   const PHP_BACKEND_URL = 'https://cheerplex.co.ke/soka_king';
 
+  // 1. Text compression (Gzip / Deflate) for ultra-fast TTFB and reduced document request latency
+  app.use(compression({
+    level: 6,
+    threshold: 0, // Compress all text responses including HTML, JSON, XML, JS, and CSS
+    filter: (req, res) => {
+      if (req.headers['x-no-compression']) {
+        return false;
+      }
+      return compression.filter(req, res);
+    }
+  }));
+
+  // 2. Body parser & security/latency response headers
   app.use(express.json());
+
+  app.use((_req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Vary', 'Accept-Encoding');
+    next();
+  });
 
   // CORS headers for frontend requests
   app.use((req, res, next) => {
@@ -335,7 +356,10 @@ Sitemap: https://sokaking.com/sitemap.xml
       try {
         let template = fs.readFileSync(path.resolve('.', 'index.html'), 'utf-8');
         template = await vite.transformIndexHtml(url, template);
-        res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+        res.status(200).set({
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-cache, must-revalidate'
+        }).end(template);
       } catch (e: any) {
         vite.ssrFixStacktrace(e);
         next(e);
@@ -344,9 +368,36 @@ Sitemap: https://sokaking.com/sitemap.xml
   } else {
     const distPath = path.resolve('.', 'dist');
     if (fs.existsSync(distPath)) {
-      app.use(express.static(distPath));
+      // 1. Cache-Control for immutable static assets (JS, CSS, images, fonts)
+      app.use('/assets', express.static(path.join(distPath, 'assets'), {
+        maxAge: '1y',
+        immutable: true,
+      }));
+
+      // 2. Static files (favicon, manifest, etc.)
+      app.use(express.static(distPath, {
+        maxAge: '1h',
+        setHeaders: (res, filePath) => {
+          if (filePath.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+          }
+        }
+      }));
+
+      // 3. Cached index.html in memory for instant responses with 0 disk IO
+      let cachedHtml: string | null = null;
+      const indexPath = path.resolve(distPath, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        cachedHtml = fs.readFileSync(indexPath, 'utf-8');
+      }
+
       app.get('*', (_req, res) => {
-        res.sendFile(path.resolve(distPath, 'index.html'));
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+        if (cachedHtml) {
+          return res.status(200).send(cachedHtml);
+        }
+        res.sendFile(indexPath);
       });
     }
   }

@@ -144,11 +144,16 @@ html, body {
 }
 
 /* Mobile Layout Stability & Performance Rules */
+aside {
+  contain-intrinsic-size: 320px 480px;
+}
+
 @media (max-width: 1024px) {
   /* Prevent layout shift when sidebar stacks below main content */
   aside {
     content-visibility: auto;
     contain-intrinsic-size: 0 450px;
+    min-height: 380px;
   }
 }
 
@@ -158,9 +163,14 @@ html, body {
   contain-intrinsic-size: 0 500px;
 }
 
+/* Prevent layout shift from image and icon loads */
+img {
+  content-visibility: auto;
+}
+
 /* Touch target optimizations for mobile */
 @media (pointer: coarse) {
-  button, a {
+  button, a, input, select {
     touch-action: manipulation;
   }
 }
