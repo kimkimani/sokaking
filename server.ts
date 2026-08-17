@@ -333,6 +333,33 @@ Sitemap: https://sokaking.com/sitemap.xml
       return res.send(data);
     } catch (error: any) {
       console.error(`[Proxy Error] Failed to connect to PHP Backend at ${targetUrl}:`, error.message);
+
+      // Fail-safe handling for Voting endpoints on remote network error
+      if (req.originalUrl.includes('/api/predictions/vote') || req.originalUrl.includes('/api/vote')) {
+        if (req.method === 'GET') {
+          const fixtureId = String(req.query.fixtureId || '1');
+          const userId = String(req.query.userId || '');
+          const stats = getMemoryVoteStats(fixtureId, userId);
+          res.status(200);
+          res.setHeader('Content-Type', 'application/json');
+          return res.json(stats);
+        }
+
+        if (req.method === 'POST') {
+          const body = req.body || {};
+          const fixtureId = String(body.fixtureId || '1');
+          const vote = String(body.vote || '1');
+          const userId = String(body.userId || 'guest');
+          const stats = recordMemoryVote(fixtureId, userId, vote);
+          res.status(200);
+          res.setHeader('Content-Type', 'application/json');
+          return res.json({
+            success: true,
+            stats
+          });
+        }
+      }
+
       return res.status(502).json({
         error: 'PHP Backend Service Unavailable',
         message: error.message,

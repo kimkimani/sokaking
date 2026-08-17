@@ -371,7 +371,7 @@ export default function VotePoll({
     return id;
   });
 
-  // Only fetch network vote data on mount if variant is 'full' (user expanded view) or if already cached
+  // Fetch network vote data on mount for full and card variants, or if already cached
   useEffect(() => {
     let active = true;
     let savedVote: string | null = null;
@@ -388,8 +388,7 @@ export default function VotePoll({
       return;
     }
 
-    // Only fetch for full expanded variant to avoid flooding 40+ HTTP calls during critical initial render
-    if (variant === 'full') {
+    if (variant === 'full' || variant === 'card') {
       fetchVoteData(fixtureId, visitorId, savedVote).then((res) => {
         if (active && res) {
           setStats(res);
@@ -516,7 +515,14 @@ export default function VotePoll({
 
   const isUserSelected = (opt: PollOption) => {
     if (!stats?.userVote) return false;
-    return stats.userVote === opt.key || stats.userVote === opt.dbKey;
+    const uv = String(stats.userVote).toUpperCase().trim();
+    const ok = String(opt.key).toUpperCase().trim();
+    const odb = String(opt.dbKey).toUpperCase().trim();
+    if (uv === ok || uv === odb) return true;
+    if ((uv === '2X' || uv === 'X2') && (ok === '2X' || ok === 'X2')) return true;
+    if ((uv === '1X' || uv === 'X1') && (ok === '1X' || ok === 'X1')) return true;
+    if ((uv === '12' || uv === '21') && (ok === '12' || ok === '21')) return true;
+    return false;
   };
 
   // 1. COMPACT VARIANT (Micro-pill / chip)
@@ -690,7 +696,7 @@ export default function VotePoll({
               key={opt.key}
               type="button"
               onClick={() => castVote(opt)}
-              disabled={isMatchFinished || !voting}
+              disabled={Boolean(isMatchFinished || voting)}
               className={`relative overflow-hidden p-2.5 sm:p-3 rounded-xl border text-center transition-all duration-200 flex flex-col items-center justify-between min-h-[64px] sm:min-h-[72px] active:scale-[0.98] ${
                 isMatchFinished ? 'cursor-not-allowed opacity-90' : 'cursor-pointer hover:shadow-xs'
               } ${

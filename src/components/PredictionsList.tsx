@@ -18,6 +18,7 @@ import { calculateProbabilities, getRefinedConfidence } from '../utils/probabili
 import VotePoll from './VotePoll';
 import VoteNudgeSnippet from './VoteNudgeSnippet';
 import { FlagImage } from '../utils/flagUtils';
+import { formatTime } from '../utils/timeUtils';
 
 interface PredictionsListProps {
   fixtures: Fixture[];
@@ -97,16 +98,57 @@ export default function PredictionsList({
     const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
+    let list = sortedFixtures;
     if (dateFilter === 'yesterday') {
-      return sortedFixtures.filter(f => isSameDay(f.kickoffTime, yesterday));
+      list = sortedFixtures.filter(f => isSameDay(f.kickoffTime, yesterday));
+    } else if (dateFilter === 'today') {
+      list = sortedFixtures.filter(f => isSameDay(f.kickoffTime, now));
+    } else if (dateFilter === 'tomorrow') {
+      list = sortedFixtures.filter(f => isSameDay(f.kickoffTime, tomorrow));
     }
-    if (dateFilter === 'today') {
-      return sortedFixtures.filter(f => isSameDay(f.kickoffTime, now));
-    }
-    if (dateFilter === 'tomorrow') {
-      return sortedFixtures.filter(f => isSameDay(f.kickoffTime, tomorrow));
-    }
-    return sortedFixtures;
+
+    return list.map(fixture => {
+      const isCompleted = fixture.status === 'FT';
+      const isWon = fixture.result === 'won';
+      const isLost = fixture.result === 'lost';
+      
+      const isDoubleChance = fixture.prediction.toLowerCase().includes('double chance') || 
+                             fixture.prediction.toLowerCase().includes('1x') || 
+                             fixture.prediction.toLowerCase().includes('x1') || 
+                             fixture.prediction.toLowerCase().includes('x2') || 
+                             fixture.prediction.toLowerCase().includes('2x') || 
+                             fixture.prediction.toLowerCase().includes('12') ||
+                             fixture.prediction.toLowerCase().includes('21');
+
+      const displayConf = getRefinedConfidence(fixture);
+      const probs = calculateProbabilities(
+        fixture.prediction,
+        displayConf,
+        fixture.probabilities || fixture
+      );
+
+      let desktopRowStyle = "border-l-[4px] border-l-transparent";
+      if (isCompleted) {
+        if (isWon) {
+          desktopRowStyle = "border-l-[4px] border-l-emerald-500 bg-emerald-500/[0.01] hover:bg-emerald-500/[0.025] dark:bg-emerald-500/[0.02]";
+        } else if (isLost) {
+          desktopRowStyle = "border-l-[4px] border-l-slate-400/30 bg-slate-500/[0.005] hover:bg-slate-500/[0.015] opacity-90";
+        }
+      } else if (fixture.status === 'LIVE' || fixture.status === 'HT') {
+        desktopRowStyle = "border-l-[4px] border-l-red-500 bg-red-500/[0.01]";
+      }
+
+      return {
+        ...fixture,
+        isCompleted,
+        isWon,
+        isLost,
+        isDoubleChance,
+        displayConf,
+        probs,
+        desktopRowStyle
+      };
+    });
   }, [sortedFixtures, dateFilter]);
 
   const toggleExpand = (id: number) => {
@@ -153,38 +195,6 @@ export default function PredictionsList({
         <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" /> {showScore ? 'PENDING' : null}
       </span>
     );
-  };
-
-  const formatTime = (timeStr: string) => {
-    if (!timeStr) return '18:00';
-    // If it's already a plain HH:mm format without date
-    if (/^\d{1,2}:\d{2}$/.test(timeStr.trim())) {
-      return timeStr.trim();
-    }
-    try {
-      // If datetime does not specify timezone offset or Z, assume UTC from database
-      let normalized = timeStr.trim();
-      if (normalized.includes(' ') && !normalized.includes('T')) {
-        normalized = normalized.replace(' ', 'T');
-      }
-      if (!normalized.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(normalized)) {
-        normalized += 'Z';
-      }
-      
-      const d = new Date(normalized);
-      if (!isNaN(d.getTime())) {
-        // Format strictly in Kenya (EAT / Africa/Nairobi) timezone (UTC+3)
-        return d.toLocaleTimeString('en-GB', { 
-          timeZone: 'Africa/Nairobi', 
-          hour: '2-digit', 
-          minute: '2-digit', 
-          hour12: false 
-        });
-      }
-    } catch {
-      // Fallback
-    }
-    return timeStr;
   };
 
   const getInitials = (teamName: string) => {
@@ -252,36 +262,7 @@ export default function PredictionsList({
           ) : (
             displayedFixtures.map((fixture) => {
             const isExpanded = expandedFixture === fixture.id;
-            const isCompleted = fixture.status === 'FT';
-            const isWon = fixture.result === 'won';
-            const isLost = fixture.result === 'lost';
-            
-            const isDoubleChance = fixture.prediction.toLowerCase().includes('double chance') || 
-                                   fixture.prediction.toLowerCase().includes('1x') || 
-                                   fixture.prediction.toLowerCase().includes('x1') || 
-                                   fixture.prediction.toLowerCase().includes('x2') || 
-                                   fixture.prediction.toLowerCase().includes('2x') || 
-                                   fixture.prediction.toLowerCase().includes('12') ||
-                                   fixture.prediction.toLowerCase().includes('21');
-
-            const displayConf = getRefinedConfidence(fixture);
-            const probs = calculateProbabilities(
-              fixture.prediction,
-              displayConf,
-              fixture.probabilities || fixture
-            );
-
-            // Desktop border and row style overrides for completed games
-            let desktopRowStyle = "border-l-[4px] border-l-transparent";
-            if (isCompleted) {
-              if (isWon) {
-                desktopRowStyle = "border-l-[4px] border-l-emerald-500 bg-emerald-500/[0.01] hover:bg-emerald-500/[0.025] dark:bg-emerald-500/[0.02]";
-              } else if (isLost) {
-                desktopRowStyle = "border-l-[4px] border-l-slate-400/30 bg-slate-500/[0.005] hover:bg-slate-500/[0.015] opacity-90";
-              }
-            } else if (fixture.status === 'LIVE' || fixture.status === 'HT') {
-              desktopRowStyle = "border-l-[4px] border-l-red-500 bg-red-500/[0.01]";
-            }
+            const { isCompleted, isWon, isLost, isDoubleChance, displayConf, probs, desktopRowStyle } = fixture;
 
             return (
               <div 

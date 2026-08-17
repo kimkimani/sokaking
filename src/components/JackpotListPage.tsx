@@ -8,6 +8,7 @@ import { AuthorCard } from './AuthorCard';
 import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
 import { FlagImage } from '../utils/flagUtils';
 import { sortJackpotsByStatusAndTime } from '../utils/jackpotDateShifter';
+import { formatJackpotStartTimeString } from '../utils/timeUtils';
 
 interface JackpotListPageProps {
   onSelectJackpot: (jackpotId: string) => void;
@@ -248,7 +249,7 @@ export default function JackpotListPage({
                     <div className="flex items-center gap-2 text-[var(--text-muted)]">
                       <Clock className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                       <span className="font-bold text-[11px] font-mono truncate text-[var(--text)]">
-                        {hasEnded ? 'Completed and closed' : hasStarted ? 'Live In Progress' : `Open (Not started) • ${jackpot.nextGameStartTime || ''}`}
+                        {hasEnded ? 'Completed and closed' : hasStarted ? 'Live In Progress' : `Open (Not started) • ${formatJackpotStartTimeString(earliestTime ? new Date(earliestTime) : null, jackpot.nextGameStartTime)}`}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-[11px]">

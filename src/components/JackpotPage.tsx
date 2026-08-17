@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, memo } from 'react';
 import { 
   Trophy, 
   Clock, 
@@ -26,6 +26,7 @@ import MarkdownRenderer from './MarkdownRenderer';
 import { FlagImage } from '../utils/flagUtils';
 import { AuthorCard } from './AuthorCard';
 import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
+import { formatTime, formatMatchDateTime, formatJackpotStartTimeString } from '../utils/timeUtils';
 
 interface JackpotPageProps {
   jackpot: JackpotConfig;
@@ -75,43 +76,21 @@ export function JackpotShimmerLoader({ count = 10 }: { count?: number }) {
   );
 }
 
-function formatMatchDateTime(rawDate?: string | Date): string {
-  if (!rawDate) return '';
-  return String(rawDate);
-}
-
-export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToList, pageId, isLoading = false }: JackpotPageProps) {
-  const [expandedFixture, setExpandedFixture] = useState<number | null>(null);
-  const [timeLeft, setTimeLeft] = useState({ days: 2, hours: 14, minutes: 45, seconds: 22 });
-  const pageMd = getMarkdownContent(pageId || jackpot.id);
-
-  // Compute earliest and latest match times for started/ended statuses
-  const fixtureTimes = (jackpot.fixtures || [])
-    .map(f => {
-      const val = f.kickoffTime || f.date || f.time;
-      const d = val ? new Date(val) : null;
-      return d && !isNaN(d.getTime()) ? d.getTime() : null;
-    })
-    .filter((t): t is number => t !== null && !isNaN(t));
-
-  const earliestTime = fixtureTimes.length > 0 ? Math.min(...fixtureTimes) : null;
-  const latestTime = fixtureTimes.length > 0 ? Math.max(...fixtureTimes) : null;
-  
-  const [nowTime, setNowTime] = useState(Date.now());
+// Isolated countdown timer component to prevent full page/card re-renders every second
+const JackpotCountdownTimer = memo(function JackpotCountdownTimer({ 
+  earliestTime, 
+  hasStarted, 
+  hasEnded 
+}: { 
+  earliestTime: number | null; 
+  hasStarted: boolean; 
+  hasEnded: boolean; 
+}) {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setNowTime(Date.now());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const hasStarted = earliestTime ? nowTime >= earliestTime : false;
-  const hasEnded = latestTime ? nowTime >= latestTime + 2 * 60 * 60 * 1000 : false;
-
-  // Compute countdown timer dynamically based on earliest match
-  useEffect(() => {
-    const targetDate = earliestTime ? new Date(earliestTime) : new Date();
+    if (!earliestTime) return;
+    const targetDate = new Date(earliestTime);
 
     const updateTimer = () => {
       const now = new Date();
@@ -130,9 +109,120 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
 
     updateTimer();
     const timer = setInterval(updateTimer, 1000);
-
     return () => clearInterval(timer);
   }, [earliestTime]);
+
+  return (
+    <div className="flex items-center justify-center gap-1.5 sm:gap-2 z-10 self-center md:self-auto font-mono shrink-0 select-none py-1">
+      {/* Days */}
+      <div className="flex flex-col items-center">
+        <div className="w-11 sm:w-12 h-11 bg-slate-900/90 border border-slate-750 rounded-xl flex items-center justify-center font-black text-base sm:text-lg text-white shadow-sm">
+          {String(timeLeft.days).padStart(2, '0')}
+        </div>
+        <span className="text-[8px] font-black text-slate-400 mt-1 uppercase tracking-wider">Days</span>
+      </div>
+
+      <span className={`${hasEnded ? 'text-rose-500' : hasStarted ? 'text-amber-500' : 'text-emerald-400'} font-black text-sm mb-4 animate-pulse shrink-0`}>:</span>
+
+      {/* Hours */}
+      <div className="flex flex-col items-center">
+        <div className="w-11 sm:w-12 h-11 bg-slate-900/90 border border-slate-750 rounded-xl flex items-center justify-center font-black text-base sm:text-lg text-white shadow-sm">
+          {String(timeLeft.hours).padStart(2, '0')}
+        </div>
+        <span className="text-[8px] font-black text-slate-400 mt-1 uppercase tracking-wider">Hours</span>
+      </div>
+
+      <span className={`${hasEnded ? 'text-rose-500' : hasStarted ? 'text-amber-500' : 'text-emerald-400'} font-black text-sm mb-4 animate-pulse shrink-0`}>:</span>
+
+      {/* Minutes */}
+      <div className="flex flex-col items-center">
+        <div className="w-11 sm:w-12 h-11 bg-slate-900/90 border border-slate-750 rounded-xl flex items-center justify-center font-black text-base sm:text-lg text-white shadow-sm">
+          {String(timeLeft.minutes).padStart(2, '0')}
+        </div>
+        <span className="text-[8px] font-black text-slate-400 mt-1 uppercase tracking-wider">Mins</span>
+      </div>
+
+      <span className={`${hasEnded ? 'text-rose-500' : hasStarted ? 'text-amber-500' : 'text-emerald-400'} font-black text-sm mb-4 animate-pulse shrink-0`}>:</span>
+
+      {/* Seconds */}
+      <div className="flex flex-col items-center">
+        <div className={`w-11 sm:w-12 h-11 bg-slate-900 border rounded-xl flex items-center justify-center font-black text-base sm:text-lg ${
+          hasEnded 
+            ? 'border-rose-500 text-rose-400 shadow-[0_0_8px_rgba(239,68,68,0.3)]' 
+            : hasStarted 
+              ? 'border-amber-500 text-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.3)]' 
+              : 'border-emerald-500 text-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.3)]'
+        }`}>
+          {String(timeLeft.seconds).padStart(2, '0')}
+        </div>
+        <span className={`text-[8px] font-black mt-1 uppercase tracking-wider ${
+          hasEnded ? 'text-rose-400' : hasStarted ? 'text-amber-400' : 'text-emerald-400'
+        }`}>Secs</span>
+      </div>
+    </div>
+  );
+});
+
+export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToList, pageId, isLoading = false }: JackpotPageProps) {
+  const [expandedFixture, setExpandedFixture] = useState<number | null>(null);
+  const pageMd = getMarkdownContent(pageId || jackpot.id);
+
+  // Compute earliest and latest match times for started/ended statuses
+  const { earliestTime, latestTime } = useMemo(() => {
+    const fixtureTimes = (jackpot.fixtures || [])
+      .map(f => {
+        const val = f.kickoffTime || f.date || f.time;
+        const d = val ? new Date(val) : null;
+        return d && !isNaN(d.getTime()) ? d.getTime() : null;
+      })
+      .filter((t): t is number => t !== null && !isNaN(t));
+
+    return {
+      earliestTime: fixtureTimes.length > 0 ? Math.min(...fixtureTimes) : null,
+      latestTime: fixtureTimes.length > 0 ? Math.max(...fixtureTimes) : null,
+    };
+  }, [jackpot.fixtures]);
+  
+  const [nowTime, setNowTime] = useState(() => Date.now());
+
+  // Check started/ended state every 30 seconds rather than every second to prevent forced reflows
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNowTime(Date.now());
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const hasStarted = earliestTime ? nowTime >= earliestTime : false;
+  const hasEnded = latestTime ? nowTime >= latestTime + 2 * 60 * 60 * 1000 : false;
+
+  // Memoize fixtures data with precalculated probabilities
+  const processedFixtures = useMemo(() => {
+    const rawList = jackpot.fixtures || (jackpot as any).games || [];
+    return rawList.map((match: any) => {
+      const isDoubleChance = match.prediction?.toLowerCase().includes('double chance') || 
+                             match.prediction?.toLowerCase().includes('1x') || 
+                             match.prediction?.toLowerCase().includes('x1') || 
+                             match.prediction?.toLowerCase().includes('x2') || 
+                             match.prediction?.toLowerCase().includes('2x') || 
+                             match.prediction?.toLowerCase().includes('12') ||
+                             match.prediction?.toLowerCase().includes('21');
+
+      const displayConf = getRefinedConfidence(match);
+      const jackpotProbs = calculateProbabilities(
+        match.prediction,
+        displayConf,
+        match.probabilities || match
+      );
+
+      return {
+        ...match,
+        isDoubleChance,
+        displayConf,
+        jackpotProbs
+      };
+    });
+  }, [jackpot.fixtures]);
 
   const toggleExpand = (id: number) => {
     setExpandedFixture(expandedFixture === id ? null : id);
@@ -324,7 +414,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
 
           <div className="text-[10px] text-slate-400 font-mono flex items-center gap-1.5 pt-2 border-t border-[var(--border)]/40">
             <Clock className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-            <span className="truncate">{jackpot.nextGameStartTime}</span>
+            <span className="truncate">{earliestTime ? formatJackpotStartTimeString(new Date(earliestTime), jackpot.nextGameStartTime) : jackpot.nextGameStartTime}</span>
           </div>
         </div>
       </div>
@@ -376,61 +466,19 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
               {hasEnded 
                 ? `Completed & closed: ${latestTime ? formatMatchDateTime(new Date(latestTime)) : 'Recently'}` 
                 : hasStarted 
-                  ? `Live Matches (${earliestTime ? formatMatchDateTime(new Date(earliestTime)) : ''})` 
-                  : `Starts: ${earliestTime ? formatMatchDateTime(new Date(earliestTime)) : jackpot.nextGameStartTime}`
+                  ? `Live Matches (${earliestTime ? formatTime(new Date(earliestTime)) : ''})` 
+                  : `Starts: ${earliestTime ? formatJackpotStartTimeString(new Date(earliestTime), jackpot.nextGameStartTime) : jackpot.nextGameStartTime}`
               }
             </p>
           </div>
         </div>
 
         {/* Middle Column: Compact Timer Card */}
-        <div className="flex items-center justify-center gap-1.5 sm:gap-2 z-10 self-center md:self-auto font-mono shrink-0 select-none py-1">
-          {/* Days */}
-          <div className="flex flex-col items-center">
-            <div className="w-11 sm:w-12 h-11 bg-slate-900/90 border border-slate-750 rounded-xl flex items-center justify-center font-black text-base sm:text-lg text-white shadow-sm">
-              {String(timeLeft.days).padStart(2, '0')}
-            </div>
-            <span className="text-[8px] font-black text-slate-400 mt-1 uppercase tracking-wider">Days</span>
-          </div>
-
-          <span className={`${hasEnded ? 'text-rose-500' : hasStarted ? 'text-amber-500' : 'text-emerald-400'} font-black text-sm mb-4 animate-pulse shrink-0`}>:</span>
-
-          {/* Hours */}
-          <div className="flex flex-col items-center">
-            <div className="w-11 sm:w-12 h-11 bg-slate-900/90 border border-slate-750 rounded-xl flex items-center justify-center font-black text-base sm:text-lg text-white shadow-sm">
-              {String(timeLeft.hours).padStart(2, '0')}
-            </div>
-            <span className="text-[8px] font-black text-slate-400 mt-1 uppercase tracking-wider">Hours</span>
-          </div>
-
-          <span className={`${hasEnded ? 'text-rose-500' : hasStarted ? 'text-amber-500' : 'text-emerald-400'} font-black text-sm mb-4 animate-pulse shrink-0`}>:</span>
-
-          {/* Minutes */}
-          <div className="flex flex-col items-center">
-            <div className="w-11 sm:w-12 h-11 bg-slate-900/90 border border-slate-750 rounded-xl flex items-center justify-center font-black text-base sm:text-lg text-white shadow-sm">
-              {String(timeLeft.minutes).padStart(2, '0')}
-            </div>
-            <span className="text-[8px] font-black text-slate-400 mt-1 uppercase tracking-wider">Mins</span>
-          </div>
-
-          <span className={`${hasEnded ? 'text-rose-500' : hasStarted ? 'text-amber-500' : 'text-emerald-400'} font-black text-sm mb-4 animate-pulse shrink-0`}>:</span>
-
-          {/* Seconds */}
-          <div className="flex flex-col items-center">
-            <div className={`w-11 sm:w-12 h-11 bg-slate-900 border rounded-xl flex items-center justify-center font-black text-base sm:text-lg ${
-              hasEnded 
-                ? 'border-rose-500 text-rose-400 shadow-[0_0_8px_rgba(239,68,68,0.3)]' 
-                : hasStarted 
-                  ? 'border-amber-500 text-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.3)]' 
-                  : 'border-emerald-500 text-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.3)]'
-            }`}>
-              {String(timeLeft.seconds).padStart(2, '0')}
-            </div>
-            <span className={`text-[8px] font-black mt-1 uppercase tracking-wider ${
-              hasEnded ? 'text-rose-400' : hasStarted ? 'text-amber-400' : 'text-emerald-400'
-            }`}>Secs</span>
-          </div>
-        </div>
+        <JackpotCountdownTimer 
+          earliestTime={earliestTime}
+          hasStarted={hasStarted}
+          hasEnded={hasEnded}
+        />
 
         {/* Right Column: Submissions Progress Meter */}
         <div className="w-full md:w-52 flex flex-col justify-center border-t md:border-t-0 md:border-l border-slate-800 pt-3 md:pt-0 md:pl-4 z-10 shrink-0">
@@ -500,30 +548,18 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
         <div className="divide-y divide-[var(--border)]">
           {isLoading ? (
             <JackpotShimmerLoader count={jackpot.gamesCount || 10} />
-          ) : (jackpot.fixtures || (jackpot as any).games || []).length === 0 ? (
+          ) : processedFixtures.length === 0 ? (
             <div className="p-8 text-center text-xs font-mono text-[var(--text-muted)]">
               No jackpot fixtures available for this selection.
             </div>
           ) : (
-            (jackpot.fixtures || (jackpot as any).games || []).map((match) => {
+            processedFixtures.map((match) => {
             // First 3 fixtures are unlocked for preview, or everything if paid
             const isUnlocked = true;
             const isExpanded = expandedFixture === match.id;
-            
-            const isDoubleChance = match.prediction.toLowerCase().includes('double chance') || 
-                                   match.prediction.toLowerCase().includes('1x') || 
-                                   match.prediction.toLowerCase().includes('x1') || 
-                                   match.prediction.toLowerCase().includes('x2') || 
-                                   match.prediction.toLowerCase().includes('2x') || 
-                                   match.prediction.toLowerCase().includes('12') ||
-                                   match.prediction.toLowerCase().includes('21');
-
-            const displayConf = getRefinedConfidence(match);
-            const jackpotProbs = calculateProbabilities(
-              match.prediction,
-              displayConf,
-              match.probabilities || match
-            );
+            const isDoubleChance = match.isDoubleChance;
+            const displayConf = match.displayConf;
+            const jackpotProbs = match.jackpotProbs;
 
             return (
               <div 
@@ -575,7 +611,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                       </div>
 
                       {/* Match kickoff date & time */}
-                      <div className="mt-1 text-[9px] font-mono text-indigo-500 dark:text-indigo-400 font-bold flex items-center gap-1 select-none leading-none">
+                      <div className="mt-1 text-[9.5px] font-mono text-indigo-500 dark:text-indigo-400 font-bold flex items-center gap-1 select-none leading-none">
                         <Clock className="w-3 h-3 text-indigo-500 shrink-0" />
                         <span>{formatMatchDateTime(match.kickoffTime || match.date || match.time)}</span>
                       </div>
@@ -751,7 +787,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                       {/* Community Poll & Voting Section */}
                       <div className="pt-1.5">
                         <VotePoll 
-                          fixtureId={`jackpot_${jackpot.id}_${match.id}`} 
+                          fixtureId={match.fixtureId || `jackpot_${jackpot.id}_${match.id}`} 
                           homeTeam={match.homeTeam}
                           awayTeam={match.awayTeam}
                           isEnded={match.status === 'FT' || match.status === 'FINISHED' || match.result === 'won' || match.result === 'lost'}
