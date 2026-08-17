@@ -18,6 +18,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { VipPackage } from '../types';
+import { getPageUrl } from '../utils/navigation';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -111,11 +112,18 @@ export default function Sidebar({
               {menuItems.map((item) => {
                 const IconComponent = item.icon;
                 const isActive = activePage === item.id;
+                const targetUrl = getPageUrl(item.id);
                 return (
-                  <button
+                  <a
                     key={item.id}
-                    onClick={() => handleNavClick(item.id)}
-                    className={`w-full text-left px-3.5 py-2.5 rounded-[var(--radius)] flex items-center justify-between text-xs font-extrabold transition-all duration-200 border-none cursor-pointer ${
+                    href={targetUrl}
+                    onClick={(e) => {
+                      if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                        e.preventDefault();
+                        handleNavClick(item.id);
+                      }
+                    }}
+                    className={`w-full text-left px-3.5 py-2.5 rounded-[var(--radius)] flex items-center justify-between text-xs font-extrabold transition-all duration-200 no-underline cursor-pointer ${
                       isActive 
                         ? 'bg-[var(--primary)] text-white shadow-sm' 
                         : 'text-[var(--text)] hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -128,7 +136,7 @@ export default function Sidebar({
                     {isActive && (
                       <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
                     )}
-                  </button>
+                  </a>
                 );
               })}
             </nav>

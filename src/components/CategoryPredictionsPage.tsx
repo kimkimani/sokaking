@@ -28,6 +28,7 @@ import FaqSection from './FaqSection';
 import { AuthorCard } from './AuthorCard';
 import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
 import { sortJackpotsByStatusAndTime } from '../utils/jackpotDateShifter';
+import { getPageUrl } from '../utils/navigation';
 
 interface CategoryPredictionsPageProps {
   category: PredictionCategory;
@@ -218,12 +219,18 @@ export default function CategoryPredictionsPage({
       
       {/* Navigation Breadcrumb */}
       <div className="flex items-center gap-2 text-[11px]">
-        <button 
-          onClick={onBackToHome}
-          className="flex items-center gap-1 text-slate-500 hover:text-indigo-500 font-bold bg-transparent border-none cursor-pointer transition-colors p-0"
+        <a 
+          href="/"
+          onClick={(e) => {
+            if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+              e.preventDefault();
+              onBackToHome();
+            }
+          }}
+          className="flex items-center gap-1 text-slate-500 hover:text-indigo-500 font-bold no-underline cursor-pointer transition-colors p-0"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back Home
-        </button>
+        </a>
       </div>
 
       {/* Category Card Header & Yesterday Performance Dashboard */}
@@ -559,13 +566,19 @@ export default function CategoryPredictionsPage({
                 </p>
               </div>
 
-              <button 
-                onClick={() => onSelectPage && onSelectPage(jackpot.id)}
-                className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase font-mono rounded-lg transition-colors border-none cursor-pointer flex items-center justify-center gap-1 shadow-3xs"
+              <a 
+                href={getPageUrl(jackpot.id)}
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    if (onSelectPage) onSelectPage(jackpot.id);
+                  }
+                }}
+                className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase font-mono rounded-lg transition-colors no-underline cursor-pointer flex items-center justify-center gap-1 shadow-3xs"
               >
                 <span>Analyze Jackpot</span>
                 <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
-              </button>
+              </a>
             </div>
           ))}
         </div>

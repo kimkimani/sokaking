@@ -9,6 +9,7 @@ import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
 import { FlagImage } from '../utils/flagUtils';
 import { sortJackpotsByStatusAndTime } from '../utils/jackpotDateShifter';
 import { formatJackpotStartTimeString } from '../utils/timeUtils';
+import { getPageUrl } from '../utils/navigation';
 
 interface JackpotListPageProps {
   onSelectJackpot: (jackpotId: string) => void;
@@ -187,11 +188,19 @@ export default function JackpotListPage({
               );
             }
 
+            const targetUrl = getPageUrl(jackpot.id);
+
             return (
-              <div 
+              <a 
                 key={jackpot.id}
-                onClick={() => onSelectJackpot(jackpot.id)}
-                className="group relative flex flex-col justify-between p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] hover:border-emerald-500/40 dark:hover:border-emerald-500/30 transition-all duration-300 hover:shadow-md cursor-pointer text-left"
+                href={targetUrl}
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    onSelectJackpot(jackpot.id);
+                  }
+                }}
+                className="group relative flex flex-col justify-between p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] hover:border-emerald-500/40 dark:hover:border-emerald-500/30 transition-all duration-300 hover:shadow-md cursor-pointer text-left no-underline"
               >
                 {/* Visual Accent */}
                 <div className="absolute top-0 left-0 right-0 h-[2px] bg-slate-100 dark:bg-slate-805 group-hover:bg-emerald-500 transition-colors" />
@@ -284,7 +293,7 @@ export default function JackpotListPage({
                     <ArrowRight className="w-4 h-4" />
                   </div>
                 </div>
-              </div>
+              </a>
             );
           })}
         </div>

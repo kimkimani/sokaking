@@ -58,120 +58,21 @@ const PaymentModal = lazy(() => import('./components/PaymentModal'));
 const FaqSection = lazy(() => import('./components/FaqSection'));
 const MarkdownRenderer = lazy(() => import('./components/MarkdownRenderer'));
 
-const BASE_URL_TO_PAGE_MAP: Record<string, string> = {
-  '/': 'home',
-  '/football-predictions-today': 'category-today',
-  '/football-predictions-yesterday': 'category-yesterday',
-  '/football-predictions-tomorrow': 'category-tomorrow',
-  '/football-predictions-over-1-5-goals': 'category-over15',
-  '/football-predictions-btts-gg': 'category-btts',
-  '/football-predictions-1x2-home-win': 'category-homewin',
-  '/football-predictions-over-2-5-goals': 'category-over25',
-  '/football-predictions-double-chance': 'category-doublechance',
-  '/254-sure-tips': '254-sure-tips',
-  '/cheerplex-predictions-and-tips-today': 'cheerplex-predictions-and-tips-today',
-  '/liobet-predictions-and-tips': 'liobet-predictions-and-tips',
-  '/predictz-predictions': 'predictz-predictions',
-  '/soccervista': 'soccervista',
-  '/soccervista-predictions-and-tips': 'soccervista-predictions-and-tips',
-  '/sunpel-free-football-betting-tips-and-soccer-predictions': 'sunpel-free-football-betting-tips',
-  '/sunpel-free-football-betting-tips': 'sunpel-free-football-betting-tips',
-  '/jackpot-tips': 'jackpot-list',
-  '/free-sportpesa-mega-jackpot-predictions-and-analysis': 'sportpesa-mega',
-  '/free-sportpesa-midweek-jackpot-predictions-and-analysis': 'sportpesa-midweek',
-  '/free-betika-midweek-jackpot-predictions-and-analysis': 'betika-midweek',
-  '/free-mozzart-grand-jackpot-predictions-and-analysis': 'mozzart-grand',
-  '/free-mozzart-super-daily-jackpot-predictions-and-analysis': 'mozzart-super-daily',
-  '/free-sportybet-jackpot-predictions-and-analysis': 'sportybet-jackpot',
-  '/free-betpawa-pick-jackpot-predictions-and-analysis': 'betpawa-pick-jackpot',
-  '/free-odibet-laki-tatu-jackpot-predictions-and-analysis': 'odibet-laki-tatu',
-  '/sportpesa-mega-jackpot-2026': 'sportpesa-mega-jackpot-2026',
-  '/mozzart-super-grand-2026': 'mozzart-super-grand-2026',
-  '/about-us': 'about',
-  '/partners': 'partners',
-  '/responsible-gambling': 'responsible-gambling',
-  '/privacy-policy': 'privacy-policy',
-  '/terms-of-use': 'terms-of-use',
-  '/contact-us': 'contact',
-  '/faq': 'faq',
-  '/vip-packages': 'vip-packages',
-  '/vip-tips': 'vip-packages',
-  '/vip': 'vip-packages',
-  '/odds': 'vip-packages'
-};
-
-const BASE_PAGE_TO_URL_MAP: Record<string, string> = {
-  'home': '/',
-  'category-today': '/football-predictions-today',
-  'category-yesterday': '/football-predictions-yesterday',
-  'category-tomorrow': '/football-predictions-tomorrow',
-  'category-over15': '/football-predictions-over-1-5-goals',
-  'category-btts': '/football-predictions-btts-gg',
-  'category-homewin': '/football-predictions-1x2-home-win',
-  'category-over25': '/football-predictions-over-2-5-goals',
-  'category-doublechance': '/football-predictions-double-chance',
-  '254-sure-tips': '/254-sure-tips',
-  'cheerplex-predictions-and-tips-today': '/cheerplex-predictions-and-tips-today',
-  'liobet-predictions-and-tips': '/liobet-predictions-and-tips',
-  'predictz-predictions': '/predictz-predictions',
-  'soccervista': '/soccervista',
-  'soccervista-predictions-and-tips': '/soccervista-predictions-and-tips',
-  'sunpel-free-football-betting-tips': '/sunpel-free-football-betting-tips-and-soccer-predictions',
-  'jackpot-list': '/jackpot-tips',
-  'sportpesa-mega': '/free-sportpesa-mega-jackpot-predictions-and-analysis',
-  'sportpesa-midweek': '/free-sportpesa-midweek-jackpot-predictions-and-analysis',
-  'betika-midweek': '/free-betika-midweek-jackpot-predictions-and-analysis',
-  'mozzart-grand': '/free-mozzart-grand-jackpot-predictions-and-analysis',
-  'mozzart-super-daily': '/free-mozzart-super-daily-jackpot-predictions-and-analysis',
-  'sportybet-jackpot': '/free-sportybet-jackpot-predictions-and-analysis',
-  'betpawa-pick-jackpot': '/free-betpawa-pick-jackpot-predictions-and-analysis',
-  'odibet-laki-tatu': '/free-odibet-laki-tatu-jackpot-predictions-and-analysis',
-  'sportpesa-mega-jackpot-2026': '/sportpesa-mega-jackpot-2026',
-  'mozzart-super-grand-2026': '/mozzart-super-grand-2026',
-  'about': '/about-us',
-  'partners': '/partners',
-  'responsible-gambling': '/responsible-gambling',
-  'privacy-policy': '/privacy-policy',
-  'terms-of-use': '/terms-of-use',
-  'contact': '/contact-us',
-  'faq': '/faq',
-  'vip-packages': '/vip-packages',
-  'vip': '/vip-packages',
-  'odds': '/vip-packages'
-};
-
-const { 
-  urlToPageMap: URL_TO_PAGE_MAP, 
-  pageToUrlMap: PAGE_TO_URL_MAP,
-  dynamicCategoryPages: DYNAMIC_CATEGORY_PAGES,
-  dynamicJackpotPages: DYNAMIC_JACKPOT_PAGES,
-  dynamicJackpotIds: DYNAMIC_JACKPOT_IDS
-} = getDynamicUrlMaps(BASE_URL_TO_PAGE_MAP, BASE_PAGE_TO_URL_MAP);
-
-const ALL_JACKPOT_IDS = Array.from(new Set([
-  'sportpesa-mega', 
-  'sportpesa-midweek', 
-  'betika-midweek', 
-  'mozzart-grand', 
-  'sportybet-jackpot', 
-  'betpawa-pick-jackpot', 
-  'odibet-laki-tatu', 
-  'mozzart-super-daily',
-  ...DYNAMIC_JACKPOT_IDS
-]));
-
-const getNormalizedPath = (path: string) => {
-  let p = path.toLowerCase();
-  if (p.endsWith('/') && p !== '/') {
-    p = p.slice(0, -1);
-  }
-  return p;
-};
+import { 
+  URL_TO_PAGE_MAP, 
+  PAGE_TO_URL_MAP, 
+  DYNAMIC_CATEGORY_PAGES, 
+  DYNAMIC_JACKPOT_PAGES, 
+  DYNAMIC_JACKPOT_IDS,
+  ALL_JACKPOT_IDS,
+  getNormalizedPath,
+  getPageUrl,
+  getPageIdFromUrl
+} from './utils/navigation';
 
 const getInitialPage = () => {
   if (typeof window === 'undefined') return 'home';
-  const normalized = getNormalizedPath(window.location.pathname);
-  return URL_TO_PAGE_MAP[normalized] || 'home';
+  return getPageIdFromUrl(window.location.pathname);
 };
 
 const getInitialJackpot = (initialPage: string) => {
@@ -590,10 +491,16 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
               <Menu className="w-5 h-5 text-[var(--primary)]" />
             </button>
             
-            <button 
-              onClick={() => handleSelectPage('home')}
+            <a 
+              href="/"
+              onClick={(e) => {
+                if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSelectPage('home');
+                }
+              }}
               aria-label="Soka King Home"
-              className="flex items-center gap-2 cursor-pointer bg-transparent border-none p-0 text-left"
+              className="flex items-center gap-2 cursor-pointer bg-transparent no-underline p-0 text-left text-[var(--text)]"
             >
               <div className="w-8 h-8 rounded-lg bg-[var(--primary)] flex items-center justify-center text-white font-black text-xs select-none">
                 SK
@@ -604,54 +511,88 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
               >
                 SOKA <span className="text-[var(--primary)]">KING</span>
               </span>
-            </button>
+            </a>
           </div>
 
           {/* Center: Desktop Toolbar Navigation Menu */}
           <nav aria-label="Main navigation" className="hidden lg:flex items-center gap-1 bg-slate-100/60 dark:bg-slate-900/40 p-1 rounded-full border border-[var(--border)] shadow-3xs">
-            <button 
-              onClick={() => handleSelectPage('home')}
-              className={`px-3.5 py-1.5 text-xs font-bold transition-all border-none cursor-pointer rounded-full ${activePage === 'home' ? 'bg-[var(--primary)] text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--primary)]'}`}
-            >
-              Home
-            </button>
-            <button 
-              onClick={() => handleSelectPage('category-today')}
-              className={`px-3.5 py-1.5 text-xs font-bold transition-all border-none cursor-pointer rounded-full ${activePage === 'category-today' ? 'bg-[var(--primary)] text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--primary)]'}`}
-            >
-              Today's Tips
-            </button>
-            <button 
-              onClick={() => handleSelectPage('jackpot-list')}
-              className={`px-3.5 py-1.5 text-xs font-bold transition-all border-none cursor-pointer rounded-full ${activePage === 'jackpot-list' ? 'bg-[var(--primary)] text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--primary)]'}`}
-            >
-              Jackpots
-            </button>
-            <button 
-              onClick={() => {
-                if (activePage.startsWith('category-') || activePage === 'home') {
-                  handleScrollTo('odds-packs');
-                } else {
+            <a 
+              href={getPageUrl('home')}
+              onClick={(e) => {
+                if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                  e.preventDefault();
                   handleSelectPage('home');
-                  setTimeout(() => handleScrollTo('odds-packs'), 100);
                 }
               }}
-              className="px-3.5 py-1.5 text-xs font-bold transition-all bg-transparent border-none cursor-pointer rounded-full text-[var(--text-muted)] hover:text-[var(--primary)]"
+              className={`px-3.5 py-1.5 text-xs font-bold transition-all no-underline cursor-pointer rounded-full ${activePage === 'home' ? 'bg-[var(--primary)] text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--primary)]'}`}
+            >
+              Home
+            </a>
+            <a 
+              href={getPageUrl('category-today')}
+              onClick={(e) => {
+                if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSelectPage('category-today');
+                }
+              }}
+              className={`px-3.5 py-1.5 text-xs font-bold transition-all no-underline cursor-pointer rounded-full ${activePage === 'category-today' ? 'bg-[var(--primary)] text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--primary)]'}`}
+            >
+              Today's Tips
+            </a>
+            <a 
+              href={getPageUrl('jackpot-list')}
+              onClick={(e) => {
+                if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSelectPage('jackpot-list');
+                }
+              }}
+              className={`px-3.5 py-1.5 text-xs font-bold transition-all no-underline cursor-pointer rounded-full ${activePage === 'jackpot-list' ? 'bg-[var(--primary)] text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--primary)]'}`}
+            >
+              Jackpots
+            </a>
+            <a 
+              href="/#odds-packs"
+              onClick={(e) => {
+                if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                  e.preventDefault();
+                  if (activePage.startsWith('category-') || activePage === 'home') {
+                    handleScrollTo('odds-packs');
+                  } else {
+                    handleSelectPage('home');
+                    setTimeout(() => handleScrollTo('odds-packs'), 100);
+                  }
+                }
+              }}
+              className="px-3.5 py-1.5 text-xs font-bold transition-all bg-transparent no-underline cursor-pointer rounded-full text-[var(--text-muted)] hover:text-[var(--primary)]"
             >
               Odds Packs
-            </button>
-            <button 
-              onClick={() => handleSelectPage('sportpesa-mega')}
-              className={`px-3.5 py-1.5 text-xs font-bold transition-all border-none cursor-pointer rounded-full ${activePage === 'sportpesa-mega' ? 'bg-[var(--primary)] text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--primary)]'}`}
+            </a>
+            <a 
+              href={getPageUrl('sportpesa-mega')}
+              onClick={(e) => {
+                if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSelectPage('sportpesa-mega');
+                }
+              }}
+              className={`px-3.5 py-1.5 text-xs font-bold transition-all no-underline cursor-pointer rounded-full ${activePage === 'sportpesa-mega' ? 'bg-[var(--primary)] text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--primary)]'}`}
             >
               Mega JP
-            </button>
-            <button 
-              onClick={() => handleSelectPage('vip-packages')}
-              className={`px-3.5 py-1.5 text-xs font-bold transition-all border-none cursor-pointer rounded-full ${activePage === 'vip-packages' ? 'bg-[var(--primary)] text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--primary)]'}`}
+            </a>
+            <a 
+              href={getPageUrl('vip-packages')}
+              onClick={(e) => {
+                if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSelectPage('vip-packages');
+                }
+              }}
+              className={`px-3.5 py-1.5 text-xs font-bold transition-all no-underline cursor-pointer rounded-full ${activePage === 'vip-packages' ? 'bg-[var(--primary)] text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--primary)]'}`}
             >
               VIP
-            </button>
+            </a>
           </nav>
 
           {/* Right: Actions */}
@@ -926,11 +867,18 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
                           {PREDICTION_CATEGORIES.map((cat) => {
                             const isCatActive = activePage === cat.id;
+                            const targetUrl = getPageUrl(cat.id);
                             return (
-                              <button
+                              <a
                                 key={cat.id}
-                                onClick={() => handleSelectPage(cat.id)}
-                                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-black shrink-0 transition-all border cursor-pointer ${
+                                href={targetUrl}
+                                onClick={(e) => {
+                                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSelectPage(cat.id);
+                                  }
+                                }}
+                                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-black shrink-0 transition-all border cursor-pointer no-underline ${
                                   isCatActive 
                                     ? 'bg-indigo-700 text-white border-indigo-700 shadow-3xs scale-102' 
                                     : 'bg-[var(--card)] text-[var(--text-muted)] hover:text-[var(--text)] border-[var(--border)] hover:bg-slate-100/40 dark:hover:bg-slate-900/30'
@@ -943,7 +891,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                                 }`}>
                                   {getCategoryCountText(cat.id, dbPredictions.all && dbPredictions.all.length > 0 ? dbPredictions.all : dbPredictions).split(' ')[0]}
                                 </span>
-                              </button>
+                              </a>
                             );
                           })}
                         </div>
@@ -981,26 +929,38 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                           </p>
                         </div>
 
-                        <button
-                          onClick={() => handleSelectPage('jackpot-list')}
-                          className="px-5 py-3 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl shadow-md active:scale-95 transition-all border-none cursor-pointer flex items-center gap-1.5"
+                        <a
+                          href={getPageUrl('jackpot-list')}
+                          onClick={(e) => {
+                            if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                              e.preventDefault();
+                              handleSelectPage('jackpot-list');
+                            }
+                          }}
+                          className="px-5 py-3 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl shadow-md active:scale-95 transition-all no-underline cursor-pointer flex items-center gap-1.5"
                         >
                           <span>VIEW ALL JACKPOTS</span>
                           <ChevronRight className="w-4 h-4" />
-                        </button>
+                        </a>
                       </div>
 
                       {/* Quick brand badge shortcuts */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-5 pt-4 border-t border-[var(--border)]">
                         {dbJackpots.slice(0, 4).map((item) => (
-                          <button
+                          <a
                             key={item.id}
-                            onClick={() => handleSelectPage(item.id)}
-                            className="p-2.5 rounded-lg border bg-[var(--card)] text-left transition-all cursor-pointer border-emerald-500/20 hover:border-emerald-500/50 hover:bg-emerald-500/5 flex flex-col justify-between"
+                            href={getPageUrl(item.id)}
+                            onClick={(e) => {
+                              if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSelectPage(item.id);
+                              }
+                            }}
+                            className="p-2.5 rounded-lg border bg-[var(--card)] text-left transition-all cursor-pointer no-underline border-emerald-500/20 hover:border-emerald-500/50 hover:bg-emerald-500/5 flex flex-col justify-between"
                           >
                             <span className="text-[11px] font-black text-[var(--text)] tracking-tight uppercase">{item.name}</span>
                             <span className="text-[9px] text-slate-600 dark:text-slate-400 font-mono font-bold mt-1">{item.gamesCount} Games</span>
-                          </button>
+                          </a>
                         ))}
                       </div>
                     </section>
@@ -1120,9 +1080,16 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
       {/* 7. MOBILE BOTTOM NAVIGATION BAR */}
       <nav aria-label="Mobile bottom navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--card)]/95 backdrop-blur-md border-t border-[var(--border)] px-2 py-1.5 flex items-center justify-around shadow-2xl">
-        <button
-          onClick={() => { handleSelectPage('category-today'); handleScrollTo('predictions'); }}
-          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer border-none ${
+        <a
+          href={getPageUrl('category-today')}
+          onClick={(e) => {
+            if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+              e.preventDefault();
+              handleSelectPage('category-today'); 
+              handleScrollTo('predictions');
+            }
+          }}
+          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all no-underline cursor-pointer ${
             ['today', 'category-today', 'category-tomorrow', '254-sure-tips'].includes(activePage)
               ? 'bg-[var(--primary)] text-white shadow-3xs font-black'
               : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--text)]'
@@ -1130,11 +1097,17 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
         >
           <Flame className={`w-4 h-4 mb-0.5 ${['today', 'category-today', 'category-tomorrow', '254-sure-tips'].includes(activePage) ? 'text-white' : 'text-amber-500'}`} />
           <span>Free Tips</span>
-        </button>
+        </a>
 
-        <button
-          onClick={() => handleSelectPage('sportpesa-mega')}
-          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer border-none ${
+        <a
+          href={getPageUrl('sportpesa-mega')}
+          onClick={(e) => {
+            if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+              e.preventDefault();
+              handleSelectPage('sportpesa-mega');
+            }
+          }}
+          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all no-underline cursor-pointer ${
             activePage === 'sportpesa-mega'
               ? 'bg-[var(--primary)] text-white shadow-3xs font-black'
               : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--text)]'
@@ -1142,11 +1115,17 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
         >
           <Trophy className={`w-4 h-4 mb-0.5 ${activePage === 'sportpesa-mega' ? 'text-white' : 'text-amber-500'}`} />
           <span>Mega JP</span>
-        </button>
+        </a>
 
-        <button
-          onClick={() => handleSelectPage('vip-packages')}
-          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer border-none ${
+        <a
+          href={getPageUrl('vip-packages')}
+          onClick={(e) => {
+            if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+              e.preventDefault();
+              handleSelectPage('vip-packages');
+            }
+          }}
+          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all no-underline cursor-pointer ${
             activePage === 'vip-packages'
               ? 'bg-[var(--primary)] text-white shadow-3xs font-black'
               : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--text)]'
@@ -1154,11 +1133,17 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
         >
           <Crown className={`w-4 h-4 mb-0.5 ${activePage === 'vip-packages' ? 'text-white' : 'text-amber-500'}`} />
           <span>VIP</span>
-        </button>
+        </a>
 
-        <button
-          onClick={() => handleSelectPage('jackpot-list')}
-          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer border-none ${
+        <a
+          href={getPageUrl('jackpot-list')}
+          onClick={(e) => {
+            if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+              e.preventDefault();
+              handleSelectPage('jackpot-list');
+            }
+          }}
+          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all no-underline cursor-pointer ${
             ['jackpot-list', 'betika-grand', 'betika-midweek', 'sportpesa-midweek', 'mozzart-super-grand', 'mozzart-super-daily', 'sportybet-jackpot', 'betpawa-pick-jackpot', 'odibet-laki-tatu'].includes(activePage)
               ? 'bg-[var(--primary)] text-white shadow-3xs font-black'
               : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--text)]'
@@ -1166,7 +1151,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
         >
           <Layers className={`w-4 h-4 mb-0.5 ${['jackpot-list', 'betika-grand', 'betika-midweek', 'sportpesa-midweek', 'mozzart-super-grand', 'mozzart-super-daily', 'sportybet-jackpot', 'betpawa-pick-jackpot', 'odibet-laki-tatu'].includes(activePage) ? 'text-white' : ''}`} />
           <span>Jackpots</span>
-        </button>
+        </a>
       </nav>
 
       {/* 8. FOOTER */}
@@ -1259,14 +1244,20 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   <span>YouTube</span>
                 </a>
               )}
-              <button 
-                onClick={() => handleSelectPage('contact')} 
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-slate-200 dark:bg-slate-800 text-[var(--text)] font-mono text-[11px] font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition-all cursor-pointer border-none" 
+              <a 
+                href={getPageUrl('contact')}
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSelectPage('contact');
+                  }
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-slate-200 dark:bg-slate-800 text-[var(--text)] font-mono text-[11px] font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition-all no-underline cursor-pointer" 
                 title="Contact Support"
               >
                 <Mail className="w-3.5 h-3.5" />
                 <span>Contact</span>
-              </button>
+              </a>
             </div>
           </div>
 
@@ -1274,11 +1265,77 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
           <div className="space-y-3">
             <strong className="text-[var(--text)] block text-xs font-black uppercase tracking-wider font-mono">Service Links</strong>
             <div className="flex flex-col gap-2 font-semibold text-[11px]">
-              <button onClick={() => { handleSelectPage('today'); handleScrollTo('predictions'); }} className="text-left hover:text-[var(--primary)] bg-transparent border-none cursor-pointer text-slate-500 dark:text-slate-400 text-xs">Free Predictions</button>
-              <button onClick={() => handleSelectPage('jackpot-list')} className="text-left hover:text-[var(--primary)] bg-transparent border-none cursor-pointer text-slate-500 dark:text-slate-400 text-xs">Premium Jackpots</button>
-              <button onClick={() => handleSelectPage('vip-packages')} className="text-left hover:text-[var(--primary)] bg-transparent border-none cursor-pointer text-slate-500 dark:text-slate-400 text-xs">VIP Subscription</button>
-              <button onClick={() => handleSelectPage('vip-packages')} className="text-left hover:text-[var(--primary)] bg-transparent border-none cursor-pointer text-slate-500 dark:text-slate-400 text-xs">Odds Packs & slips</button>
-              <button onClick={() => { handleSelectPage('today'); handleScrollTo('faq'); }} className="text-left hover:text-[var(--primary)] bg-transparent border-none cursor-pointer text-slate-500 dark:text-slate-400 text-xs">Interactive FAQ</button>
+              <a 
+                href={getPageUrl('category-today')}
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSelectPage('today'); 
+                    handleScrollTo('predictions');
+                  }
+                }}
+                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+              >
+                Free Predictions
+              </a>
+              <a 
+                href={getPageUrl('jackpot-list')}
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSelectPage('jackpot-list');
+                  }
+                }}
+                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+              >
+                Premium Jackpots
+              </a>
+              <a 
+                href={getPageUrl('vip-packages')}
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSelectPage('vip-packages');
+                  }
+                }}
+                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+              >
+                VIP Subscription
+              </a>
+              <a 
+                href="/#odds-packs"
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    if (activePage === 'home') {
+                      handleScrollTo('odds-packs');
+                    } else {
+                      handleSelectPage('home');
+                      setTimeout(() => handleScrollTo('odds-packs'), 100);
+                    }
+                  }
+                }}
+                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+              >
+                Odds Packs & Slips
+              </a>
+              <a 
+                href="/#faq"
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    if (activePage === 'home') {
+                      handleScrollTo('faq');
+                    } else {
+                      handleSelectPage('home');
+                      setTimeout(() => handleScrollTo('faq'), 100);
+                    }
+                  }
+                }}
+                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+              >
+                Interactive FAQ
+              </a>
             </div>
           </div>
 
@@ -1286,11 +1343,66 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
           <div className="space-y-3">
             <strong className="text-[var(--text)] block text-xs font-black uppercase tracking-wider font-mono">Soka King Network</strong>
             <div className="flex flex-col gap-2 font-semibold text-[11px]">
-              <button onClick={() => handleSelectPage('about')} className="text-left hover:text-[var(--primary)] bg-transparent border-none cursor-pointer text-slate-500 dark:text-slate-400 text-xs">About Soka King</button>
-              <button onClick={() => handleSelectPage('partners')} className="text-left hover:text-[var(--primary)] bg-transparent border-none cursor-pointer text-slate-500 dark:text-slate-400 text-xs">Strategic Partners</button>
-              <button onClick={() => handleSelectPage('privacy-policy')} className="text-left hover:text-[var(--primary)] bg-transparent border-none cursor-pointer text-slate-500 dark:text-slate-400 text-xs">Privacy Policy</button>
-              <button onClick={() => handleSelectPage('terms-of-use')} className="text-left hover:text-[var(--primary)] bg-transparent border-none cursor-pointer text-slate-500 dark:text-slate-400 text-xs">Terms of Use</button>
-              <button onClick={() => handleSelectPage('contact')} className="text-left hover:text-[var(--primary)] bg-transparent border-none cursor-pointer text-slate-500 dark:text-slate-400 text-xs">Contact Support</button>
+              <a 
+                href={getPageUrl('about')}
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSelectPage('about');
+                  }
+                }}
+                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+              >
+                About Soka King
+              </a>
+              <a 
+                href={getPageUrl('partners')}
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSelectPage('partners');
+                  }
+                }}
+                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+              >
+                Strategic Partners
+              </a>
+              <a 
+                href={getPageUrl('privacy-policy')}
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSelectPage('privacy-policy');
+                  }
+                }}
+                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+              >
+                Privacy Policy
+              </a>
+              <a 
+                href={getPageUrl('terms-of-use')}
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSelectPage('terms-of-use');
+                  }
+                }}
+                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+              >
+                Terms of Use
+              </a>
+              <a 
+                href={getPageUrl('contact')}
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSelectPage('contact');
+                  }
+                }}
+                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+              >
+                Contact Support
+              </a>
             </div>
           </div>
 
@@ -1301,13 +1413,19 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
               Sports prediction is speculative. Soka King does not host betting. Strictly 18+ for players in Kenya.
             </p>
             <div className="pt-1">
-              <button 
-                onClick={() => handleSelectPage('responsible-gambling')} 
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-[10px] font-mono font-bold uppercase tracking-wider border border-rose-500/20 transition-all cursor-pointer"
+              <a 
+                href={getPageUrl('responsible-gambling')}
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSelectPage('responsible-gambling');
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-[10px] font-mono font-bold uppercase tracking-wider border border-rose-500/20 transition-all no-underline cursor-pointer"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
                 <span>Responsible Gambling</span>
-              </button>
+              </a>
             </div>
           </div>
 
@@ -1319,11 +1437,44 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
             © 2026 SOKA KING. Kenya's #1 Data-Driven Football Predictions & Jackpot Portal. All rights reserved.
           </div>
           <div className="flex gap-4 font-mono font-semibold">
-            <button onClick={() => handleSelectPage('privacy-policy')} className="hover:text-[var(--primary)] bg-transparent border-none cursor-pointer text-[10px] text-slate-400">Privacy</button>
+            <a 
+              href={getPageUrl('privacy-policy')}
+              onClick={(e) => {
+                if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSelectPage('privacy-policy');
+                }
+              }}
+              className="hover:text-[var(--primary)] no-underline cursor-pointer text-[10px] text-slate-400"
+            >
+              Privacy
+            </a>
             <span>•</span>
-            <button onClick={() => handleSelectPage('terms-of-use')} className="hover:text-[var(--primary)] bg-transparent border-none cursor-pointer text-[10px] text-slate-400">Terms</button>
+            <a 
+              href={getPageUrl('terms-of-use')}
+              onClick={(e) => {
+                if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSelectPage('terms-of-use');
+                }
+              }}
+              className="hover:text-[var(--primary)] no-underline cursor-pointer text-[10px] text-slate-400"
+            >
+              Terms
+            </a>
             <span>•</span>
-            <button onClick={() => handleSelectPage('responsible-gambling')} className="hover:text-[var(--primary)] bg-transparent border-none cursor-pointer text-[10px] text-slate-400">Responsibility</button>
+            <a 
+              href={getPageUrl('responsible-gambling')}
+              onClick={(e) => {
+                if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSelectPage('responsible-gambling');
+                }
+              }}
+              className="hover:text-[var(--primary)] no-underline cursor-pointer text-[10px] text-slate-400"
+            >
+              Responsibility
+            </a>
             <span>•</span>
             <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--primary)] text-[10px] text-slate-400 no-underline">XML Sitemap</a>
           </div>

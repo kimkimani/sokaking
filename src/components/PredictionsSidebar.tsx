@@ -1,4 +1,5 @@
 import { PREDICTION_CATEGORIES, PredictionCategory, getCategoryCountText } from '../utils/predictionGenerator';
+import { getPageUrl } from '../utils/navigation';
 import { 
   History, 
   Flame, 
@@ -54,12 +55,19 @@ export default function PredictionsSidebar({
       <nav className="p-2 space-y-1">
         {PREDICTION_CATEGORIES.map((category) => {
           const isActive = activeCategoryId === category.id;
+          const targetUrl = getPageUrl(category.id);
           
           return (
-            <button
+            <a
               key={category.id}
-              onClick={() => onSelectCategory(category.id)}
-              className={`w-full flex items-center justify-between p-2.5 rounded-lg text-left transition-all duration-150 border-none cursor-pointer group ${
+              href={targetUrl}
+              onClick={(e) => {
+                if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                  e.preventDefault();
+                  onSelectCategory(category.id);
+                }
+              }}
+              className={`w-full flex items-center justify-between p-2.5 rounded-lg text-left transition-all duration-150 no-underline cursor-pointer group ${
                 isActive 
                   ? 'bg-indigo-600 text-white shadow-3xs font-black' 
                   : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-slate-100/60 dark:hover:bg-slate-900/40'
@@ -90,7 +98,7 @@ export default function PredictionsSidebar({
               <ChevronRight className={`w-3.5 h-3.5 transition-transform duration-150 ${
                 isActive ? 'text-white translate-x-0.5' : 'text-slate-500 group-hover:translate-x-0.5'
               }`} />
-            </button>
+            </a>
           );
         })}
       </nav>
