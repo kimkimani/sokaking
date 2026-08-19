@@ -1,5 +1,3 @@
-import { getUpcomingKenyanDate, getDailyKenyanDate } from './jackpotSchedule';
-
 export function getJackpotEarliestTime(fixtures: any[]): Date | null {
   if (!fixtures || fixtures.length === 0) return null;
   const times = fixtures
@@ -74,30 +72,100 @@ export function getJackpotStatusDisplay(fixtures: any[]): {
   };
 }
 
-export function getTargetDateForJackpot(jackpotId: string): Date {
+export function getTargetDateForJackpot(jackpotId: string, referenceDate?: Date): Date {
+  const now = referenceDate || new Date();
+  const target = new Date(now);
+  target.setSeconds(0);
+  target.setMilliseconds(0);
+
+  const getUpcomingDay = (dayOfWeek: number, hour: number, minute: number) => {
+    const d = new Date(now);
+    const currentDay = d.getDay();
+    let daysToAdd = (dayOfWeek - currentDay + 7) % 7;
+    if (daysToAdd === 0) {
+      const targetUtcHour = hour - 3;
+      if (d.getUTCHours() >= targetUtcHour) {
+        daysToAdd = 7;
+      }
+    }
+    d.setDate(d.getDate() + daysToAdd);
+    d.setUTCHours(hour - 3, minute, 0, 0);
+    return d;
+  };
+
+  const getPastDay = (dayOfWeek: number, hour: number, minute: number) => {
+    const d = new Date(now);
+    const currentDay = d.getDay();
+    let daysToSubtract = (currentDay - dayOfWeek + 7) % 7;
+    if (daysToSubtract === 0) {
+      const targetUtcHour = hour - 3;
+      if (d.getUTCHours() < targetUtcHour) {
+        daysToSubtract = 7;
+      }
+    }
+    d.setDate(d.getDate() - daysToSubtract);
+    d.setUTCHours(hour - 3, minute, 0, 0);
+    return d;
+  };
+
   switch (jackpotId) {
     case 'sportpesa-mega':
-      return new Date(getUpcomingKenyanDate(6, 16, 30)); // Sat 16:30 EAT
+      return getUpcomingDay(6, 16, 30); // Sat 16:30 EAT
     case 'sportpesa-midweek':
-      return new Date(getUpcomingKenyanDate(3, 18, 0));  // Wed 18:00 EAT
+      return getUpcomingDay(3, 17, 0); // Wed 17:00 EAT
+    case 'betika-grand':
+      return getUpcomingDay(0, 14, 0); // Sun 14:00 EAT
     case 'betika-midweek':
-      return new Date(getUpcomingKenyanDate(3, 17, 0));  // Wed 17:00 EAT
-    case 'mozzart-grand':
-    case 'mozzart-super-grand':
-    case 'mozzart-super-grand-2026':
-      return new Date(getUpcomingKenyanDate(6, 16, 0));  // Sat 16:00 EAT
+      return getPastDay(2, 18, 0); // Past Tue 18:00 EAT (Ended)
+    case 'mozzart-super-grand': {
+      // Let's make it start exactly 4 hours ago, so it has started but hasn't ended yet
+      const start = new Date(now);
+      start.setHours(now.getHours() - 4);
+      return start;
+    }
     case 'mozzart-daily':
-    case 'mozzart-super-daily':
-      return new Date(getDailyKenyanDate(17, 30));       // Daily 17:30 EAT
-    case 'odibet-laki-tatu':
-      return new Date(getDailyKenyanDate(18, 0));        // Daily 18:00 EAT
+    case 'mozzart-super-daily': {
+      // Let's make it start exactly 1 hour ago
+      const dailyStart = new Date(now);
+      dailyStart.setHours(now.getHours() - 1);
+      return dailyStart;
+    }
     case 'sportybet-jackpot':
-      return new Date(getUpcomingKenyanDate(6, 16, 0));  // Sat 16:00 EAT
+      return getUpcomingDay(6, 14, 0); // Sat 14:00 EAT
     case 'betpawa-pick-jackpot':
-      return new Date(getUpcomingKenyanDate(5, 18, 30)); // Fri 18:30 EAT
+      return getUpcomingDay(2, 19, 0); // Tue 19:00 EAT
+    case 'odibet-laki-tatu':
+      return getUpcomingDay(3, 17, 0); // Wed 17:00 EAT
     default:
-      return new Date(getUpcomingKenyanDate(6, 16, 30));
+      return getUpcomingDay(6, 16, 30);
   }
+}
+
+export function getShiftedJackpotFixtures(jackpotId: string, originalFixtures: any[], referenceDate?: Date): any[] {
+  if (!originalFixtures || originalFixtures.length === 0) return [];
+  const now = referenceDate || new Date();
+
+  // Find original earliest time
+  const originalTimes = originalFixtures
+    .map(f => f.kickoffTime ? new Date(f.kickoffTime).getTime() : null)
+    .filter((t): t is number => t !== null && !isNaN(t));
+
+  if (originalTimes.length === 0) return originalFixtures;
+
+  const originalEarliest = Math.min(...originalTimes);
+  const targetStart = getTargetDateForJackpot(jackpotId, now);
+  const offset = targetStart.getTime() - originalEarliest;
+
+  return originalFixtures.map(f => {
+    if (!f.kickoffTime) return f;
+    const originalTime = new Date(f.kickoffTime).getTime();
+    if (isNaN(originalTime)) return f;
+    const shiftedTime = new Date(originalTime + offset);
+    return {
+      ...f,
+      kickoffTime: shiftedTime.toISOString()
+    };
+  });
 }
 
 export function sortJackpotsByStatusAndTime<T extends { fixtures?: any[]; id?: string }>(jackpotsList: T[]): T[] {
@@ -128,4 +196,3 @@ export function sortJackpotsByStatusAndTime<T extends { fixtures?: any[]; id?: s
 export function formatJackpotStartTime(fixtures: any[], defaultVal: string): string {
   return defaultVal;
 }
-

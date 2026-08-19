@@ -1,5 +1,4 @@
 import { Fixture } from './types';
-import { applyDynamicKenyanSchedule } from './utils/jackpotSchedule';
 
 export interface JackpotConfig {
   id: string;
@@ -15,7 +14,7 @@ export interface JackpotConfig {
   fixtures: Fixture[];
 }
 
-const rawJackpotsData: JackpotConfig[] = [
+export const jackpotsData: JackpotConfig[] = [
   {
     id: 'sportpesa-mega',
     name: 'SportPesa Mega Jackpot',
@@ -1923,6 +1922,3 @@ const rawJackpotsData: JackpotConfig[] = [
     ]
   }
 ];
-
-export const jackpotsData: JackpotConfig[] = applyDynamicKenyanSchedule(rawJackpotsData);
-

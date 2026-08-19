@@ -117,19 +117,11 @@ export function formatJackpotStartTimeString(earliestDate: Date | null, defaultS
     return defaultString || 'Starts 18:00 EAT';
   }
 
-  const dateFormatted = earliestDate.toLocaleDateString('en-GB', {
+  const dayName = earliestDate.toLocaleDateString('en-GB', {
     timeZone: 'Africa/Nairobi',
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short'
+    weekday: 'short'
   });
 
-  const timeFormatted = earliestDate.toLocaleTimeString('en-GB', {
-    timeZone: 'Africa/Nairobi',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  });
-
-  return `Starts ${dateFormatted} • ${timeFormatted} EAT (Nairobi)`;
+  const formattedTime = formatTime(earliestDate);
+  return `Starts ${dayName}: ${formattedTime} EAT`;
 }
