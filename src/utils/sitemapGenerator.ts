@@ -76,7 +76,6 @@ export function isLowerPriorityRoute(p: string): boolean {
     '/odds-slips',
     '/odds-pack',
     '/odds',
-    '/faq',
     '/responsible-gambling',
   ]);
 
@@ -88,7 +87,6 @@ export function isLowerPriorityRoute(p: string): boolean {
     norm.includes('terms') ||
     norm.includes('contact') ||
     norm.includes('partner') ||
-    norm.includes('faq') ||
     norm.includes('responsible-gambling') ||
     norm === '/jackpot-list' ||
     norm === '/jackpot-tips' ||
@@ -112,6 +110,7 @@ export function getAllSitemapRoutes(): string[] {
     '/254-sure-tips',
     '/cheerplex-predictions-and-tips-today',
     '/liobet-predictions-and-tips',
+    '/sunpelpredict',
     '/sunpel-free-football-betting-tips-and-soccer-predictions',
     '/jackpot-tips',
     '/free-sportpesa-mega-jackpot-predictions-and-analysis',

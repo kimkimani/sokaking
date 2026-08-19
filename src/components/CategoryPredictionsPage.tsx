@@ -511,21 +511,6 @@ export default function CategoryPredictionsPage({
         </div>
       )}
 
-      {/* Author Card (renders when authorName is defined in page markdown) */}
-      {pageMd && pageMd.authorName && (
-        <AuthorCard 
-          name={pageMd.authorName} 
-          title={pageMd.authorTitle} 
-          description={pageMd.authorDescription} 
-          avatar={pageMd.authorAvatar} 
-        />
-      )}
-
-      {/* Responsible Gambling Notice (renders when defined in page markdown) */}
-      {pageMd && pageMd.responsibleGambling && (
-        <ResponsibleGamblingNotice notice={pageMd.responsibleGambling} />
-      )}
-
       {/* PREMIUM JACKPOTS SECTION */}
       <div className="bg-[var(--card)] border border-[var(--border)] p-5 rounded-[var(--radius)] shadow-[var(--shadow)] text-left space-y-4">
         <div className="flex items-center gap-2.5 border-b border-[var(--border)] pb-3">
@@ -701,8 +686,10 @@ export default function CategoryPredictionsPage({
       )}
 
       {/* Author Card (renders when authorName is defined in page markdown) */}
-      {pageMd && pageMd.authorName && (
+      {pageMd && (pageMd.author || pageMd.authorName) && (
         <AuthorCard 
+          authorId={pageMd.authorId}
+          author={pageMd.author}
           name={pageMd.authorName} 
           title={pageMd.authorTitle} 
           description={pageMd.authorDescription} 

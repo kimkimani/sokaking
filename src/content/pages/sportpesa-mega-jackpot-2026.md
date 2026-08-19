@@ -4,11 +4,9 @@ displayTitle: "SportPesa Mega Jackpot 17 Games Comprehensive 2026 Predictions"
 description: "Expert mathematical analysis and double chance predictions for the 2026 SportPesa Mega Jackpot 17 fixtures. Win bonuses with Soka King models."
 keywords: "sportpesa mega jackpot predictions 2026, sportpesa mega jackpot 17 games, mega jackpot analysis 2026"
 link: "/sportpesa-mega-jackpot-2026"
+authorId: "john-mwangi"
 type: "jackpot"
 jackpotId: "sportpesa-mega"
-authorName: "John Soka Analyst"
-authorTitle: "Lead Football Analyst"
-authorDescription: "Specializing in 17-game jackpot distribution curves and bonus optimization strategies."
 ---
 
 # SportPesa Mega Jackpot 2026 Predictions & 17 Fixture Analysis

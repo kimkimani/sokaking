@@ -4,12 +4,10 @@ displayTitle: PredictZ Accurate Football Predictions & Soka King Tips
 description: Looking for PredictZ football predictions today? Get free Poisson distribution banker tips, over 2.5 goals, and double chance predictions.
 keywords: predictz predictions, predictz today, predictz tips, predictz football
 link: /predictz-predictions
+authorId: "john-mwangi"
 type: competitor
 icon: ⚽
 badgeColor: bg-emerald-500/10 text-emerald-500 border-emerald-500/20
-authorName: Soka King Predictor
-authorTitle: Senior Match Analyst
-authorDescription: Expert in Poisson mathematical modeling and competitor algorithm comparisons.
 ---
 
 Welcome to **PredictZ Predictions Today**. On this page, we deliver top-rated mathematical predictions matching PredictZ algorithms with Soka King's enhanced Poisson probability distribution.

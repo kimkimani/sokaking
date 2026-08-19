@@ -186,16 +186,16 @@ export function getDefaultFaqsForPage(pageId: string): FaqItem[] {
     ];
   }
 
-  // Sunpel
+  // Sunpel & Sunpelpredict
   if (normalized.includes('sunpel')) {
     return [
       {
-        question: "What are Sunpel free football betting tips?",
-        answer: "Sunpel tips offer free daily banker selections, double chance picks, and accumulator combinations without subscription fees."
+        question: "What is Sunpelpredict and what free tips does it provide?",
+        answer: "Sunpelpredict delivers daily free mathematical football predictions, high-confidence banker selections, double chance picks, and accumulator combinations."
       },
       {
-        question: "How do I maximize returns using Sunpel free tips?",
-        answer: "Combine 2-3 Sunpel banker picks into a daily low-risk accumulator or use them to build your jackpot tickets."
+        question: "How do I maximize returns using Sunpelpredict daily tips?",
+        answer: "Combine 2-3 Sunpelpredict banker picks into a daily low-risk accumulator or use them to cover strategic double chances on major Kenyan jackpot tickets."
       }
     ];
   }

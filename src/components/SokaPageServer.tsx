@@ -1,6 +1,7 @@
 import App from '../App';
 import { getMarkdownContent, buildCanonicalUrl } from '../content/markdownLoader';
 import { jackpotsData } from '../jackpotsData';
+import { generatePageJsonLd } from '../utils/schemaGenerator';
 
 interface SokaPageServerProps {
   pageId: string;
@@ -15,70 +16,16 @@ export default async function SokaPageServer({ pageId, customCanonical }: SokaPa
   const preloadedJackpots = jackpotsData;
   const preloadedPredictions: any[] = [];
 
-  // Generate FAQ JSON-LD Schema if page has FAQs
-  let faqSchema: any = null;
-  if (pageMd.faq) {
-    const faqPairs: { question: string; answer: string }[] = [];
-    const faqBlocks = pageMd.faq.split(/(?=###|\n(?=###))/g);
-
-    for (const block of faqBlocks) {
-      const qMatch = block.match(/###\s+(.+)/);
-      if (qMatch) {
-        const question = qMatch[1].trim();
-        const answer = block.replace(/###\s+.+/, '').replace(/<!--\s*FAQ\s*-->/i, '').trim();
-        if (question && answer) {
-          faqPairs.push({ question, answer });
-        }
-      }
-    }
-
-    if (faqPairs.length > 0) {
-      faqSchema = {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: faqPairs.map(item => ({
-          '@type': 'Question',
-          name: item.question,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: item.answer,
-          }
-        }))
-      };
-    }
-  }
-
-  // WebPage / Article Schema
-  const pageSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    name: pageMd.title,
-    description: pageMd.description,
-    url: fullCanonicalUrl,
-    publisher: {
-      '@type': 'Organization',
-      name: 'Soka King',
-      url: 'https://sokaking.com',
-      logo: {
-        '@type': 'ImageObject',
-        url: 'https://sokaking.com/icon.png'
-      }
-    }
-  };
+  // Generate complete Schema.org JSON-LD graph tailored for page type
+  const { fullGraph } = generatePageJsonLd(pageId);
 
   return (
     <>
       {/* Schema.org Structured Data Injection for Search Engines */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(pageSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(fullGraph) }}
       />
-      {faqSchema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-        />
-      )}
 
       {/* Hidden SEO fallback container for bots that ignore JS hydration */}
       <div className="sr-only opacity-0 h-0 overflow-hidden pointer-events-none" aria-hidden="true">

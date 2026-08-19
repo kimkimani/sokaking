@@ -112,10 +112,10 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
   },
   {
     id: 'sunpel-free-football-betting-tips',
-    name: "Sunpel Free Football Betting Tips",
-    label: "Sunpel Free Tips",
+    name: "Sunpelpredict & Sunpel Free Tips",
+    label: "Sunpelpredict Tips",
     countText: "20 Value Tips",
-    description: "Free Sunpel football betting tips, daily banker picks, and accumulator selections.",
+    description: "Sunpelpredict and Sunpel free football betting tips, daily banker picks, and accumulator selections.",
     icon: "☀️",
     badgeColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
   }

@@ -4,6 +4,7 @@ import fs from 'fs';
 import compression from 'compression';
 import { createServer as createViteServer } from 'vite';
 import { generateSitemapXml, getAllSitemapRoutes, BASE_URL } from './src/utils/sitemapGenerator.js';
+import { injectSeoAndStructuredData } from './src/utils/htmlInjector.js';
 
 async function startServer() {
   const app = express();
@@ -383,6 +384,7 @@ Sitemap: https://sokaking.com/sitemap.xml
       try {
         let template = fs.readFileSync(path.resolve('.', 'index.html'), 'utf-8');
         template = await vite.transformIndexHtml(url, template);
+        template = injectSeoAndStructuredData(template, url);
         res.status(200).set({
           'Content-Type': 'text/html; charset=utf-8',
           'Cache-Control': 'no-cache, must-revalidate'
@@ -411,18 +413,20 @@ Sitemap: https://sokaking.com/sitemap.xml
         }
       }));
 
-      // 3. Cached index.html in memory for instant responses with 0 disk IO
-      let cachedHtml: string | null = null;
+      // 3. Base index.html
       const indexPath = path.resolve(distPath, 'index.html');
+      let baseHtml: string = '';
       if (fs.existsSync(indexPath)) {
-        cachedHtml = fs.readFileSync(indexPath, 'utf-8');
+        baseHtml = fs.readFileSync(indexPath, 'utf-8');
       }
 
-      app.get('*', (_req, res) => {
+      app.get('*', (req, res) => {
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-        if (cachedHtml) {
-          return res.status(200).send(cachedHtml);
+        const rawTemplate = baseHtml || (fs.existsSync(indexPath) ? fs.readFileSync(indexPath, 'utf-8') : '');
+        if (rawTemplate) {
+          const finalHtml = injectSeoAndStructuredData(rawTemplate, req.originalUrl);
+          return res.status(200).send(finalHtml);
         }
         res.sendFile(indexPath);
       });

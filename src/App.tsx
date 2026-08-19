@@ -69,6 +69,7 @@ import {
   getPageUrl,
   getPageIdFromUrl
 } from './utils/navigation';
+import { generatePageJsonLd } from './utils/schemaGenerator';
 
 const getInitialPage = () => {
   if (typeof window === 'undefined') return 'home';
@@ -187,35 +188,48 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Dynamic SEO Client-side update driven by markdown frontmatter
+  // Dynamic SEO Client-side update driven by markdown frontmatter and Schema.org
   useEffect(() => {
     const pageMd = getMarkdownContent(activePage);
     const fallbackUrl = PAGE_TO_URL_MAP[activePage] || `/${activePage}`;
     const canonicalPath = pageMd.link || fallbackUrl;
+    const fullCanonicalUrl = buildCanonicalUrl(canonicalPath, activePage);
     
     if (pageMd.title) {
       document.title = pageMd.title;
     }
 
-    if (pageMd.description) {
-      let metaDesc = document.querySelector('meta[name="description"]');
-      if (!metaDesc) {
-        metaDesc = document.createElement('meta');
-        metaDesc.setAttribute('name', 'description');
-        document.head.appendChild(metaDesc);
+    const updateMetaTag = (name: string, value: string, attrName = 'name') => {
+      let element = document.querySelector(`meta[${attrName}="${name}"]`);
+      if (!element) {
+        element = document.createElement('meta');
+        element.setAttribute(attrName, name);
+        document.head.appendChild(element);
       }
-      metaDesc.setAttribute('content', pageMd.description);
+      element.setAttribute('content', value);
+    };
+
+    if (pageMd.description) {
+      updateMetaTag('description', pageMd.description);
+      updateMetaTag('og:description', pageMd.description, 'property');
+      updateMetaTag('twitter:description', pageMd.description);
+    }
+
+    if (pageMd.title) {
+      updateMetaTag('og:title', pageMd.title, 'property');
+      updateMetaTag('twitter:title', pageMd.title);
     }
 
     if (pageMd.keywords) {
-      let metaKeys = document.querySelector('meta[name="keywords"]');
-      if (!metaKeys) {
-        metaKeys = document.createElement('meta');
-        metaKeys.setAttribute('name', 'keywords');
-        document.head.appendChild(metaKeys);
-      }
-      metaKeys.setAttribute('content', pageMd.keywords);
+      updateMetaTag('keywords', pageMd.keywords);
     }
+
+    updateMetaTag('og:url', fullCanonicalUrl, 'property');
+    updateMetaTag('og:type', activePage === 'vip-packages' ? 'product' : 'website', 'property');
+    updateMetaTag('og:site_name', 'Soka King', 'property');
+    updateMetaTag('og:image', 'https://sokaking.com/icon.png', 'property');
+    updateMetaTag('twitter:card', 'summary_large_image');
+    updateMetaTag('twitter:image', 'https://sokaking.com/icon.png');
 
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
@@ -223,8 +237,23 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    const fullCanonicalUrl = buildCanonicalUrl(canonicalPath, activePage);
     canonical.setAttribute('href', fullCanonicalUrl);
+
+    // Dynamic Schema.org JSON-LD structured data injection
+    try {
+      const { fullGraph } = generatePageJsonLd(activePage);
+      const schemaScriptId = 'sokaking-schema-jsonld';
+      let schemaScript = document.getElementById(schemaScriptId) as HTMLScriptElement | null;
+      if (!schemaScript) {
+        schemaScript = document.createElement('script');
+        schemaScript.id = schemaScriptId;
+        schemaScript.type = 'application/ld+json';
+        document.head.appendChild(schemaScript);
+      }
+      schemaScript.textContent = JSON.stringify(fullGraph, null, 2);
+    } catch (e) {
+      console.warn('Could not generate Schema.org JSON-LD for page:', activePage, e);
+    }
   }, [activePage]);
 
   // FAQ state
@@ -993,8 +1022,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                         </section>
                       )}
 
-                      {homeMd.authorName && (
+                      {(homeMd.author || homeMd.authorName) && (
                         <AuthorCard 
+                          authorId={homeMd.authorId}
+                          author={homeMd.author}
                           name={homeMd.authorName}
                           title={homeMd.authorTitle}
                           description={homeMd.authorDescription}
@@ -1318,23 +1349,6 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
               >
                 Odds Packs & Slips
-              </a>
-              <a 
-                href="/#faq"
-                onClick={(e) => {
-                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
-                    e.preventDefault();
-                    if (activePage === 'home') {
-                      handleScrollTo('faq');
-                    } else {
-                      handleSelectPage('home');
-                      setTimeout(() => handleScrollTo('faq'), 100);
-                    }
-                  }
-                }}
-                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
-              >
-                Interactive FAQ
               </a>
             </div>
           </div>

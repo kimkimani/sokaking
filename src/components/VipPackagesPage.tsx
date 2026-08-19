@@ -138,8 +138,10 @@ export default function VipPackagesPage({
       )}
 
       {/* Author Card (renders when authorName is defined in page markdown) */}
-      {pageMd && pageMd.authorName && (
+      {pageMd && (pageMd.author || pageMd.authorName) && (
         <AuthorCard 
+          authorId={pageMd.authorId}
+          author={pageMd.author}
           name={pageMd.authorName} 
           title={pageMd.authorTitle} 
           description={pageMd.authorDescription} 

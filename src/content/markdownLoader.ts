@@ -1,4 +1,5 @@
 import { RAW_MARKDOWN_MAP } from './markdownData';
+import { getAuthor, ParsedAuthor } from './authorLoader';
 
 const pageMarkdownFiles = (typeof import.meta !== 'undefined' && typeof (import.meta as any).glob === 'function')
   ? (import.meta as any).glob('./pages/*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
@@ -17,10 +18,12 @@ export interface ParsedMarkdownPage {
   icon?: string;
   badgeColor?: string;
 
+  authorId?: string;
   authorName?: string;
   authorTitle?: string;
   authorDescription?: string;
   authorAvatar?: string;
+  author?: ParsedAuthor;
 
   responsibleGambling?: string;
 
@@ -167,6 +170,7 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
   let icon: string | undefined = undefined;
   let badgeColor: string | undefined = undefined;
 
+  let authorId = '';
   let authorName = '';
   let authorTitle = '';
   let authorDescription = '';
@@ -211,6 +215,9 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
 
     const bcY = yamlStr.match(/^(?:badgeColor|badge_color):\s*"?(.*?)"?$/m);
     if (bcY) badgeColor = bcY[1].trim();
+
+    const aidY = yamlStr.match(/^(?:authorId|author_id|author):\s*"?(.*?)"?$/m);
+    if (aidY) authorId = aidY[1].trim();
 
     const anY = yamlStr.match(/^(?:authorName|author_name):\s*"?(.*?)"?$/m);
     if (anY) authorName = anY[1].trim();
@@ -372,6 +379,8 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
     listSubtitle = "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.";
   }
 
+  const resolvedAuthor = getAuthor(authorId || authorName || 'john-mwangi');
+
   return {
     pageKey: keyName,
     title,
@@ -384,10 +393,12 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
     fixturesCategory,
     icon,
     badgeColor,
-    authorName: authorName || undefined,
-    authorTitle: authorTitle || undefined,
-    authorDescription: authorDescription || undefined,
-    authorAvatar: authorAvatar || undefined,
+    authorId: authorId || resolvedAuthor.id,
+    authorName: authorName || resolvedAuthor.name,
+    authorTitle: authorTitle || resolvedAuthor.role,
+    authorDescription: authorDescription || resolvedAuthor.shortBio,
+    authorAvatar: authorAvatar || resolvedAuthor.avatar || undefined,
+    author: resolvedAuthor,
     responsibleGambling: responsibleGambling || undefined,
     miniIntro: miniIntro || undefined,
     unlockHeading: unlockHeading || undefined,

@@ -26,9 +26,13 @@ import {
   MessageSquare,
   ExternalLink,
   Link,
-  Plus
+  Plus,
+  Brain,
+  Award
 } from 'lucide-react';
 import { getMarkdownContent } from '../content/markdownLoader';
+import { getAllAuthors } from '../content/authorLoader';
+import { generatePageJsonLd } from '../utils/schemaGenerator';
 import MarkdownRenderer from './MarkdownRenderer';
 import { contactSocialTable } from '../data';
 import { AuthorCard } from './AuthorCard';
@@ -92,18 +96,23 @@ function SeoIndicator({
       schemaEl.setAttribute('type', 'application/ld+json');
       document.head.appendChild(schemaEl);
     }
-    schemaEl.innerHTML = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "name": title,
-      "description": description,
-      "url": url,
-      "publisher": {
-        "@type": "Organization",
-        "name": "Soka King",
-        "logo": "https://sokaking.com/logo.png"
-      }
-    });
+    try {
+      const { fullGraph } = generatePageJsonLd(pageId);
+      schemaEl.innerHTML = JSON.stringify(fullGraph, null, 2);
+    } catch (e) {
+      schemaEl.innerHTML = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": title,
+        "description": description,
+        "url": url,
+        "publisher": {
+          "@type": "Organization",
+          "name": "Soka King",
+          "logo": "https://sokaking.com/favicon.svg"
+        }
+      });
+    }
 
     return () => {
       // Revert title
@@ -356,14 +365,129 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
               </div>
             </div>
 
-            {/* Extended text */}
-            <div className="p-6 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] space-y-4 text-xs text-[var(--text-muted)] leading-relaxed">
-              <h3 className="text-sm font-bold text-[var(--text)]">Our Mathematical Philosophy</h3>
+            {/* Extended text & Mathematical Methodology */}
+            <div id="methodology" className="p-6 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] space-y-4 text-xs text-[var(--text-muted)] leading-relaxed">
+              <h3 className="text-sm font-bold text-[var(--text)] flex items-center gap-2">
+                <Brain className="w-4 h-4 text-indigo-500" />
+                Our Quantitative Modeling & Statistical Methodology
+              </h3>
               <p>
-                At Soka King, we understand that soccer matches are chaotic systems subject to thousands of physical variables. However, using long-tail statistics, we can approximate the probability density of match outcomes. By isolating variables like traveling fatigue (e.g. tracking flight hours and transit indices), local climatic shifts, historical match weightings, and squad motivation factors, we construct a calibrated Poisson Distribution model.
+                At Soka King, soccer matches are treated as probabilistic systems governed by measurable physical and statistical indicators. Our analytical pipeline relies on four primary quantitative layers:
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-[11px]">
+                <li><strong className="text-[var(--text)]">Bivariate Poisson Goal Distribution</strong>: Calculates the exact probability curve of both teams scoring $0, 1, 2, 3+$ goals based on offensive attacking prowess and defensive concession coefficients over a rolling 18-match window.</li>
+                <li><strong className="text-[var(--text)]">Expected Goals ($xG$) Variance Matrix</strong>: Quantifies the quality of chances created versus conceded to eliminate short-term luck and identify true underlying performance trends.</li>
+                <li><strong className="text-[var(--text)]">Dynamic Elo Rating & Home Advantage Weighting</strong>: Calibrates relative team strength across domestic leagues and continental tournaments (UEFA Champions League, CAF Confederation Cup).</li>
+                <li><strong className="text-[var(--text)]">Tactical Fatigue & Transit Indices</strong>: Factoring in travel mileage, squad rotation, tactical match-ups, and key injury/suspension news retrieved from official club dispatches.</li>
+              </ul>
+            </div>
+
+            {/* Editorial & Peer-Review Policy */}
+            <div id="editorial-policy" className="p-6 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] space-y-4 text-xs text-[var(--text-muted)] leading-relaxed">
+              <div className="flex items-center gap-2">
+                <Award className="w-4 h-4 text-emerald-500" />
+                <h3 className="text-sm font-bold text-[var(--text)]">Editorial Standards, Fact-Checking & Peer-Review Workflow</h3>
+              </div>
+              <p>
+                To maintain the highest standards of journalistic integrity and quantitative accuracy, every tip, analysis, and jackpot recommendation published on Soka King complies with our strict 3-tier editorial workflow:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 text-[11px]">
+                <div className="p-3.5 rounded-lg bg-[var(--background)] border border-[var(--border)] space-y-1.5">
+                  <span className="font-mono font-bold text-xs text-indigo-500 block">01. Algorithmic Simulation</span>
+                  <p>Initial scoreline probabilities and market value margins are generated at 04:00 EAT by our Poisson distribution engine.</p>
+                </div>
+                <div className="p-3.5 rounded-lg bg-[var(--background)] border border-[var(--border)] space-y-1.5">
+                  <span className="font-mono font-bold text-xs text-emerald-500 block">02. Analyst Verification</span>
+                  <p>Lead sports analysts audit tactical line-ups, weather reports, and verified injury dispatches to eliminate anomalies.</p>
+                </div>
+                <div className="p-3.5 rounded-lg bg-[var(--background)] border border-[var(--border)] space-y-1.5">
+                  <span className="font-mono font-bold text-xs text-amber-500 block">03. Final Publication & Audit</span>
+                  <p>Tips are published at 06:00 EAT and locked into our historical accuracy ledger for post-match verification.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Verified Analyst & Editorial Board */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-[var(--text)] flex items-center gap-2">
+                  <Users className="w-4 h-4 text-[var(--primary)]" />
+                  Soka King Editorial Board & Quantitative Analysts
+                </h3>
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                  Verified Experts
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {getAllAuthors().map((author) => {
+                  const initials = author.name
+                    .split(' ')
+                    .map(n => n[0])
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .join('')
+                    .toUpperCase();
+
+                  return (
+                    <div key={author.id} className="p-4 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] space-y-2.5">
+                      <div className="flex items-center gap-3">
+                        {author.avatar ? (
+                          <img 
+                            src={author.avatar} 
+                            alt={author.name} 
+                            width={40}
+                            height={40}
+                            className="w-10 h-10 rounded-full object-cover border border-[var(--primary)] shrink-0" 
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--primary)] to-indigo-600 text-white flex items-center justify-center font-black font-mono text-sm shrink-0">
+                            {initials}
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-sm font-bold text-[var(--text)]">{author.name}</h4>
+                          <p className="text-[10px] font-mono text-[var(--primary)] font-bold truncate">{author.role}</p>
+                        </div>
+                      </div>
+
+                      {/* Badges list */}
+                      {author.badges && author.badges.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {author.badges.map((b, idx) => (
+                            <span 
+                              key={idx} 
+                              className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-[var(--background)] border border-[var(--border)] text-[var(--text-muted)]"
+                            >
+                              {b.text}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+                        {author.shortBio}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Corporate Details & Trust Transparency */}
+            <div className="p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] space-y-3 text-xs text-[var(--text-muted)]">
+              <h3 className="text-sm font-bold text-[var(--text)] flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                Corporate Transparency & Physical Headquarters
+              </h3>
+              <p>
+                <strong className="text-[var(--text)]">Legal Entity:</strong> Soka King Analytics Ltd &bull; Registered in Nairobi, Kenya &bull; Incorporation #CPR/2021/84192.
               </p>
               <p>
-                Our flagship platform, Soka King, serves as the consumer interface of this powerful system. Rather than keeping these analytical insights behind institutional walls, we package them into simple, high-probability betting codes, accumulator tips, and curated jackpot selections.
+                <strong className="text-[var(--text)]">Physical Office:</strong> Galana Plaza, 4th Floor, Galana Road, Kilimani, Nairobi, Kenya.
+              </p>
+              <p>
+                <strong className="text-[var(--text)]">Customer Helpline:</strong> +254 740 841 375 &bull; <strong className="text-[var(--text)]">Official Email:</strong> support@sokapredictions.co.ke
               </p>
             </div>
 
@@ -1051,8 +1175,10 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
       )}
 
       {/* Author Card (renders when authorName is defined in page markdown) */}
-      {pageMd && pageMd.authorName && (
+      {pageMd && (pageMd.author || pageMd.authorName) && (
         <AuthorCard 
+          authorId={pageMd.authorId}
+          author={pageMd.author}
           name={pageMd.authorName} 
           title={pageMd.authorTitle} 
           description={pageMd.authorDescription} 

@@ -6,8 +6,25 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const key = searchParams.get('key') || 'home';
+    const type = searchParams.get('type') || 'page';
     let normKey = key.toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
     if (!normKey) normKey = 'home';
+
+    if (type === 'author' || normKey.startsWith('author-')) {
+      normKey = normKey.replace(/^author-/, '');
+      const authorsDir = path.join(process.cwd(), 'src', 'content', 'authors');
+      let filePath = path.join(authorsDir, `${normKey}.md`);
+      if (fs.existsSync(filePath)) {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        return new NextResponse(content, {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/plain; charset=utf-8',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          }
+        });
+      }
+    }
 
     if (normKey === 'today' || normKey === 'football-predictions-today') normKey = 'category-today';
     if (normKey === 'tomorrow' || normKey === 'football-predictions-tomorrow') normKey = 'category-tomorrow';

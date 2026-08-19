@@ -3,10 +3,8 @@ title: VIP Packages, Premium Odds Packs & Jackpot Predictions - Soka King
 description: Upgrade to Soka King VIP subscription packages, daily 2+ and 5+ odds shortlists, and major Kenyan jackpot prediction slips with instant M-Pesa STK push.
 keywords: Soka King VIP, VIP betting tips, Kenya VIP football predictions, SportPesa Mega Jackpot VIP, Betika Midweek VIP, Odds packs M-Pesa
 link: /vip-packages
+authorId: "brian-kipchumba"
 displayTitle: "VIP Packages, Daily Odds Packs & Jackpot Slips"
-authorName: "John K. Mwangi"
-authorTitle: "Lead Football Analyst & Poisson Model Expert"
-authorDescription: "Curating premium daily odds packs and multi-bet selections."
 responsibleGambling: "Bet responsibly and manage your bankroll wisely. Helpline: 0800-720-000."
 unlockHeading: "Unlock Soka King VIP Packages & Daily Odds Slips"
 unlockDescription: "Upgrade to receive 2+ odds, 5+ odds shortlists, multi-bet builders, and all jackpot slips via M-Pesa."
