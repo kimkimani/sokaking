@@ -613,7 +613,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                       {/* Match kickoff date & time */}
                       <div className="mt-1 text-[9.5px] font-mono text-indigo-500 dark:text-indigo-400 font-bold flex items-center gap-1 select-none leading-none">
                         <Clock className="w-3 h-3 text-indigo-500 shrink-0" />
-                        <span>{formatMatchDateTime(match.kickoffTime || match.date || match.time)}</span>
+                        <span>{match.kickoffTime || match.date || match.time}</span>
                       </div>
                       
                       {/* Vertical Teams & Scores Layout */}
