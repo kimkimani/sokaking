@@ -372,9 +372,9 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
             </div>
             <button 
               onClick={() => onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
-              className="px-5 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md hover:shadow-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer border-none"
+              className="px-5 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-md hover:shadow-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer border-none"
             >
-              <Smartphone className="w-4 h-4 text-white" />
+              <Smartphone className="w-4 h-4 text-slate-950" />
               <span>Get Jackpot Slip • KES {jackpot.price}</span>
             </button>
           </div>
@@ -735,7 +735,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                       ) : (
                         <div 
                           onClick={() => onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
-                          className="flex items-center gap-1 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-500 px-2.5 py-1.5 rounded-lg text-[9px] font-mono font-black uppercase tracking-wider cursor-pointer animate-pulse transition-all whitespace-nowrap"
+                          className="flex items-center gap-1 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-800 dark:text-amber-300 px-2.5 py-1.5 rounded-lg text-[9px] font-mono font-black uppercase tracking-wider cursor-pointer animate-pulse transition-all whitespace-nowrap"
                         >
                           <Lock className="w-3 h-3 shrink-0" />
                           <span>Unlock</span>
@@ -836,9 +836,9 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
           <div className="max-w-xs mx-auto pt-1">
             <button 
               onClick={() => onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
-              className="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 active:scale-98 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 border-none cursor-pointer"
+              className="w-full py-3 px-4 bg-amber-500 hover:bg-amber-400 active:scale-98 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 border-none cursor-pointer"
             >
-              <Smartphone className="w-4 h-4 text-white" />
+              <Smartphone className="w-4 h-4 text-slate-950" />
               <span>Unlock Jackpot Selections • KES {jackpot.price}</span>
             </button>
           </div>
@@ -965,7 +965,7 @@ function JackpotPicksSummary({
                 ) : (
                   <button 
                     onClick={() => onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
-                    className="flex items-center gap-0.5 px-1.5 py-0.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-500 rounded text-[9px] uppercase font-black tracking-wide cursor-pointer transition-all duration-150"
+                    className="flex items-center gap-0.5 px-1.5 py-0.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-800 dark:text-amber-300 rounded text-[9px] uppercase font-black tracking-wide cursor-pointer transition-all duration-150"
                     title="Unlock predictions"
                   >
                     <Lock className="w-2.5 h-2.5" />

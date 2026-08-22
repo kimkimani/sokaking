@@ -109,7 +109,7 @@ function SeoIndicator({
         "publisher": {
           "@type": "Organization",
           "name": "Soka King",
-          "logo": "https://sokaking.com/favicon.svg"
+          "logo": "https://sokaking.com/icon.png"
         }
       });
     }
@@ -1065,7 +1065,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                       <button
                         type="submit"
                         disabled={submitting}
-                        className="w-full py-2.5 bg-[var(--primary)] hover:opacity-95 text-white text-xs font-black rounded-lg border-none cursor-pointer flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50"
+                        className="w-full py-3 bg-[var(--primary)] hover:bg-emerald-800 text-white text-xs font-black rounded-lg border-none cursor-pointer flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 transition-all duration-200"
                       >
                         {submitting ? (
                           <span className="animate-pulse">Dispatching...</span>

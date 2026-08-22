@@ -139,7 +139,7 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures = [] }:
         </p>
         <button 
           onClick={() => onScrollTo('predictions')}
-          className="w-full py-2.5 bg-transparent border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white font-bold text-xs rounded-[var(--radius)] transition-all duration-200 cursor-pointer"
+          className="w-full py-3 px-4 bg-transparent border-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white font-black text-xs rounded-[var(--radius)] transition-all duration-200 cursor-pointer shadow-3xs"
         >
           View Today's Matches
         </button>

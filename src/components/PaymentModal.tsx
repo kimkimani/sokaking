@@ -125,7 +125,7 @@ export default function PaymentModal({
                 <button
                   type="button"
                   onClick={handleCopyNumber}
-                  className="px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-[10px] font-bold flex items-center gap-1.5 cursor-pointer border-none transition-all active:scale-95 shrink-0"
+                  className="px-3 py-1.5 rounded-md bg-emerald-700 hover:bg-emerald-800 text-white font-mono text-[10px] font-black flex items-center gap-1.5 cursor-pointer border-none transition-all active:scale-95 shrink-0 shadow-3xs"
                 >
                   {isCopied ? (
                     <>
@@ -176,7 +176,7 @@ export default function PaymentModal({
                 href={`https://wa.me/254${POCHI_PHONE_NUMBER.replace(/^0/, '')}?text=${whatsappMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-mono text-xs font-black flex items-center justify-center gap-2 shadow-md no-underline cursor-pointer transition-all uppercase tracking-wider border-none"
+                className="w-full py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-98 text-white font-mono text-xs font-black flex items-center justify-center gap-2 shadow-md no-underline cursor-pointer transition-all uppercase tracking-wider border-none"
               >
                 <PhoneCall className="w-4 h-4 text-white" />
                 <span>Paid? Chat on WhatsApp</span>

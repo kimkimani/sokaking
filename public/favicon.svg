@@ -1,4 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
-  <rect width="512" height="512" rx="112" fill="#0f172a"/>
-  <text x="50%" y="54%" dominant-baseline="central" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif" font-weight="900" font-size="260" fill="#ffffff" letter-spacing="-6">SK</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="96" fill="#047857" />
+  <text 
+    x="256" 
+    y="266" 
+    text-anchor="middle" 
+    dominant-baseline="central"
+    fill="#ffffff" 
+    font-family="Arial, 'Helvetica Neue', Helvetica, -apple-system, BlinkMacSystemFont, sans-serif" 
+    font-size="280" 
+    font-weight="900"
+    letter-spacing="-10"
+  >SK</text>
 </svg>

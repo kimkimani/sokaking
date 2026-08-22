@@ -91,14 +91,14 @@ export default function VipPackages({
                 <button
                   onClick={() => onOpenPayment(pkg.name, pkg.price, pkg.id, pkg.slug, 'vip')}
                   className={`
-                    w-full py-3.5 font-extrabold text-xs rounded-[var(--radius)] shadow-sm hover:opacity-95 flex items-center justify-center gap-2 transition-all duration-200 border-none cursor-pointer
+                    w-full py-3.5 text-xs rounded-[var(--radius)] shadow-sm hover:opacity-95 flex items-center justify-center gap-2 transition-all duration-200 border-none cursor-pointer font-black uppercase tracking-wider
                     ${isFeatured 
-                      ? 'bg-[var(--primary)] text-white font-black' 
-                      : 'bg-[var(--background)] hover:bg-opacity-80 border border-[var(--border)] text-[var(--text)] hover:text-[var(--primary)] hover:border-[var(--primary)]'
+                      ? 'bg-emerald-700 hover:bg-emerald-800 text-white' 
+                      : 'bg-slate-900 hover:bg-slate-800 dark:bg-emerald-700 dark:hover:bg-emerald-800 text-white'
                     }
                   `}
                 >
-                  <ShoppingCart className="w-3.5 h-3.5" />
+                  <ShoppingCart className="w-3.5 h-3.5 text-white" />
                   <span>Subscribe via M-Pesa</span>
                 </button>
               )}

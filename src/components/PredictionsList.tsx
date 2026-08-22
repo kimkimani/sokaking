@@ -344,12 +344,12 @@ export default function PredictionsList({
                       }}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase font-mono transition-all duration-200 cursor-pointer shadow-3xs ${
                         isExpanded 
-                          ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
+                          ? 'bg-emerald-700 text-white border-emerald-700'
                           : isCompleted
                             ? isWon
-                              ? 'bg-emerald-500/5 hover:bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-                              : 'bg-slate-100 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-500'
-                            : 'bg-white dark:bg-slate-850 border-[var(--border)] hover:border-indigo-500/40 hover:bg-indigo-500/[0.02] text-slate-700 dark:text-slate-300 hover:text-indigo-500'
+                              ? 'bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-500/35 text-emerald-850 dark:text-emerald-300 font-black'
+                              : 'bg-slate-100 dark:bg-slate-900 border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 font-black'
+                            : 'bg-white dark:bg-slate-850 border-[var(--border)] hover:border-indigo-500/40 hover:bg-indigo-500/[0.06] text-slate-900 dark:text-slate-100 hover:text-indigo-800 dark:hover:text-indigo-300 font-black'
                       }`}
                     >
                       <BookOpen className="w-3.5 h-3.5 shrink-0" />
@@ -494,13 +494,13 @@ export default function PredictionsList({
                         e.stopPropagation();
                         toggleExpand(fixture.id);
                       }}
-                      className={`active:scale-95 text-white font-black text-[10px] uppercase px-3 py-2 rounded-lg flex items-center gap-1.5 transition-all border-none shrink-0 cursor-pointer shadow-xs ${
+                      className={`active:scale-95 text-white font-black text-[10px] uppercase px-3.5 py-2.5 rounded-lg flex items-center gap-1.5 transition-all border-none shrink-0 cursor-pointer shadow-xs ${
                         isCompleted
-                          ? 'bg-slate-600 hover:bg-slate-700'
-                          : 'bg-indigo-600 hover:bg-indigo-700'
+                          ? 'bg-slate-700 hover:bg-slate-800'
+                          : 'bg-indigo-700 hover:bg-indigo-800'
                       }`}
                     >
-                      <BookOpen className="w-3.5 h-3.5" />
+                      <BookOpen className="w-3.5 h-3.5 text-white" />
                       <span>Read Analysis</span>
                     </button>
                   </div>

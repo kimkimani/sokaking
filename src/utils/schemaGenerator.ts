@@ -150,7 +150,7 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
     url: 'https://sokaking.com',
     logo: {
       '@type': 'ImageObject',
-      url: 'https://sokaking.com/favicon.svg',
+      url: 'https://sokaking.com/icon.png',
       width: 512,
       height: 512
     },
@@ -353,7 +353,7 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
         '@type': 'Organization',
         name: 'Soka King',
         url: 'https://sokaking.com',
-        logo: 'https://sokaking.com/favicon.svg',
+        logo: 'https://sokaking.com/icon.png',
         founder: authorObj,
         foundingDate: '2022',
         description: 'Soka King is Kenya\'s premier data-driven sports analytics platform, delivering statistical football predictions and jackpot analysis.'

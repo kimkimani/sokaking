@@ -370,6 +370,11 @@ Sitemap: https://sokaking.com/sitemap.xml
     }
   });
 
+  // Static assets from public folder (favicons, manifest, robots.txt, sitemap.xml)
+  app.use(express.static(path.resolve('.', 'public'), {
+    maxAge: '1d'
+  }));
+
   // Serve Frontend with Vite in dev, or static files in production
   const isProd = process.env.NODE_ENV === 'production';
   if (!isProd) {

@@ -368,13 +368,13 @@ export default function CategoryPredictionsPage({
                 onClick={() => setYesterdayFilter('won')}
                 className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-black uppercase font-mono transition-all border cursor-pointer ${
                   yesterdayFilter === 'won'
-                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-3xs scale-[1.01]'
-                    : 'bg-[var(--background)] text-emerald-600 dark:text-emerald-400 border-emerald-500/25 hover:bg-emerald-500/10'
+                    ? 'bg-emerald-700 text-white border-emerald-700 shadow-3xs scale-[1.01]'
+                    : 'bg-[var(--background)] text-emerald-800 dark:text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/10'
                 }`}
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>Won Tips</span>
-                <span className={`text-[9.5px] px-1.5 py-0.5 rounded-md font-mono ${yesterdayFilter === 'won' ? 'bg-white/20 text-white' : 'bg-emerald-500/10 text-emerald-600'}`}>
+                <span className={`text-[9.5px] px-1.5 py-0.5 rounded-md font-mono ${yesterdayFilter === 'won' ? 'bg-white/20 text-white' : 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300'}`}>
                   {yesterdayStats.wonCount}
                 </span>
               </button>
@@ -383,13 +383,13 @@ export default function CategoryPredictionsPage({
                 onClick={() => setYesterdayFilter('lost')}
                 className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-black uppercase font-mono transition-all border cursor-pointer ${
                   yesterdayFilter === 'lost'
-                    ? 'bg-rose-600 text-white border-rose-600 shadow-3xs scale-[1.01]'
-                    : 'bg-[var(--background)] text-rose-600 dark:text-rose-450 border-rose-500/25 hover:bg-rose-500/10'
+                    ? 'bg-rose-700 text-white border-rose-700 shadow-3xs scale-[1.01]'
+                    : 'bg-[var(--background)] text-rose-800 dark:text-rose-300 border-rose-500/30 hover:bg-rose-500/10'
                 }`}
               >
                 <XCircle className="w-3.5 h-3.5" />
                 <span>Lost Tips</span>
-                <span className={`text-[9.5px] px-1.5 py-0.5 rounded-md font-mono ${yesterdayFilter === 'lost' ? 'bg-white/20 text-white' : 'bg-rose-500/10 text-rose-600'}`}>
+                <span className={`text-[9.5px] px-1.5 py-0.5 rounded-md font-mono ${yesterdayFilter === 'lost' ? 'bg-white/20 text-white' : 'bg-rose-500/15 text-rose-800 dark:text-rose-300'}`}>
                   {yesterdayStats.lostCount}
                 </span>
               </button>
@@ -398,13 +398,13 @@ export default function CategoryPredictionsPage({
                 onClick={() => setYesterdayFilter('all')}
                 className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-black uppercase font-mono transition-all border cursor-pointer ${
                   yesterdayFilter === 'all'
-                    ? 'bg-slate-700 text-white border-slate-700 shadow-3xs scale-[1.01]'
-                    : 'bg-[var(--background)] text-slate-700 dark:text-slate-350 border-[var(--border)] hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ? 'bg-slate-800 text-white border-slate-800 shadow-3xs scale-[1.01]'
+                    : 'bg-[var(--background)] text-slate-800 dark:text-slate-200 border-[var(--border)] hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <Calendar className="w-3.5 h-3.5" />
                 <span>All Matches</span>
-                <span className={`text-[9.5px] px-1.5 py-0.5 rounded-md font-mono ${yesterdayFilter === 'all' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-850 text-slate-700 dark:text-slate-300'}`}>
+                <span className={`text-[9.5px] px-1.5 py-0.5 rounded-md font-mono ${yesterdayFilter === 'all' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-850 text-slate-800 dark:text-slate-200'}`}>
                   {yesterdayStats.total}
                 </span>
               </button>
@@ -559,7 +559,7 @@ export default function CategoryPredictionsPage({
                     if (onSelectPage) onSelectPage(jackpot.id);
                   }
                 }}
-                className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase font-mono rounded-lg transition-colors no-underline cursor-pointer flex items-center justify-center gap-1 shadow-3xs"
+                className="w-full py-2 bg-indigo-700 hover:bg-indigo-800 text-white text-[10px] font-black uppercase font-mono rounded-lg transition-colors no-underline cursor-pointer flex items-center justify-center gap-1 shadow-3xs"
               >
                 <span>Analyze Jackpot</span>
                 <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
@@ -601,7 +601,7 @@ export default function CategoryPredictionsPage({
                         {pkg.name}
                       </h4>
                       {pkg.isFeatured && (
-                        <span className="text-[8px] font-black uppercase bg-amber-500 text-white px-1.5 py-0.5 rounded font-mono animate-pulse">
+                        <span className="text-[8px] font-black uppercase bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded font-mono animate-pulse">
                           BEST
                         </span>
                       )}
@@ -621,7 +621,7 @@ export default function CategoryPredictionsPage({
                     </span>
                     <button 
                       onClick={() => onOpenPayment && onOpenPayment(pkg.name, pkg.price, pkg.id, pkg.slug, 'vip')}
-                      className="mt-1.5 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black uppercase font-mono rounded transition-colors border-none cursor-pointer"
+                      className="mt-1.5 px-3 py-1.5 bg-indigo-700 hover:bg-indigo-800 text-white text-[10px] font-black uppercase font-mono rounded-lg transition-colors border-none cursor-pointer shadow-3xs"
                     >
                       Buy Pack
                     </button>
@@ -666,7 +666,7 @@ export default function CategoryPredictionsPage({
                     </span>
                     <button 
                       onClick={() => onOpenPayment && onOpenPayment(pack.name, pack.price, pack.id, pack.slug, 'odds')}
-                      className="mt-1.5 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black uppercase font-mono rounded transition-colors border-none cursor-pointer"
+                      className="mt-1.5 px-3 py-1.5 bg-indigo-700 hover:bg-indigo-800 text-white text-[10px] font-black uppercase font-mono rounded-lg transition-colors border-none cursor-pointer shadow-3xs"
                     >
                       Unlock Odds
                     </button>

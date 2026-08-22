@@ -19,10 +19,10 @@ export default function OddsPacks({
   
   const getRiskColorClass = (risk: OddsPack['riskLevel']) => {
     switch (risk) {
-      case 'Conservative': return 'text-white bg-emerald-600 border-emerald-600';
-      case 'Balanced': return 'text-white bg-amber-600 border-amber-600';
-      case 'Aggressive': return 'text-white bg-rose-600 border-rose-600';
-      default: return 'text-white bg-slate-600 border-slate-600';
+      case 'Conservative': return 'text-white bg-emerald-800 border-emerald-800 font-black';
+      case 'Balanced': return 'text-slate-950 bg-amber-400 border-amber-400 font-black';
+      case 'Aggressive': return 'text-white bg-rose-700 border-rose-700 font-black';
+      default: return 'text-white bg-slate-800 border-slate-800 font-black';
     }
   };
 
@@ -115,9 +115,10 @@ export default function OddsPacks({
                 ) : (
                   <button
                     onClick={() => onOpenPayment(pack.name, pack.price, pack.id, pack.slug, 'odds')}
-                    className="w-full py-2.5 bg-[var(--primary)] hover:bg-opacity-95 text-white font-bold text-xs rounded-[var(--radius)] shadow-sm flex items-center justify-center gap-1.5 transition-all duration-200 border-none cursor-pointer"
+                    className="w-full py-3 px-4 bg-[var(--primary)] hover:bg-emerald-800 active:scale-98 text-white font-black text-xs rounded-[var(--radius)] shadow-sm flex items-center justify-center gap-2 transition-all duration-200 border-none cursor-pointer"
                   >
-                    <Zap className="w-3.5 h-3.5" /> Buy KES {pack.price}
+                    <Zap className="w-4 h-4 text-white" />
+                    <span>Buy KES {pack.price}</span>
                   </button>
                 )}
               </div>

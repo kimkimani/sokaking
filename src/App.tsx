@@ -635,7 +635,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   handleSelectPage('vip-packages');
                 }
               }}
-              className="px-3.5 py-1.5 bg-[var(--primary)] text-white text-[10px] lg:text-xs font-extrabold rounded-[var(--radius)] shadow-sm hover:opacity-90 cursor-pointer border-none"
+              className="px-4 py-2 bg-[var(--primary)] hover:bg-emerald-800 text-white text-[11px] lg:text-xs font-black rounded-lg shadow-sm transition-all cursor-pointer border-none"
             >
               Go VIP
             </button>
@@ -872,13 +872,14 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                         <div className="flex flex-wrap gap-3 pt-2">
                           <button
                             onClick={() => handleSelectPage('category-today')}
-                            className="px-5 py-3 bg-[var(--primary)] text-white font-extrabold text-xs rounded-[var(--radius)] shadow-lg hover:opacity-95 flex items-center gap-1.5 transition-all cursor-pointer border-none"
+                            className="px-6 py-3.5 bg-[var(--primary)] hover:bg-emerald-800 text-white font-black text-xs rounded-[var(--radius)] shadow-lg hover:opacity-95 flex items-center gap-2 transition-all cursor-pointer border-none"
                           >
-                            <Zap className="w-4 h-4" /> View Free Predictions
+                            <Zap className="w-4 h-4 text-white" />
+                            <span>View Free Predictions</span>
                           </button>
                           <button
                             onClick={() => handleSelectPage('vip-packages')}
-                            className="px-5 py-3 bg-white bg-opacity-5 hover:bg-opacity-10 border border-[var(--border)] text-[var(--text)] hover:border-[var(--primary)] font-bold text-xs rounded-[var(--radius)] transition-all cursor-pointer"
+                            className="px-6 py-3.5 bg-[var(--card)] hover:bg-slate-100 dark:hover:bg-slate-800 border-2 border-[var(--border)] text-[var(--text)] hover:border-[var(--primary)] font-black text-xs rounded-[var(--radius)] transition-all cursor-pointer shadow-3xs"
                           >
                             Explore VIP Selections
                           </button>
@@ -966,10 +967,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                               handleSelectPage('jackpot-list');
                             }
                           }}
-                          className="px-5 py-3 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl shadow-md active:scale-95 transition-all no-underline cursor-pointer flex items-center gap-1.5"
+                          className="px-5 py-3 shrink-0 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-black rounded-xl shadow-md active:scale-95 transition-all no-underline cursor-pointer flex items-center gap-2 border-none"
                         >
                           <span>VIEW ALL JACKPOTS</span>
-                          <ChevronRight className="w-4 h-4" />
+                          <ChevronRight className="w-4 h-4 text-white" />
                         </a>
                       </div>
 

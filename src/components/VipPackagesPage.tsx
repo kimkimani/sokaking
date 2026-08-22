@@ -65,19 +65,19 @@ export default function VipPackagesPage({
           <div className="flex flex-wrap gap-2.5 pt-2">
             <a 
               href="#vip-bundles-section" 
-              className="px-3.5 py-2 rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20 hover:bg-amber-500 hover:text-white text-xs font-black uppercase font-mono transition-all no-underline flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-xs font-black uppercase font-mono transition-all no-underline flex items-center gap-1.5"
             >
               <Crown className="w-3.5 h-3.5" /> VIP Packages
             </a>
             <a 
               href="#odds-packs-section" 
-              className="px-3.5 py-2 rounded-lg bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500 hover:text-white text-xs font-black uppercase font-mono transition-all no-underline flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-lg bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-700 hover:text-white text-xs font-black uppercase font-mono transition-all no-underline flex items-center gap-1.5"
             >
               <Zap className="w-3.5 h-3.5" /> Daily Odds Packs
             </a>
             <a 
               href="#jackpot-listing-section" 
-              className="px-3.5 py-2 rounded-lg bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 hover:bg-indigo-500 hover:text-white text-xs font-black uppercase font-mono transition-all no-underline flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-lg bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 hover:bg-indigo-700 hover:text-white text-xs font-black uppercase font-mono transition-all no-underline flex items-center gap-1.5"
             >
               <Trophy className="w-3.5 h-3.5" /> Jackpot Listing
             </a>
