@@ -10,6 +10,7 @@ import { FlagImage } from '../utils/flagUtils';
 import { sortJackpotsByStatusAndTime } from '../utils/jackpotDateShifter';
 import { formatJackpotStartTimeString } from '../utils/timeUtils';
 import { getPageUrl } from '../utils/navigation';
+import InboundLinksBlock from './InboundLinksBlock';
 
 interface JackpotListPageProps {
   onSelectJackpot: (jackpotId: string) => void;
@@ -308,6 +309,13 @@ export default function JackpotListPage({
           <MarkdownRenderer content={pageMd.meat} />
         </div>
       )}
+
+      {/* 3 CONTEXTUAL INBOUND LINKS */}
+      <InboundLinksBlock 
+        pageId="jackpot-list" 
+        rawType="jackpot"
+        onSelectPage={onSelectJackpot}
+      />
 
       {/* Author Card (renders when authorName is defined in page markdown) */}
       {pageMd && (pageMd.author || pageMd.authorName) && (

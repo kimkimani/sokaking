@@ -8,6 +8,8 @@ displayTitle: "SportyBet Weekly Jackpot Selections & Master Ticket"
 responsibleGambling: "Play responsibly and observe betting limits. Helpline: 0800-720-000."
 unlockHeading: "Unlock SportyBet Jackpot Master Ticket"
 unlockDescription: "Get 12-game weekly jackpot predictions optimized for SportyBet Kenya and Nigeria."
+type: "jackpot"
+jackpotId: "sportybet-jackpot"
 ---
 
 ## SportyBet Jackpot Predictions & Master Ticket Analysis

@@ -10,6 +10,7 @@ unlockHeading: "Unlock Liobet Mathematical Value Picks"
 unlockDescription: "Access quantitative 1X2, Over 2.5, and double chance predictions derived from Poisson goal curves."
 listTitle: "Liobet Free Football Predictions"
 listSubtitle: "Liobet mathematical predictions and soccer tips verified by Soka King mathematical indexes."
+type: "competitor"
 ---
 
 ## Liobet Predictions and Tips - Mathematical Football Analysis

@@ -10,6 +10,7 @@ unlockHeading: "Unlock 254 High-Odds Banker Slips & Multi-Bet Tips"
 unlockDescription: "Get instant M-Pesa access to daily 254 sure tips, high-odds accumulator legs, and multi-market combinations."
 listTitle: "254 Sure Tips Free Predictions Today"
 listSubtitle: "Daily 254 sure tips and high-confidence predictions verified by Soka King mathematical indexes."
+type: "competitor"
 ---
 
 ## 254 Sure Tips Today - Fixed Odds & High Confidence Football Predictions

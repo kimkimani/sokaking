@@ -10,6 +10,8 @@ unlockHeading: "Unlock Low-Variance Double Chance Slips"
 unlockDescription: "Get safe 1X, X2, and 12 combinations calculated to protect your multi-bets against draw traps."
 listTitle: "Double Chance Free Predictions"
 listSubtitle: "High-probability daily double-chance options and safety single tips verified by Soka King mathematical indexes."
+type: "category"
+fixturesCategory: "doublechance"
 ---
 
 ## Double Chance Predictions - 1X, 12, X2 Soccer Tips

@@ -8,6 +8,8 @@ authorId: "david-ochieng"
 responsibleGambling: "Betting should be entertaining. Please gamble responsibly. Helpline: 0800-720-000."
 unlockHeading: "Unlock All 15 Fixture Predictions & Double Chance Slips"
 unlockDescription: "Subscribe to get instant access to full 1X2 selections, banker probability rankings, and low-variance double-chance covers for Betika Midweek Jackpot."
+type: "jackpot"
+jackpotId: "betika-midweek"
 ---
 
 ## Betika Midweek Jackpot Predictions & Daily Tips (15 Games)

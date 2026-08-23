@@ -10,6 +10,8 @@ unlockHeading: "Unlock Early Value Picks for Tomorrow"
 unlockDescription: "Lock in high odds early before market lines adjust across major bookmakers."
 listTitle: "Tomorrow's Free Football Predictions"
 listSubtitle: "High-probability early double-chance options and value single tips verified by Soka King mathematical indexes."
+type: "category"
+fixturesCategory: "tomorrow"
 ---
 
 ## Tomorrow's Football Predictions & Early Betting Tips

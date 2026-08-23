@@ -8,6 +8,8 @@ displayTitle: "betPawa Pick 13 Jackpot Selections & Covers"
 responsibleGambling: "Play responsibly. Gambling is restricted to 18+. Helpline: 0800-720-000."
 unlockHeading: "Unlock betPawa Pick 13 Jackpot Predictions"
 unlockDescription: "Get instant access to optimized 13-game jackpot slips with double chance combinations for betPawa Kenya."
+type: "jackpot"
+jackpotId: "betpawa-pick-jackpot"
 ---
 
 ## betPawa Pick 13 Jackpot Predictions & Selections

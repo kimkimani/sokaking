@@ -10,6 +10,8 @@ unlockHeading: "Unlock All Major Kenyan Jackpot Slips"
 unlockDescription: "Get complete predictions and double-chance covers for SportPesa, Betika, Mozzart, betPawa, SportyBet, and OdiBet jackpots."
 listTitle: "Major Kenyan Football Jackpot Pools"
 listSubtitle: "Explore mathematically analyzed jackpot fixture slates and double-chance strategy combinations."
+type: "jackpot"
+jackpotId: "jackpot-list"
 ---
 
 ## Kenyan Football Jackpot Predictions 2026 - All Major Pools

@@ -47,6 +47,7 @@ import LiveUpdates from './components/LiveUpdates';
 import JackpotSidebar from './components/JackpotSidebar';
 import { AuthorCard } from './components/AuthorCard';
 import { ResponsibleGamblingNotice } from './components/ResponsibleGamblingNotice';
+import InboundLinksBlock from './components/InboundLinksBlock';
 
 // Code-split routes and heavy overlay components to reduce initial mobile JS bundle
 const JackpotPage = lazy(() => import('./components/JackpotPage'));
@@ -1022,6 +1023,11 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                           <MarkdownRenderer content={homeMd.meat} />
                         </section>
                       )}
+
+                      <InboundLinksBlock 
+                        pageId="home" 
+                        onSelectPage={handleSelectPage} 
+                      />
 
                       {(homeMd.author || homeMd.authorName) && (
                         <AuthorCard 

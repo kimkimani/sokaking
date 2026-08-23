@@ -10,6 +10,7 @@ unlockHeading: "Unlock Automated Cheerplex Computer Tips"
 unlockDescription: "Access daily Cheerplex computer forecasts, match probability matrices, and banker picks."
 listTitle: "Cheerplex Free Football Predictions Today"
 listSubtitle: "Daily Cheerplex computer tips and match selections verified by Soka King mathematical indexes."
+type: "competitor"
 ---
 
 ## Cheerplex Predictions and Tips Today - Free Football Picks

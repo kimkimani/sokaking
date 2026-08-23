@@ -8,6 +8,7 @@ displayTitle: "Privacy Policy & Data Protection Protocols"
 responsibleGambling: "Player privacy and data security are strictly enforced. Helpline: 0800-720-000."
 unlockHeading: "Data Privacy & STK Push Security"
 unlockDescription: "Review how we safeguard user phone numbers, account data, and Safaricom payment transactions."
+type: "static"
 ---
 
 ## Privacy Policy & Data Security

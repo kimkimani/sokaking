@@ -10,6 +10,8 @@ unlockHeading: "Unlock High-Probability Home Win Bankers"
 unlockDescription: "Get high-confidence 1X2 home win selections based on stadium crowd impact and home pitch dominance."
 listTitle: "1X2 Home Win Free Predictions"
 listSubtitle: "High-probability home win selections and 1X2 banker tips verified by Soka King mathematical indexes."
+type: "category"
+fixturesCategory: "homewin"
 ---
 
 ## 1X2 Home Win Predictions & Elite Soccer Tips

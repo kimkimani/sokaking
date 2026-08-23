@@ -8,6 +8,8 @@ displayTitle: "Mozzart Grand Jackpot Selections & Covers (16 Games)"
 responsibleGambling: "Gamble responsibly. Restricted to adults aged 18+. Helpline: 0800-720-000."
 unlockHeading: "Unlock Mozzart KES 200M Grand Jackpot Slips"
 unlockDescription: "Access expert 16-match selections and double-chance protection for Mozzart Grand Jackpot."
+type: "jackpot"
+jackpotId: "mozzart-grand"
 ---
 
 ## Mozzart Grand Jackpot Predictions & Analysis (16 Games)

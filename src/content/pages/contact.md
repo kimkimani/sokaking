@@ -8,6 +8,7 @@ displayTitle: "Contact Soka King Dispatch & Support"
 responsibleGambling: "Soka King support operates under strict responsible gaming protocols. Helpline: 0800-720-000."
 unlockHeading: "24/7 Support Dispatch Core"
 unlockDescription: "Reach our technical team via email, WhatsApp, or instant M-Pesa payment verification."
+type: "static"
 ---
 
 ## Contact Soka King - Customer Dispatch & Support

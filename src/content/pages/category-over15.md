@@ -10,6 +10,8 @@ unlockHeading: "Unlock Safe Over 1.5 Goals Accumulators"
 unlockDescription: "Access reliable 2+ goal line picks with over 88% historical winning probability."
 listTitle: "Over 1.5 Goals Free Predictions"
 listSubtitle: "High-probability 2+ goal match selections and goal-line tips verified by Soka King mathematical indexes."
+type: "category"
+fixturesCategory: "over15"
 ---
 
 ## Over 1.5 Goals Predictions & Football Betting Tips

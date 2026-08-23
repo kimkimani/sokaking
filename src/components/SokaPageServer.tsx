@@ -2,6 +2,7 @@ import App from '../App';
 import { getMarkdownContent, buildCanonicalUrl } from '../content/markdownLoader';
 import { jackpotsData } from '../jackpotsData';
 import { generatePageJsonLd } from '../utils/schemaGenerator';
+import { getInboundLinks } from '../utils/inboundLinks';
 
 interface SokaPageServerProps {
   pageId: string;
@@ -11,6 +12,7 @@ interface SokaPageServerProps {
 export default async function SokaPageServer({ pageId, customCanonical }: SokaPageServerProps) {
   const pageMd = getMarkdownContent(pageId);
   const fullCanonicalUrl = buildCanonicalUrl(customCanonical || pageMd.link, pageId);
+  const inboundGroup = getInboundLinks(pageId, pageMd.type, pageMd.jackpotId);
 
   // Preloaded static data for initial render (fast & non-blocking)
   const preloadedJackpots = jackpotsData;
@@ -27,13 +29,23 @@ export default async function SokaPageServer({ pageId, customCanonical }: SokaPa
         dangerouslySetInnerHTML={{ __html: JSON.stringify(fullGraph) }}
       />
 
-      {/* Hidden SEO fallback container for bots that ignore JS hydration */}
+      {/* SEO fallback container for bots that ignore JS hydration */}
       <div className="sr-only opacity-0 h-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <h1>{pageMd.title}</h1>
         <p>{pageMd.description}</p>
         <div>{pageMd.intro}</div>
         <div>{pageMd.meat}</div>
         <div>{pageMd.faq}</div>
+        <nav aria-label="Related Inbound Navigation Links">
+          <h2>{inboundGroup.sectionTitle}</h2>
+          <ul>
+            {inboundGroup.links.map((link) => (
+              <li key={link.id}>
+                <a href={link.url}>{link.title}</a> - {link.description}
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
 
       {/* Interactive Hydrated React Application */}

@@ -16,6 +16,7 @@ unlockHeading: "Unlock 254 High-Odds Banker Slips & Multi-Bet Tips"
 unlockDescription: "Get instant M-Pesa access to daily 254 sure tips, high-odds accumulator legs, and multi-market combinations."
 listTitle: "254 Sure Tips Free Predictions Today"
 listSubtitle: "Daily 254 sure tips and high-confidence predictions verified by Soka King mathematical indexes."
+type: "competitor"
 ---
 
 ## 254 Sure Tips Today - Fixed Odds & High Confidence Football Predictions
@@ -56,6 +57,7 @@ displayTitle: "About Soka King - Football Prediction Intelligence & Quantitative
 responsibleGambling: "Soka King promotes strict 18+ responsible gambling and bankroll management. Helpline: 0800-720-000."
 unlockHeading: "Soka King Intelligence Network"
 unlockDescription: "Explore our predictive algorithms, Poisson goal matrices, and real-time M-Pesa verification engine."
+type: "static"
 ---
 
 <!-- INTRO -->
@@ -104,6 +106,8 @@ authorId: "david-ochieng"
 responsibleGambling: "Betting should be entertaining. Please gamble responsibly. Helpline: 0800-720-000."
 unlockHeading: "Unlock All 15 Fixture Predictions & Double Chance Slips"
 unlockDescription: "Subscribe to get instant access to full 1X2 selections, banker probability rankings, and low-variance double-chance covers for Betika Midweek Jackpot."
+type: "jackpot"
+jackpotId: "betika-midweek"
 ---
 
 ## Betika Midweek Jackpot Predictions & Daily Tips (15 Games)
@@ -140,6 +144,8 @@ displayTitle: "betPawa Pick 13 Jackpot Selections & Covers"
 responsibleGambling: "Play responsibly. Gambling is restricted to 18+. Helpline: 0800-720-000."
 unlockHeading: "Unlock betPawa Pick 13 Jackpot Predictions"
 unlockDescription: "Get instant access to optimized 13-game jackpot slips with double chance combinations for betPawa Kenya."
+type: "jackpot"
+jackpotId: "betpawa-pick-jackpot"
 ---
 
 ## betPawa Pick 13 Jackpot Predictions & Selections
@@ -177,6 +183,8 @@ unlockHeading: "Unlock High-Yield BTTS (GG) Accumulator Slips"
 unlockDescription: "Access daily Goal-Goal selections with high offensive output indicators and leaky defensive trends."
 listTitle: "Both Teams To Score (BTTS / GG) Free Predictions"
 listSubtitle: "High-probability Goal-Goal match selections and scoring tips verified by Soka King mathematical indexes."
+type: "category"
+fixturesCategory: "btts"
 ---
 
 ## Both Teams To Score (BTTS / GG) Predictions
@@ -224,6 +232,8 @@ unlockHeading: "Unlock Low-Variance Double Chance Slips"
 unlockDescription: "Get safe 1X, X2, and 12 combinations calculated to protect your multi-bets against draw traps."
 listTitle: "Double Chance Free Predictions"
 listSubtitle: "High-probability daily double-chance options and safety single tips verified by Soka King mathematical indexes."
+type: "category"
+fixturesCategory: "doublechance"
 ---
 
 ## Double Chance Predictions - 1X, 12, X2 Soccer Tips
@@ -263,6 +273,8 @@ unlockHeading: "Unlock High-Probability Home Win Bankers"
 unlockDescription: "Get high-confidence 1X2 home win selections based on stadium crowd impact and home pitch dominance."
 listTitle: "1X2 Home Win Free Predictions"
 listSubtitle: "High-probability home win selections and 1X2 banker tips verified by Soka King mathematical indexes."
+type: "category"
+fixturesCategory: "homewin"
 ---
 
 ## 1X2 Home Win Predictions & Elite Soccer Tips
@@ -310,6 +322,8 @@ unlockHeading: "Unlock Safe Over 1.5 Goals Accumulators"
 unlockDescription: "Access reliable 2+ goal line picks with over 88% historical winning probability."
 listTitle: "Over 1.5 Goals Free Predictions"
 listSubtitle: "High-probability 2+ goal match selections and goal-line tips verified by Soka King mathematical indexes."
+type: "category"
+fixturesCategory: "over15"
 ---
 
 ## Over 1.5 Goals Predictions & Football Betting Tips
@@ -347,6 +361,8 @@ unlockHeading: "Unlock High-Scoring Over 2.5 Goals Slips"
 unlockDescription: "Get daily high-tempo match picks with total expected goal lines exceeding 3 goals."
 listTitle: "Over 2.5 Goals Free Predictions"
 listSubtitle: "High-probability 3+ goal match selections and high-scoring tips verified by Soka King mathematical indexes."
+type: "category"
+fixturesCategory: "over25"
 ---
 
 ## Over 2.5 Goals Predictions & High-Scoring Tips
@@ -392,6 +408,8 @@ listTitle: "Today's Free Football Predictions"
 listSubtitle: "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes."
 unlockHeading: "Unlock Today's VIP Daily 2+ & 5+ Odds Packs"
 unlockDescription: "Receive today's mathematically validated multi-bets directly on screen and via instant SMS."
+type: "category"
+fixturesCategory: "today"
 ---
 
 <!-- INTRO -->
@@ -440,6 +458,8 @@ unlockHeading: "Unlock Early Value Picks for Tomorrow"
 unlockDescription: "Lock in high odds early before market lines adjust across major bookmakers."
 listTitle: "Tomorrow's Free Football Predictions"
 listSubtitle: "High-probability early double-chance options and value single tips verified by Soka King mathematical indexes."
+type: "category"
+fixturesCategory: "tomorrow"
 ---
 
 ## Tomorrow's Football Predictions & Early Betting Tips
@@ -477,6 +497,8 @@ unlockHeading: "Verified Historical Prediction Logs"
 unlockDescription: "Inspect past winning tickets, model accuracy benchmarks, and settled scoreline distributions."
 listTitle: "Yesterday's Free Football Predictions Results"
 listSubtitle: "Verified historical match outcomes and settled predictions audited by Soka King mathematical indexes."
+type: "category"
+fixturesCategory: "yesterday"
 ---
 
 ## Yesterday's Football Predictions & Winning Results
@@ -514,6 +536,7 @@ unlockHeading: "Unlock Automated Cheerplex Computer Tips"
 unlockDescription: "Access daily Cheerplex computer forecasts, match probability matrices, and banker picks."
 listTitle: "Cheerplex Free Football Predictions Today"
 listSubtitle: "Daily Cheerplex computer tips and match selections verified by Soka King mathematical indexes."
+type: "competitor"
 ---
 
 ## Cheerplex Predictions and Tips Today - Free Football Picks
@@ -555,6 +578,7 @@ displayTitle: "Contact Soka King Dispatch & Support"
 responsibleGambling: "Soka King support operates under strict responsible gaming protocols. Helpline: 0800-720-000."
 unlockHeading: "24/7 Support Dispatch Core"
 unlockDescription: "Reach our technical team via email, WhatsApp, or instant M-Pesa payment verification."
+type: "static"
 ---
 
 ## Contact Soka King - Customer Dispatch & Support
@@ -590,6 +614,7 @@ listTitle: "Today's Free Football Predictions"
 listSubtitle: "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes."
 unlockHeading: "Unlock Today's Premium VIP Odds Packs"
 unlockDescription: "Get instant access to mathematically derived multi-bets with high winning probability."
+type: "home"
 ---
 
 <!-- INTRO -->
@@ -638,6 +663,8 @@ unlockHeading: "Unlock All Major Kenyan Jackpot Slips"
 unlockDescription: "Get complete predictions and double-chance covers for SportPesa, Betika, Mozzart, betPawa, SportyBet, and OdiBet jackpots."
 listTitle: "Major Kenyan Football Jackpot Pools"
 listSubtitle: "Explore mathematically analyzed jackpot fixture slates and double-chance strategy combinations."
+type: "jackpot"
+jackpotId: "jackpot-list"
 ---
 
 ## Kenyan Football Jackpot Predictions 2026 - All Major Pools
@@ -690,6 +717,7 @@ unlockHeading: "Unlock Liobet Mathematical Value Picks"
 unlockDescription: "Access quantitative 1X2, Over 2.5, and double chance predictions derived from Poisson goal curves."
 listTitle: "Liobet Free Football Predictions"
 listSubtitle: "Liobet mathematical predictions and soccer tips verified by Soka King mathematical indexes."
+type: "competitor"
 ---
 
 ## Liobet Predictions and Tips - Mathematical Football Analysis
@@ -730,6 +758,8 @@ displayTitle: "Mozzart Grand Jackpot Selections & Covers (16 Games)"
 responsibleGambling: "Gamble responsibly. Restricted to adults aged 18+. Helpline: 0800-720-000."
 unlockHeading: "Unlock Mozzart KES 200M Grand Jackpot Slips"
 unlockDescription: "Access expert 16-match selections and double-chance protection for Mozzart Grand Jackpot."
+type: "jackpot"
+jackpotId: "mozzart-grand"
 ---
 
 ## Mozzart Grand Jackpot Predictions & Analysis (16 Games)
@@ -765,6 +795,8 @@ displayTitle: "Mozzart Super Daily Jackpot Selections"
 responsibleGambling: "Betting involves risk. Always gamble within your financial comfort zone. Helpline: 0800-720-000."
 unlockHeading: "Unlock Mozzart Super Daily Selections"
 unlockDescription: "Get daily computer-simulated 16-game prediction tickets for Mozzart Super Daily."
+type: "jackpot"
+jackpotId: "mozzart-super-daily"
 ---
 
 ## Mozzart Super Daily Jackpot Predictions & Match Analysis
@@ -828,6 +860,8 @@ displayTitle: "OdiBet Laki Tatu Jackpot Selections (10 Games)"
 responsibleGambling: "Play responsibly. 18+ only. Helpline: 0800-720-000."
 unlockHeading: "Unlock OdiBet Laki Tatu Jackpot Predictions"
 unlockDescription: "Get daily 10-game jackpot predictions for OdiBet's KES 300,000 cash pool."
+type: "jackpot"
+jackpotId: "odibet-laki-tatu"
 ---
 
 ## OdiBet Laki Tatu Jackpot Predictions & Daily Tips
@@ -863,6 +897,7 @@ displayTitle: "Our Strategic Partners & Integration Affiliates"
 responsibleGambling: "Soka King partners strictly adhere to 18+ betting compliance laws. Helpline: 0800-720-000."
 unlockHeading: "Soka King Partner Ecosystem"
 unlockDescription: "Learn about our integrations with Safaricom M-Pesa, Opta Sports Data, and major bookmakers."
+type: "static"
 ---
 
 <!-- INTRO -->
@@ -923,6 +958,7 @@ displayTitle: "Privacy Policy & Data Protection Protocols"
 responsibleGambling: "Player privacy and data security are strictly enforced. Helpline: 0800-720-000."
 unlockHeading: "Data Privacy & STK Push Security"
 unlockDescription: "Review how we safeguard user phone numbers, account data, and Safaricom payment transactions."
+type: "static"
 ---
 
 ## Privacy Policy & Data Security
@@ -956,6 +992,7 @@ displayTitle: "Responsible Gambling & Player Protection Center"
 responsibleGambling: "If gambling is affecting your life, call the national helpline: 0800-720-000."
 unlockHeading: "Safe Gaming & Bankroll Protection"
 unlockDescription: "Learn about bankroll allocation rules, loss control, and self-exclusion tools."
+type: "static"
 ---
 
 ## Responsible Gambling & Player Protection
@@ -1092,6 +1129,8 @@ displayTitle: "SportPesa Mega Jackpot Selections & Covers (17 Games)"
 responsibleGambling: "Gambling involves risk. Bet responsibly and only risk what you can afford. Helpline: 0800-720-000."
 unlockHeading: "Unlock All 17 SportPesa Mega Jackpot Predictions"
 unlockDescription: "Subscribe to get instant access to full 1X2 selections, banker probability rankings, and low-variance double-chance covers for SportPesa Mega Jackpot."
+type: "jackpot"
+jackpotId: "sportpesa-mega"
 ---
 
 ## SportPesa Mega Jackpot Predictions & KES 300 Million Analysis (17 Games)
@@ -1142,6 +1181,8 @@ displayTitle: "SportPesa Midweek Jackpot Selections & Covers (13 Games)"
 responsibleGambling: "Bet responsibly. Always play within your budget. Helpline: 0800-720-000."
 unlockHeading: "Unlock SportPesa Midweek Jackpot Predictions"
 unlockDescription: "Access 13-match selections, midweek fatigue matrix analysis, and double-chance covers for SportPesa Midweek Jackpot."
+type: "jackpot"
+jackpotId: "sportpesa-midweek"
 ---
 
 ## SportPesa Midweek Jackpot Predictions & Daily Tips (13 Games)
@@ -1183,6 +1224,8 @@ displayTitle: "SportyBet Weekly Jackpot Selections & Master Ticket"
 responsibleGambling: "Play responsibly and observe betting limits. Helpline: 0800-720-000."
 unlockHeading: "Unlock SportyBet Jackpot Master Ticket"
 unlockDescription: "Get 12-game weekly jackpot predictions optimized for SportyBet Kenya and Nigeria."
+type: "jackpot"
+jackpotId: "sportybet-jackpot"
 ---
 
 ## SportyBet Jackpot Predictions & Master Ticket Analysis
@@ -1220,6 +1263,7 @@ unlockHeading: "Unlock Daily Sunpelpredict Banker Picks"
 unlockDescription: "Access daily Sunpelpredict banker selections, high-value goal-line tips, and weekend accumulator slips."
 listTitle: "Sunpelpredict Free Football Predictions Today"
 listSubtitle: "Daily Sunpel banker selections, double chance picks, and mathematical soccer tips verified by Soka King."
+type: "competitor"
 ---
 
 ## Sunpelpredict Free Football Betting Tips & Soccer Predictions
@@ -1275,6 +1319,7 @@ displayTitle: "Terms of Use & Digital Service Agreement"
 responsibleGambling: "Users must be at least 18 years old to access Soka King services. Helpline: 0800-720-000."
 unlockHeading: "Terms of Service & VIP Access"
 unlockDescription: "Understand subscription rules, digital key delivery via M-Pesa, and usage guidelines."
+type: "static"
 ---
 
 ## Terms of Use & Subscription Agreement
@@ -1317,6 +1362,7 @@ displayTitle: "VIP Packages, Daily Odds Packs & Jackpot Slips"
 responsibleGambling: "Bet responsibly and manage your bankroll wisely. Helpline: 0800-720-000."
 unlockHeading: "Unlock Soka King VIP Packages & Daily Odds Slips"
 unlockDescription: "Upgrade to receive 2+ odds, 5+ odds shortlists, multi-bet builders, and all jackpot slips via M-Pesa."
+type: "vip"
 ---
 
 <!-- INTRO -->

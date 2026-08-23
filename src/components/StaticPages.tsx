@@ -37,6 +37,7 @@ import MarkdownRenderer from './MarkdownRenderer';
 import { contactSocialTable } from '../data';
 import { AuthorCard } from './AuthorCard';
 import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
+import InboundLinksBlock from './InboundLinksBlock';
 
 interface StaticPagesProps {
   pageId: string;
@@ -1173,6 +1174,12 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
           <MarkdownRenderer content={pageMd.meat || pageMd.fullContent} />
         </div>
       )}
+
+      {/* 3 CONTEXTUAL INBOUND LINKS (STATIC / TRUST / VIP DIRECTORY) */}
+      <InboundLinksBlock 
+        pageId={pageId} 
+        rawType={pageMd?.type || 'static'}
+      />
 
       {/* Author Card (renders when authorName is defined in page markdown) */}
       {pageMd && (pageMd.author || pageMd.authorName) && (

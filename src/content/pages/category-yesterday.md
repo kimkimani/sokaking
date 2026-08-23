@@ -10,6 +10,8 @@ unlockHeading: "Verified Historical Prediction Logs"
 unlockDescription: "Inspect past winning tickets, model accuracy benchmarks, and settled scoreline distributions."
 listTitle: "Yesterday's Free Football Predictions Results"
 listSubtitle: "Verified historical match outcomes and settled predictions audited by Soka King mathematical indexes."
+type: "category"
+fixturesCategory: "yesterday"
 ---
 
 ## Yesterday's Football Predictions & Winning Results

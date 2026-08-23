@@ -29,6 +29,7 @@ import { AuthorCard } from './AuthorCard';
 import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
 import { sortJackpotsByStatusAndTime } from '../utils/jackpotDateShifter';
 import { getPageUrl } from '../utils/navigation';
+import InboundLinksBlock from './InboundLinksBlock';
 
 interface CategoryPredictionsPageProps {
   category: PredictionCategory;
@@ -684,6 +685,14 @@ export default function CategoryPredictionsPage({
           <MarkdownRenderer content={pageMd.meat || pageMd.fullContent} />
         </div>
       )}
+
+      {/* 3 CONTEXTUAL INBOUND LINKS (COMPETITOR OR CATEGORY) */}
+      <InboundLinksBlock 
+        pageId={pageId || category.id} 
+        rawType={pageMd.type} 
+        jackpotId={pageMd.jackpotId}
+        onSelectPage={onSelectPage} 
+      />
 
       {/* Author Card (renders when authorName is defined in page markdown) */}
       {pageMd && (pageMd.author || pageMd.authorName) && (

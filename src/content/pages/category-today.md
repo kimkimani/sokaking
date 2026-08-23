@@ -10,6 +10,8 @@ listTitle: "Today's Free Football Predictions"
 listSubtitle: "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes."
 unlockHeading: "Unlock Today's VIP Daily 2+ & 5+ Odds Packs"
 unlockDescription: "Receive today's mathematically validated multi-bets directly on screen and via instant SMS."
+type: "category"
+fixturesCategory: "today"
 ---
 
 <!-- INTRO -->

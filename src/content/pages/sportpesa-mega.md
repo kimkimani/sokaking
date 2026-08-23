@@ -8,6 +8,8 @@ displayTitle: "SportPesa Mega Jackpot Selections & Covers (17 Games)"
 responsibleGambling: "Gambling involves risk. Bet responsibly and only risk what you can afford. Helpline: 0800-720-000."
 unlockHeading: "Unlock All 17 SportPesa Mega Jackpot Predictions"
 unlockDescription: "Subscribe to get instant access to full 1X2 selections, banker probability rankings, and low-variance double-chance covers for SportPesa Mega Jackpot."
+type: "jackpot"
+jackpotId: "sportpesa-mega"
 ---
 
 ## SportPesa Mega Jackpot Predictions & KES 300 Million Analysis (17 Games)

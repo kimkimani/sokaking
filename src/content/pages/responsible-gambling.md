@@ -8,6 +8,7 @@ displayTitle: "Responsible Gambling & Player Protection Center"
 responsibleGambling: "If gambling is affecting your life, call the national helpline: 0800-720-000."
 unlockHeading: "Safe Gaming & Bankroll Protection"
 unlockDescription: "Learn about bankroll allocation rules, loss control, and self-exclusion tools."
+type: "static"
 ---
 
 ## Responsible Gambling & Player Protection

@@ -8,6 +8,8 @@ displayTitle: "Mozzart Super Daily Jackpot Selections"
 responsibleGambling: "Betting involves risk. Always gamble within your financial comfort zone. Helpline: 0800-720-000."
 unlockHeading: "Unlock Mozzart Super Daily Selections"
 unlockDescription: "Get daily computer-simulated 16-game prediction tickets for Mozzart Super Daily."
+type: "jackpot"
+jackpotId: "mozzart-super-daily"
 ---
 
 ## Mozzart Super Daily Jackpot Predictions & Match Analysis

@@ -8,6 +8,7 @@ displayTitle: "About Soka King - Football Prediction Intelligence & Quantitative
 responsibleGambling: "Soka King promotes strict 18+ responsible gambling and bankroll management. Helpline: 0800-720-000."
 unlockHeading: "Soka King Intelligence Network"
 unlockDescription: "Explore our predictive algorithms, Poisson goal matrices, and real-time M-Pesa verification engine."
+type: "static"
 ---
 
 <!-- INTRO -->

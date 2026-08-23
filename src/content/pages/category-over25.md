@@ -10,6 +10,8 @@ unlockHeading: "Unlock High-Scoring Over 2.5 Goals Slips"
 unlockDescription: "Get daily high-tempo match picks with total expected goal lines exceeding 3 goals."
 listTitle: "Over 2.5 Goals Free Predictions"
 listSubtitle: "High-probability 3+ goal match selections and high-scoring tips verified by Soka King mathematical indexes."
+type: "category"
+fixturesCategory: "over25"
 ---
 
 ## Over 2.5 Goals Predictions & High-Scoring Tips

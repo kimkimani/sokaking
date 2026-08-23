@@ -8,6 +8,8 @@ displayTitle: "OdiBet Laki Tatu Jackpot Selections (10 Games)"
 responsibleGambling: "Play responsibly. 18+ only. Helpline: 0800-720-000."
 unlockHeading: "Unlock OdiBet Laki Tatu Jackpot Predictions"
 unlockDescription: "Get daily 10-game jackpot predictions for OdiBet's KES 300,000 cash pool."
+type: "jackpot"
+jackpotId: "odibet-laki-tatu"
 ---
 
 ## OdiBet Laki Tatu Jackpot Predictions & Daily Tips

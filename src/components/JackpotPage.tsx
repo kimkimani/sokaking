@@ -27,6 +27,7 @@ import { FlagImage } from '../utils/flagUtils';
 import { AuthorCard } from './AuthorCard';
 import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
 import { formatTime, formatMatchDateTime, formatJackpotStartTimeString } from '../utils/timeUtils';
+import InboundLinksBlock from './InboundLinksBlock';
 
 interface JackpotPageProps {
   jackpot: JackpotConfig;
@@ -851,6 +852,13 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
           <MarkdownRenderer content={pageMd.meat || pageMd.fullContent} />
         </div>
       )}
+
+      {/* 3 CONTEXTUAL INBOUND LINKS (OTHER KENYAN JACKPOTS) */}
+      <InboundLinksBlock 
+        pageId={pageId || jackpot.id} 
+        rawType={pageMd.type} 
+        jackpotId={pageMd.jackpotId || jackpot.id} 
+      />
 
       {/* Author Card (renders when authorName is defined in page markdown) */}
       {pageMd && (pageMd.author || pageMd.authorName) && (

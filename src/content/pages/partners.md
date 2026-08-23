@@ -8,6 +8,7 @@ displayTitle: "Our Strategic Partners & Integration Affiliates"
 responsibleGambling: "Soka King partners strictly adhere to 18+ betting compliance laws. Helpline: 0800-720-000."
 unlockHeading: "Soka King Partner Ecosystem"
 unlockDescription: "Learn about our integrations with Safaricom M-Pesa, Opta Sports Data, and major bookmakers."
+type: "static"
 ---
 
 <!-- INTRO -->

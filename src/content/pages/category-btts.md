@@ -10,6 +10,8 @@ unlockHeading: "Unlock High-Yield BTTS (GG) Accumulator Slips"
 unlockDescription: "Access daily Goal-Goal selections with high offensive output indicators and leaky defensive trends."
 listTitle: "Both Teams To Score (BTTS / GG) Free Predictions"
 listSubtitle: "High-probability Goal-Goal match selections and scoring tips verified by Soka King mathematical indexes."
+type: "category"
+fixturesCategory: "btts"
 ---
 
 ## Both Teams To Score (BTTS / GG) Predictions
