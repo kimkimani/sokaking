@@ -509,20 +509,22 @@ export function getDynamicUrlMaps(
   for (const { pageKey, page } of allMd) {
     if (page.link) {
       let normLink = page.link.toLowerCase().trim();
+      if (!normLink.startsWith('/')) {
+        normLink = '/' + normLink;
+      }
       if (normLink.endsWith('/') && normLink !== '/') {
         normLink = normLink.slice(0, -1);
       }
       urlToPageMap[normLink] = pageKey;
-      if (!pageToUrlMap[pageKey]) {
-        pageToUrlMap[pageKey] = page.link;
+      pageToUrlMap[pageKey] = normLink;
+    } else {
+      const defaultPath = `/${pageKey}`;
+      if (!urlToPageMap[defaultPath]) {
+        urlToPageMap[defaultPath] = pageKey;
       }
-    }
-    const defaultPath = `/${pageKey}`;
-    if (!urlToPageMap[defaultPath]) {
-      urlToPageMap[defaultPath] = pageKey;
-    }
-    if (!pageToUrlMap[pageKey]) {
-      pageToUrlMap[pageKey] = defaultPath;
+      if (!pageToUrlMap[pageKey]) {
+        pageToUrlMap[pageKey] = defaultPath;
+      }
     }
 
     // 1. Dynamic Competitor / Category Discovery

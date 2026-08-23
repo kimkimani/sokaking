@@ -97,47 +97,8 @@ export function isLowerPriorityRoute(p: string): boolean {
 }
 
 export function getAllSitemapRoutes(): string[] {
-  const defaultRoutes = [
-    '/',
-    '/football-predictions-today',
-    '/football-predictions-yesterday',
-    '/football-predictions-tomorrow',
-    '/football-predictions-over-1-5-goals',
-    '/football-predictions-btts-gg',
-    '/football-predictions-1x2-home-win',
-    '/football-predictions-over-2-5-goals',
-    '/football-predictions-double-chance',
-    '/254-sure-tips',
-    '/cheerplex-predictions-and-tips-today',
-    '/liobet-predictions-and-tips',
-    '/sunpelpredict',
-    '/sunpel-free-football-betting-tips-and-soccer-predictions',
-    '/jackpot-tips',
-    '/free-sportpesa-mega-jackpot-predictions-and-analysis',
-    '/free-betika-midweek-jackpot-predictions-and-analysis',
-    '/free-mozzart-grand-jackpot-predictions-and-analysis',
-    '/free-mozzart-super-daily-jackpot-predictions-and-analysis',
-    '/free-sportpesa-midweek-jackpot-predictions-and-analysis',
-    '/free-sportybet-jackpot-predictions-and-analysis',
-    '/free-betpawa-pick-jackpot-predictions-and-analysis',
-    '/free-odibet-laki-tatu-jackpot-predictions-and-analysis',
-    '/vip-packages',
-    '/about-us',
-    '/partners',
-    '/responsible-gambling',
-    '/privacy-policy',
-    '/terms-of-use',
-    '/contact-us',
-  ];
-
-  const routesSet = new Set<string>(defaultRoutes);
   const mdRoutes = getMarkdownRoutesSet();
-
-  for (const r of mdRoutes) {
-    routesSet.add(r);
-  }
-
-  return Array.from(routesSet);
+  return Array.from(mdRoutes);
 }
 
 export function generateSitemapXml(): string {
