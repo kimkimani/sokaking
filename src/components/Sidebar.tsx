@@ -1,4 +1,3 @@
-import { motion } from 'motion/react';
 import { 
   Trophy, 
   Crown, 
@@ -39,18 +38,16 @@ export default function Sidebar({
 }: SidebarProps) {
   
   const handleNavClick = (pageId: string) => {
+    onClose();
     if (pageId === 'odds-packs') {
       onSelectPage('home');
       requestAnimationFrame(() => {
-        setTimeout(() => {
-          const el = document.getElementById('odds-packs');
-          if (el) el.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+        const el = document.getElementById('odds-packs');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
       });
     } else {
       onSelectPage(pageId);
     }
-    onClose();
   };
 
   const menuItems = [

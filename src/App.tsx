@@ -48,17 +48,17 @@ import JackpotSidebar from './components/JackpotSidebar';
 import { AuthorCard } from './components/AuthorCard';
 import { ResponsibleGamblingNotice } from './components/ResponsibleGamblingNotice';
 import InboundLinksBlock from './components/InboundLinksBlock';
+import CategoryPredictionsPage from './components/CategoryPredictionsPage';
+import FaqSection from './components/FaqSection';
+import MarkdownRenderer from './components/MarkdownRenderer';
 
-// Code-split routes and heavy overlay components to reduce initial mobile JS bundle
+// Code-split heavy non-primary routes and overlay modals to reduce initial mobile JS bundle
 const JackpotPage = lazy(() => import('./components/JackpotPage'));
 const JackpotListPage = lazy(() => import('./components/JackpotListPage'));
 const VipPackagesPage = lazy(() => import('./components/VipPackagesPage'));
-const CategoryPredictionsPage = lazy(() => import('./components/CategoryPredictionsPage'));
 const StaticPages = lazy(() => import('./components/StaticPages'));
 const NotFoundPage = lazy(() => import('./components/NotFoundPage'));
 const PaymentModal = lazy(() => import('./components/PaymentModal'));
-const FaqSection = lazy(() => import('./components/FaqSection'));
-const MarkdownRenderer = lazy(() => import('./components/MarkdownRenderer'));
 
 import { 
   URL_TO_PAGE_MAP, 
@@ -443,7 +443,9 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
         resolvedPageId === 'jackpot-list' || 
         ALL_JACKPOT_IDS.includes(resolvedPageId) ||
         ['about', 'partners', 'responsible-gambling', 'privacy-policy', 'terms-of-use', 'contact'].includes(resolvedPageId)) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      });
     }
   };
 

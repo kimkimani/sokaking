@@ -1,9 +1,5 @@
 import { RAW_AUTHOR_MAP } from './authorData';
 
-const authorMarkdownFiles = (typeof import.meta !== 'undefined' && typeof (import.meta as any).glob === 'function')
-  ? (import.meta as any).glob('./authors/*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
-  : {};
-
 export interface AuthorBadge {
   text: string;
   type?: 'verified' | 'modeler' | 'experience' | 'tactical' | 'support' | 'security' | 'custom';
@@ -132,8 +128,6 @@ export function parseAuthorMarkdown(raw: string, fallbackId: string = 'author'):
   if (frontmatterBlock) {
     const lines = frontmatterBlock.split('\n');
     let currentKey = '';
-    let currentArray: any[] | null = null;
-    let currentObject: Record<string, any> | null = null;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
@@ -145,13 +139,12 @@ export function parseAuthorMarkdown(raw: string, fallbackId: string = 'author'):
         const itemVal = trimmed.substring(2).trim();
         // Check if item is an object (e.g. badges)
         if (itemVal.startsWith('text:') || (lines[i + 1] && lines[i + 1].trim().startsWith('type:'))) {
-          // Object within array
           const textMatch = itemVal.match(/text:\s*["']?([^"'\n]+)["']?/);
           const badgeObj: any = { text: textMatch ? textMatch[1] : itemVal };
           if (lines[i + 1] && lines[i + 1].trim().startsWith('type:')) {
             const typeMatch = lines[i + 1].trim().match(/type:\s*["']?([^"'\n]+)["']?/);
             if (typeMatch) badgeObj.type = typeMatch[1];
-            i++; // skip next line
+            i++;
           }
           if (!Array.isArray(fm[currentKey])) fm[currentKey] = [];
           fm[currentKey].push(badgeObj);
@@ -169,7 +162,6 @@ export function parseAuthorMarkdown(raw: string, fallbackId: string = 'author'):
         const value = line.substring(colonIdx + 1).trim();
 
         if (value === '') {
-          // Could be starting an array or object
           currentKey = key;
           fm[key] = [];
         } else {
@@ -233,21 +225,7 @@ function loadRawAuthorMarkdown(authorKey: string): string {
     if (serverContent) return serverContent;
   }
 
-  // 1. Eager Vite glob check
-  const fileKey = `./authors/${normKey}.md`;
-  if (authorMarkdownFiles[fileKey]) {
-    return authorMarkdownFiles[fileKey];
-  }
-
-  // 2. Case-insensitive check of eager glob
-  for (const fk of Object.keys(authorMarkdownFiles)) {
-    const pk = fk.replace(/^\.\/authors\//, '').replace(/\.md$/, '').toLowerCase();
-    if (pk === normKey) {
-      return authorMarkdownFiles[fk];
-    }
-  }
-
-  // 3. Fallback map check
+  // 1. Fallback map check
   if (RAW_AUTHOR_MAP && RAW_AUTHOR_MAP[normKey]) {
     return RAW_AUTHOR_MAP[normKey];
   }
@@ -289,3 +267,4 @@ export function getAllAuthors(): ParsedAuthor[] {
 
   return knownKeys.map(key => getAuthor(key));
 }
+

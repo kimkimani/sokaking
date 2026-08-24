@@ -19,9 +19,6 @@ export default defineConfig(() => {
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
-              if (id.includes('react-markdown') || id.includes('remark') || id.includes('micromark') || id.includes('unified') || id.includes('vfile') || id.includes('unist') || id.includes('estree')) {
-                return 'vendor-markdown';
-              }
               if (id.includes('motion')) {
                 return 'vendor-motion';
               }
@@ -29,7 +26,7 @@ export default defineConfig(() => {
                 return 'vendor-icons';
               }
             }
-            if (id.includes('/src/content/markdownData') || id.includes('/src/content/pages/')) {
+            if (id.includes('/src/content/markdownData')) {
               return 'content-markdown';
             }
             if (id.includes('/src/jackpotsData')) {

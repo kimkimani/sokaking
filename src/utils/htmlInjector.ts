@@ -76,6 +76,11 @@ ${JSON.stringify(fullGraph, null, 2)}
 `;
     html = html.replace('<body>', `<body>\n${crawlerBlock}`);
 
+    // 5. Transform Render-Blocking Stylesheets into Non-Blocking Preloads (with noscript fallback)
+    html = html.replace(/<link\s+rel="stylesheet"\s+([^>]*?)href="([^"]+\.css)"([^>]*)>/gi, (match, before, href, after) => {
+      return `<link rel="preload" href="${href}" as="style" onload="this.onload=null;this.rel='stylesheet'" ${before}${after}><noscript><link rel="stylesheet" href="${href}" ${before}${after}></noscript>`;
+    });
+
     return html;
   } catch (err) {
     console.error('Error injecting SEO & Structured Data into HTML:', err);
