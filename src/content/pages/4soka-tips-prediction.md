@@ -7,15 +7,13 @@ link: "/4soka-tips"
 type: "competitor"
 icon: "🌐"
 badgeColor: "bg-purple-500/10 text-purple-500 border-purple-500/20"
-authorName: "John K. Mwangi"
-authorTitle: "Lead Football Analyst & Poisson Model Expert"
-authorDescription: "John leads statistical goal-distribution modeling and jackpot line optimization."
+authorId: "brian-kipchumba"
 listTitle: "Today's Free Football Predictions"
 listSubtitle: "Check 4Soka Tips daily BTTS, OVER/UNDER and double-chance options verified by Soka King punters."
 unlockHeading: "4Soka Tips Today's Premium VIP Odds Packs"
 unlockDescription: "Get instant access to multi-tips with high winning rates."
-inboundTitle: "Alternative Prediction Portals & Mathematical Tips"
-inboundDescription: "Compare daily algorithmic models, banker accuracy rates, and Poisson distributions with top soccer analytics networks."
+inboundTitle: "4soka Alternative Prediction"
+inboundDescription: "Compare how other competitor tips look like"
 ---
 
 <!-- INTRO -->
