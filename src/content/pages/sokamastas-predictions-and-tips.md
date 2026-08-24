@@ -40,7 +40,6 @@ We are the Masters. and not just a claim to be unbeatable. it's a nod to the ide
 Our predictions are updated twice daily at 06:00 EAT and 14:00 EAT to capture late squad announcements and odds line shifts across major bookmakers.
 
 <!-- FAQ -->
-## Frequently Asked Questions - Soka Masta
 
 ### Who are SokaMastas? 
 Sokamastas is a football prediction and daily tip with the reasoning behind it and why a game is given a certsin predictions with confidence score and why we think the tip is right.

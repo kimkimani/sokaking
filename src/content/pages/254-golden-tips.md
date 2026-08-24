@@ -44,7 +44,6 @@ Every match that makes it onto the Golden page has passed the same filter:
 - Would the reasoning survive being said out loud? If it can't hold up explained to a friend at the kinyozi, it doesn't go up on the site.
 
 <!-- FAQ -->
-## Frequently Asked Questions - Soka King
 
 ### What is 254 Golden Tips?
 254 Golden Tips is a Kenyan football prediction site that publishes a small, hand-picked set of daily tips rather than a prediction for every match. We cover correct scores, over/under, BTTS, and accumulators.
