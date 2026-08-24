@@ -55,6 +55,7 @@ const JackpotListPage = lazy(() => import('./components/JackpotListPage'));
 const VipPackagesPage = lazy(() => import('./components/VipPackagesPage'));
 const CategoryPredictionsPage = lazy(() => import('./components/CategoryPredictionsPage'));
 const StaticPages = lazy(() => import('./components/StaticPages'));
+const NotFoundPage = lazy(() => import('./components/NotFoundPage'));
 const PaymentModal = lazy(() => import('./components/PaymentModal'));
 const FaqSection = lazy(() => import('./components/FaqSection'));
 const MarkdownRenderer = lazy(() => import('./components/MarkdownRenderer'));
@@ -178,8 +179,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   // Listen to popstate event for back/forward navigation
   useEffect(() => {
     const handlePopState = () => {
-      const normalized = getNormalizedPath(window.location.pathname);
-      const pageId = URL_TO_PAGE_MAP[normalized] || 'category-today';
+      const pageId = getPageIdFromUrl(window.location.pathname);
       setActivePage(pageId);
       if (ALL_JACKPOT_IDS.includes(pageId)) {
         setActiveJackpotId(pageId);
@@ -773,6 +773,16 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                       onOpenPayment={handleOpenPayment}
                       onSelectJackpot={(id) => handleSelectPage(id)}
                       onBackToHome={() => handleSelectPage('home')}
+                    />
+                  );
+                }
+
+                if (activePage === 'not-found' || activePage === '404') {
+                  return (
+                    <NotFoundPage 
+                      onNavigate={handleSelectPage} 
+                      status={404} 
+                      requestedPath={typeof window !== 'undefined' ? window.location.pathname : undefined} 
                     />
                   );
                 }

@@ -119,5 +119,6 @@ export function getPageUrl(pageId: string): string {
 
 export function getPageIdFromUrl(pathname: string): string {
   const norm = getNormalizedPath(pathname);
-  return URL_TO_PAGE_MAP[norm] || 'home';
+  if (norm === '/') return 'home';
+  return URL_TO_PAGE_MAP[norm] || 'not-found';
 }

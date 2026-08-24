@@ -4,7 +4,8 @@ import fs from 'fs';
 import compression from 'compression';
 import { createServer as createViteServer } from 'vite';
 import { generateSitemapXml, getAllSitemapRoutes, BASE_URL } from './src/utils/sitemapGenerator.js';
-import { injectSeoAndStructuredData } from './src/utils/htmlInjector.js';
+import { injectSeoAndStructuredData, renderErrorPageHtml } from './src/utils/htmlInjector.js';
+import { classifyRoute } from './src/utils/urlClassifier.js';
 
 async function startServer() {
   const app = express();
@@ -145,10 +146,31 @@ async function startServer() {
   app.get('/robots.txt', (_req, res) => {
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     return res.status(200).send(`User-agent: *
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Disallow: /wp-content/
+Disallow: /xmlrpc.php
+Disallow: /feed/
+Disallow: /tag/
+Disallow: /*.php$
+Disallow: /*.cgi$
+Disallow: /*.asp$
+Disallow: /*.aspx$
+Disallow: /*.jsp$
 Allow: /
 
 Sitemap: https://sokaking.com/sitemap.xml
 `);
+  });
+
+  app.get(['/disavow.txt', '/disavow'], (_req, res) => {
+    const disavowPath = path.resolve('.', 'public', 'disavow.txt');
+    if (fs.existsSync(disavowPath)) {
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      return res.status(200).send(fs.readFileSync(disavowPath, 'utf-8'));
+    }
+    return res.status(404).send('# Disavow file not found');
   });
 
   app.get('/llms.txt', (_req, res) => {
@@ -386,6 +408,19 @@ Sitemap: https://sokaking.com/sitemap.xml
 
     app.use('*', async (req, res, next) => {
       const url = req.originalUrl;
+      const classification = classifyRoute(url);
+
+      if (classification.status !== 200) {
+        res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        if (classification.status === 410) {
+          res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+        } else {
+          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        }
+        return res.status(classification.status).send(renderErrorPageHtml(classification.status, url));
+      }
+
       try {
         let template = fs.readFileSync(path.resolve('.', 'index.html'), 'utf-8');
         template = await vite.transformIndexHtml(url, template);
@@ -426,11 +461,25 @@ Sitemap: https://sokaking.com/sitemap.xml
       }
 
       app.get('*', (req, res) => {
+        const url = req.originalUrl;
+        const classification = classifyRoute(url);
+
+        if (classification.status !== 200) {
+          res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
+          res.setHeader('Content-Type', 'text/html; charset=utf-8');
+          if (classification.status === 410) {
+            res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+          } else {
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+          }
+          return res.status(classification.status).send(renderErrorPageHtml(classification.status, url));
+        }
+
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
         const rawTemplate = baseHtml || (fs.existsSync(indexPath) ? fs.readFileSync(indexPath, 'utf-8') : '');
         if (rawTemplate) {
-          const finalHtml = injectSeoAndStructuredData(rawTemplate, req.originalUrl);
+          const finalHtml = injectSeoAndStructuredData(rawTemplate, url);
           return res.status(200).send(finalHtml);
         }
         res.sendFile(indexPath);

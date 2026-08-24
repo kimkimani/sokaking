@@ -15,6 +15,17 @@ function buildStaticSitemap() {
     console.log(`[Sitemap Generator] Successfully generated ${sitemapPath}`);
 
     const robotsContent = `User-agent: *
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Disallow: /wp-content/
+Disallow: /xmlrpc.php
+Disallow: /feed/
+Disallow: /tag/
+Disallow: /*.php$
+Disallow: /*.cgi$
+Disallow: /*.asp$
+Disallow: /*.aspx$
+Disallow: /*.jsp$
 Allow: /
 
 Sitemap: https://sokaking.com/sitemap.xml
