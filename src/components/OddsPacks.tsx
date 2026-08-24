@@ -69,9 +69,9 @@ export default function OddsPacks({
                     <span className={`text-[9px] font-mono font-extrabold tracking-widest px-2.5 py-0.5 rounded uppercase border ${getRiskColorClass(pack.riskLevel)}`}>
                       {pack.tag}
                     </span>
-                    <h3 className="text-sm font-extrabold mt-2 text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>
+                    <div className="text-sm font-extrabold mt-2 text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>
                       {pack.name}
-                    </h3>
+                    </div>
                   </div>
 
                   {/* Decimal Odds Indicator Badge */}

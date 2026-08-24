@@ -14,6 +14,8 @@ listTitle: "Today's Free Football Predictions"
 listSubtitle: "Check 4Soka Tips daily BTTS, OVER/UNDER and double-chance options verified by Soka King punters."
 unlockHeading: "4Soka Tips Today's Premium VIP Odds Packs"
 unlockDescription: "Get instant access to multi-tips with high winning rates."
+inboundTitle: "Alternative Prediction Portals & Mathematical Tips"
+inboundDescription: "Compare daily algorithmic models, banker accuracy rates, and Poisson distributions with top soccer analytics networks."
 ---
 
 <!-- INTRO -->

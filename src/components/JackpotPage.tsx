@@ -826,9 +826,9 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
             <Lock className="w-5 h-5" />
           </div>
           <div className="space-y-1 text-center">
-            <h3 className="text-sm font-black uppercase tracking-tight text-amber-600 dark:text-amber-400">
+            <div className="text-sm font-black uppercase tracking-tight text-amber-600 dark:text-amber-400">
               {pageMd.unlockHeading || `Unlock All ${jackpot.gamesCount} Combined Predictions Slips`}
-            </h3>
+            </div>
             <p className="text-[11px] text-[var(--text-muted)] max-w-lg mx-auto font-medium leading-relaxed">
               {pageMd.unlockDescription || `Unlock matches 1 through ${jackpot.gamesCount} immediately. Get the full premium slip containing dynamic safety double-chances. Transactions are secured and routed instantly via M-Pesa STK push.`}
             </p>
@@ -898,9 +898,9 @@ function JackpotPicksSummary({
         <div className="flex items-center gap-2">
           <ClipboardList className="w-5 h-5 text-indigo-500 shrink-0" />
           <div>
-            <h3 className="text-xs font-black uppercase text-[var(--text)] tracking-tight font-mono">
+            <div className="text-xs font-black uppercase text-[var(--text)] tracking-tight font-mono">
               Full Predictions Summary
-            </h3>
+            </div>
             <p className="text-[10px] text-[var(--text-muted)] font-medium">
               Copy or preview the complete 1X2 coupon options at a glance.
             </p>

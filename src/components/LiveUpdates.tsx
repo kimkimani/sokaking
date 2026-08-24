@@ -79,9 +79,9 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures = [] }:
     <div className="space-y-6">
       {/* 1. RECENT WINS PANEL */}
       <div className="p-4 md:p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] backdrop-blur-[var(--backdrop)]">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2 mb-4 font-mono">
+        <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2 mb-4 font-mono">
           <Trophy className="w-4 h-4 text-amber-500 badge-glow" /> Recent Wins (Verified)
-        </h3>
+        </div>
         <div className="space-y-3">
           {recentWins.map((game, idx) => (
             <div 
@@ -112,9 +112,9 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures = [] }:
 
       {/* 2. CORE STATS */}
       <div className="p-4 md:p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] backdrop-blur-[var(--backdrop)]">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2 mb-4 font-mono">
+        <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2 mb-4 font-mono">
           <PieChart className="w-4 h-4 text-[var(--primary)]" /> Performance stats
-        </h3>
+        </div>
         <div className="grid grid-cols-2 gap-3.5">
           {metrics.map((m, idx) => (
             <div 
@@ -131,9 +131,9 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures = [] }:
 
       {/* 3. DAILY PRO SPORT SELECTION GUIDE */}
       <div className="p-4 md:p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] backdrop-blur-[var(--backdrop)]">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2 mb-2.5 font-mono">
+        <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2 mb-2.5 font-mono">
           <Lightbulb className="w-4 h-4 text-yellow-400" /> Professional betting guide
-        </h3>
+        </div>
         <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-4">
           Emotional betting is the primary driver of losses. Our mathematical algorithms suggest dividing your sports budget into standard units and maintaining 3.5% staking per single-ticket select.
         </p>

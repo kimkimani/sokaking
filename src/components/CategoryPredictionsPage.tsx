@@ -134,17 +134,17 @@ export default function CategoryPredictionsPage({
           const trimmed = line.trim();
           if (!trimmed) return null;
 
-          // H1 Header
+          // H1 Header (rendered as h2 for single page h1 guarantee)
           if (trimmed.startsWith('# ')) {
             return (
-              <h1 
+              <h2 
                 key={idx} 
                 className="text-md md:text-lg font-black text-[var(--text)] tracking-tight leading-tight uppercase border-b border-[var(--border)] pb-2.5 mt-6 mb-3 flex items-center gap-2"
                 style={{ fontFamily: 'var(--font-display)' }}
               >
                 <BookOpen className="w-4 h-4 text-indigo-500 shrink-0" />
                 {trimmed.substring(2)}
-              </h1>
+              </h2>
             );
           }
           // H2 Header
@@ -517,9 +517,9 @@ export default function CategoryPredictionsPage({
         <div className="flex items-center gap-2.5 border-b border-[var(--border)] pb-3">
           <Trophy className="w-5 h-5 text-emerald-500 shrink-0" />
           <div>
-            <h3 className="text-xs font-black uppercase text-[var(--text)] tracking-tight font-mono">
+            <div className="text-xs font-black uppercase text-[var(--text)] tracking-tight font-mono">
               Soka King Premium Jackpots
-            </h3>
+            </div>
             <p className="text-[10px] text-[var(--text-muted)] font-medium">
               Unlock mathematically computed prediction codes for elite jackpot pools.
             </p>
@@ -541,9 +541,9 @@ export default function CategoryPredictionsPage({
                     {jackpot.submissionsFill} FULL
                   </span>
                 </div>
-                <h4 className="text-xs font-black text-[var(--text)] group-hover:text-indigo-500 transition-colors uppercase font-mono">
+                <div className="text-xs font-black text-[var(--text)] group-hover:text-indigo-500 transition-colors uppercase font-mono">
                   {jackpot.name}
-                </h4>
+                </div>
                 <p className="text-[10px] text-[var(--text-muted)]">
                   Pool: <strong className="font-mono text-emerald-500">{jackpot.estimatedPool}</strong>
                 </p>
@@ -575,9 +575,9 @@ export default function CategoryPredictionsPage({
         <div className="flex items-center gap-2.5 border-b border-[var(--border)] pb-3">
           <Crown className="w-5 h-5 text-amber-500 shrink-0" />
           <div>
-            <h3 className="text-xs font-black uppercase text-[var(--text)] tracking-tight font-mono">
+            <div className="text-xs font-black uppercase text-[var(--text)] tracking-tight font-mono">
               {pageMd?.unlockHeading || "Soka King Subscription Packages & Odds"}
-            </h3>
+            </div>
             <p className="text-[10px] text-[var(--text-muted)] font-medium">
               {pageMd?.unlockDescription || "Activate VIP models or unlock custom daily multi-bet odds with instant M-Pesa push validation."}
             </p>
@@ -598,9 +598,9 @@ export default function CategoryPredictionsPage({
                 >
                   <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <h4 className="text-xs font-black text-[var(--text)] truncate uppercase font-mono">
+                      <div className="text-xs font-black text-[var(--text)] truncate uppercase font-mono">
                         {pkg.name}
-                      </h4>
+                      </div>
                       {pkg.isFeatured && (
                         <span className="text-[8px] font-black uppercase bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded font-mono animate-pulse">
                           BEST
@@ -645,9 +645,9 @@ export default function CategoryPredictionsPage({
                 >
                   <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <h4 className="text-xs font-black text-[var(--text)] truncate uppercase font-mono">
+                      <div className="text-xs font-black text-[var(--text)] truncate uppercase font-mono">
                         {pack.name}
-                      </h4>
+                      </div>
                       <span className="text-[8px] font-mono font-black px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                         {pack.tag}
                       </span>

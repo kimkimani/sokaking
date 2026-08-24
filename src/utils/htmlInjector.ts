@@ -69,7 +69,7 @@ ${JSON.stringify(fullGraph, null, 2)}
     const crawlerBlock = `
     <!-- Hidden Semantic HTML for Search Engine Web Crawlers -->
     <div id="seo-crawler-content" class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;" aria-hidden="true">
-      <h1>${escapeHtml(pageMd.displayTitle || pageMd.title)}</h1>
+      <h2>${escapeHtml(pageMd.displayTitle || pageMd.title)}</h2>
       <p>${escapeHtml(pageMd.description)}</p>
       ${pageMd.intro ? `<div>${escapeHtml(pageMd.intro.slice(0, 500))}</div>` : ''}
     </div>

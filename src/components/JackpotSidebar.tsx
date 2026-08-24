@@ -50,10 +50,10 @@ export default function JackpotSidebar({ jackpotId, jackpotName, hasPaid }: Jack
     <div className="space-y-6 text-left">
       {/* 1. DYNAMIC COMBINATION CALCULATOR (Extremely popular among Kenyan jackpot players) */}
       <div className="p-4 md:p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] backdrop-blur-[var(--backdrop)]">
-        <h3 className="text-xs font-black uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2 mb-3 font-mono">
+        <div className="text-xs font-black uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2 mb-3 font-mono">
           <Calculator className="w-4 h-4 text-[var(--primary)]" />
           Combo Cost Calculator
-        </h3>
+        </div>
         
         <p className="text-[10px] text-[var(--text-muted)] leading-relaxed mb-4">
           Kenyan jackpots allow multi-bets via double chances (1X, 12, X2) to guarantee multiple outcomes. Pick your intended safety choices:
@@ -118,10 +118,10 @@ export default function JackpotSidebar({ jackpotId, jackpotName, hasPaid }: Jack
 
       {/* 2. JACKPOT SPECIAL VERIFIED WIN HISTORY */}
       <div className="p-4 md:p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] backdrop-blur-[var(--backdrop)]">
-        <h3 className="text-xs font-black uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2 mb-3.5 font-mono">
+        <div className="text-xs font-black uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2 mb-3.5 font-mono">
           <Trophy className="w-4 h-4 text-amber-500 badge-glow" />
           Verified Jackpot Slips
-        </h3>
+        </div>
 
         <div className="space-y-2.5">
           {historicWinners.map((w, idx) => (
@@ -148,10 +148,10 @@ export default function JackpotSidebar({ jackpotId, jackpotName, hasPaid }: Jack
 
       {/* 3. DYNAMIC SUBSCRIBER STREAM TICKER */}
       <div className="p-4 md:p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] backdrop-blur-[var(--backdrop)]">
-        <h3 className="text-xs font-black uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2 mb-3.5 font-mono">
+        <div className="text-xs font-black uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2 mb-3.5 font-mono">
           <Users className="w-4 h-4 text-emerald-500" />
           Live Subscriber Action
-        </h3>
+        </div>
         
         <div className="space-y-3">
           {activities.map((a, idx) => (
@@ -172,10 +172,10 @@ export default function JackpotSidebar({ jackpotId, jackpotName, hasPaid }: Jack
 
       {/* 4. EXPERT STRATEGY SUMMARY */}
       <div className="p-4 md:p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] backdrop-blur-[var(--backdrop)]">
-        <h3 className="text-xs font-black uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2 mb-2 font-mono">
+        <div className="text-xs font-black uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2 mb-2 font-mono">
           <ShieldCheck className="w-4 h-4 text-emerald-500" />
           Platform Guarantees
-        </h3>
+        </div>
         <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
           Soka King provides expert, mathematical sports tips based on Poisson distribution, fatigue indexes, and roster historical structures. We provide real probability outputs with 0% fabricated telemetry logs. Play responsibly.
         </p>

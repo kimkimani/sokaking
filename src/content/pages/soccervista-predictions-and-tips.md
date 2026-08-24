@@ -12,6 +12,8 @@ unlockHeading: "Unlock VIP SoccerVista-Style Banker Accumulators"
 unlockDescription: "Activate VIP predictions with instant M-Pesa push confirmation for premium 2.00+ odds."
 listTitle: "SoccerVista Free Football Predictions Today"
 listSubtitle: "Daily SoccerVista style match selections and 1X2 banker tips verified by Soka King mathematical indexes."
+inboundTitle: "SoccerVista Alternatives & Statistical Tip Portals"
+inboundDescription: "Explore football analysis engines and mathematical prediction sites alongside SoccerVista head-to-head metrics."
 ---
 
 # SoccerVista Predictions & Free Soccer Betting Analysis
@@ -42,7 +44,7 @@ Every match analyzed on this page undergoes a multi-stage calculation matrix:
 Our predictions are updated twice daily at 06:00 EAT and 14:00 EAT to capture late squad announcements and odds line shifts across major bookmakers.
 
 <!-- FAQ -->
-### Frequently Asked Questions (FAQ)
+## Frequently Asked Questions (FAQ)
 
 **Q: Are these SoccerVista predictions free to view?**
 A: Yes! All predictions listed on this page are 100% free to access daily.

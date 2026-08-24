@@ -52,7 +52,7 @@ export default function VipPackages({
               <div>
                 {/* Title & Desc */}
                 <div className="mb-4">
-                  <h3 className="text-base font-extrabold mb-1" style={{ fontFamily: 'var(--font-display)' }}>{pkg.name}</h3>
+                  <div className="text-base font-extrabold mb-1" style={{ fontFamily: 'var(--font-display)' }}>{pkg.name}</div>
                   <p className="text-xs text-[var(--text-muted)] leading-relaxed">{pkg.description}</p>
                 </div>
 

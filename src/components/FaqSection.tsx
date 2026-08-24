@@ -81,9 +81,9 @@ export default function FaqSection({
             <HelpCircle className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-sm md:text-base font-extrabold uppercase text-[var(--text)] tracking-tight font-mono">
+            <h2 className="text-sm md:text-base font-extrabold uppercase text-[var(--text)] tracking-tight font-mono">
               {displayTitle}
-            </h3>
+            </h2>
             <p className="text-[11px] text-[var(--text-muted)] font-medium">
               {customDescription}
             </p>
@@ -117,9 +117,9 @@ export default function FaqSection({
                     <span className="text-xs font-mono font-black text-indigo-500 shrink-0 mt-0.5">
                       Q{idx + 1}.
                     </span>
-                    <h4 className="text-xs md:text-sm font-bold text-[var(--text)] leading-snug">
+                    <h3 className="text-xs md:text-sm font-bold text-[var(--text)] leading-snug m-0">
                       {item.question}
-                    </h4>
+                    </h3>
                   </div>
                   <ChevronDown className={`w-4 h-4 text-[var(--text-muted)] shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-indigo-500' : ''}`} />
                 </button>

@@ -42,9 +42,9 @@ export default function PredictionsSidebar({
       <div className="p-4 border-b border-[var(--border)] bg-gradient-to-r from-indigo-500/5 to-transparent flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-indigo-700 dark:text-indigo-400 animate-pulse shrink-0" />
-          <h3 className="text-xs font-black uppercase text-[var(--text)] tracking-wider font-mono">
+          <div className="text-xs font-black uppercase text-[var(--text)] tracking-wider font-mono">
             Predictions Sidebar
-          </h3>
+          </div>
         </div>
         <span className="text-[9px] font-mono font-black text-indigo-800 dark:text-indigo-300 bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20">
           FREE & SURE

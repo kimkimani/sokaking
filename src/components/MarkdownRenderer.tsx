@@ -22,9 +22,9 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
       <Markdown
         components={{
           h1: ({ children }) => (
-            <h1 className="text-xl sm:text-2xl font-black text-[var(--text)] tracking-tight mb-2 uppercase font-display">
+            <h2 className="text-xl sm:text-2xl font-black text-[var(--text)] tracking-tight mb-2 uppercase font-display">
               {children}
-            </h1>
+            </h2>
           ),
           h2: ({ children }) => (
             <h2 className="text-base sm:text-lg font-extrabold text-[var(--text)] tracking-tight mt-6 mb-2 uppercase font-mono text-[var(--primary)] flex items-center gap-2">

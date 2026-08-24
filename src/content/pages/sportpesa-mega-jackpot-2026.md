@@ -35,7 +35,7 @@ Our model categorizes the 17 SportPesa Mega Jackpot fixtures into three confiden
 3. **High Variance Tiers (5-6 Matches)**: Crucial tight encounters best covered using double chance combinations.
 
 <!-- FAQ -->
-### Frequently Asked Questions
+## Frequently Asked Questions
 
 **Q: How many double chances should I use on the SportPesa Mega Jackpot?**
 A: Placing 3 to 5 double chance combinations gives the optimal risk-to-cost ratio for hitting 13+ bonus payouts.

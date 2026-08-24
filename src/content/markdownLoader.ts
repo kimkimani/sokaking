@@ -27,6 +27,12 @@ export interface ParsedMarkdownPage {
 
   responsibleGambling?: string;
 
+  inboundTitle?: string;
+  inboundHeading?: string;
+  inboundDescription?: string;
+  inboundSubtitle?: string;
+  inboundBadge?: string;
+
   miniIntro?: string;
   unlockHeading?: string;
   unlockDescription?: string;
@@ -176,6 +182,11 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
   let authorDescription = '';
   let authorAvatar = '';
   let responsibleGambling = '';
+  let inboundTitle = '';
+  let inboundHeading = '';
+  let inboundDescription = '';
+  let inboundSubtitle = '';
+  let inboundBadge = '';
   let miniIntro = '';
   let unlockHeading = '';
   let unlockDescription = '';
@@ -234,6 +245,15 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
     const rgY = yamlStr.match(/^(?:responsibleGambling|responsible_gambling|responsibleGamblingNotice):\s*"?(.*?)"?$/m);
     if (rgY) responsibleGambling = rgY[1].trim();
 
+    const ibtY = yamlStr.match(/^(?:inboundTitle|inboundHeading|relatedTitle|relatedHeading):\s*"?(.*?)"?$/m);
+    if (ibtY) inboundTitle = ibtY[1].trim();
+
+    const ibdY = yamlStr.match(/^(?:inboundDescription|inboundSubtitle|relatedDescription|relatedSubtitle):\s*"?(.*?)"?$/m);
+    if (ibdY) inboundDescription = ibdY[1].trim();
+
+    const ibbY = yamlStr.match(/^(?:inboundBadge|relatedBadge):\s*"?(.*?)"?$/m);
+    if (ibbY) inboundBadge = ibbY[1].trim();
+
     const miY = yamlStr.match(/^(?:miniIntro|mini_intro):\s*"?(.*?)"?$/m);
     if (miY) miniIntro = miY[1].trim();
 
@@ -287,6 +307,15 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
   const rgMatch = rawMd.match(/<!--\s*(?:ResponsibleGambling|Responsible_Gambling):\s*(.+?)\s*-->/i);
   if (rgMatch) responsibleGambling = rgMatch[1].trim();
 
+  const ibtMatch = rawMd.match(/<!--\s*(?:InboundTitle|InboundHeading|RelatedTitle|RelatedHeading):\s*(.+?)\s*-->/i);
+  if (ibtMatch) inboundTitle = ibtMatch[1].trim();
+
+  const ibdMatch = rawMd.match(/<!--\s*(?:InboundDescription|InboundSubtitle|RelatedDescription|RelatedSubtitle):\s*(.+?)\s*-->/i);
+  if (ibdMatch) inboundDescription = ibdMatch[1].trim();
+
+  const ibbMatch = rawMd.match(/<!--\s*(?:InboundBadge|RelatedBadge):\s*(.+?)\s*-->/i);
+  if (ibbMatch) inboundBadge = ibbMatch[1].trim();
+
   const uhMatch = rawMd.match(/<!--\s*UnlockHeading:\s*(.+?)\s*-->/i);
   if (uhMatch) unlockHeading = uhMatch[1].trim();
 
@@ -301,7 +330,7 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
 
   // Strip YAML frontmatter & comment frontmatter from body
   let cleanedContent = rawMd.replace(/^---\s*\r?\n[\s\S]*?\r?\n---\s*/, '').trim();
-  cleanedContent = cleanedContent.replace(/<!--\s*(Title|DisplayTitle|PageTitle|Description|Keywords|Link|Type|JackpotId|AuthorName|AuthorTitle|AuthorDescription|AuthorAvatar|ResponsibleGambling|UnlockHeading|UnlockDescription|ListTitle|ListSubtitle):\s*.+?\s*-->/gi, '').trim();
+  cleanedContent = cleanedContent.replace(/<!--\s*(Title|DisplayTitle|PageTitle|Description|Keywords|Link|Type|JackpotId|AuthorName|AuthorTitle|AuthorDescription|AuthorAvatar|ResponsibleGambling|InboundTitle|InboundHeading|InboundDescription|InboundSubtitle|InboundBadge|RelatedTitle|RelatedHeading|RelatedDescription|RelatedSubtitle|RelatedBadge|UnlockHeading|UnlockDescription|ListTitle|ListSubtitle):\s*.+?\s*-->/gi, '').trim();
 
   // Extract RESPONSIBLE_GAMBLING_START ... RESPONSIBLE_GAMBLING_END block if present
   const rgBlockMatch = rawMd.match(/<!--\s*RESPONSIBLE_GAMBLING_START\s*-->([\s\S]*?)<!--\s*RESPONSIBLE_GAMBLING_END\s*-->/i);
@@ -384,7 +413,7 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
   return {
     pageKey: keyName,
     title,
-    displayTitle: displayTitle || undefined,
+    displayTitle: displayTitle || title,
     description,
     keywords,
     link,
@@ -400,6 +429,11 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
     authorAvatar: authorAvatar || resolvedAuthor.avatar || undefined,
     author: resolvedAuthor,
     responsibleGambling: responsibleGambling || undefined,
+    inboundTitle: inboundTitle || undefined,
+    inboundHeading: inboundHeading || inboundTitle || undefined,
+    inboundDescription: inboundDescription || undefined,
+    inboundSubtitle: inboundSubtitle || inboundDescription || undefined,
+    inboundBadge: inboundBadge || undefined,
     miniIntro: miniIntro || undefined,
     unlockHeading: unlockHeading || undefined,
     unlockDescription: unlockDescription || undefined,

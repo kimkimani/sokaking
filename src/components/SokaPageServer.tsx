@@ -31,7 +31,7 @@ export default async function SokaPageServer({ pageId, customCanonical }: SokaPa
 
       {/* SEO fallback container for bots that ignore JS hydration */}
       <div className="sr-only opacity-0 h-0 overflow-hidden pointer-events-none" aria-hidden="true">
-        <h1>{pageMd.title}</h1>
+        <h2>{pageMd.displayTitle || pageMd.title}</h2>
         <p>{pageMd.description}</p>
         <div>{pageMd.intro}</div>
         <div>{pageMd.meat}</div>

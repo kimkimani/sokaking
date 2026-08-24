@@ -119,9 +119,9 @@ export const AuthorCard: React.FC<AuthorCardProps> = ({
 
         <div className="space-y-1.5 min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <h4 className="text-sm md:text-base font-extrabold text-[var(--text)] tracking-tight font-display">
+            <div className="text-sm md:text-base font-extrabold text-[var(--text)] tracking-tight font-display">
               {displayName}
-            </h4>
+            </div>
 
             {/* Dynamic Badges from Markdown */}
             {displayBadges && displayBadges.map((badge, idx) => {

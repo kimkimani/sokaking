@@ -10,6 +10,8 @@ unlockHeading: "Unlock Automated Cheerplex Computer Tips"
 unlockDescription: "Access daily Cheerplex computer forecasts, match probability matrices, and banker picks."
 listTitle: "Cheerplex Free Football Predictions Today"
 listSubtitle: "Daily Cheerplex computer tips and match selections verified by Soka King mathematical indexes."
+inboundTitle: "Cheerplex Alternatives & Soccer Prediction Platforms"
+inboundDescription: "Compare Cheerplex mathematical football tips and 1X2 banker models with top soccer analytics networks."
 type: "competitor"
 ---
 

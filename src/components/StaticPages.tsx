@@ -142,7 +142,7 @@ function PageFAQ({ items }: { items: FAQItem[] }) {
           <HelpCircle className="w-4.5 h-4.5" />
         </div>
         <div>
-          <h3 className="text-sm font-black text-[var(--text)] uppercase tracking-wider font-mono">Frequently Asked Questions</h3>
+          <h2 className="text-sm font-black text-[var(--text)] uppercase tracking-wider font-mono">Frequently Asked Questions</h2>
           <p className="text-[10px] text-[var(--text-muted)] mt-0.5">Quick answers to specific legal, database, and billing topics</p>
         </div>
       </div>
@@ -161,9 +161,9 @@ function PageFAQ({ items }: { items: FAQItem[] }) {
                 onClick={() => toggle(idx)}
                 className="w-full px-4 py-3.5 flex items-center justify-between text-left gap-4 bg-transparent border-none cursor-pointer focus:outline-none"
               >
-                <span className="text-xs font-bold text-[var(--text)] hover:text-[var(--primary)] transition-colors pr-2 leading-relaxed">
+                <h3 className="text-xs font-bold text-[var(--text)] hover:text-[var(--primary)] transition-colors pr-2 leading-relaxed m-0 font-sans">
                   {item.q}
-                </span>
+                </h3>
                 <span className={`text-slate-400 shrink-0 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
                   <ChevronDown className="w-4 h-4" />
                 </span>
@@ -298,9 +298,9 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                 <span className="text-[10px] font-mono font-black uppercase text-[var(--primary)] tracking-wider px-2 py-1 rounded bg-[var(--primary)]/10">
                   Who We Are
                 </span>
-                <h2 className="text-xl md:text-3xl font-extrabold tracking-tight text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>
-                  About Soka King
-                </h2>
+                <h1 className="text-xl md:text-3xl font-extrabold tracking-tight text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>
+                  {pageMd.displayTitle || pageMd.title || "About Soka King"}
+                </h1>
                 <p className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed max-w-3xl">
                   Soka King is an international sports analytics platform, specializing in deep mathematical probability forecasting. We bring elite statistical modeling, Poisson distribution algorithms, and real-time database-driven sports intelligence straight to sports fans and football enthusiasts across Kenya and East Africa.
                 </p>
@@ -541,9 +541,9 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                   Verified Partner Network
                 </span>
 
-                <h2 className="text-xl md:text-3xl font-extrabold tracking-tight text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>
-                  Strategic Partners & Affiliates
-                </h2>
+                <h1 className="text-xl md:text-3xl font-extrabold tracking-tight text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>
+                  {pageMd.displayTitle || pageMd.title || "Strategic Partners & Affiliates"}
+                </h1>
                 <p className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed max-w-3xl">
                   Soka King collaborates with verified partner platforms, data aggregators, and sports prediction networks to deliver seamless predictions and real-time sporting feeds.
                 </p>
@@ -617,9 +617,9 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                 <span className="text-[10px] font-mono font-black uppercase text-rose-500 tracking-wider px-2 py-1 rounded bg-rose-500/10 flex items-center gap-1.5 w-fit">
                   <AlertTriangle className="w-3.5 h-3.5 text-rose-500 animate-pulse" /> Safety and Responsibility
                 </span>
-                <h2 className="text-xl md:text-3xl font-extrabold tracking-tight text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>
-                  Responsible Gambling
-                </h2>
+                <h1 className="text-xl md:text-3xl font-extrabold tracking-tight text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>
+                  {pageMd.displayTitle || pageMd.title || "Responsible Gambling"}
+                </h1>
                 <p className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed max-w-3xl">
                   Soka King is strictly an analytical platform. We do not operate a sportsbook, and we do not accept direct bets. Sports forecasting is speculative, and we are committed to ensuring our users play safely, responsibly, and with absolute cognitive awareness.
                 </p>
@@ -713,9 +713,9 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
               <span className="text-[10px] font-mono font-black uppercase text-indigo-500 tracking-wider px-2 py-1 rounded bg-indigo-500/10">
                 Data Transparency
               </span>
-              <h2 className="text-xl md:text-3xl font-extrabold tracking-tight text-[var(--text)] mt-3" style={{ fontFamily: 'var(--font-display)' }}>
-                Privacy Policy
-              </h2>
+              <h1 className="text-xl md:text-3xl font-extrabold tracking-tight text-[var(--text)] mt-3" style={{ fontFamily: 'var(--font-display)' }}>
+                {pageMd.displayTitle || pageMd.title || "Privacy Policy"}
+              </h1>
               <span className="text-[10px] font-mono text-slate-400 block mt-1">Effective Date: July 15, 2026</span>
             </div>
 
@@ -806,9 +806,9 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
               <span className="text-[10px] font-mono font-black uppercase text-amber-500 tracking-wider px-2 py-1 rounded bg-amber-500/10">
                 Operating Parameters
               </span>
-              <h2 className="text-xl md:text-3xl font-extrabold tracking-tight text-[var(--text)] mt-3" style={{ fontFamily: 'var(--font-display)' }}>
-                Terms of Use
-              </h2>
+              <h1 className="text-xl md:text-3xl font-extrabold tracking-tight text-[var(--text)] mt-3" style={{ fontFamily: 'var(--font-display)' }}>
+                {pageMd.displayTitle || pageMd.title || "Terms of Use"}
+              </h1>
               <span className="text-[10px] font-mono text-slate-400 block mt-1">Last Updated: July 15, 2026</span>
             </div>
 
@@ -895,9 +895,9 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                 <span className="text-[10px] font-mono font-black uppercase text-indigo-500 tracking-wider px-2 py-1 rounded bg-indigo-500/10">
                   Connect With Us
                 </span>
-                <h2 className="text-xl md:text-3xl font-extrabold tracking-tight text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>
-                  Contact Our Support Team
-                </h2>
+                <h1 className="text-xl md:text-3xl font-extrabold tracking-tight text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>
+                  {pageMd.displayTitle || pageMd.title || "Contact Our Support Team"}
+                </h1>
                 <p className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed max-w-3xl">
                   Have questions about your M-Pesa payment, need help accessing a VIP jackpot, or want to discuss strategic Soka King API integrations? Reach out. Our dedicated dispatchers respond in under 30 minutes.
                 </p>
@@ -908,7 +908,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
               {/* Left Column: Details */}
               <div className="space-y-4 md:col-span-1">
                 <div className="p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] space-y-4">
-                  <h4 className="text-xs font-black text-[var(--text)] uppercase tracking-wider font-mono">Direct Channels</h4>
+                  <div className="text-xs font-black text-[var(--text)] uppercase tracking-wider font-mono">Direct Channels</div>
                   
                   <div className="space-y-3 text-xs">
                     <div className="flex items-start gap-3">
@@ -975,7 +975,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                 </div>
 
                 <div className="p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] space-y-3">
-                  <h4 className="text-xs font-black text-[var(--text)] uppercase tracking-wider font-mono">Operational Schedule</h4>
+                  <div className="text-xs font-black text-[var(--text)] uppercase tracking-wider font-mono">Operational Schedule</div>
                   <div className="text-[11px] text-[var(--text-muted)] leading-relaxed space-y-1 font-mono">
                     <p className="flex justify-between"><span>Mon - Fri:</span> <span className="font-bold text-[var(--text)]">07:00 AM - 10:00 PM</span></p>
                     <p className="flex justify-between"><span>Sat - Sun:</span> <span className="font-bold text-[var(--text)]">06:00 AM - 11:00 PM</span></p>
@@ -992,7 +992,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                       <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto">
                         <CheckCircle2 className="w-6 h-6" />
                       </div>
-                      <h4 className="text-sm font-bold text-[var(--text)]">Message Dispatched Successfully!</h4>
+                      <div className="text-sm font-bold text-[var(--text)]">Message Dispatched Successfully!</div>
                       <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto leading-relaxed">
                         Thank you for contacting Soka King support. Our staff has received your ticket and will follow up with an email update within the hour.
                       </p>
@@ -1006,7 +1006,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                     </div>
                   ) : (
                     <form onSubmit={handleContactSubmit} className="space-y-4">
-                      <h4 className="text-xs font-black text-[var(--text)] uppercase tracking-wider font-mono">Submit a Support Ticket</h4>
+                      <div className="text-xs font-black text-[var(--text)] uppercase tracking-wider font-mono">Submit a Support Ticket</div>
                       <p className="text-xs text-[var(--text-muted)] leading-relaxed">
                         Fill out the details below and our server-side routers will direct your request to the appropriate department.
                       </p>
@@ -1087,10 +1087,10 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
             <div className="p-6 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--border)] pb-3">
                 <div>
-                  <h3 className="text-sm font-extrabold text-[var(--text)] font-mono uppercase tracking-wider flex items-center gap-2">
+                  <div className="text-sm font-extrabold text-[var(--text)] font-mono uppercase tracking-wider flex items-center gap-2">
                     <Globe className="w-4 h-4 text-emerald-500" />
                     <span>Saved Contacts & Social Channels Table</span>
-                  </h3>
+                  </div>
                   <p className="text-[11px] text-[var(--text-muted)]">
                     Official contact phone numbers, emails, locations, and social links repository.
                   </p>

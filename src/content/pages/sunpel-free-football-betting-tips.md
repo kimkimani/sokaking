@@ -10,6 +10,9 @@ unlockHeading: "Unlock Daily Sunpelpredict Banker Picks"
 unlockDescription: "Access daily Sunpelpredict banker selections, high-value goal-line tips, and weekend accumulator slips."
 listTitle: "Sunpelpredict Free Football Predictions Today"
 listSubtitle: "Daily Sunpel banker selections, double chance picks, and mathematical soccer tips verified by Soka King."
+inboundTitle: "Sunpel Alternatives & Free Football Prediction Networks"
+inboundDescription: "Compare Sunpel banker picks and soccer analysis with other verified mathematical tipsters and daily prediction models."
+type: "competitor"
 ---
 
 ## Sunpelpredict Free Football Betting Tips & Soccer Predictions

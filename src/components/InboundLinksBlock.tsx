@@ -10,11 +10,15 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { getInboundLinks, detectPageType } from '../utils/inboundLinks';
+import { getMarkdownContent } from '../content/markdownLoader';
 
 interface InboundLinksBlockProps {
   pageId: string;
   rawType?: string;
   jackpotId?: string;
+  customTitle?: string;
+  customSubtitle?: string;
+  customBadge?: string;
   onSelectPage?: (pageId: string) => void;
   className?: string;
 }
@@ -23,10 +27,35 @@ export default function InboundLinksBlock({
   pageId,
   rawType,
   jackpotId,
+  customTitle,
+  customSubtitle,
+  customBadge,
   onSelectPage,
   className = ''
 }: InboundLinksBlockProps) {
-  const group = getInboundLinks(pageId, rawType, jackpotId);
+  // Check if page markdown provides custom inbound metadata
+  let mdInboundTitle: string | undefined = customTitle;
+  let mdInboundSubtitle: string | undefined = customSubtitle;
+  let mdInboundBadge: string | undefined = customBadge;
+
+  try {
+    const md = getMarkdownContent(pageId);
+    if (!mdInboundTitle) {
+      mdInboundTitle = md.inboundTitle || md.inboundHeading;
+    }
+    if (!mdInboundSubtitle) {
+      mdInboundSubtitle = md.inboundDescription || md.inboundSubtitle;
+    }
+    if (!mdInboundBadge) {
+      mdInboundBadge = md.inboundBadge;
+    }
+  } catch (e) {}
+
+  const group = getInboundLinks(pageId, rawType, jackpotId, {
+    title: mdInboundTitle,
+    subtitle: mdInboundSubtitle,
+    badgeText: mdInboundBadge
+  });
 
   if (!group || !group.links || group.links.length === 0) {
     return null;
@@ -34,11 +63,12 @@ export default function InboundLinksBlock({
 
   // Visual header styling and icon matching the page archetype
   const getHeaderBadge = () => {
+    const defaultBadge = group.badgeText;
     switch (group.type) {
       case 'competitor':
         return {
           icon: <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />,
-          badgeText: 'Alternative Portals',
+          badgeText: defaultBadge || 'Alternative Portals',
           badgeClass: 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20',
           accentColor: 'border-purple-500/30 hover:border-purple-500/60',
           tagBg: 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20',
@@ -47,7 +77,7 @@ export default function InboundLinksBlock({
       case 'jackpot':
         return {
           icon: <Trophy className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />,
-          badgeText: 'Major Kenyan Pools',
+          badgeText: defaultBadge || 'Major Kenyan Pools',
           badgeClass: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20',
           accentColor: 'border-emerald-500/30 hover:border-emerald-500/60',
           tagBg: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20',
@@ -56,7 +86,7 @@ export default function InboundLinksBlock({
       case 'category':
         return {
           icon: <TrendingUp className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />,
-          badgeText: 'Market Angles',
+          badgeText: defaultBadge || 'Market Angles',
           badgeClass: 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20',
           accentColor: 'border-blue-500/30 hover:border-blue-500/60',
           tagBg: 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20',
@@ -65,7 +95,7 @@ export default function InboundLinksBlock({
       default:
         return {
           icon: <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />,
-          badgeText: 'Platform & Trust',
+          badgeText: defaultBadge || 'Platform & Trust',
           badgeClass: 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/20',
           accentColor: 'border-indigo-500/30 hover:border-indigo-500/60',
           tagBg: 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/20',
@@ -91,9 +121,9 @@ export default function InboundLinksBlock({
               {styling.badgeText}
             </span>
           </div>
-          <h3 className="text-sm sm:text-base font-black text-[var(--text)] tracking-tight uppercase font-mono">
+          <h2 className="text-sm sm:text-base font-black text-[var(--text)] tracking-tight uppercase font-mono">
             {group.sectionTitle}
-          </h3>
+          </h2>
           <p className="text-xs text-[var(--text-muted)] leading-relaxed max-w-2xl">
             {group.sectionSubtitle}
           </p>
@@ -130,9 +160,9 @@ export default function InboundLinksBlock({
 
               {/* Title & Description */}
               <div>
-                <h4 className="text-xs sm:text-sm font-black text-[var(--text)] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors uppercase font-mono tracking-tight leading-snug">
+                <div className="text-xs sm:text-sm font-black text-[var(--text)] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors uppercase font-mono tracking-tight leading-snug">
                   {item.title}
-                </h4>
+                </div>
                 <p className="text-[11px] text-[var(--text-muted)] mt-1.5 leading-relaxed line-clamp-2">
                   {item.description}
                 </p>
