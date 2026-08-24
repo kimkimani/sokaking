@@ -21,11 +21,11 @@ Welcome to Soka King's betPawa Pick 13 Jackpot prediction page. Utilize our math
 betPawa's Pick 13 jackpot allows players to bet with minimal stakes (from KES 5 or 10). Our predictive system processes historical head-to-head records and goal expectations to guide your picks.
 
 <!-- MEAT -->
-### betPawa Pick 13 Tactical Breakdown
+## betPawa Pick 13 Tactical Breakdown
 
 betPawa is renowned for ultra-low minimum stakes and high win bonuses.
 
-#### Jackpot Rules & Bonus Thresholds
+### Jackpot Rules & Bonus Thresholds
 - **13/13 Correct**: Pick 13 Jackpot Grand Prize.
 - **Bonuses**: Paid for 12, 11, and 10 correct selections.
 - **Stake**: Starting at KES 5 to KES 10.

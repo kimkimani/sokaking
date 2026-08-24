@@ -20,9 +20,9 @@ Soka King is strictly an educational and sports analytics advisory platform. We 
 Sports forecasting involves probability and risk. We encourage users to treat sports predictions as recreational entertainment and never bet more than they can afford to lose.
 
 <!-- MEAT -->
-### Responsible Gambling Guidelines & Helpline Support
+## Responsible Gambling Guidelines & Helpline Support
 
-#### Rules for Safe Play
+### Rules for Safe Play
 1. **Strictly 18+ Access**: Betting in Kenya is strictly prohibited for minors under 18 years.
 2. **Defined Entertainment Budget**: Allocate a fixed monthly bankroll that will not affect living expenses.
 3. **No Chasing Losses**: Avoid escalating stake sizes after failed slips.

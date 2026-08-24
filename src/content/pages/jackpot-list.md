@@ -23,11 +23,11 @@ Welcome to Soka King's master jackpot hub. Explore predictions, Poisson probabil
 Kenya's football jackpot landscape offers massive prizes ranging from KES 300,000 to over KES 300 Million. Soka King provides unified analytical coverage across all major weekly and daily jackpot pools.
 
 <!-- MEAT -->
-### Ultimate Kenyan Jackpot Prediction Guide
+## Ultimate Kenyan Jackpot Prediction Guide
 
 Navigating multiple jackpot pools requires a disciplined mathematical approach. Soka King aggregates statistics across major jackpot platforms in Kenya and East Africa.
 
-#### Covered Jackpot Pools
+### Covered Jackpot Pools
 1. **SportPesa Mega Jackpot (17 Games)**: KES 300M+ Grand Pool.
 2. **SportPesa Midweek Jackpot (13 Games)**: KES 10M+ Midweek Pool.
 3. **Betika Midweek Jackpot (15 Games)**: KES 15M Midweek Pool.

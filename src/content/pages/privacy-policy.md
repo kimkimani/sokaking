@@ -20,9 +20,9 @@ Your data privacy and payment security are paramount at Soka King. Read how we p
 We collect minimal personal information strictly necessary for account authentication and Safaricom M-Pesa STK push billing. We never rent, sell, or monetize user data.
 
 <!-- MEAT -->
-### Data Protection Standards & Safaricom STK Push Security
+## Data Protection Standards & Safaricom STK Push Security
 
-#### Key Data Protocols
+### Key Data Protocols
 - **Information Collection**: Google OAuth profile details and telephone contact numbers for M-Pesa push triggers.
 - **M-Pesa PIN Safety**: Soka King NEVER requests, sees, or stores your M-Pesa PIN. PIN entry is handled strictly within Safaricom's encrypted SIM toolkit interface.
 - **Kenya Data Protection Act Compliance**: Full compliance with data rights, encryption standards, and user erasure requests.

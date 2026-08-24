@@ -23,11 +23,11 @@ Review yesterday's football prediction results and model performance on Soka Kin
 Transparency is core to Soka King. We archive all historical match predictions and compare our mathematical model outputs against actual final scorelines to maintain our 84.2% calibration standard.
 
 <!-- MEAT -->
-### Yesterday's Performance Metrics & Historical Analysis
+## Yesterday's Performance Metrics & Historical Analysis
 
 Evaluating past match results allows us to continually refine our Poisson algorithms and goal expectancy parameters.
 
-#### Analytical Verification
+### Analytical Verification
 - **Model Calibration Check**: Comparing predicted vs. actual outcome distributions.
 - **Goal Line Accuracy**: Auditing Over 1.5, Over 2.5, and BTTS hits.
 - **Jackpot Performance**: Reviewing correct outcomes across weekend jackpot pools.

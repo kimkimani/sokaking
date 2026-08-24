@@ -35,11 +35,17 @@ Our predictive engine outperforms basic statistical spreadsheets by utilizing dy
 <!-- MEAT -->
 ## Deep Dive: How Our Prediction Algorithm Works
 
-Every match analyzed on this page undergoes a multi-stage calculation matrix:
+Every match analyzed on this page undergoes a multi-stage calculation matrix to generate dependable outcome probabilities:
 
+### Algorithmic Evaluation Stages
 1. **Attack vs. Defense Rating Index**: Evaluating goals scored per 90 minutes against opponent defensive concessions.
 2. **Form Weighting (Recent 5 Matches)**: Assigning 65% weighting to recent performance trends and 35% to full season metrics.
 3. **Rest & Travel Fatigue Multipliers**: Factoring distance traveled and calendar congestion for mid-week continental fixtures.
+
+#### Mathematical Parameters & Variables
+- **Expected Goals ($xG$) Ratio**: Quantifying shot conversion efficiency and danger zones.
+- **Poisson Probabilities**: Deriving exact scoreline possibilities from $0-0$ to $4-3$.
+- **Line Movement Delta**: Auditing sharp market money shifts across global sportsbooks.
 
 Our predictions are updated twice daily at 06:00 EAT and 14:00 EAT to capture late squad announcements and odds line shifts across major bookmakers.
 

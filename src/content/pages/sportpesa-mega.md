@@ -21,16 +21,16 @@ Welcome to Soka King's official SportPesa Mega Jackpot prediction portal. Get co
 With a standing pool frequently surpassing KES 300 Million, the SportPesa Mega Jackpot requires a data-driven strategy. Soka King processes squad depth, travel factors, and Poisson expectations to deliver optimal selections.
 
 <!-- MEAT -->
-### Master SportPesa Mega Jackpot Analytical Blueprint
+## Master SportPesa Mega Jackpot Analytical Blueprint
 
 Winning the SportPesa Mega Jackpot requires analyzing all 17 fixtures with high precision. Soka King provides weekly updated baseline predictions, double-chance covers, and VIP banker picks.
 
-#### Jackpot Payout Tiers
+### Jackpot Payout Tiers
 - **17/17 Correct**: Wins the standing Grand Jackpot (KES 300M+).
 - **16/17, 15/17, 14/17, 13/17, 12/17**: Generous cash bonus tiers.
 - **Entry Ticket Price**: KES 99 per combination.
 
-#### Selection Strategy & System Rules
+### Selection Strategy & System Rules
 1. **Identify High-Probability Bankers**: Lock in 6-8 single predictions with high win probabilities ($>65\%$).
 2. **Apply Strategic Double Chances**: Use 2 to 4 double-chance options (1X, 12, X2) on unpredictable fixtures.
 3. **Form & Momentum Analysis**: Evaluate home vs. away goals scored and conceded across the last 10 rounds.

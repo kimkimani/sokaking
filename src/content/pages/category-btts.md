@@ -23,11 +23,11 @@ Welcome to Soka King's Both Teams to Score (BTTS / Goal-Goal) prediction guide. 
 BTTS predictions evaluate offensive efficiency against defensive vulnerability. Soka King isolates matches featuring prolific goalscorers paired with leaky backlines.
 
 <!-- MEAT -->
-### Both Teams To Score (BTTS) Analytical System
+## Both Teams To Score (BTTS) Analytical System
 
 To win a BTTS Goal-Goal bet, both teams must score at least 1 goal during regulation time (e.g., 1-1, 2-1, 1-2, 2-2).
 
-#### System Parameters
+### System Parameters
 - **Home Scoring Rate ($>80\%$)**: Home side scores in 8+ of their last 10 home matches.
 - **Away Scoring Rate ($>75\%$)**: Away side scores consistently on the road.
 - **Defensive Leakage**: Neither side maintains clean sheets regularly ($<30\%$ clean sheet rate).

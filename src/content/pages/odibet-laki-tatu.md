@@ -21,11 +21,11 @@ Welcome to Soka King's OdiBet Laki Tatu Jackpot prediction page. Access daily 10
 OdiBet's Laki Tatu Jackpot features 10 fixtures with a jackpot prize of KES 300,000 for a small KES 15 entry stake. Soka King provides daily updated picks for fast turnaround.
 
 <!-- MEAT -->
-### OdiBet Laki Tatu Jackpot Master Blueprint
+## OdiBet Laki Tatu Jackpot Master Blueprint
 
 OdiBet's Laki Tatu is a popular daily short-format jackpot in Kenya.
 
-#### Highlights & Rules
+### Highlights & Rules
 - **10/10 Correct**: KES 300,000 Cash Prize.
 - **Entry Fee**: KES 15.
 - **Frequency**: Daily draws.

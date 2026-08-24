@@ -23,14 +23,14 @@ Welcome to Soka King's Double Chance prediction page. Secure lower-risk betting 
 Double Chance bets provide a built-in safety cushion by winning if either selected outcome occurs. Soka King uses double-chance selections to construct resilient multi-bets and jackpot covers.
 
 <!-- MEAT -->
-### Double Chance Betting Strategy & Types
+## Double Chance Betting Strategy & Types
 
-#### Double Chance Options Explained
+### Double Chance Options Explained
 - **1X (Home Win or Draw)**: Wins if the home team wins OR if the match ends in a draw.
 - **X2 (Draw or Away Win)**: Wins if the away team wins OR if the match ends in a draw.
 - **12 (Home Win or Away Win)**: Wins if EITHER team wins (loses only if the match ends in a draw).
 
-#### Ideal Use Cases
+### Ideal Use Cases
 - **Jackpot Hedging**: Protecting volatile 50/50 matches.
 - **Underdog Covers**: Backing competitive away teams with X2.
 

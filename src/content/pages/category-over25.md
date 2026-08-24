@@ -23,9 +23,9 @@ Welcome to Soka King's Over 2.5 Goals prediction portal. Find high-tempo matches
 Over 2.5 Goals bets require 3 or more total goals scored in 90 minutes (e.g., 2-1, 3-0, 2-2, 3-1). Our Poisson model targets attacking teams playing open defensive schemes.
 
 <!-- MEAT -->
-### Over 2.5 Goals Mathematical Breakdown
+## Over 2.5 Goals Mathematical Breakdown
 
-#### Key Selection Indicators
+### Key Selection Indicators
 - **High $X_g$ Averages**: Combined team expected goals exceeding $2.8$.
 - **Aggressive Formations**: Teams utilizing 4-3-3 or 3-4-3 wing attack setups.
 - **High Shots-on-Target Ratios**: Both teams averaging $5.5+$ shots on target per match.

@@ -24,18 +24,18 @@ Welcome to Soka King's premier **Sunpelpredict** and **Sunpel Free Football Bett
 **Sunpelpredict** algorithms combine team momentum tracking, head-to-head metrics, expected goals ($xG$), and Asian handicap market odds. Soka King enriches these mathematical indicators with advanced Poisson distribution models to provide punters with the most reliable free football tips every day.
 
 <!-- MEAT -->
-### Sunpelpredict Football Predictions & Selection Strategy
+## Sunpelpredict Football Predictions & Selection Strategy
 
 Sunpel and Sunpelpredict tips are widely followed by football punters seeking dependable daily picks across major leagues including the English Premier League, UEFA Champions League, La Liga, Serie A, Bundesliga, Kenya Premier League (FKF), and CAF competitions.
 
-#### Core Sunpelpredict Betting Categories
+### Core Sunpelpredict Betting Categories
 - **Sunpel Daily Banker Picks**: The highest probability single match selections with an average winning rate $>86\%$.
 - **Over/Under 1.5 & 2.5 Goals**: Formulated using goal-scoring tendencies, defensive ratings, and pace metrics to identify high-scoring or low-scoring fixtures.
 - **Both Teams To Score (BTTS / GG)**: Matches where attacking strength and defensive vulnerabilities align on both ends of the pitch.
 - **Double Chance (1X / X2 / 12)**: Risk-mitigated selections ideal for building multi-bet accumulators.
 - **Mega & Midweek Jackpot Covers**: Strategic slips designed to help you tackle SportPesa, Betika, and Mozzart jackpots.
 
-### Why Choose Soka King for Sunpelpredict Tips?
+## Why Choose Soka King for Sunpelpredict Tips?
 1. **Mathematical Accuracy**: We eliminate gut feeling and emotional bias by utilizing data-driven probability distributions.
 2. **Updated Daily at 06:00 EAT**: Fresh selections covering early morning to late evening fixtures.
 3. **Free & Transparent**: Complete access to daily fixtures, expected scorelines, and calculated winning percentages.

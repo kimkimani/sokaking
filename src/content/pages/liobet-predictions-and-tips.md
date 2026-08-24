@@ -24,16 +24,16 @@ Welcome to Soka King's **Liobet Predictions and Tips** analytical hub. Discover 
 Liobet model predictions rely on purely quantitative team statistics, eliminating human bias. Soka King processes squad metrics, home advantage multipliers, and goal differentials to publish accurate daily Liobet picks.
 
 <!-- MEAT -->
-### Liobet Mathematical Forecasting System
+## Liobet Mathematical Forecasting System
 
 Liobet predictions evaluate team performance over extended time horizons to derive high-precision outcome percentages.
 
-#### Key Model Components
+### Key Model Components
 1. **Poisson Goal Expectancy**: Calculating exact home and away goal distributions.
 2. **Defensive Solidity Index**: Ranking teams based on conceded goals per 90 minutes.
 3. **Value Betting Alerts**: Highlighting matches where model probability exceeds bookmaker odds.
 
-#### Featured Prediction Categories
+### Featured Prediction Categories
 - **Liobet 1X2 Home/Away Wins**: Pure mathematical favorites.
 - **Liobet Over 2.5 Goals**: High-tempo attacking match-ups.
 - **Liobet Double Chance (1X, X2)**: Low-risk hedging options.

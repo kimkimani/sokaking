@@ -23,11 +23,11 @@ Welcome to Soka King's 1X2 Home Win prediction hub. Uncover strong home favorite
 Home advantage remains a key statistical driver in soccer. Soka King measures stadium crowd impact, travel distance for visiting teams, and home-pitch familiarity to isolate reliable home wins.
 
 <!-- MEAT -->
-### 1X2 Home Win Selection Strategy
+## 1X2 Home Win Selection Strategy
 
 A 1X2 Home Win bet requires the home team to win at full time.
 
-#### Mathematical Drivers
+### Mathematical Drivers
 - **Home Goal Advantage**: Home sides average $+0.35$ goal advantage globally.
 - **Fan Support Index**: High-density home stadiums boost win conversion rates.
 - **Form Dominance**: Home side undefeated in last 6 home fixtures.

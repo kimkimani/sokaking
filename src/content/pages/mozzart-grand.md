@@ -21,11 +21,11 @@ Welcome to Soka King's Mozzart Grand Jackpot prediction hub. Our Poisson models 
 Mozzart Bet's 16-game Grand Jackpot offers a massive fixed prize pool of KES 200 Million. With a fixed ticket price of KES 50, Soka King helps you make calculated picks across top international leagues.
 
 <!-- MEAT -->
-### Mozzart Grand Jackpot Strategy & Payout Breakdown
+## Mozzart Grand Jackpot Strategy & Payout Breakdown
 
 Mozzart Bet's Grand Jackpot stands out in Kenya for its fixed KES 200 Million prize pool, which is shared among all winners who hit 16/16 correct matches.
 
-#### Prize Tiers & Rules
+### Prize Tiers & Rules
 - **16/16 Correct**: KES 200,000,000 Fixed Pool.
 - **Bonus Payouts**: Cash prizes awarded for 15, 14, 13, 12, and 0 correct picks!
 - **Fixed Ticket Price**: KES 50 per slip.

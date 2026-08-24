@@ -25,3 +25,13 @@ Welcome to **PredictZ Predictions Today**. On this page, we deliver top-rated ma
 ## Today's PredictZ Style Banker Tips
 
 Our predictive model isolates the highest probability fixtures every single day. Explore our mathematically verified predictions below.
+
+### Algorithmic Selection Criteria
+- **Poisson Variance Screening**: Matching attack ratios against defensive vulnerability metrics.
+- **Home Ground Influence**: Weighing stadium atmosphere, attendance pressure, and travel fatigue.
+- **Value Probability Index**: Highlighting selections where our calculated probability exceeds bookmaker odds.
+
+#### Key Mathematical Thresholds
+1. **1X2 Banker Confidence**: $>68\%$ pure outcome probability.
+2. **Goal Line Expectancy**: Combined $xG > 2.7$ for Over 2.5 selections.
+3. **Double Chance Cover**: Mitigating risk on tight top-tier fixtures.

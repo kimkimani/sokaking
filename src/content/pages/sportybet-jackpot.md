@@ -21,11 +21,11 @@ Welcome to Soka King's SportyBet Jackpot prediction portal. Get accurate match f
 SportyBet's 12-game weekly jackpot is popular across Kenya and Nigeria. Soka King uses Poisson goal modeling and team performance trends to optimize your ticket selections.
 
 <!-- MEAT -->
-### SportyBet Jackpot Strategy & Guide
+## SportyBet Jackpot Strategy & Guide
 
 SportyBet offers a streamlined 12-game jackpot with lower ticket costs and fast payout processing.
 
-#### Key Mechanics
+### Key Mechanics
 - **12/12 Correct**: Main Jackpot Pool.
 - **Bonus Tiers**: Awarded for 11 and 10 correct picks.
 - **Stake**: Low entry fees with flexible multi-bet ticket builder options.

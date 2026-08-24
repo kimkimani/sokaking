@@ -21,16 +21,16 @@ Welcome to Soka King's official SportPesa Midweek Jackpot analytical guide. Feat
 The SportPesa Midweek Jackpot offers a focused 13-game ticket with a jackpot starting at KES 10 Million. Because midweek matches frequently feature team rotation, our algorithm tracks squad depth, midweek travel hours, and tactical setups to isolate high-value betting options.
 
 <!-- MEAT -->
-### SportPesa Midweek Jackpot Expert Analysis & System Blueprint
+## SportPesa Midweek Jackpot Expert Analysis & System Blueprint
 
 The 13-fixture SportPesa Midweek Jackpot is a favorite among Kenyan football punters due to its achievable 10, 11, and 12-game bonus thresholds and manageable ticket count compared to 17-game pools.
 
-#### Key Analytical Drivers
+### Key Analytical Drivers
 1. **Midweek Fatigue & Rotation Matrix**: Teams playing mid-week often rest key playmakers. Our system monitors line-up announcements and tactical squad rotation.
 2. **Poisson Goal Expectations**: We simulate 10,000 match variations per fixture to pinpoint exact win, draw, and loss percentages.
 3. **Double Chance Placement**: Placing 2 to 4 double chances on unpredictable UEFA Champions League, Europa League, or domestic cup clashes.
 
-#### Bonus Tiers & Ticket Limits
+### Bonus Tiers & Ticket Limits
 - **13/13 Correct**: Wins the main Midweek Jackpot prize (KES 10M+).
 - **12/13 Correct**: Top bonus tier.
 - **11/13 & 10/13 Correct**: Secondary cash bonuses.

@@ -447,7 +447,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                           </div>
                         )}
                         <div className="min-w-0 flex-1">
-                          <h4 className="text-sm font-bold text-[var(--text)]">{author.name}</h4>
+                          <h3 className="text-sm font-bold text-[var(--text)] m-0">{author.name}</h3>
                           <p className="text-[10px] font-mono text-[var(--primary)] font-bold truncate">{author.role}</p>
                         </div>
                       </div>

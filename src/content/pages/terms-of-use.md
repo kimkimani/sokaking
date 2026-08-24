@@ -19,20 +19,20 @@ Review the terms governing access to Soka King's football predictions, VIP jackp
 By accessing Soka King, you agree to these Terms of Use, our Editorial Standards, and our Responsible Gambling parameters. All digital prediction keys are provided for individual informational and entertainment use.
 
 <!-- MEAT -->
-### Terms & Conditions Overview
+## Terms & Conditions Overview
 
-#### 1. Age Requirement & Jurisdiction
+### 1. Age Requirement & Jurisdiction
 Access to Soka King is strictly limited to individuals aged **18 years or older**. Users are responsible for complying with local sports gaming regulations in their respective country or jurisdiction.
 
-#### 2. Informational & Statistical Purpose (No Financial Guarantees)
+### 2. Informational & Statistical Purpose (No Financial Guarantees)
 All betting tips, probability calculations, Poisson scores, and jackpot permutations provided on Soka King represent mathematical approximations of outcome likelihood. Sports events contain inherently chaotic variables (weather, red cards, injuries); therefore, **no outcome is guaranteed**. Users assume full financial responsibility for any personal wagers placed with third-party licensed bookmakers.
 
-#### 3. Corrections & Line-Movement Policy
+### 3. Corrections & Line-Movement Policy
 <div id="corrections">
 Soka King updates match forecasts daily by 06:00 EAT. If confirmed starting lineups or severe weather reports cause significant probability drift prior to kickoff, our mathematical model adjusts the forecast accordingly, recording a transparent audit note.
 </div>
 
-#### 4. Digital Key Delivery & M-Pesa Billing
+### 4. Digital Key Delivery & M-Pesa Billing
 All premium package subscriptions and VIP odds packs are processed through Safaricom Daraja M-Pesa rails with instant automated unlock. Support assistance for billing inquiries is accessible 24/7 via WhatsApp or email at `support@sokapredictions.co.ke`.
 
 <!-- RESPONSIBLE_GAMBLING_START -->

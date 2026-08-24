@@ -28,11 +28,17 @@ To consistently target jackpot bonuses, experts recommend:
 <!-- MEAT -->
 ## Analytical Breakdown of the 17 Fixtures
 
-Our model categorizes the 17 SportPesa Mega Jackpot fixtures into three confidence tiers:
+Our model categorizes the 17 SportPesa Mega Jackpot fixtures into three distinct confidence tiers:
 
+### Confidence Tier Matrix
 1. **Banker Fixtures (3-4 Matches)**: Fixtures with over 68% statistical probability for a single outcome.
 2. **Moderate Value Selections (7-8 Matches)**: Matches where team form clearly favors one side with minor draw risk.
 3. **High Variance Tiers (5-6 Matches)**: Crucial tight encounters best covered using double chance combinations.
+
+#### Ticket Optimization Guidelines
+- **Double Chance Balancing**: Allocate 3 to 4 double chances across the high-variance tier.
+- **Poisson Correlation**: Ensure goal expectation models match 1X2 distribution curves.
+- **Late News Audit**: Verify starting lineups 1 hour prior to the earliest kickoff.
 
 <!-- FAQ -->
 ## Frequently Asked Questions

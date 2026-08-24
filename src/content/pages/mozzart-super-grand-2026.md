@@ -24,3 +24,13 @@ To maximize bonus opportunities on 20-game jackpots:
 ## Fixture Breakdown & Odds Analysis
 
 Our Poisson engine analyzes all 20 fixtures for the grand weekend jackpot to isolate value picks and draw probabilities.
+
+### Mathematical Modeling System
+1. **Poisson Outcome Probabilities**: Calculating distinct percentage values for Home Win, Draw, and Away Win across all 20 fixtures.
+2. **Fixed Prize Optimization**: Focusing combinations to hit the 17, 18, 19, and 20 match prize thresholds.
+3. **Double Chance Matrix**: Deploying strategic covers on volatile league encounters.
+
+#### Key Selection Parameters
+- **Defensive Concession Rates**: Assessing teams prone to late goals.
+- **Fatigue Indicators**: Tracking international travel schedules.
+- **Home Win Dominance**: Isolating strong home sides with $>70\%$ historical win records.

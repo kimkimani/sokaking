@@ -20,7 +20,7 @@ Get in touch with Soka King's support dispatch team in Nairobi, Kenya. Fast assi
 Our live support dispatchers monitor incoming tickets and WhatsApp channels 24 hours a day, providing fast resolution times under 15 minutes.
 
 <!-- MEAT -->
-### Contact Information & Channels
+## Contact Information & Channels
 
 - **Email Support**: support@sokaking.com
 - **WhatsApp Hotline**: +254 740 841 375

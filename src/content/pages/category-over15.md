@@ -23,11 +23,11 @@ Welcome to Soka King's Over 1.5 Goals prediction portal. Discover high-probabili
 Over 1.5 Goals is one of the safest betting markets in football analytics. Our system filters matches where both teams demonstrate high offensive tempo and aggressive attacking setups.
 
 <!-- MEAT -->
-### Over 1.5 Goals Mathematical Selection Criteria
+## Over 1.5 Goals Mathematical Selection Criteria
 
 The Over 1.5 Goals market requires at least 2 goals scored by either or both teams combined during 90 minutes.
 
-#### Selection Indicators
+### Selection Indicators
 1. **Combined Goal Expectancy ($X_g > 2.2$)**: Selecting matches with high projected goal totals.
 2. **First-Half Attack Velocity**: Tracking teams that score or concede in the opening 30 minutes.
 3. **Accumulator Building**: Combining 3-5 Over 1.5 picks for low-risk accumulator slips.

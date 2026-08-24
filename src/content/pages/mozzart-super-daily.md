@@ -21,11 +21,11 @@ Welcome to Soka King's Mozzart Super Daily Jackpot prediction portal. Get daily 
 Mozzart Super Daily provides consistent daily jackpot action. Soka King processes real-time team statistics, travel miles, and offensive efficiency ratings to generate high-probability slips every day.
 
 <!-- MEAT -->
-### Mozzart Super Daily Jackpot Tactical Blueprint
+## Mozzart Super Daily Jackpot Tactical Blueprint
 
 With daily matches from around the globe, Mozzart Super Daily demands continuous statistical tracking.
 
-#### Rules & Features
+### Rules & Features
 - **16/16 Correct**: Grand Daily Jackpot Pool.
 - **Bonus Tiers**: Paid for 15, 14, 13, 12, and 0 correct picks.
 - **Entry Price**: KES 50 per ticket.
