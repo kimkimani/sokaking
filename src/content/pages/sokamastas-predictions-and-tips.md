@@ -20,6 +20,11 @@ inboundDescription: "Compare and contrast sokaking and Sokamastas Altenatives."
 Today Soka Mastas Tips are Ready. We provide all Sokamastas tips for free. Dont miss out [jackpot predictions](https://sokaking.com/jackpot-tips) we have have you. check them out. For todat Sokamasta tips, just pick three of the following tips and stick to that. Follow the same for a week and come back with your testimony
 
 <!-- MIDDLE -->
+
+Sokamastas is a football prediction and daily tip with the reasoning behind it and why a game is given a certsin predictions with confidence score and why we think the tip is right.
+
+<!-- MEAT -->
+
 ## SokaMastas Football Predictions
 
 SokaMastas pairs each daily tip with the reasoning behind it. Our Sokamasta covers correct scores, over/under, BTTS, and accumulators.

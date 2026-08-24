@@ -57,6 +57,7 @@ Yes, the daily golden tips are free to read.
 
 ### How accurate are the predictions?
 No tipster wins every pick. Football doesn't work that way. The goal of narrowing the list down to a handful of strong-case matches not a perfect record.
+
 <!-- RESPONSIBLE_GAMBLING_START -->
 > **Responsible Gambling Notice:** Gambling involves financial risk. Please bet responsibly and only risk money you can afford to lose. If you need help or support, contact the national helpline at **0800-720-000** or visit our [Responsible Gambling Policy](/responsible-gambling).
 <!-- RESPONSIBLE_GAMBLING_END -->
