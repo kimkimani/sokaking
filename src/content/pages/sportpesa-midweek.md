@@ -5,7 +5,6 @@ keywords: "SportPesa Midweek Jackpot, SportPesa 13 games predictions, Midweek Ja
 link: "/free-sportpesa-midweek-jackpot-predictions-and-analysis"
 authorId: "david-ochieng"
 displayTitle: "SportPesa Midweek Jackpot Selections & Covers (13 Games)"
-responsibleGambling: "Bet responsibly. Always play within your budget. Helpline: 0800-720-000."
 unlockHeading: "Unlock SportPesa Midweek Jackpot Predictions"
 unlockDescription: "Access 13-match selections, midweek fatigue matrix analysis, and double-chance covers for SportPesa Midweek Jackpot."
 type: "jackpot"

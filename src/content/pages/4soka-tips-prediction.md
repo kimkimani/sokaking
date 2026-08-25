@@ -39,18 +39,9 @@ Every football prediction on Soka King considers team recent results, attacking 
 
 Our soka tips are not based on guesswork alone. We evaluate key performance metrics across multiple dimensions:
 
-### Core Form & Performance Indicators
-- **Recent Results**: Wins, draws, and losses across the last 6 fixtures.
-- **Venue Dynamics**: Home vs. away goal conversion and points-per-game averages.
-- **Goal Records**: Total goals scored, defensive concessions, and clean sheet ratios.
-
-#### Offensive & Defensive Metrics
-1. **Expected Goals ($xG$) Ratio**: Quantifying shot quality and open-play chances created.
-2. **Defensive Vulnerability Index**: Identifying backline lapses and set-piece exposure.
-3. **Line-Up Volatility**: Tracking squad rotations, tactical adjustments, and fatigue from continental travel.
-
-### Strategic Match Selection Rules
-Our **soka tips today** are designed to give you that actionable information in one place, so you can make your own informed decisions. Check back regularly for daily **football predictions today, free soka tips, match previews, 1X2 predictions, BTTS tips, Over/Under predictions, and accumulator selections**.
+- Core Form and Performance Indicators
+- Offensive & Defensive Metrics
+- Strategic Match Selection Rules
 
 <!-- FAQ -->
 
