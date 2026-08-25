@@ -30,7 +30,7 @@ export default function FaqSection({
       let currentAnswerLines: string[] = [];
 
       for (const line of lines) {
-        const headingMatch = line.match(/^#{2,4}\s+(.+)$/);
+        const headingMatch = line.match(/^#{3,4}\s+(.+)$/) || line.match(/^\*\*(?:Q:\s*|Question:\s*)([^*]+)\*\*/i);
         if (headingMatch) {
           if (currentQuestion) {
             items.push({
@@ -41,7 +41,9 @@ export default function FaqSection({
           }
           currentQuestion = headingMatch[1].replace(/^(q:\s*|question:\s*)/i, '').trim();
         } else if (currentQuestion) {
-          currentAnswerLines.push(line);
+          if (!line.match(/^\s*##\s+/)) {
+            currentAnswerLines.push(line);
+          }
         }
       }
 
@@ -61,6 +63,8 @@ export default function FaqSection({
 
   const displayTitle = useMemo(() => {
     if (customTitle) return customTitle;
+    if (pageMd.faqTitle) return pageMd.faqTitle;
+    if (pageMd.faqHeading) return pageMd.faqHeading;
     if (pageMd.title) {
       const shortTitle = pageMd.title.split('-')[0].trim().replace(/^#+\s*/, '');
       return `${shortTitle} - FAQ`;

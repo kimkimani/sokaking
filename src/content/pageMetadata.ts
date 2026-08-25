@@ -31,6 +31,8 @@ export interface PageMetadata {
   unlockDescription?: string;
   listTitle?: string;
   listSubtitle?: string;
+  faqTitle?: string;
+  faqHeading?: string;
 }
 
 export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {

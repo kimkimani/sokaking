@@ -8,6 +8,7 @@ export interface ParsedMarkdownPage extends PageMetadata {
   middle: string;
   meat: string;
   faq: string;
+  faqTitle?: string;
   fullContent: string;
 }
 
@@ -131,9 +132,20 @@ function loadRawMarkdown(pageKey: string): string {
 export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMarkdownPage {
   const meta = getPageMetadata(keyName);
 
+  // Extract FAQ title from comments or frontmatter if present
+  let faqTitle = meta.faqTitle || meta.faqHeading || '';
+  const faqTitleComment = rawMd.match(/<!--\s*(?:FaqTitle|FAQTitle|FaqHeading|FAQHeading):\s*([^\r\n]+?)\s*-->/i);
+  if (faqTitleComment && faqTitleComment[1]) {
+    faqTitle = faqTitleComment[1].trim();
+  }
+  const yamlFaqTitle = rawMd.match(/^---[\s\S]*?(?:faqTitle|faqHeading):\s*["']?([^"'\r\n]+)["']?[\s\S]*?---/im);
+  if (yamlFaqTitle && yamlFaqTitle[1]) {
+    faqTitle = yamlFaqTitle[1].trim();
+  }
+
   // Strip YAML frontmatter & comment frontmatter from body
   let cleanedContent = rawMd.replace(/^---\s*\r?\n[\s\S]*?\r?\n---\s*/, '').trim();
-  cleanedContent = cleanedContent.replace(/<!--\s*(Title|DisplayTitle|PageTitle|Description|Keywords|Link|Type|JackpotId|AuthorName|AuthorTitle|AuthorDescription|AuthorAvatar|ResponsibleGambling|InboundTitle|InboundHeading|InboundDescription|InboundSubtitle|InboundBadge|RelatedTitle|RelatedHeading|RelatedDescription|RelatedSubtitle|RelatedBadge|UnlockHeading|UnlockDescription|ListTitle|ListSubtitle):\s*.+?\s*-->/gi, '').trim();
+  cleanedContent = cleanedContent.replace(/<!--\s*(Title|DisplayTitle|PageTitle|Description|Keywords|Link|Type|JackpotId|AuthorName|AuthorTitle|AuthorDescription|AuthorAvatar|ResponsibleGambling|InboundTitle|InboundHeading|InboundDescription|InboundSubtitle|InboundBadge|RelatedTitle|RelatedHeading|RelatedDescription|RelatedSubtitle|RelatedBadge|UnlockHeading|UnlockDescription|ListTitle|ListSubtitle|FaqTitle|FaqHeading|FAQTitle|FAQHeading):\s*.+?\s*-->/gi, '').trim();
 
   // Extract RESPONSIBLE_GAMBLING_START ... RESPONSIBLE_GAMBLING_END block if present
   let responsibleGambling = meta.responsibleGambling || '';
@@ -154,7 +166,7 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
     { name: 'intro', regex: /(?:<!--\s*INTRO\s*-->|^#{1,4}\s*INTRO\s*$)/im },
     { name: 'middle', regex: /(?:<!--\s*(?:MIDDLE|MIDDLE_CONTENT)\s*-->|^#{1,4}\s*(?:MIDDLE|MIDDLE_CONTENT)\s*$)/im },
     { name: 'meat', regex: /(?:<!--\s*(?:MEAT|MEAT_CONTENT)\s*-->|^#{1,4}\s*(?:MEAT|MEAT_CONTENT)\s*$)/im },
-    { name: 'faq', regex: /(?:<!--\s*FAQ\s*-->|^#{1,4}\s*FAQ\s*$)/im },
+    { name: 'faq', regex: /(?:<!--\s*FAQ\s*-->|^#{1,4}\s*FAQ\s*$|^##\s+.*(?:FAQ|Frequently Asked Questions).*$)/im },
   ];
 
   const matches: { name: string; index: number; length: number }[] = [];
@@ -180,12 +192,46 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
     for (let i = 0; i < matches.length; i++) {
       const current = matches[i];
       const nextIndex = i + 1 < matches.length ? matches[i + 1].index : cleanedContent.length;
-      const sectionContent = cleanedContent.substring(current.index + current.length, nextIndex).trim();
+      let sectionContent = cleanedContent.substring(current.index + current.length, nextIndex).trim();
 
-      if (current.name === 'intro') intro = sectionContent.replace(/^##\s+[^\r\n]+(?:\r?\n)*/m, '').trim();
-      else if (current.name === 'middle') middle = sectionContent;
-      else if (current.name === 'meat') meat = sectionContent;
-      else if (current.name === 'faq') faq = sectionContent;
+      if (current.name === 'intro') {
+        intro = sectionContent.replace(/^##\s+[^\r\n]+(?:\r?\n)*/m, '').trim();
+      } else if (current.name === 'middle') {
+        middle = sectionContent;
+      } else if (current.name === 'meat') {
+        meat = sectionContent;
+      } else if (current.name === 'faq') {
+        // If the tag itself matched an H2 (e.g. ## Frequently Asked Questions...)
+        const tagText = cleanedContent.substring(current.index, current.index + current.length);
+        const tagH2Match = tagText.match(/^##\s+([^\r\n]+)/m);
+        if (tagH2Match && !faqTitle) {
+          faqTitle = tagH2Match[1].trim();
+        }
+
+        // If preceding content right before FAQ ends with an H2 (e.g. ## Some FAQ Heading \n <!-- FAQ -->)
+        if (!faqTitle) {
+          const textBeforeFaq = cleanedContent.substring(0, current.index).trim();
+          const precedingH2Match = textBeforeFaq.match(/##\s+([^\r\n]+)$/);
+          if (precedingH2Match) {
+            faqTitle = precedingH2Match[1].trim();
+            // Clean from previous sections if present
+            if (meat) meat = meat.replace(/##\s+[^\r\n]+\s*$/, '').trim();
+            if (middle) middle = middle.replace(/##\s+[^\r\n]+\s*$/, '').trim();
+          }
+        }
+
+        // If sectionContent starts with or contains an H2 heading (e.g. ## Frequently Asked Questions - Today's Predictions)
+        const contentH2Match = sectionContent.match(/^\s*##\s+([^\r\n]+)/m);
+        if (contentH2Match) {
+          if (!faqTitle) {
+            faqTitle = contentH2Match[1].trim();
+          }
+          // Strip the H2 line from the FAQ body so it doesn't get confused for a question
+          sectionContent = sectionContent.replace(/^\s*##\s+[^\r\n]+(?:\r?\n)*/m, '').trim();
+        }
+
+        faq = sectionContent;
+      }
     }
 
     if (!intro && firstContent) intro = firstContent;
@@ -202,6 +248,7 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
     middle,
     meat: meat || cleanedContent,
     faq,
+    faqTitle: faqTitle || undefined,
     fullContent: cleanedContent,
   };
 }
