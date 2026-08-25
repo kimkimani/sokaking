@@ -64,7 +64,7 @@ export default function JackpotSidebar({ jackpotId, jackpotName, hasPaid }: Jack
           <div>
             <div className="flex justify-between items-center mb-1.5">
               <span className="text-[10px] font-bold text-[var(--text)] uppercase tracking-wider font-mono">Double Chances</span>
-              <span className="text-xs font-black text-indigo-500 font-mono bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20">{doubleChances} Picks</span>
+              <span className="text-xs font-black text-indigo-800 dark:text-indigo-300 font-mono bg-indigo-500/15 px-1.5 py-0.5 rounded border border-indigo-500/30">{doubleChances} Picks</span>
             </div>
             <div className="grid grid-cols-5 gap-1">
               {[0, 1, 2, 3, 4].map((count) => (
@@ -106,7 +106,7 @@ export default function JackpotSidebar({ jackpotId, jackpotName, hasPaid }: Jack
             </div>
             <div className="pl-2">
               <span className="text-[8px] text-[var(--text-muted)] uppercase font-mono tracking-wider block">Est. Cost (M-Pesa)</span>
-              <strong className="text-sm font-black font-mono text-emerald-600 dark:text-emerald-400 block mt-0.5">KES {estimatedCost.toLocaleString()}</strong>
+              <strong className="text-sm font-black font-mono text-emerald-700 dark:text-emerald-400 block mt-0.5">KES {estimatedCost.toLocaleString()}</strong>
             </div>
           </div>
 
@@ -134,10 +134,10 @@ export default function JackpotSidebar({ jackpotId, jackpotName, hasPaid }: Jack
                 <span className="text-[9px] text-[var(--text-muted)] font-mono">{w.date}</span>
               </div>
               <div className="text-right">
-                <span className="px-1.5 py-0.5 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-mono text-[10px] font-black rounded">
+                <span className="px-1.5 py-0.5 bg-emerald-500/20 text-emerald-850 dark:text-emerald-300 font-mono text-[10px] font-black rounded">
                   {w.score}
                 </span>
-                <span className="text-[9px] font-black text-indigo-500 dark:text-indigo-400 block mt-1 font-mono">
+                <span className="text-[9px] font-black text-indigo-700 dark:text-indigo-400 block mt-1 font-mono">
                   {w.prize}
                 </span>
               </div>
@@ -161,10 +161,10 @@ export default function JackpotSidebar({ jackpotId, jackpotName, hasPaid }: Jack
             >
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping shrink-0" />
-                <span className="font-mono text-slate-500 dark:text-slate-400 font-bold">{a.phone}</span>
+                <span className="font-mono text-slate-700 dark:text-slate-300 font-bold">{a.phone}</span>
                 <span className="text-[var(--text-muted)] font-medium">{a.action}</span>
               </div>
-              <span className="text-[9px] font-mono text-slate-400 shrink-0">{a.time}</span>
+              <span className="text-[9px] font-mono text-slate-600 dark:text-slate-400 shrink-0">{a.time}</span>
             </div>
           ))}
         </div>

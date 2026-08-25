@@ -450,12 +450,12 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
           </div>
           <div className="space-y-1 min-w-0 text-left">
             <div className="flex flex-wrap items-center gap-2">
-              <span className={`inline-flex items-center gap-1 text-black text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider font-mono ${
+              <span className={`inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider font-mono ${
                 hasEnded 
-                  ? 'bg-rose-500 text-white' 
+                  ? 'bg-rose-600 text-white' 
                   : hasStarted 
                     ? 'bg-amber-400 text-slate-950 font-black animate-pulse' 
-                    : 'bg-emerald-400 text-slate-950 font-black'
+                    : 'bg-emerald-500 text-slate-950 font-black'
               }`}>
                 <Sparkles className="w-2.5 h-2.5" /> {hasEnded ? 'COMPLETED & CLOSED' : hasStarted ? 'LIVE IN PROGRESS' : 'OPEN • NOT STARTED'}
               </span>
@@ -752,17 +752,17 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                   <div className="overflow-hidden bg-slate-50/50 dark:bg-slate-900/20 border-t border-[var(--border)]">
                     <div className="p-4 text-xs space-y-3 leading-relaxed text-left">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold flex items-center gap-1 text-[var(--primary)] font-mono uppercase tracking-wider text-[10px]">
-                          <Sparkles className="w-3.5 h-3.5 text-[var(--primary)] animate-pulse" /> Mathematical Analyst Assessment
+                        <span className="font-bold flex items-center gap-1 text-indigo-750 dark:text-indigo-400 font-mono uppercase tracking-wider text-[10px]">
+                          <Sparkles className="w-3.5 h-3.5 text-indigo-750 dark:text-indigo-400 animate-pulse" /> Mathematical Analyst Assessment
                         </span>
                         <span className="text-[10px] font-mono text-[var(--text-muted)] bg-[var(--background)] px-2 py-0.5 rounded border border-[var(--border)]">
-                          Confidence factor: <strong className="text-emerald-500 font-extrabold">{displayConf}%</strong>
+                          Confidence factor: <strong className="text-emerald-750 dark:text-emerald-400 font-extrabold">{displayConf}%</strong>
                         </span>
                       </div>
 
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide">Expert Tip:</span>
-                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-[10px] font-black font-mono">
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-850 dark:text-emerald-300 border border-emerald-500/30 text-[10px] font-black font-mono">
                           {match.prediction}
                         </span>
                       </div>
@@ -773,10 +773,10 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
 
                       {/* Probability Split bar */}
                       <div className="pt-1.5">
-                        <div className="flex justify-between text-[9px] font-mono font-extrabold text-[var(--text-muted)] mb-1 uppercase">
-                          <span className="text-emerald-500">Home (1): {jackpotProbs.home}%</span>
-                          <span className="text-amber-500">Draw (X): {jackpotProbs.draw}%</span>
-                          <span className="text-sky-500">Away (2): {jackpotProbs.away}%</span>
+                        <div className="flex justify-between text-[9px] font-mono font-extrabold mb-1 uppercase">
+                          <span className="text-emerald-750 dark:text-emerald-400">Home (1): {jackpotProbs.home}%</span>
+                          <span className="text-amber-850 dark:text-amber-400">Draw (X): {jackpotProbs.draw}%</span>
+                          <span className="text-sky-750 dark:text-sky-400">Away (2): {jackpotProbs.away}%</span>
                         </div>
                         <div className="w-full h-1.5 bg-[var(--border)] rounded-full overflow-hidden flex">
                           <div className="h-full bg-emerald-500" style={{ width: `${jackpotProbs.home}%` }} />
@@ -822,11 +822,11 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
           onClick={() => onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
           className="p-5 rounded-[var(--radius)] border border-dashed border-amber-500/35 bg-amber-500/5 hover:bg-amber-500/10 text-center space-y-3 cursor-pointer transition-all duration-300 group shadow-sm text-left"
         >
-          <div className="w-10 h-10 rounded-full bg-amber-500/15 flex items-center justify-center mx-auto text-amber-500 border border-amber-500/25 group-hover:scale-110 transition-transform">
+          <div className="w-10 h-10 rounded-full bg-amber-500/15 flex items-center justify-center mx-auto text-amber-600 dark:text-amber-400 border border-amber-500/30 group-hover:scale-110 transition-transform">
             <Lock className="w-5 h-5" />
           </div>
           <div className="space-y-1 text-center">
-            <div className="text-sm font-black uppercase tracking-tight text-amber-600 dark:text-amber-400">
+            <div className="text-sm font-black uppercase tracking-tight text-amber-800 dark:text-amber-300">
               {pageMd.unlockHeading || `Unlock All ${jackpot.gamesCount} Combined Predictions Slips`}
             </div>
             <p className="text-[11px] text-[var(--text-muted)] max-w-lg mx-auto font-medium leading-relaxed">

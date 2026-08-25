@@ -91,13 +91,13 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures = [] }:
               <div className="flex flex-col min-w-0">
                 <span className="font-bold text-[var(--text)] truncate">{game.teams}</span>
                 <span className="text-[10px] text-[var(--text-muted)] flex items-center gap-1 mt-0.5 font-mono truncate">
-                  <span className="font-bold text-slate-500">Tip:</span> 
-                  <span className="text-emerald-700 dark:text-emerald-400 font-extrabold">{game.tip}</span>
-                  <span className="text-slate-400">@ {game.odds}</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-300">Tip:</span> 
+                  <span className="text-emerald-800 dark:text-emerald-300 font-extrabold">{game.tip}</span>
+                  <span className="text-slate-600 dark:text-slate-400 font-bold">@ {game.odds}</span>
                 </span>
               </div>
               <div className="text-right shrink-0 ml-2">
-                <span className="font-black font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5 justify-end">
+                <span className="font-black font-mono text-emerald-700 dark:text-emerald-400 flex items-center gap-0.5 justify-end">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   {game.result}
                 </span>

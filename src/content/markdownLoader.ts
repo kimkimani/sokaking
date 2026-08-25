@@ -9,6 +9,7 @@ export interface ParsedMarkdownPage extends PageMetadata {
   meat: string;
   faq: string;
   faqTitle?: string;
+  faqHeading?: string;
   fullContent: string;
 }
 

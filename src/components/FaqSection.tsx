@@ -81,7 +81,7 @@ export default function FaqSection({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[var(--border)] pb-3.5">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
+          <div className="p-2 rounded-xl bg-indigo-500/15 text-indigo-800 dark:text-indigo-300 border border-indigo-500/30">
             <HelpCircle className="w-5 h-5" />
           </div>
           <div>

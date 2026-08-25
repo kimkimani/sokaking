@@ -1176,7 +1176,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
           <span>Back Home</span>
         </button>
 
-        <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider">
+        <span className="text-[10px] font-mono text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider">
           Soka King Portal
         </span>
       </div>

@@ -191,8 +191,8 @@ export default function PredictionsList({
       );
     }
     return (
-      <span className="flex items-center gap-1 text-[10.5px] bg-slate-500 bg-opacity-15 text-slate-700 dark:text-slate-400 font-bold px-2 py-0.5 rounded border border-slate-500 border-opacity-30 font-mono">
-        <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" /> {showScore ? 'PENDING' : null}
+      <span className="flex items-center gap-1 text-[10.5px] bg-slate-500 bg-opacity-15 text-slate-800 dark:text-slate-200 font-bold px-2 py-0.5 rounded border border-slate-500 border-opacity-30 font-mono">
+        <Clock className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400 shrink-0" /> {showScore ? 'PENDING' : null}
       </span>
     );
   };
@@ -296,14 +296,14 @@ export default function PredictionsList({
                         {isDoubleChance && (
                           <>
                             <span>•</span>
-                            <span className="px-1.5 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/15 rounded-[4px] text-[7.5px] tracking-normal lowercase shrink-0 font-sans leading-none font-bold">double chance</span>
+                            <span className="px-1.5 py-0.5 bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-500/30 rounded-[4px] text-[7.5px] tracking-normal lowercase shrink-0 font-sans leading-none font-bold">double chance</span>
                           </>
                         )}
                       </div>
                       
                       <div className="text-xs font-bold mt-1.5 tracking-tight flex items-center gap-1.5 truncate">
                         <span className="text-[var(--text)] truncate">{fixture.homeTeam}</span>
-                        <span className="text-[10px] text-slate-400 font-bold shrink-0 mx-1">vs</span>
+                        <span className="text-[10px] text-slate-600 dark:text-slate-400 font-bold shrink-0 mx-1">vs</span>
                         <span className="text-[var(--text)] truncate">{fixture.awayTeam}</span>
                       </div>
                     </div>
@@ -517,11 +517,11 @@ export default function PredictionsList({
                     {isExpanded && (
                       <div className="p-4 text-xs space-y-3 leading-relaxed text-left">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold flex items-center gap-1 text-[var(--primary)] font-mono uppercase tracking-wider text-[10px]">
-                            <Sparkles className="w-3.5 h-3.5 text-[var(--primary)] animate-pulse" /> Live Expert Evaluation
+                          <span className="font-bold flex items-center gap-1 text-indigo-700 dark:text-indigo-400 font-mono uppercase tracking-wider text-[10px]">
+                            <Sparkles className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-400 animate-pulse" /> Live Expert Evaluation
                           </span>
                           <span className="text-[10px] font-mono text-[var(--text-muted)] bg-[var(--background)] px-2 py-0.5 rounded border border-[var(--border)]">
-                            Confidence factor: <strong className="text-sky-500 font-black">{displayConf}%</strong>
+                            Confidence factor: <strong className="text-sky-700 dark:text-sky-400 font-black">{displayConf}%</strong>
                           </span>
                         </div>
                         <p className="text-[var(--text-muted)] leading-relaxed font-sans">
@@ -530,10 +530,10 @@ export default function PredictionsList({
 
                         {/* Probability Split bar */}
                         <div className="pt-1 pb-1">
-                          <div className="flex justify-between text-[9px] font-mono font-black text-[var(--text-muted)] mb-1 uppercase">
-                            <span className="text-emerald-500">Home: {probs.home}%</span>
-                            <span className="text-amber-500">Draw: {probs.draw}%</span>
-                            <span className="text-sky-500">Away: {probs.away}%</span>
+                          <div className="flex justify-between text-[9px] font-mono font-black mb-1 uppercase">
+                            <span className="text-emerald-700 dark:text-emerald-400">Home: {probs.home}%</span>
+                            <span className="text-amber-800 dark:text-amber-400">Draw: {probs.draw}%</span>
+                            <span className="text-sky-700 dark:text-sky-400">Away: {probs.away}%</span>
                           </div>
                           <div className="w-full h-1.5 bg-[var(--border)] rounded-full overflow-hidden flex">
                             <div className="h-full bg-emerald-500" style={{ width: `${probs.home}%` }} />
