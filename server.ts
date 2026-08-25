@@ -411,14 +411,7 @@ Sitemap: https://sokaking.com/sitemap.xml
       const classification = classifyRoute(url);
 
       if (classification.status !== 200) {
-        res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        if (classification.status === 410) {
-          res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
-        } else {
-          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-        }
-        return res.status(classification.status).send(renderErrorPageHtml(classification.status, url));
+        return res.redirect(302, '/');
       }
 
       try {
@@ -465,14 +458,7 @@ Sitemap: https://sokaking.com/sitemap.xml
         const classification = classifyRoute(url);
 
         if (classification.status !== 200) {
-          res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
-          res.setHeader('Content-Type', 'text/html; charset=utf-8');
-          if (classification.status === 410) {
-            res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
-          } else {
-            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-          }
-          return res.status(classification.status).send(renderErrorPageHtml(classification.status, url));
+          return res.redirect(302, '/');
         }
 
         res.setHeader('Content-Type', 'text/html; charset=utf-8');

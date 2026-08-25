@@ -13,7 +13,26 @@ export interface SchemaGraphResult {
 }
 
 /**
- * Extracts and parses FAQ items from Markdown FAQ block into Schema.org format.
+ * Strips markdown and HTML formatting to return clean plain text for Schema.org fields.
+ */
+function cleanSchemaText(text: string): string {
+  if (!text) return '';
+  return text
+    .replace(/<!--[\s\S]*?-->/g, '') // Remove HTML comments
+    .replace(/<[^>]*>?/gm, '') // Strip HTML tags
+    .replace(/\*\*([^*]+)\*\*/g, '$1') // Strip bold **text**
+    .replace(/\*([^*]+)\*/g, '$1') // Strip italic *text*
+    .replace(/__([^_]+)__/g, '$1') // Strip bold __text__
+    .replace(/_([^_]+)_/g, '$1') // Strip italic _text_
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Strip markdown links [label](url) -> label
+    .replace(/^[-*+]\s+/gm, '') // Strip bullet points
+    .replace(/^[0-9]+\.\s+/gm, '') // Strip numbered list items
+    .replace(/\s+/g, ' ') // Collapse multiple whitespaces
+    .trim();
+}
+
+/**
+ * Extracts and parses FAQ items from Markdown FAQ block into strictly compliant Schema.org format.
  */
 export function extractFaqSchema(faqText: string | undefined): Record<string, any> | null {
   if (!faqText || !faqText.trim()) return null;
@@ -21,17 +40,56 @@ export function extractFaqSchema(faqText: string | undefined): Record<string, an
   const faqPairs: { question: string; answer: string }[] = [];
   const faqBlocks = faqText.split(/(?=###|\n(?=###))/g);
 
+  // Blacklist non-question headings that often appear in markdown
+  const nonQuestionKeywords = [
+    'system parameters',
+    'key mathematical thresholds',
+    'algorithmic selection criteria',
+    'analytical framework',
+    'top covered leagues',
+    'covered jackpot pools',
+    'prize tiers & rules',
+    'prize tiers and rules',
+    'combination strategy',
+    'secure your winning',
+    'mathematical drivers',
+    'key selection indicators',
+    'predictz vs soka king'
+  ];
+
   for (const block of faqBlocks) {
     const qMatch = block.match(/###\s+(.+)/);
     if (qMatch) {
-      const question = qMatch[1].trim();
-      const answer = block
-        .replace(/###\s+.+/, '')
-        .replace(/<!--\s*FAQ\s*-->/gi, '')
-        .replace(/<[^>]*>?/gm, '') // Strip HTML tags
-        .trim();
-      if (question && answer) {
-        faqPairs.push({ question, answer });
+      const rawQuestion = qMatch[1].trim();
+      const cleanQ = cleanSchemaText(rawQuestion);
+      
+      // Filter out non-question headings
+      const lowerQ = cleanQ.toLowerCase();
+      const isBlacklisted = nonQuestionKeywords.some(kw => lowerQ.includes(kw));
+      const looksLikeQuestion = cleanQ.endsWith('?') || 
+        lowerQ.startsWith('what') || 
+        lowerQ.startsWith('how') || 
+        lowerQ.startsWith('why') || 
+        lowerQ.startsWith('which') || 
+        lowerQ.startsWith('when') || 
+        lowerQ.startsWith('where') || 
+        lowerQ.startsWith('who') || 
+        lowerQ.startsWith('is ') || 
+        lowerQ.startsWith('can ') || 
+        lowerQ.startsWith('does ') || 
+        lowerQ.startsWith('do ') || 
+        lowerQ.startsWith('are ');
+
+      if (!isBlacklisted && looksLikeQuestion && cleanQ.length > 5) {
+        const rawAnswer = block
+          .replace(/###\s+.+/, '')
+          .replace(/<!--\s*FAQ\s*-->/gi, '')
+          .trim();
+        const cleanA = cleanSchemaText(rawAnswer);
+
+        if (cleanQ && cleanA && cleanA.length > 2) {
+          faqPairs.push({ question: cleanQ, answer: cleanA });
+        }
       }
     }
   }
@@ -39,7 +97,6 @@ export function extractFaqSchema(faqText: string | undefined): Record<string, an
   if (faqPairs.length === 0) return null;
 
   return {
-    '@context': 'https://schema.org',
     '@type': 'FAQPage',
     mainEntity: faqPairs.map(item => ({
       '@type': 'Question',
@@ -53,38 +110,51 @@ export function extractFaqSchema(faqText: string | undefined): Record<string, an
 }
 
 /**
- * Builds breadcrumb structured data for any given page
+ * Builds breadcrumb structured data for any given page (minimum 2 items required by Google).
  */
-export function buildBreadcrumbSchema(pageId: string, pageMd: ParsedMarkdownPage, canonicalUrl: string): Record<string, any> {
+export function buildBreadcrumbSchema(pageId: string, pageMd: ParsedMarkdownPage, canonicalUrl: string): Record<string, any> | null {
+  // Never output single-item BreadcrumbList on the homepage
+  if (pageId === 'home' || pageId === '' || pageId === 'not-found') {
+    return null;
+  }
+
   const items: Array<{ '@type': string; position: number; name: string; item: string }> = [
     {
       '@type': 'ListItem',
       position: 1,
       name: 'Home',
-      item: 'https://sokaking.com/'
+      item: 'https://sokaking.com'
     }
   ];
 
-  if (pageId === 'home' || pageId === '') {
-    return {
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: items
-    };
-  }
+  const pageTitle = pageMd.displayTitle || pageMd.title.split('|')[0].trim();
 
-  if (pageId.startsWith('category-') || pageId === '254-sure-tips' || pageId === 'cheerplex-predictions-and-tips-today' || pageId === 'liobet-predictions-and-tips' || pageId === 'predictz-predictions' || pageId === 'soccervista' || pageId === 'soccervista-predictions-and-tips' || pageId === 'sunpel-free-football-betting-tips') {
+  if (
+    pageId.startsWith('category-') || 
+    pageId === '254-sure-tips' || 
+    pageId === '254-golden-tips' ||
+    pageId === '4soka-tips' ||
+    pageId === '4soka-tips-prediction' ||
+    pageId === 'sokamastas-predictions-and-tips' ||
+    pageId === 'cheerplex-predictions-and-tips-today' || 
+    pageId === 'liobet-predictions-and-tips' || 
+    pageId === 'predictz-predictions' || 
+    pageId === 'soccervista' || 
+    pageId === 'soccervista-predictions-and-tips' || 
+    pageId === 'sunpel-free-football-betting-tips'
+  ) {
     items.push({
       '@type': 'ListItem',
       position: 2,
       name: 'Free Football Predictions',
       item: 'https://sokaking.com/football-predictions-today'
     });
+
     if (pageId !== 'category-today') {
       items.push({
         '@type': 'ListItem',
         position: 3,
-        name: pageMd.displayTitle || pageMd.title.split('|')[0].trim(),
+        name: pageTitle,
         item: canonicalUrl
       });
     }
@@ -95,15 +165,16 @@ export function buildBreadcrumbSchema(pageId: string, pageMd: ParsedMarkdownPage
       name: 'Jackpots',
       item: 'https://sokaking.com/jackpot-tips'
     });
+
     if (pageId !== 'jackpot-list') {
       items.push({
         '@type': 'ListItem',
         position: 3,
-        name: pageMd.displayTitle || pageMd.title.split('|')[0].trim(),
+        name: pageTitle,
         item: canonicalUrl
       });
     }
-  } else if (pageId === 'vip-packages' || pageId === 'vip' || pageId === 'odds') {
+  } else if (pageId === 'vip-packages' || pageId === 'vip' || pageId === 'odds' || pageId === 'odds-packs') {
     items.push({
       '@type': 'ListItem',
       position: 2,
@@ -114,13 +185,17 @@ export function buildBreadcrumbSchema(pageId: string, pageMd: ParsedMarkdownPage
     items.push({
       '@type': 'ListItem',
       position: 2,
-      name: pageMd.displayTitle || pageMd.title.split('|')[0].trim(),
+      name: pageTitle,
       item: canonicalUrl
     });
   }
 
+  // Google requires at least 2 items in BreadcrumbList
+  if (items.length < 2) {
+    return null;
+  }
+
   return {
-    '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: items
   };
@@ -131,7 +206,7 @@ export function buildBreadcrumbSchema(pageId: string, pageMd: ParsedMarkdownPage
  * 1. Article schema for Tips & Category analysis pages
  * 2. Product schema for VIP Packages and Odds Packs
  * 3. CollectionPage / ItemList schema for Lists & Hubs
- * 4. Informational WebPages (About, Contact, Privacy, Terms, FAQ)
+ * 4. Informational WebPages (AboutPage, ContactPage, WebPage)
  */
 export function generatePageJsonLd(pageId: string): SchemaGraphResult {
   const pageMd = getMarkdownContent(pageId);
@@ -165,43 +240,20 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: '+254740841375',
-      contactType: 'Customer Support & Verification',
+      contactType: 'customer service',
       email: 'support@sokapredictions.co.ke',
-      availableLanguage: ['English', 'Swahili'],
-      areaServed: ['KE', 'TZ', 'UG', 'NG', 'GH', 'ZA', 'Global']
-    },
-    publishingPrinciples: 'https://sokaking.com/about-us#editorial-policy',
-    correctionsPolicy: 'https://sokaking.com/terms-of-use#corrections',
-    knowsAbout: [
-      'Football Betting Predictions',
-      'Sports Data Science',
-      'Poisson Goal Distribution Models',
-      'Expected Goals (xG) Forecasting',
-      'Kenyan & European Jackpot Line Optimization'
-    ]
+      availableLanguage: ['en', 'sw'],
+      areaServed: 'KE'
+    }
   };
 
   const auth = pageMd.author || getAuthor(pageMd.authorId || pageMd.authorName || 'john-mwangi');
-  const rev = getAuthor(auth.reviewerName || 'david-ochieng');
 
   const authorObj = {
     '@type': 'Person',
     name: auth.name,
     jobTitle: auth.role,
     description: auth.shortBio,
-    worksFor: {
-      '@type': 'Organization',
-      name: 'Soka King'
-    },
-    knowsAbout: auth.knowsAbout,
-    url: 'https://sokaking.com/about-us'
-  };
-
-  const reviewerObj = {
-    '@type': 'Person',
-    name: rev.name || 'David Ochieng',
-    jobTitle: rev.role || 'Senior Tactical Analyst & Lead Peer Verifier',
-    description: rev.shortBio || '12+ years experience in African and European football scouting, statistical validation, and match preview auditing.',
     worksFor: {
       '@type': 'Organization',
       name: 'Soka King'
@@ -215,7 +267,7 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
   let mainSchema: Record<string, any>;
 
   // TYPE 1: VIP Packages & Odds Packs -> Product / Offer Schema
-  if (pageId === 'vip-packages' || pageId === 'vip' || pageId === 'odds') {
+  if (pageId === 'vip-packages' || pageId === 'vip' || pageId === 'odds' || pageId === 'odds-packs') {
     const offerItems = [
       ...vipPackages.map(pkg => ({
         '@type': 'Offer',
@@ -226,7 +278,10 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
         availability: 'https://schema.org/InStock',
         validFrom: '2026-01-01',
         url: canonicalUrl,
-        seller: publisherObj
+        seller: {
+          '@type': 'Organization',
+          name: 'Soka King'
+        }
       })),
       ...oddsPacks.map(pack => ({
         '@type': 'Offer',
@@ -237,16 +292,21 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
         availability: 'https://schema.org/InStock',
         validFrom: '2026-01-01',
         url: canonicalUrl,
-        seller: publisherObj
+        seller: {
+          '@type': 'Organization',
+          name: 'Soka King'
+        }
       }))
     ];
 
     mainSchema = {
-      '@context': 'https://schema.org',
       '@type': 'Product',
       name: 'Soka King VIP Predictions & Pro Odds Slips',
-      description: pageMd.description || 'Premium mathematical football prediction slips, VIP daily sure tips, mega jackpot combinations, and high-odds accumulators with verified 92% win rate.',
-      image: 'https://sokaking.com/favicon.svg',
+      description: cleanSchemaText(pageMd.description) || 'Premium mathematical football prediction slips, VIP daily sure tips, mega jackpot combinations, and high-odds accumulators with verified 92% win rate.',
+      image: [
+        'https://sokaking.com/icon.png',
+        'https://sokaking.com/apple-touch-icon.png'
+      ],
       brand: {
         '@type': 'Brand',
         name: 'Soka King VIP'
@@ -272,7 +332,9 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
           reviewBody: 'Soka King VIP helped me secure 15/17 on the SportPesa Mega Jackpot. Unbelievable precision and reliable updates!',
           reviewRating: {
             '@type': 'Rating',
-            ratingValue: '5'
+            ratingValue: '5',
+            bestRating: '5',
+            worstRating: '1'
           }
         },
         {
@@ -285,13 +347,15 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
           reviewBody: 'The daily 3+ and 5+ odds packs are exceptionally consistent. Best prediction service in Kenya.',
           reviewRating: {
             '@type': 'Rating',
-            ratingValue: '5'
+            ratingValue: '5',
+            bestRating: '5',
+            worstRating: '1'
           }
         }
       ]
     };
   }
-  // TYPE 2: Jackpot List & Home Hub -> CollectionPage / ItemList Schema
+  // TYPE 2: Jackpot List -> CollectionPage / ItemList Schema
   else if (pageId === 'jackpot-list') {
     const listElements = jackpotsData.map((jp, index) => ({
       '@type': 'ListItem',
@@ -302,10 +366,9 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
     }));
 
     mainSchema = {
-      '@context': 'https://schema.org',
       '@type': 'CollectionPage',
-      name: pageMd.title || 'Football Jackpots Predictions & Analysis Hub',
-      description: pageMd.description || 'Comprehensive football jackpot predictions, mathematical combinations, and slip analysis for SportPesa, Betika, Mozzart, and SportyBet.',
+      name: cleanSchemaText(pageMd.title) || 'Football Jackpots Predictions & Analysis Hub',
+      description: cleanSchemaText(pageMd.description) || 'Comprehensive football jackpot predictions, mathematical combinations, and slip analysis for SportPesa, Betika, Mozzart, and SportyBet.',
       url: canonicalUrl,
       mainEntity: {
         '@type': 'ItemList',
@@ -316,7 +379,7 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
       publisher: publisherObj
     };
   }
-  // TYPE 3: Home Page -> CollectionPage & WebSite Schema
+  // TYPE 3: Home Page -> CollectionPage & ItemList Schema
   else if (pageId === 'home') {
     const categoryElements = PREDICTION_CATEGORIES.map((cat, index) => ({
       '@type': 'ListItem',
@@ -327,10 +390,9 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
     }));
 
     mainSchema = {
-      '@context': 'https://schema.org',
       '@type': 'CollectionPage',
-      name: pageMd.title || 'Soka King - Kenya\'s #1 Football Predictions & Jackpot Portal',
-      description: pageMd.description || 'Free mathematical football predictions, 1X2 tips, over 2.5 goals, BTTS/GG picks, and jackpot analysis.',
+      name: cleanSchemaText(pageMd.title) || 'Soka King - Kenya\'s #1 Football Predictions & Jackpot Portal',
+      description: cleanSchemaText(pageMd.description) || 'Free mathematical football predictions, 1X2 tips, over 2.5 goals, BTTS/GG picks, and jackpot analysis.',
       url: canonicalUrl,
       mainEntity: {
         '@type': 'ItemList',
@@ -341,21 +403,25 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
       publisher: publisherObj
     };
   }
-  // TYPE 4: Informational Pages (About, Contact, Privacy, Terms, FAQ)
+  // TYPE 4: Informational / Legal WebPages (About, Contact, Privacy, Terms, Responsible Gambling, Partners)
   else if (pageId === 'about') {
     mainSchema = {
-      '@context': 'https://schema.org',
       '@type': 'AboutPage',
-      name: pageMd.title,
-      description: pageMd.description,
+      name: cleanSchemaText(pageMd.title),
+      description: cleanSchemaText(pageMd.description),
       url: canonicalUrl,
       mainEntity: {
         '@type': 'Organization',
         name: 'Soka King',
         url: 'https://sokaking.com',
-        logo: 'https://sokaking.com/icon.png',
+        logo: {
+          '@type': 'ImageObject',
+          url: 'https://sokaking.com/icon.png',
+          width: 512,
+          height: 512
+        },
         founder: authorObj,
-        foundingDate: '2022',
+        foundingDate: '2021-03-15',
         description: 'Soka King is Kenya\'s premier data-driven sports analytics platform, delivering statistical football predictions and jackpot analysis.'
       },
       publisher: publisherObj
@@ -363,10 +429,9 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
   }
   else if (pageId === 'contact') {
     mainSchema = {
-      '@context': 'https://schema.org',
       '@type': 'ContactPage',
-      name: pageMd.title,
-      description: pageMd.description,
+      name: cleanSchemaText(pageMd.title),
+      description: cleanSchemaText(pageMd.description),
       url: canonicalUrl,
       mainEntity: {
         '@type': 'Organization',
@@ -375,13 +440,61 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
         contactPoint: {
           '@type': 'ContactPoint',
           contactType: 'customer service',
-          telephone: '+254700000000',
-          email: 'support@sokaking.com',
-          availableLanguage: ['English', 'Swahili'],
-          areaServed: ['KE', 'TZ', 'UG', 'NG', 'GH', 'ZA', 'Global']
+          telephone: '+254740841375',
+          email: 'support@sokapredictions.co.ke',
+          availableLanguage: ['en', 'sw'],
+          areaServed: 'KE'
         }
       },
       publisher: publisherObj
+    };
+  }
+  else if (pageId === 'privacy-policy') {
+    mainSchema = {
+      '@type': 'WebPage',
+      name: cleanSchemaText(pageMd.title),
+      description: cleanSchemaText(pageMd.description),
+      url: canonicalUrl,
+      specialty: 'Data Privacy & Protection Policy',
+      publisher: publisherObj,
+      datePublished: datePublished,
+      dateModified: dateModified
+    };
+  }
+  else if (pageId === 'terms-of-use') {
+    mainSchema = {
+      '@type': 'WebPage',
+      name: cleanSchemaText(pageMd.title),
+      description: cleanSchemaText(pageMd.description),
+      url: canonicalUrl,
+      specialty: 'Terms of Service & Subscription Agreement',
+      publisher: publisherObj,
+      datePublished: datePublished,
+      dateModified: dateModified
+    };
+  }
+  else if (pageId === 'responsible-gambling') {
+    mainSchema = {
+      '@type': 'WebPage',
+      name: cleanSchemaText(pageMd.title),
+      description: cleanSchemaText(pageMd.description),
+      url: canonicalUrl,
+      specialty: 'Responsible Gambling & Player Protection Policy',
+      publisher: publisherObj,
+      datePublished: datePublished,
+      dateModified: dateModified
+    };
+  }
+  else if (pageId === 'partners') {
+    mainSchema = {
+      '@type': 'WebPage',
+      name: cleanSchemaText(pageMd.title),
+      description: cleanSchemaText(pageMd.description),
+      url: canonicalUrl,
+      specialty: 'Strategic Partners & Data Verification Network',
+      publisher: publisherObj,
+      datePublished: datePublished,
+      dateModified: dateModified
     };
   }
   // TYPE 5: Prediction Tips & Category Pages & Jackpot Analysis -> Article Schema
@@ -392,38 +505,36 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
       : 'Football Betting Predictions & Analysis';
 
     mainSchema = {
-      '@context': 'https://schema.org',
       '@type': 'Article',
-      headline: pageMd.displayTitle || pageMd.title.split('|')[0].trim(),
-      description: pageMd.description,
+      headline: cleanSchemaText(pageMd.displayTitle || pageMd.title.split('|')[0].trim()),
+      description: cleanSchemaText(pageMd.description),
+      image: [
+        'https://sokaking.com/icon.png',
+        'https://sokaking.com/apple-touch-icon.png'
+      ],
       url: canonicalUrl,
       mainEntityOfPage: {
         '@type': 'WebPage',
         '@id': canonicalUrl
       },
-      image: 'https://sokaking.com/favicon.svg',
       articleSection: categoryName,
       inLanguage: 'en-KE',
       author: authorObj,
-      reviewedBy: reviewerObj,
       publisher: publisherObj,
       datePublished: datePublished,
       dateModified: dateModified,
       isAccessibleForFree: true,
-      keywords: pageMd.keywords,
-      about: {
-        '@type': 'Thing',
-        name: isJackpotPage ? 'Football Jackpot Prediction' : 'Football Betting Predictions',
-        description: 'Mathematical probability calculations and quantitative soccer match forecasting.'
-      }
+      keywords: cleanSchemaText(pageMd.keywords)
     };
   }
 
-  // Construct combined Graph representation for rich JSON-LD
-  const graphEntities = [mainSchema];
+  // Construct combined Graph representation for rich JSON-LD (Only root has @context)
+  const graphEntities: Record<string, any>[] = [mainSchema];
+  
   if (breadcrumbSchema) {
     graphEntities.push(breadcrumbSchema);
   }
+  
   if (faqSchema && mainSchema['@type'] !== 'FAQPage') {
     graphEntities.push(faqSchema);
   }
@@ -440,3 +551,4 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
     fullGraph
   };
 }
+

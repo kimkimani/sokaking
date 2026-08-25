@@ -110,7 +110,7 @@ export function getNormalizedPath(path: string): string {
 }
 
 export function getPageUrl(pageId: string): string {
-  if (!pageId || pageId === 'home') return '/';
+  if (!pageId || pageId === 'home' || pageId === 'not-found' || pageId === '404') return '/';
   if (pageId === 'today') return '/football-predictions-today';
   if (PAGE_TO_URL_MAP[pageId]) return PAGE_TO_URL_MAP[pageId];
   if (pageId.startsWith('/')) return pageId;
@@ -119,6 +119,6 @@ export function getPageUrl(pageId: string): string {
 
 export function getPageIdFromUrl(pathname: string): string {
   const norm = getNormalizedPath(pathname);
-  if (norm === '/') return 'home';
-  return URL_TO_PAGE_MAP[norm] || 'not-found';
+  if (norm === '/' || norm === '/404' || norm === '/not-found') return 'home';
+  return URL_TO_PAGE_MAP[norm] || 'home';
 }

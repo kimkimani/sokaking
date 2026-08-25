@@ -304,9 +304,9 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
       {onBackToList && (
         <button 
           onClick={onBackToList}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-black text-[var(--text-muted)] hover:text-[var(--primary)] bg-slate-105 dark:bg-slate-900 border border-[var(--border)] transition-all cursor-pointer w-fit"
+          className="min-h-[44px] flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-black text-slate-800 dark:text-slate-200 hover:text-[var(--primary)] bg-slate-100 dark:bg-slate-900 border border-[var(--border)] transition-all cursor-pointer w-fit"
         >
-          <ArrowLeft className="w-3.5 h-3.5" />
+          <ArrowLeft className="w-4 h-4 text-slate-700 dark:text-slate-300" />
           <span>Back to All Jackpots</span>
         </button>
       )}
@@ -317,10 +317,10 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-emerald-500 via-[var(--primary)] to-indigo-500" />
         
         <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider font-mono bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center gap-0.5 animate-pulse">
-            <Trophy className="w-2.5 h-2.5" /> High Confidence
+          <span className="px-2.5 py-1 rounded text-[8.5px] font-black uppercase tracking-wider font-mono bg-amber-500/15 text-amber-950 dark:text-amber-200 border border-amber-500/30 flex items-center gap-1 animate-pulse">
+            <Trophy className="w-3 h-3 text-amber-600 dark:text-amber-400" /> High Confidence
           </span>
-          <span className="text-[10px] text-[var(--text-muted)] font-mono font-bold uppercase tracking-wider">
+          <span className="text-[10.5px] text-slate-700 dark:text-slate-300 font-mono font-black uppercase tracking-wider">
             {jackpot.gamesCount}-Match Card
           </span>
         </div>
@@ -365,15 +365,15 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
           <div className="pt-3 border-t border-[var(--border)]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <div>
-                <span className="text-[9px] font-mono font-extrabold text-[var(--text-muted)] uppercase block">Subscription Rate</span>
-                <span className="text-sm sm:text-base font-black font-mono text-amber-600 dark:text-amber-400 bg-amber-500/10 dark:bg-amber-400/15 px-2.5 py-0.5 rounded-md border border-amber-500/30 inline-block mt-0.5">
+                <span className="text-[9.5px] font-mono font-black text-slate-700 dark:text-slate-300 uppercase block">Subscription Rate</span>
+                <span className="text-sm sm:text-base font-black font-mono text-amber-950 dark:text-amber-200 bg-amber-500/20 dark:bg-amber-400/20 px-3 py-1 rounded-md border border-amber-500/40 inline-block mt-0.5">
                   KES {jackpot.price}
                 </span>
               </div>
             </div>
             <button 
               onClick={() => onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
-              className="px-5 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-md hover:shadow-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer border-none"
+              className="min-h-[44px] px-5 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-md hover:shadow-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer border-none"
             >
               <Smartphone className="w-4 h-4 text-slate-950" />
               <span>Get Jackpot Slip • KES {jackpot.price}</span>
@@ -385,36 +385,36 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
         <div className="p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] flex flex-col justify-between gap-4 lg:col-span-5">
           <div className="space-y-3">
             <div className="flex items-center justify-between border-b border-[var(--border)]/70 pb-2.5">
-              <span className="text-[10px] font-black font-mono text-[var(--text-muted)] uppercase tracking-wider flex items-center gap-1.5">
+              <span className="text-[10px] font-black font-mono text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                 <Trophy className="w-3.5 h-3.5 text-amber-500" /> Jackpot Pool Details
               </span>
-              <span className="text-[9px] font-mono font-bold text-slate-400 uppercase">
+              <span className="text-[9.5px] font-mono font-black text-slate-700 dark:text-slate-300 uppercase">
                 {jackpot.gamesCount}-Match Card
               </span>
             </div>
 
             <div>
-              <span className="text-[9px] font-extrabold font-mono text-[var(--text-muted)] uppercase tracking-wider block">
+              <span className="text-[9.5px] font-black font-mono text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
                 Estimated Cash Pool
               </span>
-              <div className="text-xl sm:text-2.5xl font-black text-emerald-500 font-mono tracking-tight mt-0.5">
+              <div className="text-xl sm:text-2.5xl font-black text-emerald-600 dark:text-emerald-400 font-mono tracking-tight mt-0.5">
                 {jackpot.estimatedPool}
               </div>
             </div>
 
             {/* Entry Ticket display - Info badge, NOT button looking */}
             <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-[var(--border)]/60 flex items-center justify-between">
-              <span className="text-xs font-bold text-[var(--text-muted)] font-mono">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 font-mono">
                 Official Entry Ticket:
               </span>
-              <span className="text-xs font-black text-[var(--text)] font-mono bg-slate-200/80 dark:bg-slate-800 px-3 py-1 rounded-md">
+              <span className="text-xs font-black text-slate-950 dark:text-white font-mono bg-slate-200 dark:bg-slate-800 px-3 py-1 rounded-md">
                 {jackpot.entryFee || 'KES 99'}
               </span>
             </div>
           </div>
 
-          <div className="text-[10px] text-slate-400 font-mono flex items-center gap-1.5 pt-2 border-t border-[var(--border)]/40">
-            <Clock className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+          <div className="text-[10.5px] text-slate-700 dark:text-slate-300 font-mono font-bold flex items-center gap-1.5 pt-2 border-t border-[var(--border)]/40">
+            <Clock className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
             <span className="truncate">{earliestTime ? formatJackpotStartTimeString(new Date(earliestTime), jackpot.nextGameStartTime) : jackpot.nextGameStartTime}</span>
           </div>
         </div>
@@ -584,56 +584,56 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                     {/* Teams and metadata */}
                     <div className="min-w-0 flex-1 text-left space-y-2">
                       {/* Meta header info */}
-                      <div className="flex items-center flex-wrap gap-1.5 text-[9px] font-black text-[var(--text-muted)] font-mono uppercase tracking-wider min-w-0 leading-none">
+                      <div className="flex items-center flex-wrap gap-1.5 text-[9.5px] font-black text-slate-800 dark:text-slate-200 font-mono uppercase tracking-wider min-w-0 leading-none">
                         <FlagImage countryFlag={match.countryFlag || (match as any).country_flag} flag={match.leagueFlag} countryName={match.countryName || (match as any).country_name || match.leagueCountry} />
-                        <span className="truncate max-w-[90px]">{match.leagueName || (match as any).league_name}</span>
-                        <span className="text-slate-300 dark:text-slate-700">•</span>
-                        <span className="truncate max-w-[95px]">{match.countryName || (match as any).country_name || match.leagueCountry || 'Europe'}</span>
+                        <span className="truncate max-w-[90px] text-slate-900 dark:text-slate-100 font-bold">{match.leagueName || (match as any).league_name}</span>
+                        <span className="text-slate-400 dark:text-slate-600 font-black">•</span>
+                        <span className="truncate max-w-[95px] text-slate-700 dark:text-slate-300 font-semibold">{match.countryName || (match as any).country_name || match.leagueCountry || 'Europe'}</span>
                         
                         {/* Live/FT/HT status badges */}
                         {match.status === 'LIVE' && (
-                          <span className="px-1.5 py-0.5 bg-rose-500/15 text-rose-500 border border-rose-500/20 rounded-[4px] text-[8px] tracking-normal font-mono font-bold leading-none animate-pulse flex items-center gap-0.5">
-                            <span className="w-1 h-1 rounded-full bg-rose-500 shrink-0" /> live
+                          <span className="px-2 py-0.5 bg-rose-600 text-white rounded text-[8px] tracking-normal font-mono font-black leading-none animate-pulse flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0" /> LIVE
                           </span>
                         )}
                         {match.status === 'HT' && (
-                          <span className="px-1.5 py-0.5 bg-amber-500/15 text-amber-500 border border-amber-500/20 rounded-[4px] text-[8px] tracking-normal font-mono font-bold leading-none animate-pulse">
-                            ht
+                          <span className="px-2 py-0.5 bg-amber-500 text-slate-950 font-black rounded text-[8px] tracking-normal font-mono leading-none animate-pulse">
+                            HT
                           </span>
                         )}
                         {match.status === 'FT' && (
-                          <span className="px-1.5 py-0.5 bg-slate-500/15 text-slate-500 border border-slate-500/20 rounded-[4px] text-[8px] tracking-normal font-mono font-bold leading-none">
-                            ft
+                          <span className="px-2 py-0.5 bg-slate-800 dark:bg-slate-700 text-white font-black rounded text-[8px] tracking-normal font-mono leading-none">
+                            FT
                           </span>
                         )}
                         {isDoubleChance && (
-                          <span className="px-1.5 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-[4px] text-[7.5px] tracking-normal lowercase shrink-0 font-sans leading-none font-bold">double chance</span>
+                          <span className="px-1.5 py-0.5 bg-amber-500/15 text-amber-950 dark:text-amber-200 border border-amber-500/30 rounded text-[8px] tracking-normal lowercase shrink-0 font-sans leading-none font-black">double chance</span>
                         )}
                       </div>
 
                       {/* Match kickoff date & time */}
-                      <div className="mt-1 text-[9.5px] font-mono text-indigo-500 dark:text-indigo-400 font-bold flex items-center gap-1 select-none leading-none">
-                        <Clock className="w-3 h-3 text-indigo-500 shrink-0" />
+                      <div className="mt-1 text-[10px] font-mono text-indigo-800 dark:text-indigo-300 font-black flex items-center gap-1 select-none leading-none">
+                        <Clock className="w-3 h-3 text-indigo-600 dark:text-indigo-400 shrink-0" />
                         <span>{match.kickoffTime || match.date || match.time}</span>
                       </div>
                       
                       {/* Vertical Teams & Scores Layout */}
                       <div className="space-y-1.5">
                         {/* Home team */}
-                        <div className="flex items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/30 px-2.5 py-1 rounded-lg border border-slate-100/30 dark:border-slate-800/20">
-                          <span className="text-xs font-black text-[var(--text)] truncate max-w-[170px] sm:max-w-none" title={match.homeTeam}>
+                        <div className="flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900/40 px-2.5 py-1.5 rounded-lg border border-slate-200/80 dark:border-slate-800/60">
+                          <span className="text-xs font-black text-slate-900 dark:text-slate-100 truncate max-w-[170px] sm:max-w-none" title={match.homeTeam}>
                             {match.homeTeam}
                           </span>
-                          <span className="text-[10px] font-mono font-black text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded shadow-3xs min-w-[22px] text-center shrink-0 border border-slate-100 dark:border-slate-700/50">
+                          <span className="text-[10px] font-mono font-black text-slate-900 dark:text-white bg-white dark:bg-slate-800 px-2 py-0.5 rounded shadow-xs min-w-[24px] text-center shrink-0 border border-slate-200 dark:border-slate-700">
                             {match.status === 'NS' ? '-' : (match.homeScore !== undefined && match.homeScore !== null && match.homeScore !== '-' ? match.homeScore : (match.prediction.includes('(1)') ? '2' : match.prediction.includes('(2)') ? '0' : '1'))}
                           </span>
                         </div>
                         {/* Away team */}
-                        <div className="flex items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/30 px-2.5 py-1 rounded-lg border border-slate-100/30 dark:border-slate-800/20">
-                          <span className="text-xs font-black text-[var(--text)] truncate max-w-[170px] sm:max-w-none" title={match.awayTeam}>
+                        <div className="flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900/40 px-2.5 py-1.5 rounded-lg border border-slate-200/80 dark:border-slate-800/60">
+                          <span className="text-xs font-black text-slate-900 dark:text-slate-100 truncate max-w-[170px] sm:max-w-none" title={match.awayTeam}>
                             {match.awayTeam}
                           </span>
-                          <span className="text-[10px] font-mono font-black text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded shadow-3xs min-w-[22px] text-center shrink-0 border border-slate-100 dark:border-slate-700/50">
+                          <span className="text-[10px] font-mono font-black text-slate-900 dark:text-white bg-white dark:bg-slate-800 px-2 py-0.5 rounded shadow-xs min-w-[24px] text-center shrink-0 border border-slate-200 dark:border-slate-700">
                             {match.status === 'NS' ? '-' : (match.awayScore !== undefined && match.awayScore !== null && match.awayScore !== '-' ? match.awayScore : (match.prediction.includes('(1)') ? '0' : match.prediction.includes('(2)') ? '2' : '1'))}
                           </span>
                         </div>
@@ -667,38 +667,38 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                         <button
                           key={option}
                           onClick={() => isUnlocked ? toggleExpand(match.id) : onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
-                          className={`relative py-2 px-1 rounded-lg border font-mono text-center transition-all duration-200 flex flex-col items-center justify-center min-h-[50px] overflow-hidden ${
+                          className={`relative py-2.5 px-1.5 rounded-xl border font-mono text-center transition-all duration-200 flex flex-col items-center justify-center min-h-[52px] overflow-hidden ${
                             !isUnlocked
-                              ? 'bg-slate-50 dark:bg-slate-950/40 border-dashed border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-600 cursor-pointer'
+                              ? 'bg-slate-50 dark:bg-slate-950/40 border-dashed border-slate-300 dark:border-slate-800 text-slate-500 dark:text-slate-500 cursor-pointer'
                               : isPick
-                                ? 'bg-emerald-500 border-emerald-600 text-black font-black shadow-[0_0_8px_rgba(16,185,129,0.3)] hover:opacity-90 cursor-pointer'
-                                : 'bg-[var(--card)] hover:bg-slate-100/50 dark:hover:bg-slate-900/40 border-[var(--border)] text-[var(--text-muted)] cursor-pointer'
+                                ? 'bg-emerald-500 border-emerald-600 text-slate-950 font-black shadow-[0_0_8px_rgba(16,185,129,0.3)] hover:bg-emerald-400 cursor-pointer'
+                                : 'bg-[var(--card)] hover:bg-slate-100 dark:hover:bg-slate-900 border-[var(--border)] text-slate-900 dark:text-slate-100 cursor-pointer'
                           }`}
                         >
-                          <span className={`text-[7px] font-bold block uppercase scale-90 leading-none mb-0.5 tracking-wider ${isPick && isUnlocked ? 'text-emerald-950 font-black' : 'text-slate-400 dark:text-slate-500'}`}>
+                          <span className={`text-[8px] font-black block uppercase scale-90 leading-none mb-0.5 tracking-wider ${isPick && isUnlocked ? 'text-slate-950 font-black' : 'text-slate-600 dark:text-slate-400'}`}>
                             {label}
                           </span>
-                          <span className="text-xs leading-none font-bold">
+                          <span className={`text-xs sm:text-sm leading-none font-black ${isPick && isUnlocked ? 'text-slate-950' : 'text-slate-950 dark:text-white'}`}>
                             {option}
                           </span>
-                          <span className={`text-[9px] font-extrabold leading-none mt-1 font-mono ${
+                          <span className={`text-[9.5px] font-black leading-none mt-1 font-mono ${
                             isPick && isUnlocked 
-                              ? 'text-emerald-950' 
-                              : option === '1' ? 'text-emerald-600 dark:text-emerald-400' : option === 'X' ? 'text-amber-600 dark:text-amber-400' : 'text-sky-600 dark:text-sky-400'
+                              ? 'text-slate-950' 
+                              : option === '1' ? 'text-emerald-750 dark:text-emerald-400' : option === 'X' ? 'text-amber-750 dark:text-amber-400' : 'text-sky-750 dark:text-sky-400'
                           }`}>
                             {prob}%
                           </span>
 
                           {/* Lock mask overlay for premium matches */}
                           {!isUnlocked && (
-                            <span className="absolute inset-0 bg-slate-200/50 dark:bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center text-amber-500/80 transition-all duration-300 hover:bg-slate-200/30 dark:hover:bg-slate-900/45">
-                              <Lock className="w-3.5 h-3.5" />
+                            <span className="absolute inset-0 bg-slate-200/50 dark:bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center text-amber-600 dark:text-amber-400 transition-all duration-300 hover:bg-slate-200/30 dark:hover:bg-slate-900/45">
+                              <Lock className="w-4 h-4" />
                             </span>
                           )}
 
                           {/* Success tick indicators */}
                           {isUnlocked && isPick && (
-                            <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-emerald-900 rounded-full" />
+                            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-slate-950 rounded-full" />
                           )}
                         </button>
                       );
@@ -709,15 +709,15 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                   <div className="col-span-12 md:col-span-3 flex items-center justify-between md:justify-end gap-3.5">
                     {/* Confidence percentage badge */}
                     <div className="flex flex-col items-start md:items-end shrink-0 select-none">
-                      <span className="text-[8px] text-[var(--text-muted)] uppercase font-mono font-bold tracking-wider leading-none mb-1">Confidence</span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-black font-mono leading-none border shadow-3xs ${
+                      <span className="text-[8.5px] text-slate-700 dark:text-slate-300 uppercase font-mono font-black tracking-wider leading-none mb-1">Confidence</span>
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-black font-mono leading-none border shadow-3xs ${
                         !isUnlocked 
-                          ? 'bg-slate-100 dark:bg-slate-850 text-slate-400 border-slate-200/50 dark:border-slate-800/50' 
+                          ? 'bg-slate-100 dark:bg-slate-850 text-slate-600 dark:text-slate-400 border-slate-200/50 dark:border-slate-800/50' 
                           : displayConf >= 80 
-                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 dark:bg-emerald-500/20' 
+                            ? 'bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border-emerald-500/30' 
                             : displayConf >= 70 
-                              ? 'bg-blue-500/10 text-blue-500 border-blue-500/20 dark:bg-blue-500/20' 
-                              : 'bg-amber-500/10 text-amber-500 border-amber-500/20 dark:bg-amber-500/20'
+                              ? 'bg-blue-500/15 text-blue-950 dark:text-blue-200 border-blue-500/30' 
+                              : 'bg-amber-500/15 text-amber-950 dark:text-amber-200 border-amber-500/30'
                       }`}>
                         {isUnlocked ? `${displayConf}%` : '—'}
                       </span>
@@ -728,17 +728,17 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                       {isUnlocked ? (
                         <button
                           onClick={() => toggleExpand(match.id)}
-                          className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg transition-all font-mono text-[9px] font-black uppercase tracking-wider flex items-center gap-1 border border-transparent hover:border-[var(--border)] cursor-pointer whitespace-nowrap"
+                          className="min-h-[44px] px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg transition-all font-mono text-[9.5px] font-black uppercase tracking-wider flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 cursor-pointer whitespace-nowrap"
                         >
                           <span>{isExpanded ? 'Close' : 'Read Analysis'}</span>
-                          {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-[var(--primary)]" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
+                          {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-[var(--primary)]" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
                         </button>
                       ) : (
                         <div 
                           onClick={() => onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
-                          className="flex items-center gap-1 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-800 dark:text-amber-300 px-2.5 py-1.5 rounded-lg text-[9px] font-mono font-black uppercase tracking-wider cursor-pointer animate-pulse transition-all whitespace-nowrap"
+                          className="min-h-[44px] flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 px-3.5 py-2 rounded-lg text-[10px] font-mono font-black uppercase tracking-wider cursor-pointer shadow-sm transition-all whitespace-nowrap"
                         >
-                          <Lock className="w-3 h-3 shrink-0" />
+                          <Lock className="w-3.5 h-3.5 shrink-0 text-slate-950" />
                           <span>Unlock</span>
                         </div>
                       )}
@@ -906,60 +906,60 @@ function JackpotPicksSummary({
             </p>
           </div>
         </div>
-        <div className="text-[9px] font-mono font-black uppercase text-indigo-500 bg-indigo-500/10 px-2.5 py-1 rounded border border-indigo-500/20 self-start sm:self-center">
+        <div className="text-[9.5px] font-mono font-black uppercase text-indigo-900 dark:text-indigo-200 bg-indigo-500/15 dark:bg-indigo-500/20 px-3 py-1.5 rounded-lg border border-indigo-500/30 self-start sm:self-center">
           {jackpot.gamesCount} Matches
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
         {jackpot.fixtures.map((match) => {
           // First 3 are unlocked for free preview, otherwise requires payment
           const isUnlocked = true;
           
           let displayPick = '-';
-          let badgeColor = 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-transparent';
+          let badgeColor = 'bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700';
           
           if (isUnlocked) {
             const pred = match.prediction.toUpperCase();
             if (pred.includes('(1)') || pred === '1') {
               displayPick = '1';
-              badgeColor = 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
+              badgeColor = 'bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border-emerald-500/30';
             } else if (pred.includes('(2)') || pred === '2') {
               displayPick = '2';
-              badgeColor = 'bg-blue-500/10 text-blue-500 border-blue-500/20';
+              badgeColor = 'bg-blue-500/15 text-blue-950 dark:text-blue-200 border-blue-500/30';
             } else if (pred.includes('(X)') || pred === 'X') {
               displayPick = 'X';
-              badgeColor = 'bg-amber-500/10 text-amber-500 border-amber-500/20';
+              badgeColor = 'bg-amber-500/15 text-amber-950 dark:text-amber-200 border-amber-500/30';
             } else if (pred.includes('1X') || pred.includes('X1')) {
               displayPick = '1X';
-              badgeColor = 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
+              badgeColor = 'bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border-emerald-500/30';
             } else if (pred.includes('X2') || pred.includes('2X')) {
               displayPick = 'X2';
-              badgeColor = 'bg-blue-500/10 text-blue-500 border-blue-500/20';
+              badgeColor = 'bg-blue-500/15 text-blue-950 dark:text-blue-200 border-blue-500/30';
             } else if (pred.includes('12') || pred.includes('21')) {
               displayPick = '12';
-              badgeColor = 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20';
+              badgeColor = 'bg-indigo-500/15 text-indigo-950 dark:text-indigo-200 border-indigo-500/30';
             } else {
               displayPick = match.prediction;
-              badgeColor = 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20';
+              badgeColor = 'bg-indigo-500/15 text-indigo-950 dark:text-indigo-200 border-indigo-500/30';
             }
           }
 
           return (
             <div 
               key={match.id}
-              className="flex items-center justify-between p-2 rounded-lg bg-slate-50/50 dark:bg-slate-900/10 border border-slate-100 dark:border-slate-800/60 text-[11px] gap-2 hover:border-indigo-500/20 transition-all duration-200"
+              className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800/80 text-[11.5px] gap-2 hover:border-indigo-500/30 transition-all duration-200"
             >
               <div className="flex items-center gap-2 min-w-0 flex-1">
                 {/* Number Badge */}
-                <span className="w-5 h-5 rounded bg-slate-100 dark:bg-slate-800 text-[9px] font-mono font-black text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0 border border-slate-200/40 dark:border-slate-700/40">
+                <span className="w-5 h-5 rounded bg-slate-200 dark:bg-slate-800 text-[9.5px] font-mono font-black text-slate-800 dark:text-slate-200 flex items-center justify-center shrink-0 border border-slate-300 dark:border-slate-700">
                   {match.fixtureNumber}
                 </span>
                 
                 {/* Team Names */}
                 <div className="min-w-0 flex-1 text-left leading-tight">
-                  <span className="text-slate-700 dark:text-slate-300 font-bold truncate block" title={`${match.homeTeam} vs ${match.awayTeam}`}>
-                    {match.homeTeam} <span className="text-slate-400 font-normal">v</span> {match.awayTeam}
+                  <span className="text-slate-900 dark:text-slate-100 font-bold truncate block" title={`${match.homeTeam} vs ${match.awayTeam}`}>
+                    {match.homeTeam} <span className="text-slate-500 font-semibold">v</span> {match.awayTeam}
                   </span>
                 </div>
               </div>
@@ -967,16 +967,16 @@ function JackpotPicksSummary({
               {/* Recommendation Choice */}
               <div className="shrink-0 font-mono">
                 {isUnlocked ? (
-                  <span className={`px-2 py-0.5 text-[10px] font-black border rounded shadow-3xs ${badgeColor}`}>
+                  <span className={`px-2.5 py-1 text-[10.5px] font-black border rounded-md shadow-3xs ${badgeColor}`}>
                     {displayPick}
                   </span>
                 ) : (
                   <button 
                     onClick={() => onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
-                    className="flex items-center gap-0.5 px-1.5 py-0.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-800 dark:text-amber-300 rounded text-[9px] uppercase font-black tracking-wide cursor-pointer transition-all duration-150"
+                    className="min-h-[44px] flex items-center gap-1 px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg text-[10px] uppercase font-black tracking-wide cursor-pointer transition-all duration-150 shadow-xs"
                     title="Unlock predictions"
                   >
-                    <Lock className="w-2.5 h-2.5" />
+                    <Lock className="w-3 h-3 text-slate-950" />
                     <span>Lock</span>
                   </button>
                 )}

@@ -30,7 +30,7 @@ import {
   Brain,
   Award
 } from 'lucide-react';
-import { getMarkdownContent } from '../content/markdownLoader';
+import { getMarkdownContent, buildCanonicalUrl } from '../content/markdownLoader';
 import { getAllAuthors } from '../content/authorLoader';
 import { generatePageJsonLd } from '../utils/schemaGenerator';
 import MarkdownRenderer from './MarkdownRenderer';
@@ -63,6 +63,8 @@ function SeoIndicator({
   url: string; 
   pageId: string; 
 }) {
+  const canonicalUrl = buildCanonicalUrl(url, pageId);
+
   React.useEffect(() => {
     // Dynamic page title update
     document.title = title;
@@ -82,11 +84,19 @@ function SeoIndicator({
     updateMetaTag('keywords', keywords);
     updateMetaTag('og:title', title, 'property');
     updateMetaTag('og:description', description, 'property');
-    updateMetaTag('og:url', url, 'property');
+    updateMetaTag('og:url', canonicalUrl, 'property');
     updateMetaTag('og:type', 'website', 'property');
     updateMetaTag('twitter:card', 'summary_large_image');
     updateMetaTag('twitter:title', title);
     updateMetaTag('twitter:description', description);
+
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', canonicalUrl);
 
     // Schema JSON-LD injection
     const schemaId = `schema-ld-${pageId}`;
@@ -106,11 +116,16 @@ function SeoIndicator({
         "@type": "WebPage",
         "name": title,
         "description": description,
-        "url": url,
+        "url": canonicalUrl,
         "publisher": {
           "@type": "Organization",
           "name": "Soka King",
-          "logo": "https://sokaking.com/icon.png"
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://sokaking.com/icon.png",
+            "width": 512,
+            "height": 512
+          }
         }
       });
     }
@@ -122,7 +137,7 @@ function SeoIndicator({
       const activeSchema = document.getElementById(schemaId);
       if (activeSchema) activeSchema.remove();
     };
-  }, [title, description, keywords, url, pageId]);
+  }, [title, description, keywords, url, canonicalUrl, pageId]);
 
   return null;
 }
@@ -287,7 +302,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
               title="About Soka King - Mathematical Football Predictions"
               description="Discover Soka King's state-of-the-art sports prediction engine. We use elite mathematical modeling and Poisson distribution algorithms to calculate highly accurate football tips and jackpot analysis in Kenya."
               keywords="Soka King about, Soka King company, soccer analytics Kenya, mathematical prediction model, Poisson distribution football"
-              url="https://sokaking.com/about"
+              url="https://sokaking.com/about-us"
               pageId={pageId}
             />
 
@@ -530,7 +545,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
               title="Soka King Partners & Integration Network"
               description="Explore strategic partners and verified platforms on Soka King. Connect with Safaricom M-Pesa, Opta Sports, and premier football prediction networks."
               keywords="Soka King partners, football prediction network, Safaricom M-Pesa, Opta sports feeds"
-              url="https://sokaking.com/partner"
+              url="https://sokaking.com/partners"
               pageId={pageId}
             />
 
@@ -885,7 +900,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
               title="Contact Soka King Support - Soka King Customer Dispatch"
               description="Contact Soka King support. Get fast assistance with your M-Pesa STK payment, VIP subscriptions, or jackpot keys. Dedicated 24/7 client dispatch in Nairobi."
               keywords="Soka King contact support, Soka King customer service, M-Pesa payment issue, WhatsApp football hotline Kenya"
-              url="https://sokaking.com/contact"
+              url="https://sokaking.com/contact-us"
               pageId={pageId}
             />
 

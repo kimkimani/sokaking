@@ -114,7 +114,7 @@ export default function FaqSection({
                   className="w-full p-4 flex items-center justify-between gap-3 text-left bg-transparent border-none cursor-pointer transition-colors"
                 >
                   <div className="flex items-start gap-2.5 min-w-0">
-                    <span className="text-xs font-mono font-black text-indigo-500 shrink-0 mt-0.5">
+                    <span className="text-xs font-mono font-black text-indigo-750 dark:text-indigo-300 shrink-0 mt-0.5">
                       Q{idx + 1}.
                     </span>
                     <h3 className="text-xs md:text-sm font-bold text-[var(--text)] leading-snug m-0">

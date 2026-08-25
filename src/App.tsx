@@ -57,7 +57,6 @@ const JackpotPage = lazy(() => import('./components/JackpotPage'));
 const JackpotListPage = lazy(() => import('./components/JackpotListPage'));
 const VipPackagesPage = lazy(() => import('./components/VipPackagesPage'));
 const StaticPages = lazy(() => import('./components/StaticPages'));
-const NotFoundPage = lazy(() => import('./components/NotFoundPage'));
 const PaymentModal = lazy(() => import('./components/PaymentModal'));
 
 import { 
@@ -779,16 +778,6 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   );
                 }
 
-                if (activePage === 'not-found' || activePage === '404') {
-                  return (
-                    <NotFoundPage 
-                      onNavigate={handleSelectPage} 
-                      status={404} 
-                      requestedPath={typeof window !== 'undefined' ? window.location.pathname : undefined} 
-                    />
-                  );
-                }
-
                 if (['about', 'partners', 'responsible-gambling', 'privacy-policy', 'terms-of-use', 'contact'].includes(activePage)) {
                   return (
                     <StaticPages 
@@ -1129,7 +1118,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
       </div>
 
       {/* 7. MOBILE BOTTOM NAVIGATION BAR */}
-      <nav aria-label="Mobile bottom navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--card)]/95 backdrop-blur-md border-t border-[var(--border)] px-2 py-1.5 flex items-center justify-around shadow-2xl">
+      <nav aria-label="Mobile bottom navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--card)]/95 backdrop-blur-md border-t border-[var(--border)] px-2 py-1 flex items-center justify-around shadow-2xl">
         <a
           href={getPageUrl('category-today')}
           onClick={(e) => {
@@ -1139,14 +1128,14 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
               handleScrollTo('predictions');
             }
           }}
-          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all no-underline cursor-pointer ${
+          className={`min-h-[44px] flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all no-underline cursor-pointer ${
             ['today', 'category-today', 'category-tomorrow', '254-sure-tips'].includes(activePage)
               ? 'bg-[var(--primary)] text-white shadow-3xs font-black'
-              : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--text)]'
+              : 'bg-transparent text-slate-700 dark:text-slate-300 hover:text-[var(--text)]'
           }`}
         >
           <Flame className={`w-4 h-4 mb-0.5 ${['today', 'category-today', 'category-tomorrow', '254-sure-tips'].includes(activePage) ? 'text-white' : 'text-amber-500'}`} />
-          <span>Free Tips</span>
+          <span>Today's Tips</span>
         </a>
 
         <a
@@ -1157,10 +1146,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
               handleSelectPage('sportpesa-mega');
             }
           }}
-          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all no-underline cursor-pointer ${
+          className={`min-h-[44px] flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all no-underline cursor-pointer ${
             activePage === 'sportpesa-mega'
               ? 'bg-[var(--primary)] text-white shadow-3xs font-black'
-              : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--text)]'
+              : 'bg-transparent text-slate-700 dark:text-slate-300 hover:text-[var(--text)]'
           }`}
         >
           <Trophy className={`w-4 h-4 mb-0.5 ${activePage === 'sportpesa-mega' ? 'text-white' : 'text-amber-500'}`} />
@@ -1175,10 +1164,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
               handleSelectPage('vip-packages');
             }
           }}
-          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all no-underline cursor-pointer ${
+          className={`min-h-[44px] flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all no-underline cursor-pointer ${
             activePage === 'vip-packages'
               ? 'bg-[var(--primary)] text-white shadow-3xs font-black'
-              : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--text)]'
+              : 'bg-transparent text-slate-700 dark:text-slate-300 hover:text-[var(--text)]'
           }`}
         >
           <Crown className={`w-4 h-4 mb-0.5 ${activePage === 'vip-packages' ? 'text-white' : 'text-amber-500'}`} />
@@ -1193,10 +1182,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
               handleSelectPage('jackpot-list');
             }
           }}
-          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all no-underline cursor-pointer ${
+          className={`min-h-[44px] flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all no-underline cursor-pointer ${
             ['jackpot-list', 'betika-grand', 'betika-midweek', 'sportpesa-midweek', 'mozzart-super-grand', 'mozzart-super-daily', 'sportybet-jackpot', 'betpawa-pick-jackpot', 'odibet-laki-tatu'].includes(activePage)
               ? 'bg-[var(--primary)] text-white shadow-3xs font-black'
-              : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--text)]'
+              : 'bg-transparent text-slate-700 dark:text-slate-300 hover:text-[var(--text)]'
           }`}
         >
           <Layers className={`w-4 h-4 mb-0.5 ${['jackpot-list', 'betika-grand', 'betika-midweek', 'sportpesa-midweek', 'mozzart-super-grand', 'mozzart-super-daily', 'sportybet-jackpot', 'betpawa-pick-jackpot', 'odibet-laki-tatu'].includes(activePage) ? 'text-white' : ''}`} />
@@ -1206,7 +1195,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
       {/* 8. FOOTER */}
       <footer className="mt-16 border-t border-[var(--border)] bg-slate-50 dark:bg-slate-950/60 py-12 pb-24 md:pb-12 text-xs transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-left text-slate-500 dark:text-slate-400 min-h-[220px]">
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-left text-slate-700 dark:text-slate-300 min-h-[220px]">
           
           {/* Brand Col */}
           <div className="space-y-4">
@@ -1218,7 +1207,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 SOKA <span className="text-[var(--primary)]">KING</span>
               </span>
             </div>
-            <p className="leading-relaxed text-[11px]">
+            <p className="leading-relaxed text-[11px] text-slate-700 dark:text-slate-300">
               Kenya's premier football prediction & jackpot analytics portal. Powered by advanced statistical algorithms and Poisson goal distribution models.
             </p>
             <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -1227,10 +1216,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={`https://wa.me/${siteContacts.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello Soka King Support, I need today tips')}`} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono text-[11px] font-bold hover:bg-emerald-500/20 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border border-emerald-500/30 font-mono text-[11px] font-bold hover:bg-emerald-500/25 transition-all no-underline" 
                   title="WhatsApp Hotline"
                 >
-                  <MessageSquare className="w-3.5 h-3.5" />
+                  <MessageSquare className="w-4 h-4 text-emerald-700 dark:text-emerald-300" />
                   <span>WhatsApp</span>
                 </a>
               )}
@@ -1239,10 +1228,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={siteContacts.telegram} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 font-mono text-[11px] font-bold hover:bg-sky-500/20 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-sky-500/15 text-sky-950 dark:text-sky-200 border border-sky-500/30 font-mono text-[11px] font-bold hover:bg-sky-500/25 transition-all no-underline" 
                   title="Telegram Channel"
                 >
-                  <Send className="w-3.5 h-3.5" />
+                  <Send className="w-4 h-4 text-sky-700 dark:text-sky-300" />
                   <span>Telegram</span>
                 </a>
               )}
@@ -1251,10 +1240,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={siteContacts.facebook} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 font-mono text-[11px] font-bold hover:bg-blue-500/20 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-500/15 text-blue-950 dark:text-blue-200 border border-blue-500/30 font-mono text-[11px] font-bold hover:bg-blue-500/25 transition-all no-underline" 
                   title="Facebook Page"
                 >
-                  <Facebook className="w-3.5 h-3.5" />
+                  <Facebook className="w-4 h-4 text-blue-700 dark:text-blue-300" />
                   <span>Facebook</span>
                 </a>
               )}
@@ -1263,10 +1252,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={siteContacts.twitter} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-slate-500/10 text-slate-700 dark:text-slate-300 font-mono text-[11px] font-bold hover:bg-slate-500/20 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-500/15 text-slate-950 dark:text-slate-100 border border-slate-500/30 font-mono text-[11px] font-bold hover:bg-slate-500/25 transition-all no-underline" 
                   title="Twitter / X"
                 >
-                  <Twitter className="w-3.5 h-3.5" />
+                  <Twitter className="w-4 h-4 text-slate-800 dark:text-slate-200" />
                   <span>Twitter / X</span>
                 </a>
               )}
@@ -1275,10 +1264,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={siteContacts.instagram} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-pink-500/10 text-pink-600 dark:text-pink-400 font-mono text-[11px] font-bold hover:bg-pink-500/20 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-pink-500/15 text-pink-950 dark:text-pink-200 border border-pink-500/30 font-mono text-[11px] font-bold hover:bg-pink-500/25 transition-all no-underline" 
                   title="Instagram Page"
                 >
-                  <Instagram className="w-3.5 h-3.5" />
+                  <Instagram className="w-4 h-4 text-pink-700 dark:text-pink-300" />
                   <span>Instagram</span>
                 </a>
               )}
@@ -1287,10 +1276,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={siteContacts.youtube} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-red-500/10 text-red-600 dark:text-red-400 font-mono text-[11px] font-bold hover:bg-red-500/20 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/15 text-red-950 dark:text-red-200 border border-red-500/30 font-mono text-[11px] font-bold hover:bg-red-500/25 transition-all no-underline" 
                   title="YouTube Channel"
                 >
-                  <Youtube className="w-3.5 h-3.5" />
+                  <Youtube className="w-4 h-4 text-red-700 dark:text-red-300" />
                   <span>YouTube</span>
                 </a>
               )}
@@ -1302,10 +1291,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     handleSelectPage('contact');
                   }
                 }}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-slate-200 dark:bg-slate-800 text-[var(--text)] font-mono text-[11px] font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition-all no-underline cursor-pointer" 
+                className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition-all no-underline cursor-pointer" 
                 title="Contact Support"
               >
-                <Mail className="w-3.5 h-3.5" />
+                <Mail className="w-4 h-4" />
                 <span>Contact</span>
               </a>
             </div>
@@ -1314,7 +1303,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
           {/* Quick Access */}
           <div className="space-y-3">
             <strong className="text-[var(--text)] block text-xs font-black uppercase tracking-wider font-mono">Service Links</strong>
-            <div className="flex flex-col gap-2 font-semibold text-[11px]">
+            <div className="flex flex-col gap-1 font-semibold text-xs">
               <a 
                 href={getPageUrl('category-today')}
                 onClick={(e) => {
@@ -1324,7 +1313,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     handleScrollTo('predictions');
                   }
                 }}
-                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+                className="min-h-[44px] py-2 px-2 -mx-2 rounded-md flex items-center text-left hover:text-[var(--primary)] hover:bg-slate-200/50 dark:hover:bg-slate-900/50 transition-colors no-underline cursor-pointer text-slate-800 dark:text-slate-200 font-bold"
               >
                 Free Predictions
               </a>
@@ -1336,7 +1325,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     handleSelectPage('jackpot-list');
                   }
                 }}
-                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+                className="min-h-[44px] py-2 px-2 -mx-2 rounded-md flex items-center text-left hover:text-[var(--primary)] hover:bg-slate-200/50 dark:hover:bg-slate-900/50 transition-colors no-underline cursor-pointer text-slate-800 dark:text-slate-200 font-bold"
               >
                 Premium Jackpots
               </a>
@@ -1348,7 +1337,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     handleSelectPage('vip-packages');
                   }
                 }}
-                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+                className="min-h-[44px] py-2 px-2 -mx-2 rounded-md flex items-center text-left hover:text-[var(--primary)] hover:bg-slate-200/50 dark:hover:bg-slate-900/50 transition-colors no-underline cursor-pointer text-slate-800 dark:text-slate-200 font-bold"
               >
                 VIP Subscription
               </a>
@@ -1365,7 +1354,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     }
                   }
                 }}
-                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+                className="min-h-[44px] py-2 px-2 -mx-2 rounded-md flex items-center text-left hover:text-[var(--primary)] hover:bg-slate-200/50 dark:hover:bg-slate-900/50 transition-colors no-underline cursor-pointer text-slate-800 dark:text-slate-200 font-bold"
               >
                 Odds Packs & Slips
               </a>
@@ -1375,7 +1364,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
           {/* Legal / Pages */}
           <div className="space-y-3">
             <strong className="text-[var(--text)] block text-xs font-black uppercase tracking-wider font-mono">Soka King Network</strong>
-            <div className="flex flex-col gap-2 font-semibold text-[11px]">
+            <div className="flex flex-col gap-1 font-semibold text-xs">
               <a 
                 href={getPageUrl('about')}
                 onClick={(e) => {
@@ -1384,7 +1373,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     handleSelectPage('about');
                   }
                 }}
-                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+                className="min-h-[44px] py-2 px-2 -mx-2 rounded-md flex items-center text-left hover:text-[var(--primary)] hover:bg-slate-200/50 dark:hover:bg-slate-900/50 transition-colors no-underline cursor-pointer text-slate-800 dark:text-slate-200 font-bold"
               >
                 About Soka King
               </a>
@@ -1396,7 +1385,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     handleSelectPage('partners');
                   }
                 }}
-                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+                className="min-h-[44px] py-2 px-2 -mx-2 rounded-md flex items-center text-left hover:text-[var(--primary)] hover:bg-slate-200/50 dark:hover:bg-slate-900/50 transition-colors no-underline cursor-pointer text-slate-800 dark:text-slate-200 font-bold"
               >
                 Strategic Partners
               </a>
@@ -1408,7 +1397,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     handleSelectPage('privacy-policy');
                   }
                 }}
-                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+                className="min-h-[44px] py-2 px-2 -mx-2 rounded-md flex items-center text-left hover:text-[var(--primary)] hover:bg-slate-200/50 dark:hover:bg-slate-900/50 transition-colors no-underline cursor-pointer text-slate-800 dark:text-slate-200 font-bold"
               >
                 Privacy Policy
               </a>
@@ -1420,7 +1409,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     handleSelectPage('terms-of-use');
                   }
                 }}
-                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+                className="min-h-[44px] py-2 px-2 -mx-2 rounded-md flex items-center text-left hover:text-[var(--primary)] hover:bg-slate-200/50 dark:hover:bg-slate-900/50 transition-colors no-underline cursor-pointer text-slate-800 dark:text-slate-200 font-bold"
               >
                 Terms of Use
               </a>
@@ -1432,7 +1421,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     handleSelectPage('contact');
                   }
                 }}
-                className="text-left hover:text-[var(--primary)] no-underline cursor-pointer text-slate-500 dark:text-slate-400 text-xs"
+                className="min-h-[44px] py-2 px-2 -mx-2 rounded-md flex items-center text-left hover:text-[var(--primary)] hover:bg-slate-200/50 dark:hover:bg-slate-900/50 transition-colors no-underline cursor-pointer text-slate-800 dark:text-slate-200 font-bold"
               >
                 Contact Support
               </a>
@@ -1442,7 +1431,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
           {/* Responsible Gaming */}
           <div className="space-y-3">
             <strong className="text-[var(--text)] block text-xs font-black uppercase tracking-wider font-mono">Player Protection</strong>
-            <p className="leading-relaxed text-[11px]">
+            <p className="leading-relaxed text-[11px] text-slate-700 dark:text-slate-300">
               Sports prediction is speculative. Soka King does not host betting. Strictly 18+ for players in Kenya.
             </p>
             <div className="pt-1">
@@ -1454,9 +1443,9 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     handleSelectPage('responsible-gambling');
                   }
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-[10px] font-mono font-bold uppercase tracking-wider border border-rose-500/20 transition-all no-underline cursor-pointer"
+                className="min-h-[44px] inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-950 dark:text-rose-200 text-[10.5px] font-mono font-black uppercase tracking-wider border border-rose-500/30 transition-all no-underline cursor-pointer"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+                <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping" />
                 <span>Responsible Gambling</span>
               </a>
             </div>
@@ -1465,11 +1454,11 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
         </div>
 
         {/* Lower row */}
-        <div className="max-w-7xl mx-auto px-4 border-t border-[var(--border)] mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-400">
-          <div>
+        <div className="max-w-7xl mx-auto px-4 border-t border-[var(--border)] mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-700 dark:text-slate-300">
+          <div className="font-medium text-[11px]">
             © 2026 SOKA KING. Kenya's #1 Data-Driven Football Predictions & Jackpot Portal. All rights reserved.
           </div>
-          <div className="flex gap-4 font-mono font-semibold">
+          <div className="flex flex-wrap items-center gap-2 font-mono font-bold text-[11px]">
             <a 
               href={getPageUrl('privacy-policy')}
               onClick={(e) => {
@@ -1478,11 +1467,11 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   handleSelectPage('privacy-policy');
                 }
               }}
-              className="hover:text-[var(--primary)] no-underline cursor-pointer text-[10px] text-slate-400"
+              className="min-h-[44px] px-2 inline-flex items-center hover:text-[var(--primary)] text-slate-750 dark:text-slate-200 no-underline cursor-pointer"
             >
               Privacy
             </a>
-            <span>•</span>
+            <span className="text-slate-400 dark:text-slate-600 select-none">•</span>
             <a 
               href={getPageUrl('terms-of-use')}
               onClick={(e) => {
@@ -1491,11 +1480,11 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   handleSelectPage('terms-of-use');
                 }
               }}
-              className="hover:text-[var(--primary)] no-underline cursor-pointer text-[10px] text-slate-400"
+              className="min-h-[44px] px-2 inline-flex items-center hover:text-[var(--primary)] text-slate-750 dark:text-slate-200 no-underline cursor-pointer"
             >
               Terms
             </a>
-            <span>•</span>
+            <span className="text-slate-400 dark:text-slate-600 select-none">•</span>
             <a 
               href={getPageUrl('responsible-gambling')}
               onClick={(e) => {
@@ -1504,12 +1493,19 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   handleSelectPage('responsible-gambling');
                 }
               }}
-              className="hover:text-[var(--primary)] no-underline cursor-pointer text-[10px] text-slate-400"
+              className="min-h-[44px] px-2 inline-flex items-center hover:text-[var(--primary)] text-slate-750 dark:text-slate-200 no-underline cursor-pointer"
             >
               Responsibility
             </a>
-            <span>•</span>
-            <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--primary)] text-[10px] text-slate-400 no-underline">XML Sitemap</a>
+            <span className="text-slate-400 dark:text-slate-600 select-none">•</span>
+            <a 
+              href="/sitemap.xml" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="min-h-[44px] px-2 inline-flex items-center hover:text-[var(--primary)] text-slate-750 dark:text-slate-200 no-underline"
+            >
+              XML Sitemap
+            </a>
           </div>
         </div>
       </footer>

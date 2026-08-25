@@ -1,10 +1,11 @@
+import { redirect } from 'next/navigation';
 import { Metadata } from 'next';
 import { getPageMetadata } from '@/src/lib/generatePageMetadata';
 import SokaPageServer from '@/src/components/SokaPageServer';
 import { getMarkdownContent, getAllMarkdownPages } from '@/src/content/markdownLoader';
 import { URL_TO_PAGE_MAP, PAGE_TO_URL_MAP } from '@/src/utils/navigation';
 
-function resolvePageId(path: string): { pageId: string; canonicalPath: string } {
+function resolvePageId(path: string): { pageId: string; canonicalPath: string } | null {
   let normPath = path.toLowerCase().trim();
   if (normPath.endsWith('/') && normPath !== '/') {
     normPath = normPath.slice(0, -1);
@@ -29,14 +30,17 @@ function resolvePageId(path: string): { pageId: string; canonicalPath: string } 
     }
   }
 
-  return { pageId: 'category-today', canonicalPath: '/football-predictions-today' };
+  return null;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
   const { slug } = await params;
   const path = '/' + (slug ? slug.join('/') : '');
-  const { pageId, canonicalPath } = resolvePageId(path);
-  return getPageMetadata(pageId, canonicalPath);
+  const resolved = resolvePageId(path);
+  if (!resolved) {
+    return getPageMetadata('home', '/');
+  }
+  return getPageMetadata(resolved.pageId, resolved.canonicalPath);
 }
 
 export async function generateStaticParams() {
@@ -64,6 +68,11 @@ export async function generateStaticParams() {
 export default async function DynamicCatchAllPage({ params }: { params: Promise<{ slug: string[] }> }) {
   const { slug } = await params;
   const path = '/' + (slug ? slug.join('/') : '');
-  const { pageId, canonicalPath } = resolvePageId(path);
-  return <SokaPageServer pageId={pageId} customCanonical={canonicalPath} />;
+  const resolved = resolvePageId(path);
+
+  if (!resolved) {
+    redirect('/');
+  }
+
+  return <SokaPageServer pageId={resolved.pageId} customCanonical={resolved.canonicalPath} />;
 }

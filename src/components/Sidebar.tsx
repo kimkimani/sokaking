@@ -51,7 +51,7 @@ export default function Sidebar({
   };
 
   const menuItems = [
-    { label: "Free Tips", icon: TrendingUp, id: 'home', color: 'text-amber-500' },
+    { label: "Home Predictions", icon: TrendingUp, id: 'home', color: 'text-amber-500' },
     { label: "Jackpots", icon: Trophy, id: 'jackpot-list', color: 'text-emerald-500' },
     { label: "Odds Packs", icon: Percent, id: 'odds-packs', color: 'text-indigo-400' },
     { label: "Mega JP", icon: Trophy, id: 'sportpesa-mega', color: 'text-amber-400' },

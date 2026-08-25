@@ -167,9 +167,9 @@ export default function PredictionsList({
       if (s === 'HT') return 'bg-amber-500 text-slate-950 font-black animate-pulse';
       return 'bg-rose-600 text-white font-black animate-pulse shadow-xs';
     }
-    if (s === 'FT' || s === 'AET' || s === 'AP') return 'bg-emerald-600 text-white font-bold';
-    if (s === 'NS') return 'bg-slate-500/80 text-white';
-    return 'bg-slate-600 text-white';
+    if (s === 'FT' || s === 'AET' || s === 'AP') return 'bg-emerald-700 text-white font-bold';
+    if (s === 'NS') return 'bg-slate-800 dark:bg-slate-700 text-white font-black';
+    return 'bg-slate-700 text-white font-bold';
   };
 
   const getResultBadge = (fixture: Fixture, showScore = true) => {
@@ -374,7 +374,7 @@ export default function PredictionsList({
                   <div className="flex items-center justify-between gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-1.5">
                     <div className="flex items-center gap-1.5 min-w-0">
                       <FlagImage countryFlag={fixture.countryFlag || (fixture as any).country_flag} flag={fixture.leagueFlag} countryName={fixture.countryName || fixture.leagueCountry || (fixture as any).country_name} />
-                      <span className="font-mono text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate">
+                      <span className="font-mono text-[9.5px] font-black text-slate-750 dark:text-slate-200 uppercase tracking-wider truncate">
                         {(fixture.countryName || fixture.leagueCountry || (fixture as any).country_name) ? `${fixture.countryName || fixture.leagueCountry || (fixture as any).country_name} • ` : ''}{fixture.leagueName || (fixture as any).league_name}
                       </span>
                     </div>
@@ -382,8 +382,8 @@ export default function PredictionsList({
                     <div className="flex items-center gap-1 shrink-0">
                       {/* Time Pill */}
                       {!isCompleted && (
-                        <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold text-slate-600 dark:text-slate-300">
-                          <Clock className="w-2.5 h-2.5 text-slate-400" />
+                        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold text-slate-800 dark:text-slate-200">
+                          <Clock className="w-2.5 h-2.5 text-slate-600 dark:text-slate-400" />
                           <span>{formatTime(fixture.kickoffTime)}</span>
                         </div>
                       )}
@@ -476,15 +476,15 @@ export default function PredictionsList({
                       : 'bg-indigo-500/[0.06] dark:bg-indigo-500/12 border-indigo-500/20 dark:border-indigo-500/25'
                   }`}>
                     <div className="min-w-0 flex-1 flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[10px] uppercase font-mono font-black text-slate-500 dark:text-slate-400 shrink-0">TIP:</span>
+                      <span className="text-[10px] uppercase font-mono font-black text-slate-800 dark:text-slate-200 shrink-0">TIP:</span>
                       <span className={`text-[11px] sm:text-xs font-mono font-bold tracking-tight flex items-center gap-1 px-2 py-0.5 rounded-md border ${
                         isCompleted
-                          ? 'bg-slate-200/60 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border-slate-300/60 dark:border-slate-700'
-                          : 'bg-indigo-600/10 dark:bg-indigo-500/20 text-indigo-900 dark:text-indigo-200 border-indigo-500/30'
+                          ? 'bg-slate-200/60 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 border-slate-300/60 dark:border-slate-700'
+                          : 'bg-indigo-600/10 dark:bg-indigo-500/20 text-indigo-950 dark:text-indigo-100 border-indigo-500/30'
                       }`}>
                         <span className="font-bold tracking-tight">{fixture.prediction}</span>
                         {(isWon || (isCompleted && fixture.result === 'won')) && (
-                          <span className="inline-flex items-center justify-center bg-emerald-500 text-white font-black rounded-full w-3.5 h-3.5 text-[8px] ml-0.5 shrink-0">✓</span>
+                          <span className="inline-flex items-center justify-center bg-emerald-600 text-white font-black rounded-full w-3.5 h-3.5 text-[8px] ml-0.5 shrink-0">✓</span>
                         )}
                       </span>
                     </div>

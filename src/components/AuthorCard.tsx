@@ -58,34 +58,34 @@ export const AuthorCard: React.FC<AuthorCardProps> = ({
     switch (type) {
       case 'modeler':
         return {
-          bg: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20',
-          icon: <Sparkles className="w-3 h-3 text-indigo-500" />
+          bg: 'bg-indigo-500/15 text-indigo-900 dark:text-indigo-200 border-indigo-500/30',
+          icon: <Sparkles className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
         };
       case 'experience':
         return {
-          bg: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
-          icon: <Award className="w-3 h-3 text-blue-500" />
+          bg: 'bg-blue-500/15 text-blue-900 dark:text-blue-200 border-blue-500/30',
+          icon: <Award className="w-3 h-3 text-blue-600 dark:text-blue-400" />
         };
       case 'tactical':
         return {
-          bg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-          icon: <Crosshair className="w-3 h-3 text-amber-500" />
+          bg: 'bg-amber-500/15 text-amber-950 dark:text-amber-200 border-amber-500/30',
+          icon: <Crosshair className="w-3 h-3 text-amber-600 dark:text-amber-400" />
         };
       case 'security':
         return {
-          bg: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
-          icon: <Lock className="w-3 h-3 text-purple-500" />
+          bg: 'bg-purple-500/15 text-purple-950 dark:text-purple-200 border-purple-500/30',
+          icon: <Lock className="w-3 h-3 text-purple-600 dark:text-purple-400" />
         };
       case 'support':
         return {
-          bg: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
-          icon: <HeartHandshake className="w-3 h-3 text-rose-500" />
+          bg: 'bg-rose-500/15 text-rose-950 dark:text-rose-200 border-rose-500/30',
+          icon: <HeartHandshake className="w-3 h-3 text-rose-600 dark:text-rose-400" />
         };
       case 'verified':
       default:
         return {
-          bg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
-          icon: <ShieldCheck className="w-3 h-3 text-emerald-500" />
+          bg: 'bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border-emerald-500/30',
+          icon: <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
         };
     }
   };

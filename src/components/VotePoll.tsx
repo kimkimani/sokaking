@@ -530,7 +530,7 @@ export default function VotePoll({
     return (
       <button 
         type="button"
-        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100/80 dark:bg-slate-800/60 hover:bg-amber-500/10 hover:border-amber-500/30 border border-slate-200/60 dark:border-slate-750/70 text-left transition-all duration-150 group select-none cursor-pointer mt-0.5 max-w-full truncate ${className}`}
+        className={`min-h-[44px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-amber-500/15 hover:border-amber-500/40 border border-slate-300 dark:border-slate-700 text-left transition-all duration-150 group select-none cursor-pointer mt-0.5 max-w-full truncate ${className}`}
         onClick={(e) => {
           if (onExpand) {
             e.stopPropagation();
@@ -539,14 +539,14 @@ export default function VotePoll({
         }}
         title="Click to view fan poll & cast your vote"
       >
-        <Users className="w-3 h-3 text-amber-500 shrink-0 group-hover:scale-110 transition-transform" />
+        <Users className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0 group-hover:scale-110 transition-transform" />
 
         {stats.totalVotes === 0 ? (
-          <span className="text-[9.5px] font-mono text-[var(--text-muted)] group-hover:text-amber-600 dark:group-hover:text-amber-400">
-            Fan Poll <span className="text-amber-500 font-bold">• Vote</span>
+          <span className="text-[10px] font-mono text-slate-700 dark:text-slate-300 group-hover:text-amber-700 dark:group-hover:text-amber-300 font-bold">
+            Fan Poll <span className="text-amber-600 dark:text-amber-400 font-black">• Vote</span>
           </span>
         ) : (
-          <div className="flex items-center gap-1 text-[9.5px] font-mono leading-none">
+          <div className="flex items-center gap-1.5 text-[10px] font-mono leading-none">
             {(() => {
               let topOpt = market.options[0];
               let topP = exactCalculations.pcts[market.options[0].key] ?? 0;
@@ -559,19 +559,19 @@ export default function VotePoll({
               }
 
               return (
-                <span className="text-[var(--text)] font-extrabold flex items-center gap-1">
+                <span className="text-slate-900 dark:text-slate-100 font-black flex items-center gap-1">
                   <span>{topP}%</span>
-                  <span className="text-[var(--text-muted)] font-bold">{topOpt.shortLabel}</span>
+                  <span className="text-slate-700 dark:text-slate-300 font-bold">{topOpt.shortLabel}</span>
                 </span>
               );
             })()}
-            <span className="text-[8.5px] text-slate-400 dark:text-slate-500 font-mono">({stats.totalVotes})</span>
+            <span className="text-[9.5px] text-slate-600 dark:text-slate-400 font-mono font-semibold">({stats.totalVotes})</span>
           </div>
         )}
 
         {stats.userVote && (
-          <span className="inline-flex items-center text-emerald-500 shrink-0 ml-0.5" title={`You voted ${stats.userVote}`}>
-            <CheckCircle2 className="w-2.5 h-2.5" />
+          <span className="inline-flex items-center text-emerald-600 dark:text-emerald-400 shrink-0 ml-0.5" title={`You voted ${stats.userVote}`}>
+            <CheckCircle2 className="w-3 h-3 font-bold" />
           </span>
         )}
       </button>
@@ -582,7 +582,7 @@ export default function VotePoll({
   if (variant === 'card') {
     return (
       <div 
-        className={`w-full p-2.5 rounded-xl bg-slate-50/90 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 text-left space-y-2 select-none ${className}`}
+        className={`w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-left space-y-2 select-none ${className}`}
         onClick={(e) => {
           if (onExpand) {
             e.stopPropagation();
@@ -592,12 +592,12 @@ export default function VotePoll({
       >
         {/* Minimal Header */}
         <div className="flex items-center justify-between text-[11px]">
-          <div className="flex items-center gap-1.5 font-extrabold text-[var(--text)]">
-            <Users className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+          <div className="flex items-center gap-1.5 font-black text-slate-900 dark:text-slate-100">
+            <Users className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
             <span>{market.question}</span>
           </div>
 
-          <span className="text-[10px] font-mono text-[var(--text-muted)] font-bold">
+          <span className="text-[10px] font-mono text-slate-700 dark:text-slate-300 font-bold">
             {stats.totalVotes === 0 ? '0 votes' : `${stats.totalVotes} votes`}
           </span>
         </div>
@@ -616,10 +616,10 @@ export default function VotePoll({
                   e.stopPropagation();
                   castVote(opt);
                 }}
-                className={`relative overflow-hidden py-1.5 px-2 rounded-lg border text-center transition-all duration-200 cursor-pointer flex flex-col items-center justify-center min-h-[46px] ${
+                className={`relative overflow-hidden py-2 px-2 rounded-lg border text-center transition-all duration-200 cursor-pointer flex flex-col items-center justify-center min-h-[48px] ${
                   isVoted
-                    ? 'bg-emerald-500/15 border-emerald-500 text-emerald-700 dark:text-emerald-300 font-extrabold ring-1 ring-emerald-500/40 shadow-xs'
-                    : 'bg-white dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-750 text-[var(--text)] hover:border-amber-500/50 active:scale-[0.98]'
+                    ? 'bg-emerald-500/15 border-emerald-500 text-emerald-950 dark:text-emerald-200 font-black ring-1 ring-emerald-500/40 shadow-xs'
+                    : 'bg-white dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:border-amber-500/50 active:scale-[0.98]'
                 }`}
               >
                 {/* Visual Progress Fill */}
@@ -644,13 +644,13 @@ export default function VotePoll({
                     {opt.label}
                   </span>
                   {isVoted && (
-                    <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0 font-black" />
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0 font-black" />
                   )}
                 </div>
 
                 {/* Big Clean Percentage */}
                 <span className={`relative z-10 text-[11.5px] font-black font-mono mt-0.5 leading-none ${
-                  isVoted ? 'text-emerald-600 dark:text-emerald-400' : 'text-[var(--text-muted)]'
+                  isVoted ? 'text-emerald-800 dark:text-emerald-300' : 'text-slate-800 dark:text-slate-200'
                 }`}>
                   {stats.totalVotes === 0 ? '0%' : `${percentVal}%`}
                 </span>
