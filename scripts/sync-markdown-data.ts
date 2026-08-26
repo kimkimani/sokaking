@@ -29,10 +29,12 @@ interface PageMeta {
   unlockDescription?: string;
   listTitle?: string;
   listSubtitle?: string;
+  faqTitle?: string;
+  faqHeading?: string;
 }
 
 function parseFrontmatterFromRaw(rawMd: string, keyName: string): PageMeta {
-  let title = 'Soka King | Free Football Predictions & Jackpot Tips';
+  let title = 'Soka King | Free Football Predictions and Jackpot Tips';
   let displayTitle = '';
   let description = 'Free football predictions, jackpot tips, and betting analysis.';
   let keywords = 'football predictions, jackpot tips, soccer predictions';
@@ -191,7 +193,7 @@ function parseFrontmatterFromRaw(rawMd: string, keyName: string): PageMeta {
     .replace(/<!--\s*(Title|DisplayTitle|PageTitle|Description|Keywords|Link|Type|JackpotId|AuthorName|AuthorTitle|AuthorDescription|AuthorAvatar|ResponsibleGambling|InboundTitle|InboundHeading|InboundDescription|InboundSubtitle|InboundBadge|RelatedTitle|RelatedHeading|RelatedDescription|RelatedSubtitle|RelatedBadge|UnlockHeading|UnlockDescription|ListTitle|ListSubtitle):\s*.+?\s*-->/gi, '')
     .trim();
 
-  if (title === 'Soka King | Free Football Predictions & Jackpot Tips') {
+  if (title === 'Soka King | Free Football Predictions and Jackpot Tips') {
     const h1Match = cleanedContent.match(/^#\s+(.+)$/m);
     if (h1Match) title = h1Match[1].trim();
   }
@@ -210,7 +212,7 @@ function parseFrontmatterFromRaw(rawMd: string, keyName: string): PageMeta {
     badgeColor,
     authorId: authorId || 'john-mwangi',
     authorName: authorName || 'John K. Mwangi',
-    authorTitle: authorTitle || 'Lead Football Analyst & Poisson Modeler',
+    authorTitle: authorTitle || 'Lead Football Analyst and Poisson Modeler',
     authorAvatar: authorAvatar || undefined,
     responsibleGambling: responsibleGambling || undefined,
     inboundTitle: inboundTitle || undefined,
@@ -268,7 +270,7 @@ ${mapEntries.join(',\n\n')}
     // 2. Generate Lightweight Page Metadata Map (< 5KB)
     const metaContent = `/**
  * AUTO-GENERATED LIGHTWEIGHT PAGE METADATA MAP
- * Extracted at build time for 0-cost routing, instant startup & 0 forced reflows
+ * Extracted at build time for 0-cost routing, instant startup and 0 forced reflows
  */
 
 export interface PageMetadata {
@@ -299,6 +301,8 @@ export interface PageMetadata {
   unlockDescription?: string;
   listTitle?: string;
   listSubtitle?: string;
+  faqTitle?: string;
+  faqHeading?: string;
 }
 
 export const PAGE_METADATA_MAP: Record<string, PageMetadata> = ${JSON.stringify(metaMap, null, 2)};

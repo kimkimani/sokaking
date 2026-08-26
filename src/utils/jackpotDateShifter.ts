@@ -52,7 +52,7 @@ export function getJackpotStatusDisplay(fixtures: any[]): {
     return {
       status: 'ended',
       label: 'Completed and closed',
-      badgeText: 'Completed & Closed',
+      badgeText: 'Completed and Closed',
       badgeClass: 'bg-rose-500/10 text-rose-500 border border-rose-500/20'
     };
   }

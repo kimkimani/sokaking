@@ -37,8 +37,11 @@ const albert = Albert_Sans({ subsets: ['latin'], variable: '--font-albert', weig
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', weight: ['400', '500', '700'], display: 'swap' });
 
 export const metadata = {
-  title: 'Soka King - Premium Sports Predictions & Jackpots',
+  title: 'Soka King - Premium Sports Predictions and Jackpots',
   description: 'AI-Powered premium football tips, custom analytical tools, VIP packages, and major jackpots',
+  verification: {
+    google: 'QZkU02Oxl2MsbWtxkg9zgF79m7ek94D6-2V0pvR9tmE'
+  },
   icons: {
     icon: [
       { url: '/favicon.svg?v=sk', type: 'image/svg+xml' },
@@ -85,6 +88,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=sk" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=sk" />
         <link rel="manifest" href="/site.webmanifest?v=sk" />
+        <meta name="google-site-verification" content="QZkU02Oxl2MsbWtxkg9zgF79m7ek94D6-2V0pvR9tmE" />
       </head>
       <body suppressHydrationWarning>{children}</body>
     </html>

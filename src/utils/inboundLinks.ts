@@ -20,7 +20,7 @@ export interface InboundLinksGroup {
 }
 
 /**
- * Curated defaults & overrides for established pages
+ * Curated defaults and overrides for established pages
  */
 const CURATED_LINKS: Record<string, Partial<InboundLinkItem>> = {
   // --- COMPETITOR / ALTERNATIVE PORTAL PAGES ---
@@ -46,38 +46,6 @@ const CURATED_LINKS: Record<string, Partial<InboundLinkItem>> = {
     description: 'Daily Sokamasta football tips, 1X2 banker slips, and Poisson goal distribution forecasts.',
     tag: 'Sokamasta Picks',
     icon: '⚡',
-    type: 'competitor',
-  },
-  'cheerplex-predictions-and-tips-today': {
-    title: 'Cheerplex Predictions Today',
-    url: '/cheerplex-predictions-and-tips-today',
-    description: 'Daily mathematical soccer tips, 1X2 value picks, and high win-rate accumulators.',
-    tag: 'Cheerplex Picks',
-    icon: '🔥',
-    type: 'competitor',
-  },
-  'liobet-predictions-and-tips': {
-    title: 'Liobet Predictions & Tips',
-    url: '/liobet-predictions-and-tips',
-    description: 'Statistical match simulations, Poisson probability ratings, and league tables.',
-    tag: 'Liobet Model',
-    icon: '📊',
-    type: 'competitor',
-  },
-  'predictz-predictions': {
-    title: 'PredictZ Predictions Today',
-    url: '/predictz-predictions',
-    description: 'Accurate goal distribution models and 1X2 outcome ratings inspired by PredictZ.',
-    tag: 'PredictZ Analysis',
-    icon: '⚡',
-    type: 'competitor',
-  },
-  'soccervista-predictions-and-tips': {
-    title: 'SoccerVista Predictions',
-    url: '/soccervista-predictions-and-tips',
-    description: 'Deep mathematical football statistics, head-to-head metrics, and value odds.',
-    tag: 'SoccerVista Tips',
-    icon: '🌐',
     type: 'competitor',
   },
   'sunpel-free-football-betting-tips': {
@@ -237,9 +205,9 @@ const CURATED_LINKS: Record<string, Partial<InboundLinkItem>> = {
     type: 'jackpot',
   },
 
-  // --- STATIC & VIP PAGES ---
+  // --- STATIC and VIP PAGES ---
   'vip-packages': {
-    title: 'VIP Packages & Daily Odds',
+    title: 'VIP Packages and Daily Odds',
     url: '/vip-packages',
     description: 'Premium curated 2+ odds, 5+ odds shortlists, and guaranteed jackpot slips via M-Pesa.',
     tag: 'VIP Subscription',
@@ -255,7 +223,7 @@ const CURATED_LINKS: Record<string, Partial<InboundLinkItem>> = {
     type: 'static',
   },
   'partners': {
-    title: 'Strategic Partners & Affiliates',
+    title: 'Strategic Partners and Affiliates',
     url: '/partners',
     description: 'Explore our sports data feeds, API providers, and strategic betting network partners.',
     tag: 'Data Affiliates',
@@ -271,7 +239,7 @@ const CURATED_LINKS: Record<string, Partial<InboundLinkItem>> = {
     type: 'static',
   },
   'privacy-policy': {
-    title: 'Privacy Policy & Data Security',
+    title: 'Privacy Policy and Data Security',
     url: '/privacy-policy',
     description: 'How we safeguard user telephone numbers, M-Pesa transaction IDs, and privacy.',
     tag: 'Data Compliance',
@@ -279,15 +247,15 @@ const CURATED_LINKS: Record<string, Partial<InboundLinkItem>> = {
     type: 'static',
   },
   'terms-of-use': {
-    title: 'Terms of Use & Disclaimer',
+    title: 'Terms of Use and Disclaimer',
     url: '/terms-of-use',
     description: 'Digital subscription agreement, age limits (18+), and service warranty terms.',
-    tag: 'Terms & Legal',
+    tag: 'Terms and Legal',
     icon: '⚖️',
     type: 'static',
   },
   'contact': {
-    title: 'Customer Dispatch & Support',
+    title: 'Customer Dispatch and Support',
     url: '/contact-us',
     description: '24/7 WhatsApp dispatch, email ticketing, and Nairobi headquarters contact details.',
     tag: '24/7 Support',
@@ -303,40 +271,22 @@ const CURATED_LINKS: Record<string, Partial<InboundLinkItem>> = {
 export function getAllInboundLinks(): Record<string, InboundLinkItem> {
   const links: Record<string, InboundLinkItem> = {};
 
-  // 1. First add curated entries
-  for (const [id, curated] of Object.entries(CURATED_LINKS)) {
-    links[id] = {
-      id,
-      title: curated.title || id,
-      url: curated.url || getPageUrl(id),
-      description: curated.description || 'Verified football analysis and mathematical prediction tips.',
-      tag: curated.tag || 'Analysis',
-      icon: curated.icon || '🌐',
-      type: curated.type || 'competitor',
-    };
-  }
-
-  // 2. Automatically index all remaining pages from PAGE_METADATA_MAP
+  // Automatically index ONLY pages that exist in PAGE_METADATA_MAP
   for (const [key, meta] of Object.entries(PAGE_METADATA_MAP)) {
-    if (links[key]) {
-      // Overwrite URL if meta has a specific link
-      if (meta.link) links[key].url = meta.link;
-      continue;
-    }
-
     if (key === 'home' || key === '') continue;
 
-    const pageType = (meta.type as InboundLinkItem['type']) || detectPageType(key, meta.type, meta.jackpotId);
-    let tag = meta.inboundBadge || meta.title || 'Soccer Tips';
+    const curated = CURATED_LINKS[key];
+    const pageType = (meta.type as InboundLinkItem['type']) || (curated?.type) || detectPageType(key, meta.type, meta.jackpotId);
+    let tag = curated?.tag || meta.inboundBadge || meta.title || 'Soccer Tips';
     if (tag.length > 22) tag = tag.slice(0, 20) + '...';
 
     links[key] = {
       id: key,
-      title: meta.displayTitle || meta.title || key,
-      url: meta.link || getPageUrl(key),
-      description: meta.description || 'Verified football analysis and mathematical prediction tips.',
+      title: curated?.title || meta.displayTitle || meta.title || key,
+      url: meta.link || curated?.url || getPageUrl(key),
+      description: curated?.description || meta.description || 'Verified football analysis and mathematical prediction tips.',
       tag: tag,
-      icon: meta.icon || (pageType === 'jackpot' ? '🏆' : pageType === 'category' ? '⚽' : pageType === 'static' ? '📖' : '🌐'),
+      icon: curated?.icon || meta.icon || (pageType === 'jackpot' ? '🏆' : pageType === 'category' ? '⚽' : pageType === 'static' ? '📖' : '🌐'),
       type: pageType === 'home' ? 'category' : pageType,
     };
   }
@@ -479,7 +429,7 @@ export function getInboundLinks(
         'sunpel-free-football-betting-tips',
         '254-golden-tips',
         'sokamastas-predictions-and-tips',
-        'predictz-predictions'
+        '4soka-tips-prediction'
       ];
       for (const fb of fallbacks) {
         if (valid.length >= 3) break;
@@ -492,7 +442,7 @@ export function getInboundLinks(
     return valid.slice(0, 3);
   };
 
-  // 1. COMPETITOR PAGES -> Inbound links to other competitor analysis & prediction portals
+  // 1. COMPETITOR PAGES -> Inbound links to other competitor analysis and prediction portals
   if (pageType === 'competitor') {
     // Collect all competitor pages dynamically
     const allCompetitors = Object.entries(dynamicLinks)
@@ -535,35 +485,23 @@ export function getInboundLinks(
       }
     }
 
-    let defaultTitle = 'Alternative Prediction Portals & Mathematical Tips';
+    let defaultTitle = 'Alternative Prediction Portals and Mathematical Tips';
     let defaultSubtitle = 'Compare daily algorithmic models, banker accuracy rates, and Poisson distributions with top soccer analytics networks.';
 
     if (norm.includes('sunpel')) {
-      defaultTitle = 'Sunpel Alternatives & Free Football Prediction Networks';
+      defaultTitle = 'Sunpel Alternatives and Free Football Prediction Networks';
       defaultSubtitle = 'Compare Sunpel banker picks and soccer analysis with other verified mathematical tipsters and daily prediction models.';
     } else if (norm.includes('254-golden')) {
-      defaultTitle = '254 Golden Tips Alternatives & Prediction Platforms';
+      defaultTitle = '254 Golden Tips Alternatives and Prediction Platforms';
       defaultSubtitle = 'Compare 254 Golden Tips daily mathematical picks with other top soccer analytics and alternative portals.';
     } else if (norm.includes('254-sure') || norm === '254-sure-tips') {
-      defaultTitle = '254 Sure Tips Alternatives & Related Analysis Portals';
+      defaultTitle = '254 Sure Tips Alternatives and Related Analysis Portals';
       defaultSubtitle = 'Compare 254 Sure Tips daily algorithmic models, banker accuracy rates, and Poisson distributions with top soccer analytics networks.';
     } else if (norm.includes('sokamasta')) {
       defaultTitle = 'Alternative Predictions to Sokamastas Tips';
       defaultSubtitle = 'Compare Sokamastas match selections and 1X2 banker tips with other verified football prediction engines.';
-    } else if (norm.includes('predictz')) {
-      defaultTitle = 'PredictZ Alternatives & Goal Modeling Portals';
-      defaultSubtitle = 'Compare PredictZ goal distribution models and 1X2 rating simulations with top verified soccer prediction networks.';
-    } else if (norm.includes('soccervista')) {
-      defaultTitle = 'SoccerVista Alternatives & Statistical Tip Portals';
-      defaultSubtitle = 'Explore football analysis engines and mathematical prediction sites alongside SoccerVista head-to-head metrics.';
-    } else if (norm.includes('cheerplex')) {
-      defaultTitle = 'Cheerplex Alternatives & Soccer Prediction Platforms';
-      defaultSubtitle = 'Compare Cheerplex mathematical football tips and 1X2 banker models with top soccer analytics networks.';
-    } else if (norm.includes('liobet')) {
-      defaultTitle = 'Liobet Alternatives & Poisson Match Simulation Portals';
-      defaultSubtitle = 'Compare Liobet match simulations and probability ratings with other football prediction engines.';
     } else if (norm.includes('4soka')) {
-      defaultTitle = '4Soka Alternatives & Statistical Prediction Networks';
+      defaultTitle = '4Soka Alternatives and Statistical Prediction Networks';
       defaultSubtitle = 'Compare 4Soka daily football predictions, BTTS picks, and 1X2 banker models with top analytics portals.';
     }
 
@@ -580,40 +518,40 @@ export function getInboundLinks(
   if (pageType === 'category') {
     let candidateIds = ['category-over25', 'category-btts', 'category-homewin', 'category-doublechance', 'category-today', 'category-tomorrow'];
 
-    let defaultTitle = 'Related Football Betting Markets & Strategies';
+    let defaultTitle = 'Related Football Betting Markets and Strategies';
     let defaultSubtitle = 'Explore complementary goal-line indicators, double-chance safety slips, and daily high-confidence mathematical angles.';
 
     if (norm.includes('over25') || norm.includes('over-2-5')) {
       candidateIds = ['category-btts', 'category-over15', 'category-homewin', 'category-today'];
-      defaultTitle = 'Over 2.5 Goals Alternatives & Scoring Markets';
+      defaultTitle = 'Over 2.5 Goals Alternatives and Scoring Markets';
       defaultSubtitle = 'Explore complementary BTTS, Over 1.5, and Home Win markets for enhanced goal-scoring betting value.';
     } else if (norm.includes('over15') || norm.includes('over-1-5')) {
       candidateIds = ['category-over25', 'category-doublechance', 'category-btts', 'category-today'];
-      defaultTitle = 'Over 1.5 Goals Alternatives & Safety Markets';
+      defaultTitle = 'Over 1.5 Goals Alternatives and Safety Markets';
       defaultSubtitle = 'Explore Over 2.5 and Double Chance selections to pair with high-safety Over 1.5 goal slips.';
     } else if (norm.includes('btts')) {
       candidateIds = ['category-over25', 'category-homewin', 'category-doublechance', 'category-today'];
-      defaultTitle = 'Both Teams To Score Alternatives & Goal Slips';
+      defaultTitle = 'Both Teams To Score Alternatives and Goal Slips';
       defaultSubtitle = 'Explore Over 2.5 Goals and 1X2 market angles for fixtures featuring high attacking momentum.';
     } else if (norm.includes('homewin') || norm.includes('home-win')) {
       candidateIds = ['category-doublechance', 'category-over25', 'category-btts', 'category-today'];
-      defaultTitle = 'Home Win (1X2) Alternatives & Value Markets';
+      defaultTitle = 'Home Win (1X2) Alternatives and Value Markets';
       defaultSubtitle = 'Compare straight home win singles with double chance covers and goal-total predictions.';
     } else if (norm.includes('doublechance') || norm.includes('double-chance')) {
       candidateIds = ['category-homewin', 'category-over15', 'category-btts', 'category-today'];
-      defaultTitle = 'Double Chance Alternatives & Banker Picks';
+      defaultTitle = 'Double Chance Alternatives and Banker Picks';
       defaultSubtitle = 'Explore straight 1X2 and low-risk goal markets to maximize accumulator confidence.';
     } else if (norm.includes('today')) {
       candidateIds = ['category-tomorrow', 'category-over25', 'category-btts', 'category-yesterday'];
-      defaultTitle = "Today's Related Prediction Markets & Early Slips";
+      defaultTitle = "Today's Related Prediction Markets and Early Slips";
       defaultSubtitle = 'Analyze tomorrow preview fixtures, verified yesterday logs, and specialized goal metrics.';
     } else if (norm.includes('tomorrow')) {
       candidateIds = ['category-today', 'category-over25', 'category-homewin', 'category-doublechance'];
-      defaultTitle = 'Tomorrow Match Alternatives & Today Live Slips';
+      defaultTitle = 'Tomorrow Match Alternatives and Today Live Slips';
       defaultSubtitle = "Check today active fixtures alongside tomorrow early tactical lines and market movements.";
     } else if (norm.includes('yesterday')) {
       candidateIds = ['category-today', 'category-over25', 'category-btts', 'category-tomorrow'];
-      defaultTitle = "Past Results & Today's Active Football Slips";
+      defaultTitle = "Past Results and Today's Active Football Slips";
       defaultSubtitle = "Compare historical performance metrics with today active predictions and tomorrow previews.";
     }
 
@@ -632,7 +570,7 @@ export function getInboundLinks(
       .filter(([id, item]) => item.type === 'jackpot' && id !== norm)
       .map(([id]) => id);
 
-    let defaultTitle = 'Major Kenyan Football Jackpots & Prize Pools';
+    let defaultTitle = 'Major Kenyan Football Jackpots and Prize Pools';
     let defaultSubtitle = 'Analyze full 1X2 combinations, double-chance covers, and multimillion-shilling prize pools across top bookmakers.';
 
     const hash = norm.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -654,13 +592,13 @@ export function getInboundLinks(
       defaultTitle = 'Alternative Jackpots to Mozzart Grand 16/20';
       defaultSubtitle = 'Explore SportPesa Mega Jackpot, Mozzart Super Daily, and Betika jackpot slip combinations.';
     } else if (norm.includes('mozzart-super-daily')) {
-      defaultTitle = 'Daily & Weekly Jackpot Alternatives';
+      defaultTitle = 'Daily and Weekly Jackpot Alternatives';
       defaultSubtitle = 'Compare Mozzart Daily picks with weekend Mega Jackpots and midweek 15-game slips.';
     } else if (norm.includes('odibet')) {
       defaultTitle = 'Alternative Kenyan Jackpots to Odibet Laki Tatu';
       defaultSubtitle = 'Explore SportPesa Mega, Betika Midweek, and Mozzart football jackpot slips.';
     } else if (norm.includes('jackpot-list')) {
-      defaultTitle = 'Featured Jackpot Slips & VIP Combinations';
+      defaultTitle = 'Featured Jackpot Slips and VIP Combinations';
       defaultSubtitle = 'Explore our top recommended weekly jackpot slips with Poisson probability analysis.';
     }
 
@@ -673,7 +611,7 @@ export function getInboundLinks(
     };
   }
 
-  // 4. STATIC PAGES & VIP -> Inbound links to 3 trust, policy, and VIP portals
+  // 4. STATIC PAGES and VIP -> Inbound links to 3 trust, policy, and VIP portals
   let candidateIds = ['vip-packages', 'about', 'responsible-gambling', 'partners', 'privacy-policy', 'terms-of-use', 'contact'];
 
   if (norm.includes('about')) {
@@ -693,7 +631,7 @@ export function getInboundLinks(
   }
 
   return {
-    sectionTitle: overrides?.title || 'Platform Directory, Trust & VIP Access',
+    sectionTitle: overrides?.title || 'Platform Directory, Trust and VIP Access',
     sectionSubtitle: overrides?.subtitle || 'Explore Soka King operational guidelines, player safety protocols, customer support dispatch, and premium VIP access.',
     badgeText: overrides?.badgeText,
     type: 'static',

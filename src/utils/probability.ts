@@ -58,7 +58,7 @@ export function calculateProbabilities(
     away = Math.round(conf * 0.46);
     draw = 100 - home - away;
   }
-  // 2. Over/Under Goals & Both Teams To Score (e.g. Over 2.5 Goals, BTTS / GG)
+  // 2. Over/Under Goals and Both Teams To Score (e.g. Over 2.5 Goals, BTTS / GG)
   else if (norm.includes('over') || norm.includes('goals') || norm.includes('gg') || norm.includes('btts')) {
     home = Math.round(conf * 0.52);
     away = Math.round(conf * 0.33);

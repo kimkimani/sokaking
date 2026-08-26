@@ -93,26 +93,8 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
     badgeColor: "bg-amber-500/10 text-amber-500 border-amber-500/20"
   },
   {
-    id: 'cheerplex-predictions-and-tips-today',
-    name: "Cheerplex Predictions & Tips",
-    label: "Cheerplex Tips",
-    countText: "22 Computer Tips",
-    description: "Cheerplex computer model predictions and automated daily soccer tips.",
-    icon: "⚡",
-    badgeColor: "bg-rose-500/10 text-rose-500 border-rose-500/20"
-  },
-  {
-    id: 'liobet-predictions-and-tips',
-    name: "Liobet Predictions & Analysis",
-    label: "Liobet Tips",
-    countText: "24 Math Tips",
-    description: "Liobet mathematical predictions generated using Poisson goal distribution curves.",
-    icon: "📊",
-    badgeColor: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20"
-  },
-  {
     id: 'sunpel-free-football-betting-tips',
-    name: "Sunpelpredict & Sunpel Free Tips",
+    name: "Sunpelpredict and Sunpel Free Tips",
     label: "Sunpelpredict Tips",
     countText: "20 Value Tips",
     description: "Sunpelpredict and Sunpel free football betting tips, daily banker picks, and accumulator selections.",
@@ -125,12 +107,6 @@ export function getCategoryCountText(categoryId: string, rawPool?: any): string 
   const count = getCategoryFixtures(categoryId, rawPool).length;
   if (categoryId === '254-sure-tips') {
     return `${count} Banker Tips`;
-  }
-  if (categoryId === 'cheerplex-predictions-and-tips-today' || categoryId.includes('cheerplex')) {
-    return `${count} Computer Tips`;
-  }
-  if (categoryId === 'liobet-predictions-and-tips' || categoryId.includes('liobet')) {
-    return `${count} Math Tips`;
   }
   if (categoryId.includes('sunpel')) {
     return `${count} Value Tips`;
@@ -445,15 +421,11 @@ export function getCategoryFixtures(
   else if (
     pageType === 'competitor' ||
     categoryId === '254-sure-tips' ||
-    categoryId === 'cheerplex-predictions-and-tips-today' ||
-    categoryId === 'liobet-predictions-and-tips' ||
     categoryId === 'sunpel-free-football-betting-tips' ||
     categoryId === 'sunpel-free-football-betting-tips-and-soccer-predictions' ||
-    categoryId.includes('cheerplex') ||
     categoryId.includes('sunpel') ||
-    categoryId.includes('liobet') ||
-    categoryId.includes('predict') ||
-    categoryId.includes('vista') ||
+    categoryId.includes('golden') ||
+    categoryId.includes('masta') ||
     categoryId.includes('tips')
   ) {
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, today));

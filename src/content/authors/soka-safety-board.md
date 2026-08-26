@@ -19,12 +19,12 @@ social:
   email: "safety@sokaking.com"
 knowsAbout:
   - "Responsible Gambling Standards"
-  - "Minor Exclusion & Age Verification"
+  - "Minor Exclusion and Age Verification"
   - "Bankroll Allocation Principles"
   - "GamHelp Helpline Operations"
 shortBio: "Dedicated to promoting healthy gaming habits, self-exclusion tools, and strict 18+ age verification across all Soka King digital channels."
 ---
 
-## Player Safety & Responsible Gaming Commitment
+## Player Safety and Responsible Gaming Commitment
 
 The Soka King Player Safety Board is keeon on all prediction analysis and that all are framed as educational sports forecasting. We maintain zero tolerance for underage gambling and provide direct links to the National Helpline (0800-720-000).

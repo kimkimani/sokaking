@@ -1,6 +1,6 @@
 ---
 title: "Kenyan Football Jackpot Predictions 2026 - All Major Pools - Soka King"
-description: "Master jackpot hub for SportPesa, Betika, Mozzart, SportyBet, betPawa, and OdiBet. Weekly and daily jackpot predictions & double-chance tips."
+description: "Master jackpot hub for SportPesa, Betika, Mozzart, SportyBet, betPawa, and OdiBet. Weekly and daily jackpot predictions and double-chance tips."
 keywords: "jackpot predictions Kenya, SportPesa jackpot tips, Betika jackpot predictions, Mozzart jackpot tips"
 link: "/jackpot-tips"
 authorId: "john-mwangi"
@@ -39,7 +39,7 @@ Navigating multiple jackpot pools requires a disciplined mathematical approach. 
 
 <!-- FAQ -->
 ### Which Kenyan bookmaker jackpots are available on Soka King?
-We cover SportPesa Mega & Midweek, Betika Midweek & Grand, Mozzart Super Grand & Daily, Betpawa Pick 13, SportyBet, and Odibets jackpots.
+We cover SportPesa Mega and Midweek, Betika Midweek and Grand, Mozzart Super Grand and Daily, Betpawa Pick 13, SportyBet, and Odibets jackpots.
 
 ### How do I unlock jackpot prediction slips using M-Pesa?
 Select your preferred jackpot card, click **Unlock**, enter your Safaricom mobile line, and authorize the STK push prompt on your phone handset.

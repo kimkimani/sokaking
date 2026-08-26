@@ -38,9 +38,9 @@ export const vipPackages: VipPackage[] = [
     durationDays: 1,
     description: 'Access to high-analyzed VIP tips for 1 day including premium match slips.',
     features: [
-      'Accurate daily single tips & secure double selection',
+      'Accurate daily single tips and secure double selection',
       'Detailed statistical statistical breakdown per fixture',
-      'Instant SMS & premium WhatsApp support updates',
+      'Instant SMS and premium WhatsApp support updates',
       'Priority mobile M-Pesa STK push fast checkout'
     ]
   },
@@ -67,11 +67,11 @@ export const vipPackages: VipPackage[] = [
     durationDays: 7,
     description: 'Complete weekly coverage of all football leagues, jackpots, and active VIP slips.',
     features: [
-      'Full 7-day VIP picks & dynamic accumulator slips',
+      'Full 7-day VIP picks and dynamic accumulator slips',
       'Coverage of all major weekend jackpots (SportPesa Mega, Mozzart Grand)',
       'Confidence indexes and deep-learning tactical insights',
       'Exclusive high-yield longshot premium tickets',
-      'WhatsApp hotline priority membership & support'
+      'WhatsApp hotline priority membership and support'
     ],
     isFeatured: true
   },
@@ -83,9 +83,9 @@ export const vipPackages: VipPackage[] = [
     durationDays: 14,
     description: 'Ultimate fortnightly investment tier for seasoned sports prediction players.',
     features: [
-      'Fortnightly continuous access to all VIP tips & jackpots',
+      'Fortnightly continuous access to all VIP tips and jackpots',
       'Full analysis of 13-game and 17-game national jackpots',
-      'Personalized bankroll management & optimal betting splits',
+      'Personalized bankroll management and optimal betting splits',
       'Direct WhatsApp manager line with Joseph Chege',
       '92% verified historical bi-weekly performance metric'
     ]
@@ -380,7 +380,7 @@ export const contactSocialTable: ContactSocialConfig[] = [
     contactValue: 'Galana Plaza, 4th Floor, Kilimani, Nairobi, Kenya',
     type: 'location',
     actionUrl: 'https://maps.google.com/?q=Galana+Plaza+Kilimani+Nairobi',
-    description: 'Data analytics hub & operational headquarters',
+    description: 'Data analytics hub and operational headquarters',
     status: 'Active'
   }
 ];

@@ -51,7 +51,7 @@ export const AuthorCard: React.FC<AuthorCardProps> = ({
   const displayDescription = description || resolvedAuthor.shortBio;
   const displayAvatar = avatar || resolvedAuthor.avatar;
   const displayReviewerName = reviewerName || resolvedAuthor.reviewerName || "David Ochieng";
-  const displayReviewerTitle = reviewerTitle || resolvedAuthor.reviewerTitle || "Senior Tactical & Statistical Verifier";
+  const displayReviewerTitle = reviewerTitle || resolvedAuthor.reviewerTitle || "Senior Tactical and Statistical Verifier";
   const displayBadges = customBadges && customBadges.length > 0 ? customBadges : resolvedAuthor.badges;
 
   const getBadgeStyle = (type?: string) => {
@@ -159,11 +159,11 @@ export const AuthorCard: React.FC<AuthorCardProps> = ({
         </div>
       </div>
 
-      {/* E-E-A-T Reviewer & Transparency Bar */}
+      {/* E-E-A-T Reviewer and Transparency Bar */}
       <div className="pt-3 border-t border-[var(--border)]/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[11px] text-[var(--text-muted)]">
         <div className="flex items-center gap-1.5 flex-wrap">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-          <span className="font-semibold text-[var(--text)]">Fact-Checked & Reviewed by:</span>
+          <span className="font-semibold text-[var(--text)]">Fact-Checked and Reviewed by:</span>
           <span className="text-[var(--primary)] font-bold">{displayReviewerName}</span>
           <span className="text-[10px] text-[var(--text-muted)] hidden md:inline">({displayReviewerTitle})</span>
         </div>
@@ -171,7 +171,7 @@ export const AuthorCard: React.FC<AuthorCardProps> = ({
         <div className="flex items-center gap-3 font-mono text-[10px] text-[var(--text-muted)]">
           <span className="inline-flex items-center gap-1">
             <Scale className="w-3 h-3 text-amber-500" />
-            <span>Poisson Distribution & xG Verified</span>
+            <span>Poisson Distribution and xG Verified</span>
           </span>
           <a 
             href="/about-us#editorial-policy" 

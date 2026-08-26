@@ -47,7 +47,7 @@ export default function PredictionsSidebar({
           </div>
         </div>
         <span className="text-[9px] font-mono font-black text-indigo-800 dark:text-indigo-300 bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20">
-          FREE & SURE
+          FREE and SURE
         </span>
       </div>
 

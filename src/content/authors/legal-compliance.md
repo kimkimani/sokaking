@@ -24,6 +24,6 @@ knowsAbout:
 shortBio: "Governing terms for M-Pesa STK subscriptions, digital tip access, consumer data privacy, and sports analytics services."
 ---
 
-## Legal & Compliance Governance
+## Legal and Compliance Governance
 
 The Soka King Legal and Compliance Team checks the terms of use, privacy protection protocols in accordance with the Kenya Data Protection Act (2019), and digital transaction transparency.

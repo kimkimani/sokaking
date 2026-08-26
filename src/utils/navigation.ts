@@ -11,10 +11,6 @@ export const BASE_URL_TO_PAGE_MAP: Record<string, string> = {
   '/football-predictions-over-2-5-goals': 'category-over25',
   '/football-predictions-double-chance': 'category-doublechance',
   '/254-sure-tips': '254-sure-tips',
-  '/cheerplex-predictions-and-tips-today': 'cheerplex-predictions-and-tips-today',
-  '/liobet-predictions-and-tips': 'liobet-predictions-and-tips',
-  '/predictz-predictions': 'predictz-predictions',
-  '/soccervista-predictions-and-tips': 'soccervista-predictions-and-tips',
   '/sunpel-free-football-betting-tips-and-soccer-predictions': 'sunpel-free-football-betting-tips',
   '/4soka-tips': '4soka-tips-prediction',
   '/4soka-tips-prediction': '4soka-tips-prediction',
@@ -52,10 +48,6 @@ export const BASE_PAGE_TO_URL_MAP: Record<string, string> = {
   'category-over25': '/football-predictions-over-2-5-goals',
   'category-doublechance': '/football-predictions-double-chance',
   '254-sure-tips': '/254-sure-tips',
-  'cheerplex-predictions-and-tips-today': '/cheerplex-predictions-and-tips-today',
-  'liobet-predictions-and-tips': '/liobet-predictions-and-tips',
-  'predictz-predictions': '/predictz-predictions',
-  'soccervista-predictions-and-tips': '/soccervista-predictions-and-tips',
   'sunpel-free-football-betting-tips': '/sunpel-free-football-betting-tips-and-soccer-predictions',
   '4soka-tips-prediction': '/4soka-tips',
   '4soka-tips': '/4soka-tips',
@@ -119,6 +111,13 @@ export function getPageUrl(pageId: string): string {
 
 export function getPageIdFromUrl(pathname: string): string {
   const norm = getNormalizedPath(pathname);
-  if (norm === '/' || norm === '/404' || norm === '/not-found') return 'home';
-  return URL_TO_PAGE_MAP[norm] || 'home';
+  if (norm === '/' || norm === '') return 'home';
+  if (norm === '/404' || norm === '/not-found') return '404';
+  if (URL_TO_PAGE_MAP[norm]) return URL_TO_PAGE_MAP[norm];
+
+  const rawSlug = norm.replace(/^\//, '');
+  if (URL_TO_PAGE_MAP[`/${rawSlug}`]) return URL_TO_PAGE_MAP[`/${rawSlug}`];
+  if (PAGE_TO_URL_MAP[rawSlug]) return rawSlug;
+
+  return '404';
 }

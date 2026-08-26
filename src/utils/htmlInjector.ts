@@ -4,7 +4,7 @@ import { generatePageJsonLd } from './schemaGenerator.js';
 
 function escapeHtml(str: string): string {
   return str
-    .replace(/&/g, '&amp;')
+    .replace(/&/g, 'and')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
@@ -22,7 +22,7 @@ export function injectSeoAndStructuredData(rawHtml: string, requestUrl: string):
     const canonicalUrl = buildCanonicalUrl(pageMd.link || getPageUrl(pageId), pageId);
     const { fullGraph } = generatePageJsonLd(pageId);
 
-    const title = pageMd.title || 'Soka King - Premium Football Predictions & Jackpot Tips';
+    const title = pageMd.title || 'Soka King - Premium Football Predictions and Jackpot Tips';
     const description = pageMd.description || 'Free mathematical football predictions, 1X2 tips, over 2.5 goals, BTTS/GG picks, and jackpot analysis.';
     const keywords = pageMd.keywords || 'football predictions, jackpot tips, soccer predictions';
 
@@ -37,7 +37,8 @@ export function injectSeoAndStructuredData(rawHtml: string, requestUrl: string):
 
     // 2. Build Meta and JSON-LD tags
     const seoTags = `
-    <!-- Soka King Server SEO & Schema.org Structured Data -->
+    <!-- Soka King Server SEO and Schema.org Structured Data -->
+    <meta name="google-site-verification" content="QZkU02Oxl2MsbWtxkg9zgF79m7ek94D6-2V0pvR9tmE" />
     <meta name="description" content="${escapeHtml(description)}" />
     <meta name="keywords" content="${escapeHtml(keywords)}" />
     <link rel="canonical" href="${canonicalUrl}" />
@@ -83,7 +84,7 @@ ${JSON.stringify(fullGraph, null, 2)}
 
     return html;
   } catch (err) {
-    console.error('Error injecting SEO & Structured Data into HTML:', err);
+    console.error('Error injecting SEO and Structured Data into HTML:', err);
     return rawHtml;
   }
 }

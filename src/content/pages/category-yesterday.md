@@ -1,10 +1,10 @@
 ---
-title: "Yesterday's Football Predictions & Winning Results - Soka King"
+title: "Yesterday's Football Predictions and Winning Results - Soka King"
 description: "Review yesterday's football predictions and scoreline accuracy on Soka King. Model calibration check and past winning tips."
 keywords: "football predictions yesterday, yesterday soccer results, prediction accuracy"
 link: "/football-predictions-yesterday"
 authorId: "samuel-omondi"
-displayTitle: "Yesterday's Football Predictions & Winning Results"
+displayTitle: "Yesterday's Football Predictions and Winning Results"
 responsibleGambling: "Gamble responsibly. Past performance does not guarantee future outcomes. Helpline: 0800-720-000."
 unlockHeading: "Verified Historical Prediction Logs"
 unlockDescription: "Inspect past winning tickets, model accuracy benchmarks, and settled scoreline distributions."
@@ -14,7 +14,7 @@ type: "category"
 fixturesCategory: "yesterday"
 ---
 
-## Yesterday's Football Predictions & Winning Results
+## Yesterday's Football Predictions and Winning Results
 
 <!-- INTRO -->
 Review yesterday's football prediction results and model performance on Soka King. Track historical calibration accuracy, winning slips, and actual scorelines.
@@ -23,7 +23,7 @@ Review yesterday's football prediction results and model performance on Soka Kin
 Transparency is core to Soka King. We archive all historical match predictions and compare our mathematical model outputs against actual final scorelines to maintain our 84.2% calibration standard.
 
 <!-- MEAT -->
-## Yesterday's Performance Metrics & Historical Analysis
+## Yesterday's Performance Metrics and Historical Analysis
 
 Evaluating past match results allows us to continually refine our Poisson algorithms and goal expectancy parameters.
 

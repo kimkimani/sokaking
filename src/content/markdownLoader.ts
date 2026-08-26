@@ -94,6 +94,19 @@ export function normalizePageKey(pageKey: string): string {
   return key;
 }
 
+export function hasMarkdownFile(pageKey: string): boolean {
+  if (!pageKey) return false;
+  const key = normalizePageKey(pageKey);
+  if (key === 'home') return true;
+  if (PAGE_METADATA_MAP[key]) return true;
+  if (RAW_MARKDOWN_MAP[key]) return true;
+  if (typeof window === 'undefined') {
+    const serverContent = readServerPageFile(key);
+    if (serverContent) return true;
+  }
+  return false;
+}
+
 export function getPageMetadata(pageKey: string): PageMetadata {
   const normKey = normalizePageKey(pageKey);
   if (PAGE_METADATA_MAP[normKey]) {
@@ -101,13 +114,13 @@ export function getPageMetadata(pageKey: string): PageMetadata {
   }
   return {
     pageKey: normKey,
-    title: 'Soka King | Free Football Predictions & Jackpot Tips',
-    displayTitle: 'Free Football Predictions',
-    description: 'Free football predictions, jackpot tips, and betting analysis.',
-    keywords: 'football predictions, jackpot tips, soccer predictions',
+    title: 'Page Not Found - Soka King',
+    displayTitle: 'Page Not Found',
+    description: 'The requested football predictions page or category could not be found.',
+    keywords: 'football predictions, 404, not found',
     link: `/${normKey}`,
-    listTitle: "Today's Free Football Predictions",
-    listSubtitle: "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes."
+    listTitle: "Page Not Found",
+    listSubtitle: "This page does not exist or has been removed."
   };
 }
 
@@ -127,7 +140,7 @@ function loadRawMarkdown(pageKey: string): string {
     return RAW_MARKDOWN_MAP[key];
   }
 
-  return '# Soka King\n\nExpert Football Predictions and Analysis';
+  return '# Page Not Found\n\nThis page does not exist or has been removed.';
 }
 
 export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMarkdownPage {
@@ -297,11 +310,12 @@ export function getDynamicUrlMaps(
   baseUrlToPageMap: Record<string, string>,
   basePageToUrlMap: Record<string, string>
 ) {
-  const urlToPageMap: Record<string, string> = { ...baseUrlToPageMap };
-  const pageToUrlMap: Record<string, string> = { ...basePageToUrlMap };
+  const urlToPageMap: Record<string, string> = {};
+  const pageToUrlMap: Record<string, string> = {};
   const dynamicCategoryPages: Record<string, any> = {};
   const dynamicJackpotPages: Record<string, { pageKey: string; jackpotId: string; name: string; link: string; page?: any }> = {};
 
+  // Process ONLY active pages in PAGE_METADATA_MAP
   for (const [pageKey, meta] of Object.entries(PAGE_METADATA_MAP)) {
     if (meta.link) {
       let normLink = meta.link.toLowerCase().trim();
@@ -314,13 +328,9 @@ export function getDynamicUrlMaps(
       urlToPageMap[normLink] = pageKey;
       pageToUrlMap[pageKey] = normLink;
     } else {
-      const defaultPath = `/${pageKey}`;
-      if (!urlToPageMap[defaultPath]) {
-        urlToPageMap[defaultPath] = pageKey;
-      }
-      if (!pageToUrlMap[pageKey]) {
-        pageToUrlMap[pageKey] = defaultPath;
-      }
+      const defaultPath = pageKey === 'home' ? '/' : `/${pageKey}`;
+      urlToPageMap[defaultPath] = pageKey;
+      pageToUrlMap[pageKey] = defaultPath;
     }
 
     // 1. Dynamic Competitor / Category Discovery
@@ -333,7 +343,7 @@ export function getDynamicUrlMaps(
       pageKey.includes('sure-') ||
       pageKey.startsWith('category-');
 
-    if (isCompetitorOrCategory && meta.type !== 'jackpot' && meta.type !== 'static') {
+    if (isCompetitorOrCategory && meta.type !== 'jackpot' && meta.type !== 'static' && pageKey !== 'home') {
       dynamicCategoryPages[pageKey] = {
         id: pageKey,
         name: meta.displayTitle || meta.title || pageKey,
@@ -355,6 +365,22 @@ export function getDynamicUrlMaps(
         name: meta.displayTitle || meta.title || pageKey,
         link: meta.link || `/${pageKey}`,
       };
+    }
+  }
+
+  // Include base aliases ONLY if the target page actually exists in PAGE_METADATA_MAP or is home
+  for (const [url, pId] of Object.entries(baseUrlToPageMap)) {
+    if (pId === 'home' || PAGE_METADATA_MAP[pId]) {
+      if (!urlToPageMap[url]) {
+        urlToPageMap[url] = pId;
+      }
+    }
+  }
+  for (const [pId, url] of Object.entries(basePageToUrlMap)) {
+    if (pId === 'home' || PAGE_METADATA_MAP[pId]) {
+      if (!pageToUrlMap[pId]) {
+        pageToUrlMap[pId] = url;
+      }
     }
   }
 

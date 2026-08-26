@@ -7,153 +7,136 @@ export const RAW_AUTHOR_MAP: Record<string, string> = {
   'brian-kipchumba': `---
 id: "brian-kipchumba"
 name: "Brian Kipchumba"
-role: "European Leagues and  High-Odds Statistician"
+role: "European Leagues and Team Form Statistician"
 avatar: ""
-experience: "9+ Years"
-credentials: "M.Sc. Data Analytics and  Quantitative Sports Risk"
-specialization: "Premier League, Champions League, La Liga, Serie A and  Value Odds Identification"
+experience: "4 Years"
+credentials: "M.Sc. Data Analytics"
+specialization: "Premier League, Champions League, La Liga, Serie A"
 reviewerName: "John K. Mwangi"
-reviewerTitle: "Lead Football Analyst"
+reviewerTitle: "Sokaking Lead Football Analyst"
 badges:
   - text: "European Football Analyst"
     type: "verified"
-  - text: "Value Odds Specialist"
-    type: "modeler"
-  - text: "9+ Yrs Experience"
+  - text: "4+ Yrs Experience"
     type: "experience"
 social:
-  twitter: "https://x.com/sokapredictions"
-  email: "brian.kipchumba@sokapredictions.co.ke"
+  twitter: "https://x.com/sokaking"
+  email: "brian.kipchumba@sokaking.com"
 knowsAbout:
   - "UEFA Champions League Match Dynamics"
   - "English Premier League Expected Goals"
   - "Asian Handicap Line Movements"
   - "Multi-Bet Accumulator Construction"
-shortBio: "Specialist in Premier League, Champions League, La Liga, and Serie A expected goals ($xG$). Focuses on positive-value multi-bet accumulators and 1X2 market variances."
+shortBio: "Specialist in Europe's Premier League, Champions League, La Liga, and Serie A 1X2 market"
 ---
 
-## European League Analytics and  Odds Value Profiling
+## European League Analytics and Profiling
 
-Brian Kipchumba specializes in Tier 1 European leagues, analyzing betting market inefficiencies, closing line values (CLV), and expected goals variations across the English Premier League, Spanish La Liga, Italian Serie A, and German Bundesliga.
-`,
+Brian specializes in Tier 1 European leagues across the English Premier League, Spanish La Liga, Italian Serie A, and German Bundesliga.`,
 
   'david-ochieng': `---
 id: "david-ochieng"
 name: "David Ochieng"
-role: "Senior Tactical Analyst and  Lead Peer Verifier"
+role: "Sokaking Senior Tactical Analyst and Lead Peer Verifier"
 avatar: ""
-experience: "12+ Years"
-credentials: "CAF Licensed Tactical Coach and  Senior Match Auditor"
-specialization: "African and  European Football Scouting, Tactical Formations and  Lineup Auditing"
+experience: "7+ Years"
+credentials: "CAF Licensed Tactical Coach and Senior Match Auditor"
+specialization: "African Football Scouting, Tactical Formations and Auditing"
 reviewerName: "Dr. Samuel Omondi"
-reviewerTitle: "Chief Data Scientist"
+reviewerTitle: "Sokaking Data Scientist"
 badges:
   - text: "CAF Certified Scout"
     type: "verified"
   - text: "Tactical Match Auditor"
     type: "tactical"
-  - text: "12+ Yrs Experience"
+  - text: "7+ Yrs Experience"
     type: "experience"
 social:
-  twitter: "https://x.com/sokapredictions"
-  email: "david.ochieng@sokapredictions.co.ke"
+  twitter: "https://x.com/sokaking"
+  email: "david.ochieng@sokaking.com"
 knowsAbout:
-  - "Tactical Formations and  Pressing Schemes"
-  - "FKF and  CAF Champions League Scouting"
-  - "Lineup Verification and  Weather Impact Analysis"
+  - "Tactical Formations and Pressing Schemes"
+  - "FKF and CAF Champions League Scouting"
+  - "Lineup Verification"
   - "Pre-Match Risk Assessment"
-shortBio: "Former CAF tactical scout and youth coach with 12+ years auditing African and European football matches. Oversees pre-match fact-checking, tactical lineup verification, and peer reviews at Soka King."
+shortBio: "Former CAF tactical scout and youth coach with 12+ years auditing African and European football matches. Oversees pre match fact checking and peer reviews at Soka King."
 ---
 
-## Biography and  Scouting Background
+## Biography
 
-David Ochieng is Soka King's Senior Tactical Analyst and Lead Verifier. With a comprehensive background in professional football scouting and youth coaching across East and Central Africa, David brings an on-the-pitch perspective to Soka King's mathematical models.
-
-### Analytical Responsibilities
-- **Pre-Match Lineup Audits**: Cross-checking official team sheets, late fitness tests, and disciplinary suspensions.
-- **Climatic and  Pitch Factors**: Gauging how weather, high altitude, and pitch conditions affect match tempo and goal probability.
-- **Peer-Review Governance**: Fact-checking algorithmic projections before publication at 06:00 EAT every morning.
+David Ochieng is Soka King's Senior Tactical Analyst and Lead Verifier. He has a comprehensive background in professional football scouting and youth coaching across East and Central Africa.
 `,
 
   'grace-wanjiku': `---
 id: "grace-wanjiku"
 name: "Grace Wanjiku"
-role: "Head of Customer Protection and  M-Pesa Compliance"
+role: "Head of Customer Support and Compliance"
 avatar: ""
-experience: "8+ Years"
-credentials: "B.A. Digital Communications and  Consumer Protection Specialist"
-specialization: "Safaricom M-Pesa STK Rails, Transaction Security and  VIP Support Operations"
+experience: "2 Years"
+credentials: "B.A. Digital Communications and Consumer Protection Specialist"
+specialization: "Customer Support, Front Desk and VIP Support Operations"
 reviewerName: "John K. Mwangi"
-reviewerTitle: "Lead Football Analyst"
+reviewerTitle: "Sokaking Lead Football Analyst"
 badges:
   - text: "Customer Protection Lead"
     type: "support"
-  - text: "M-Pesa Verified Gateway"
-    type: "security"
   - text: "24/7 VIP Dispatch"
     type: "verified"
 social:
-  email: "support@sokapredictions.co.ke"
+  email: "support@sokaking.com"
   phone: "+254740841375"
 knowsAbout:
-  - "Safaricom Daraja M-Pesa Integration"
-  - "Consumer Data Protection and  SSL Encryption"
-  - "VIP Subscription Resolution and  Dispute Management"
+  - "Consumer Data Protection and SSL Encryption"
+  - "VIP Subscription Resolution"
+  - "Dispute Management"
   - "Responsible Gambling Helpline Protocols"
-shortBio: "Specialist in Safaricom Daraja M-Pesa automated transaction verification, consumer protection policies, and 24/7 VIP subscriber support operations."
+
+shortBio: "Specialist in consumer protection policies, and 24/7 VIP subscriber support operations."
 ---
 
-## Customer Protection and  Service Governance
+## Customer Support
 
-Grace Wanjiku oversees subscriber relations, transaction verification, and consumer protection protocols at Soka King. Grace ensures that every digital payment via Safaricom M-Pesa is authenticated instantly and secured with end-to-end encryption.
+Grace Wanjiku oversees all sokaking customer support protocols at Soka King..
 `,
 
   'john-mwangi': `---
 id: "john-mwangi"
 name: "John K. Mwangi"
-role: "Lead Football Analyst and  Poisson Model Expert"
+role: "Lead Football Analyst and Poisson Model Expert"
 avatar: ""
-experience: "10+ Years"
-credentials: "B.Sc. Actuarial Science and  Applied Statistics (University of Nairobi)"
-specialization: "Bivariate Poisson Distribution, xG Calibration and  Jackpot Permutations"
+experience: "7 Years"
+credentials: "B.Sc. Actuarial Science and Applied Statistics (University of Nairobi)"
+specialization: "Bivariate Poisson Distribution, xG Calibration and Jackpot Permutations"
 reviewerName: "David Ochieng"
-reviewerTitle: "Senior Tactical and  Statistical Verifier"
+reviewerTitle: "Senior Tactical and Statistical Verifier"
 badges:
-  - text: "Verified Sports Analyst"
-    type: "verified"
-  - text: "Poisson and  xG Modeler"
-    type: "modeler"
-  - text: "10+ Yrs Experience"
-    type: "experience"
+ - text: "Verified Sports Analyst"
+   type: "verified"
+ - text: "7 Yrs Experience"
+   type: "experience"
 social:
-  twitter: "https://x.com/sokapredictions"
-  email: "john.mwangi@sokapredictions.co.ke"
+ twitter: "https://x.com/sokaking"
+ email: "john.mwangi@sokaking.com"
 knowsAbout:
-  - "Bivariate Poisson Goal Distribution"
-  - "Expected Goals (xG) Forecasting"
-  - "Jackpot Permutation and  Cover Strategy"
-  - "Kenyan and  European Football Tactics"
-shortBio: "10+ years experience in statistical sports modeling and actuarial probability. Leads Poisson goal distribution algorithms and mathematical jackpot line optimization at Soka King."
+ - "Bivariate Poisson Goal Distribution"
+ - "Expected Goals (xG) Forecasting"
+ - "Jackpot Permutation and Cover Strategy"
+ - "Kenyan and European Football Tactics"
+shortBio: "7 years experience in statistical sports modeling and actuarial probability and leads such at Soka King."
 ---
 
-## Biography and  Quantitative Philosophy
+## Biography
 
-John K. Mwangi leads Soka King's quantitative sports analysis unit based in Nairobi, Kenya. Holding a degree in Actuarial Science and Statistics from the University of Nairobi, John has spent over a decade constructing data-driven predictive systems for sports betting markets.
-
-### Quantitative Focus Areas
-- **Bivariate Poisson Expectancy**: Calibrating rolling 18-match offensive and defensive coefficients to project precise scoreline probability distributions.
-- **Expected Goals ($xG$) Smoothing**: Analyzing non-penalty expected goals and shot quality metrics to identify under-valued odds in 1X2 and Over/Under markets.
-- **Jackpot Permutations**: Engineering mathematical double and triple chance covers for SportPesa, Betika, and Mozzart mega jackpots to maximize bonus retention.
-`,
+John K. Mwangi is Soka King's leads quantitative sports analysis unit based in Nairobi. John has spent 7+ years constructing predictive systems for fotball markets.`,
 
   'legal-compliance': `---
 id: "legal-compliance"
-name: "Legal and  Compliance Team"
-role: "Soka King Data Governance and  Regulatory Counsel"
+name: "Legal and Compliance Team"
+role: "Soka King Data Governance and Regulatory Counsel"
 avatar: ""
 experience: "Established 2021"
-credentials: "Kenya Data Protection Act (2019) and  Consumer Rights Governance"
-specialization: "Data Privacy, M-Pesa Digital Terms of Service and  Consumer Protection"
+credentials: "Kenya Data Protection Act (2019) and Consumer Rights Governance"
+specialization: "Data Privacy, M-Pesa Digital Terms of Service and Consumer Protection"
 reviewerName: "Grace Wanjiku"
 reviewerTitle: "Head of Customer Protection"
 badges:
@@ -164,28 +147,27 @@ badges:
   - text: "Consumer Protection"
     type: "support"
 social:
-  email: "legal@sokapredictions.co.ke"
+  email: "legal@sokaking.com"
 knowsAbout:
   - "Kenya Data Protection Act"
   - "Digital Subscription Consumer Rights"
-  - "Safaricom Daraja API Compliance"
   - "Website Terms of Service"
 shortBio: "Governing terms for M-Pesa STK subscriptions, digital tip access, consumer data privacy, and sports analytics services."
 ---
 
-## Legal and  Compliance Governance
+## Legal and Compliance Governance
 
-The Soka King Legal and  Compliance Team oversees terms of use, privacy protection protocols in accordance with the Kenya Data Protection Act (2019), and digital transaction transparency.
+The Soka King Legal and Compliance Team checks the terms of use, privacy protection protocols in accordance with the Kenya Data Protection Act (2019), and digital transaction transparency.
 `,
 
   'samuel-omondi': `---
 id: "samuel-omondi"
 name: "Dr. Samuel Omondi"
-role: "Chief Data Scientist and  Research Director"
+role: "Chief Data Scientist and Research Director"
 avatar: ""
-experience: "15+ Years"
-credentials: "Ph.D. in Computational Statistics and  Stochastic Modeling"
-specialization: "Predictive Machine Learning, Poisson Matrix Calibration and  Data Feed Architecture"
+experience: "3 Years"
+credentials: "Ph.D. in Computational Statistics and Stochastic Modeling"
+specialization: "Predictive Machine Learning and Data Feed Architecture"
 reviewerName: "John K. Mwangi"
 reviewerTitle: "Lead Football Analyst"
 badges:
@@ -193,31 +175,31 @@ badges:
     type: "verified"
   - text: "Stochastic Modeler"
     type: "modeler"
-  - text: "15+ Yrs Experience"
+  - text: "3+ Yrs Experience"
     type: "experience"
 social:
-  email: "research@sokapredictions.co.ke"
+  email: "research@sokaking.com"
 knowsAbout:
   - "Stochastic Process Modeling in Sports"
-  - "Opta and  StatsBomb API Integration"
+  - "Opta and StatsBomb API Integration"
   - "Predictive Machine Learning Algorithms"
   - "Bayesian Probability Calibration"
-shortBio: "Dr. Omondi holds a PhD in Computational Statistics and directs Soka King's core algorithmic research, machine learning models, and real-time database architecture in Nairobi, Kenya."
+shortBio: "Dr. Omondi holds a PhD in Computational Statistics and directs Soka King's core algorithmic research, machine learning models, and database architecture in Nairobi, Kenya."
 ---
 
-## Research Director and  Data Science Core
+## Research Director and Data Science Core
 
-Dr. Samuel Omondi heads Soka King's algorithmic research laboratory in Nairobi, developing mathematical pipelines that simulate tens of thousands of football permutations daily using Bayesian updating and Poisson processes.
+Dr. Samuel Omondi heads Soka King's algorithmic research laboratory in Nairobi. He develope mathematical pipelines that simulate football permutations daily..
 `,
 
   'soka-safety-board': `---
 id: "soka-safety-board"
 name: "Soka King Player Safety Board"
-role: "Responsible Gaming and  Player Welfare Division"
+role: "Responsible Gaming and Player Welfare Division"
 avatar: ""
 experience: "Established 2021"
 credentials: "Certified Responsible Gaming Advocates"
-specialization: "Player Protection, 18+ Verification and  Bankroll Safety Protocols"
+specialization: "Player Protection, 18+ Verification and Bankroll Safety Protocols"
 reviewerName: "Grace Wanjiku"
 reviewerTitle: "Head of Customer Protection"
 badges:
@@ -228,17 +210,17 @@ badges:
   - text: "18+ Strict Compliance"
     type: "security"
 social:
-  email: "safety@sokapredictions.co.ke"
+  email: "safety@sokaking.com"
 knowsAbout:
   - "Responsible Gambling Standards"
-  - "Minor Exclusion and  Age Verification"
+  - "Minor Exclusion and Age Verification"
   - "Bankroll Allocation Principles"
   - "GamHelp Helpline Operations"
-shortBio: "Dedicated to promoting healthy gaming habits, bankroll limits, self-exclusion tools, and strict 18+ age verification across all Soka King digital channels."
+shortBio: "Dedicated to promoting healthy gaming habits, self-exclusion tools, and strict 18+ age verification across all Soka King digital channels."
 ---
 
-## Player Safety and  Responsible Gaming Commitment
+## Player Safety and Responsible Gaming Commitment
 
-The Soka King Player Safety Board ensures that all prediction analysis is framed as educational sports forecasting. We maintain zero tolerance for underage gambling and provide direct links to the National Helpline (0800-720-000).
+The Soka King Player Safety Board is keeon on all prediction analysis and that all are framed as educational sports forecasting. We maintain zero tolerance for underage gambling and provide direct links to the National Helpline (0800-720-000).
 `
 };

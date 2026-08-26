@@ -6,12 +6,12 @@ export interface FaqItem {
 export function getDefaultFaqsForPage(pageId: string): FaqItem[] {
   const normalized = (pageId || '').toLowerCase().trim();
 
-  // VIP Packages & Odds Packs
+  // VIP Packages and Odds Packs
   if (normalized.includes('vip') || normalized.includes('odds') || normalized === 'vip-packages') {
     return [
       {
-        question: "What is included in Soka King VIP Packages & Odds Packs?",
-        answer: "VIP packages grant full access to curated daily 2+ odds shortlists, 5+ odds accumulators, complete 15 & 17 game jackpot slips, and instant SMS alerts."
+        question: "What is included in Soka King VIP Packages and Odds Packs?",
+        answer: "VIP packages grant full access to curated daily 2+ odds shortlists, 5+ odds accumulators, complete 15 and 17 game jackpot slips, and instant SMS alerts."
       },
       {
         question: "How do I subscribe and unlock VIP tips using M-Pesa?",
@@ -186,7 +186,7 @@ export function getDefaultFaqsForPage(pageId: string): FaqItem[] {
     ];
   }
 
-  // Sunpel & Sunpelpredict
+  // Sunpel and Sunpelpredict
   if (normalized.includes('sunpel')) {
     return [
       {
@@ -279,7 +279,7 @@ export function getDefaultFaqsForPage(pageId: string): FaqItem[] {
     return [
       {
         question: "Which Kenyan bookmaker jackpots are available on Soka King?",
-        answer: "We cover SportPesa Mega & Midweek, Betika Midweek & Grand, Mozzart Super Grand & Daily, Betpawa, SportyBet, and Odibets jackpots."
+        answer: "We cover SportPesa Mega and Midweek, Betika Midweek and Grand, Mozzart Super Grand and Daily, Betpawa, SportyBet, and Odibets jackpots."
       },
       {
         question: "How do I unlock jackpot prediction slips?",

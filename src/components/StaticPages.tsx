@@ -49,7 +49,7 @@ interface FAQItem {
   a: string;
 }
 
-// Interactive SEO Snippet Preview & Head Tag Injector
+// Interactive SEO Snippet Preview and Head Tag Injector
 function SeoIndicator({ 
   title, 
   description, 
@@ -381,11 +381,11 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
               </div>
             </div>
 
-            {/* Extended text & Mathematical Methodology */}
+            {/* Extended text and Mathematical Methodology */}
             <div id="methodology" className="p-6 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] space-y-4 text-xs text-[var(--text-muted)] leading-relaxed">
               <h3 className="text-sm font-bold text-[var(--text)] flex items-center gap-2">
                 <Brain className="w-4 h-4 text-indigo-500" />
-                Our Quantitative Modeling & Statistical Methodology
+                Our Quantitative Modeling and Statistical Methodology
               </h3>
               <p>
                 At Soka King, soccer matches are treated as probabilistic systems governed by measurable physical and statistical indicators. Our analytical pipeline relies on four primary quantitative layers:
@@ -393,16 +393,16 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
               <ul className="list-disc pl-5 space-y-2 text-[11px]">
                 <li><strong className="text-[var(--text)]">Bivariate Poisson Goal Distribution</strong>: Calculates the exact probability curve of both teams scoring $0, 1, 2, 3+$ goals based on offensive attacking prowess and defensive concession coefficients over a rolling 18-match window.</li>
                 <li><strong className="text-[var(--text)]">Expected Goals ($xG$) Variance Matrix</strong>: Quantifies the quality of chances created versus conceded to eliminate short-term luck and identify true underlying performance trends.</li>
-                <li><strong className="text-[var(--text)]">Dynamic Elo Rating & Home Advantage Weighting</strong>: Calibrates relative team strength across domestic leagues and continental tournaments (UEFA Champions League, CAF Confederation Cup).</li>
-                <li><strong className="text-[var(--text)]">Tactical Fatigue & Transit Indices</strong>: Factoring in travel mileage, squad rotation, tactical match-ups, and key injury/suspension news retrieved from official club dispatches.</li>
+                <li><strong className="text-[var(--text)]">Dynamic Elo Rating and Home Advantage Weighting</strong>: Calibrates relative team strength across domestic leagues and continental tournaments (UEFA Champions League, CAF Confederation Cup).</li>
+                <li><strong className="text-[var(--text)]">Tactical Fatigue and Transit Indices</strong>: Factoring in travel mileage, squad rotation, tactical match-ups, and key injury/suspension news retrieved from official club dispatches.</li>
               </ul>
             </div>
 
-            {/* Editorial & Peer-Review Policy */}
+            {/* Editorial and Peer-Review Policy */}
             <div id="editorial-policy" className="p-6 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] space-y-4 text-xs text-[var(--text-muted)] leading-relaxed">
               <div className="flex items-center gap-2">
                 <Award className="w-4 h-4 text-emerald-500" />
-                <h3 className="text-sm font-bold text-[var(--text)]">Editorial Standards, Fact-Checking & Peer-Review Workflow</h3>
+                <h3 className="text-sm font-bold text-[var(--text)]">Editorial Standards, Fact-Checking and Peer-Review Workflow</h3>
               </div>
               <p>
                 To maintain the highest standards of journalistic integrity and quantitative accuracy, every tip, analysis, and jackpot recommendation published on Soka King complies with our strict 3-tier editorial workflow:
@@ -417,18 +417,18 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                   <p>Lead sports analysts audit tactical line-ups, weather reports, and verified injury dispatches to eliminate anomalies.</p>
                 </div>
                 <div className="p-3.5 rounded-lg bg-[var(--background)] border border-[var(--border)] space-y-1.5">
-                  <span className="font-mono font-bold text-xs text-amber-500 block">03. Final Publication & Audit</span>
+                  <span className="font-mono font-bold text-xs text-amber-500 block">03. Final Publication and Audit</span>
                   <p>Tips are published at 06:00 EAT and locked into our historical accuracy ledger for post-match verification.</p>
                 </div>
               </div>
             </div>
 
-            {/* Verified Analyst & Editorial Board */}
+            {/* Verified Analyst and Editorial Board */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-bold text-[var(--text)] flex items-center gap-2">
                   <Users className="w-4 h-4 text-[var(--primary)]" />
-                  Soka King Editorial Board & Quantitative Analysts
+                  Soka King Editorial Board and Quantitative Analysts
                 </h3>
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                   Verified Experts
@@ -490,11 +490,11 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
               </div>
             </div>
 
-            {/* Corporate Details & Trust Transparency */}
+            {/* Corporate Details and Trust Transparency */}
             <div className="p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] space-y-3 text-xs text-[var(--text-muted)]">
               <h3 className="text-sm font-bold text-[var(--text)] flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                Corporate Transparency & Physical Headquarters
+                Corporate Transparency and Physical Headquarters
               </h3>
               <p>
                 <strong className="text-[var(--text)]">Legal Entity:</strong> Soka King Analytics Ltd &bull; Registered in Nairobi, Kenya &bull; Incorporation #CPR/2021/84192.
@@ -530,19 +530,19 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
         ];
 
         const displayPartners = dbPartners.length > 0 ? dbPartners : [
-          { id: 1, name: 'Soka King Analytics', url: 'https://sokaking.com', anchorText: 'Soka King Analytics & Mathematical Predictions', description: 'Central sports modeling & algorithm hosting provider.', category: 'Core Developer' },
+          { id: 1, name: 'Soka King Analytics', url: 'https://sokaking.com', anchorText: 'Soka King Analytics and Mathematical Predictions', description: 'Central sports modeling and algorithm hosting provider.', category: 'Core Developer' },
           { id: 2, name: 'Safaricom M-Pesa', url: 'https://www.safaricom.co.ke/personal/m-pesa', anchorText: 'Safaricom M-Pesa Official Payment Gateway', description: 'Instant mobile transaction processing for Kenyan VIP odds slips.', category: 'Payment Partner' },
           { id: 3, name: 'Opta Sports Data', url: 'https://www.optasports.com', anchorText: 'Opta Sports Dynamic Football Metrics', description: 'Deep player performance data feeds and historical match records.', category: 'Data Feed Provider' },
-          { id: 4, name: 'Cheerplex Predictions Today', url: 'https://sokaking.com/cheerplex-predictions-and-tips-today', anchorText: 'Cheerplex Football Predictions & Computer Tips Today', description: 'Automated match forecasting portal delivering daily scorelines.', category: 'Prediction Network' },
-          { id: 5, name: 'Soccervista Betting Tips', url: 'https://sokaking.com/soccervista-predictions-and-tips', anchorText: 'Soccervista Free Football Betting Tips & Previews', description: 'Comprehensive global soccer statistics and daily win probability ratings.', category: 'Prediction Network' },
-          { id: 6, name: '254 Sure Tips Hub', url: 'https://sokaking.com/254-sure-tips', anchorText: '254 Sure Tips Fixed Odds & High Confidence Predictions', description: 'Kenyan punters high-confidence banker multi-bets.', category: 'VIP Partner' }
+          { id: 4, name: 'Sunpel Free Betting Tips', url: 'https://sokaking.com/sunpel-free-football-betting-tips-and-soccer-predictions', anchorText: 'Sunpel Free Football Betting Tips and Previews', description: 'Comprehensive soccer statistics and daily win probability ratings.', category: 'Prediction Network' },
+          { id: 5, name: '254 Golden Tips Hub', url: 'https://sokaking.com/254-golden-tips', anchorText: '254 Golden Tips High Confidence Predictions', description: 'High confidence banker tips and mathematical selections.', category: 'Prediction Network' },
+          { id: 6, name: '254 Sure Tips Hub', url: 'https://sokaking.com/254-sure-tips', anchorText: '254 Sure Tips Fixed Odds and High Confidence Predictions', description: 'Kenyan punters high-confidence banker multi-bets.', category: 'VIP Partner' }
         ];
 
         return (
           <div className="space-y-8 animate-fade-in text-left">
             {/* Dynamic SEO Card */}
             <SeoIndicator 
-              title="Soka King Partners & Integration Network"
+              title="Soka King Partners and Integration Network"
               description="Explore strategic partners and verified platforms on Soka King. Connect with Safaricom M-Pesa, Opta Sports, and premier football prediction networks."
               keywords="Soka King partners, football prediction network, Safaricom M-Pesa, Opta sports feeds"
               url="https://sokaking.com/partners"
@@ -557,7 +557,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                 </span>
 
                 <h1 className="text-xl md:text-3xl font-extrabold tracking-tight text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>
-                  {pageMd.displayTitle || pageMd.title || "Strategic Partners & Affiliates"}
+                  {pageMd.displayTitle || pageMd.title || "Strategic Partners and Affiliates"}
                 </h1>
                 <p className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed max-w-3xl">
                   Soka King collaborates with verified partner platforms, data aggregators, and sports prediction networks to deliver seamless predictions and real-time sporting feeds.
@@ -717,7 +717,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
           <div className="space-y-6 animate-fade-in text-left">
             {/* Dynamic SEO Card */}
             <SeoIndicator 
-              title="Privacy Policy - Data Security & Safaricom M-Pesa Security"
+              title="Privacy Policy - Data Security and Safaricom M-Pesa Security"
               description="Your privacy is our priority. Read how Soka King secures M-Pesa payment queries. Full Kenya Data Protection Act 2019 compliance."
               keywords="Soka King privacy policy, M-Pesa data safety, secure transactions, Kenya Data Protection Act, erase player data"
               url="https://sokaking.com/privacy-policy"
@@ -810,7 +810,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
           <div className="space-y-6 animate-fade-in text-left">
             {/* Dynamic SEO Card */}
             <SeoIndicator 
-              title="Terms of Use & Subscription Guidelines - Soka King"
+              title="Terms of Use and Subscription Guidelines - Soka King"
               description="Understand the terms governing Soka King football predictions. Read our policies on digital analytics access, refund terms, and intellectual property limits."
               keywords="terms of use Soka King, digital tips refunds, prediction liability Kenya, football jackpot terms"
               url="https://sokaking.com/terms-of-use"
@@ -939,7 +939,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                     <div className="flex items-start gap-3">
                       <Phone className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
                       <div>
-                        <strong className="block text-[var(--text)] font-bold">WhatsApp & Phone</strong>
+                        <strong className="block text-[var(--text)] font-bold">WhatsApp and Phone</strong>
                         <a 
                           href={`https://wa.me/${siteContacts.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello Soka King Support, I need today tips')}`} 
                           target="_blank" 
@@ -955,7 +955,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                     <div className="flex items-start gap-3">
                       <MapPin className="w-4 h-4 text-indigo-500 mt-0.5 shrink-0" />
                       <div>
-                        <strong className="block text-[var(--text)] font-bold">Location & HQ</strong>
+                        <strong className="block text-[var(--text)] font-bold">Location and HQ</strong>
                         <span className="text-[var(--text-muted)]">{siteContacts.address}</span>
                       </div>
                     </div>
@@ -1098,13 +1098,13 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
               </div>
             </div>
 
-            {/* Saved Contacts / Social Related Links & Channels Table */}
+            {/* Saved Contacts / Social Related Links and Channels Table */}
             <div className="p-6 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--border)] pb-3">
                 <div>
                   <div className="text-sm font-extrabold text-[var(--text)] font-mono uppercase tracking-wider flex items-center gap-2">
                     <Globe className="w-4 h-4 text-emerald-500" />
-                    <span>Saved Contacts & Social Channels Table</span>
+                    <span>Saved Contacts and Social Channels Table</span>
                   </div>
                   <p className="text-[11px] text-[var(--text-muted)]">
                     Official contact phone numbers, emails, locations, and social links repository.
@@ -1121,7 +1121,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                     <tr className="border-b border-[var(--border)] bg-slate-50 dark:bg-slate-900/50 text-[10px] uppercase font-mono text-[var(--text-muted)]">
                       <th className="py-2.5 px-3">Channel / Social</th>
                       <th className="py-2.5 px-3">Contact Detail / Link</th>
-                      <th className="py-2.5 px-3">Purpose & Description</th>
+                      <th className="py-2.5 px-3">Purpose and Description</th>
                       <th className="py-2.5 px-3 text-right">Status</th>
                     </tr>
                   </thead>

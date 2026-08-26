@@ -1,14 +1,14 @@
 ---
-title: "Today's Football Predictions & Free Betting Tips - Soka King"
+title: "Today's Football Predictions and Free Betting Tips - Soka King"
 description: "Get today's free football predictions, high accuracy betting tips, 1X2, Over/Under, and BTTS predictions on Soka King."
 keywords: "football predictions today, soccer tips today, free betting tips Kenya, 1X2 predictions, BTTS today"
 link: "/football-predictions-today"
 authorId: "john-mwangi"
-displayTitle: "Today's Football Predictions & Sure Betting Tips"
+displayTitle: "Today's Football Predictions and Sure Betting Tips"
 responsibleGambling: "Always gamble responsibly and set strict bankroll limits. Helpline: 0800-720-000."
 listTitle: "Today's Free Football Predictions"
 listSubtitle: "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes."
-unlockHeading: "Unlock Today's VIP Daily 2+ & 5+ Odds Packs"
+unlockHeading: "Unlock Today's VIP Daily 2+ and 5+ Odds Packs"
 unlockDescription: "Receive today's mathematically validated multi-bets directly on screen and via instant SMS."
 type: "category"
 fixturesCategory: "today"
@@ -21,7 +21,7 @@ Welcome to Soka King's daily football predictions hub. Our sports intelligence s
 Every day, over 500 football matches are analyzed using our Poisson distribution model. From the English Premier League and UEFA Champions League to regional African tournaments, Soka King delivers data-driven picks.
 
 <!-- MEAT -->
-## Today's Football Betting Tips & Mathematical Strategy
+## Today's Football Betting Tips and Mathematical Strategy
 
 Our daily tips combine Poisson goal expectancy calculations with team form, head-to-head history, and tactical line-up news.
 

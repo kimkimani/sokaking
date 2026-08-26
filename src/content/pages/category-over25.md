@@ -1,5 +1,5 @@
 ---
-title: "Over 2.5 Goals Predictions & High-Scoring Tips - Soka King"
+title: "Over 2.5 Goals Predictions and High-Scoring Tips - Soka King"
 description: "High-conversion Over 2.5 Goals football predictions. Advanced goal expectancy models identifying high-tempo attacking fixtures."
 keywords: "Over 2.5 predictions, Over 2.5 goals tips today, high scoring matches"
 link: "/football-predictions-over-2-5-goals"
@@ -14,7 +14,7 @@ type: "category"
 fixturesCategory: "over25"
 ---
 
-## Over 2.5 Goals Predictions & High-Scoring Tips
+## Over 2.5 Goals Predictions and High-Scoring Tips
 
 <!-- INTRO -->
 Welcome to Soka King's Over 2.5 Goals prediction portal. Find high-tempo matches with expected total goal lines exceeding 3 goals.

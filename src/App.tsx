@@ -30,7 +30,7 @@ import {
 import { designIterations, vipPackages, oddsPacks, fixturesData } from './data';
 import { jackpotsData } from './jackpotsData';
 import { DesignIteration, Fixture, VipPackage, OddsPack } from './types';
-import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl } from './content/markdownLoader';
+import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl, hasMarkdownFile } from './content/markdownLoader';
 import { getRefinedConfidence } from './utils/probability';
 
 import { apiFetch } from './utils/api.ts';
@@ -51,6 +51,7 @@ import InboundLinksBlock from './components/InboundLinksBlock';
 import CategoryPredictionsPage from './components/CategoryPredictionsPage';
 import FaqSection from './components/FaqSection';
 import MarkdownRenderer from './components/MarkdownRenderer';
+import NotFoundPage from './components/NotFoundPage';
 
 // Code-split heavy non-primary routes and overlay modals to reduce initial mobile JS bundle
 const JackpotPage = lazy(() => import('./components/JackpotPage'));
@@ -508,11 +509,11 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
         Skip to main content
       </a>
 
-      {/* 1. MAIN HEADER & DESKTOP TOOLBAR */}
+      {/* 1. MAIN HEADER and DESKTOP TOOLBAR */}
       <header className="w-full border-b border-[var(--border)] bg-[var(--card)] backdrop-blur-[var(--backdrop)] sticky top-0 z-40 transition-all">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           
-          {/* Left: Logo & Mobile Menu Toggle */}
+          {/* Left: Logo and Mobile Menu Toggle */}
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setSidebarOpen(true)}
@@ -670,6 +671,16 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 </div>
               }>
               {(() => {
+                if (activePage === '404') {
+                  return (
+                    <NotFoundPage 
+                      onBackToHome={() => handleSelectPage('home')}
+                      onSelectPage={handleSelectPage}
+                      attemptedPage={activePage}
+                    />
+                  );
+                }
+
                 const category = PREDICTION_CATEGORIES.find(c => 
                   c.id === activePage || 
                   (c.id === 'sunpel-free-football-betting-tips' && activePage.startsWith('sunpel-free-football-betting-tips'))
@@ -787,8 +798,18 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   );
                 }
 
-                // DYNAMIC MARKDOWN PAGE FALLBACK (For any newly created .md files: Competitors, custom SEO Jackpot pages, etc.)
+                // DYNAMIC MARKDOWN PAGE (For newly created or existing .md files: Competitors, custom SEO Jackpot pages, etc.)
                 if (activePage !== 'home') {
+                  if (!hasMarkdownFile(activePage)) {
+                    return (
+                      <NotFoundPage 
+                        onBackToHome={() => handleSelectPage('home')}
+                        onSelectPage={handleSelectPage}
+                        attemptedPage={activePage}
+                      />
+                    );
+                  }
+
                   const pageMd = getMarkdownContent(activePage);
 
                   // 1. Is it a jackpot page (has jackpotId or type === 'jackpot')?
@@ -841,6 +862,15 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                       />
                     );
                   }
+
+                  // If activePage has no valid renderer
+                  return (
+                    <NotFoundPage 
+                      onBackToHome={() => handleSelectPage('home')}
+                      onSelectPage={handleSelectPage}
+                      attemptedPage={activePage}
+                    />
+                  );
                 }
 
                 // DEFAULT: Home / Free Tips Page Layout
@@ -854,13 +884,13 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
                       <div className="relative z-10 max-w-2xl space-y-4">
                         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--primary)] text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
-                          <Sparkles className="w-3.5 h-3.5 text-white animate-pulse" /> Real-Time Analytics & Verified Predictions
+                          <Sparkles className="w-3.5 h-3.5 text-white animate-pulse" /> Real-Time Analytics and Verified Predictions
                         </div>
                         <h1 
                           className="text-2xl md:text-4xl font-extrabold tracking-tight leading-[1.1] text-[var(--text)]"
                           style={{ fontFamily: 'var(--font-display)' }}
                         >
-                          {homeMd.displayTitle || homeMd.title || "Expert SportPesa Mega Jackpot Predictions & Sure Football Tips"}
+                          {homeMd.displayTitle || homeMd.title || "Expert SportPesa Mega Jackpot Predictions and Sure Football Tips"}
                         </h1>
                         <div className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed">
                           {homeMd.intro ? (
@@ -1017,7 +1047,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                       />
                     </div>
 
-                    {/* EXPERT INSIGHTS & FAQ FROM MARKDOWN */}
+                    {/* EXPERT INSIGHTS and FAQ FROM MARKDOWN */}
                     <div className="space-y-6">
                       {homeMd.meat && (
                         <section id="expert-insights" className="p-5 md:p-6 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] backdrop-blur-[var(--backdrop)] text-left">
@@ -1208,7 +1238,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
               </span>
             </div>
             <p className="leading-relaxed text-[11px] text-slate-700 dark:text-slate-300">
-              Kenya's premier football prediction & jackpot analytics portal. Powered by advanced statistical algorithms and Poisson goal distribution models.
+              Kenya's premier football prediction and jackpot analytics portal. Powered by advanced statistical algorithms and Poisson goal distribution models.
             </p>
             <div className="flex flex-wrap items-center gap-2 pt-1">
               {siteContacts.whatsapp && (
@@ -1356,7 +1386,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 }}
                 className="min-h-[44px] py-2 px-2 -mx-2 rounded-md flex items-center text-left hover:text-[var(--primary)] hover:bg-slate-200/50 dark:hover:bg-slate-900/50 transition-colors no-underline cursor-pointer text-slate-800 dark:text-slate-200 font-bold"
               >
-                Odds Packs & Slips
+                Odds Packs and Slips
               </a>
             </div>
           </div>
@@ -1456,7 +1486,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
         {/* Lower row */}
         <div className="max-w-7xl mx-auto px-4 border-t border-[var(--border)] mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-700 dark:text-slate-300">
           <div className="font-medium text-[11px]">
-            © 2026 SOKA KING. Kenya's #1 Data-Driven Football Predictions & Jackpot Portal. All rights reserved.
+            © 2026 SOKA KING. Kenya's #1 Data-Driven Football Predictions and Jackpot Portal. All rights reserved.
           </div>
           <div className="flex flex-wrap items-center gap-2 font-mono font-bold text-[11px]">
             <a 

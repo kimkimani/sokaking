@@ -40,7 +40,7 @@ Every football prediction on Soka King considers team recent results, attacking 
 Our soka tips are not based on guesswork alone. We evaluate key performance metrics across multiple dimensions:
 
 - Core Form and Performance Indicators
-- Offensive & Defensive Metrics
+- Offensive and Defensive Metrics
 - Strategic Match Selection Rules
 
 <!-- FAQ -->

@@ -25,6 +25,6 @@ knowsAbout:
 shortBio: "Dr. Omondi holds a PhD in Computational Statistics and directs Soka King's core algorithmic research, machine learning models, and database architecture in Nairobi, Kenya."
 ---
 
-## Research Director & Data Science Core
+## Research Director and Data Science Core
 
 Dr. Samuel Omondi heads Soka King's algorithmic research laboratory in Nairobi. He develope mathematical pipelines that simulate football permutations daily..

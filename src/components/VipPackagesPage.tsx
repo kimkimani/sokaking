@@ -54,11 +54,11 @@ export default function VipPackagesPage({
           </div>
 
           <h1 className="text-xl md:text-3xl font-black text-[var(--text)] tracking-tight uppercase" style={{ fontFamily: 'var(--font-display)' }}>
-            {pageMd.displayTitle || pageMd.title || <>VIP PACKAGES, <span className="text-amber-500">DAILY ODDS PACKS</span> & JACKPOT SLIPS</>}
+            {pageMd.displayTitle || pageMd.title || <>VIP PACKAGES, <span className="text-amber-500">DAILY ODDS PACKS</span> and JACKPOT SLIPS</>}
           </h1>
 
           <p className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed max-w-2xl">
-            Upgrade your game with algorithmic precision. Choose from daily/weekly VIP subscription bundles, targeted 2+ to 10+ decimal odds shortlists, or complete 17 & 15 match jackpot prediction slips.
+            Upgrade your game with algorithmic precision. Choose from daily/weekly VIP subscription bundles, targeted 2+ to 10+ decimal odds shortlists, or complete 17 and 15 match jackpot prediction slips.
           </p>
 
           {/* Quick jump anchor buttons */}
@@ -164,7 +164,7 @@ export default function VipPackagesPage({
                 Kenyan Major Jackpot Prediction Slips
               </h2>
               <p className="text-xs text-[var(--text-muted)]">
-                Select any jackpot below to view full 17 & 15 match analysis and unlock complete double-chance slips.
+                Select any jackpot below to view full 17 and 15 match analysis and unlock complete double-chance slips.
               </p>
             </div>
           </div>

@@ -1,17 +1,17 @@
 ---
-title: "Responsible Gambling & Player Protection - Soka King"
+title: "Responsible Gambling and Player Protection - Soka King"
 description: "Soka King advocates for responsible gambling, strict 18+ age limits, and healthy bankroll management."
 keywords: "responsible gambling Kenya, player protection, betting helpline"
 link: "/responsible-gambling"
 authorId: "soka-safety-board"
-displayTitle: "Responsible Gambling & Player Protection Center"
+displayTitle: "Responsible Gambling and Player Protection Center"
 responsibleGambling: "If gambling is affecting your life, call the national helpline: 0800-720-000."
-unlockHeading: "Safe Gaming & Bankroll Protection"
+unlockHeading: "Safe Gaming and Bankroll Protection"
 unlockDescription: "Learn about bankroll allocation rules, loss control, and self-exclusion tools."
 type: "static"
 ---
 
-## Responsible Gambling & Player Protection
+## Responsible Gambling and Player Protection
 
 <!-- INTRO -->
 Soka King is strictly an educational and sports analytics advisory platform. We advocate for responsible gaming, strict age limits (18+), and healthy bankroll management.
@@ -20,7 +20,7 @@ Soka King is strictly an educational and sports analytics advisory platform. We 
 Sports forecasting involves probability and risk. We encourage users to treat sports predictions as recreational entertainment and never bet more than they can afford to lose.
 
 <!-- MEAT -->
-## Responsible Gambling Guidelines & Helpline Support
+## Responsible Gambling Guidelines and Helpline Support
 
 ### Rules for Safe Play
 1. **Strictly 18+ Access**: Betting in Kenya is strictly prohibited for minors under 18 years.

@@ -99,7 +99,7 @@ export default function OddsPacks({
                 </div>
               </div>
 
-              {/* Price & Action Button */}
+              {/* Price and Action Button */}
               <div className="border-t border-[var(--border)] pt-4 mt-1">
                 <div className="flex items-baseline justify-between mb-4">
                   <div className="text-xs text-[var(--text-muted)] font-mono uppercase">Ticket Price</div>

@@ -1,5 +1,5 @@
 ---
-title: "Over 1.5 Goals Predictions & Football Betting Tips - Soka King"
+title: "Over 1.5 Goals Predictions and Football Betting Tips - Soka King"
 description: "High-probability Over 1.5 Goals football predictions. Over 80% win rate goal-line selections and daily accumulator picks."
 keywords: "Over 1.5 predictions, Over 1.5 goals tips, high goal predictions"
 link: "/football-predictions-over-1-5-goals"
@@ -14,7 +14,7 @@ type: "category"
 fixturesCategory: "over15"
 ---
 
-## Over 1.5 Goals Predictions & Football Betting Tips
+## Over 1.5 Goals Predictions and Football Betting Tips
 
 <!-- INTRO -->
 Welcome to Soka King's Over 1.5 Goals prediction portal. Discover high-probability goal-line selections with $>80\%$ mathematical likelihood of 2 or more total goals.
