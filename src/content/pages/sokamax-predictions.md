@@ -11,7 +11,7 @@ authorId: "brian-kipchumba"
 listTitle: "Daily Sokamax Free Football Tips"
 listSubtitle: "Sokamax Dailt and Todat Tips."
 unlockHeading: "Sokamax Premium VIP Odds Packs"
-unlockDescription: "Get instant access to multi-tips with high winning rates."
+unlockDescription: "Get instant access to multi tips with high winning rates."
 inboundTitle: "Sokamax Prediction Alternative"
 inboundDescription: "Compare Sokamax competitor tips look like"
 ---
