@@ -92,7 +92,7 @@ The main markets include 1X2, Double Chance, BTTS, Over/Under Goals, Draw No Bet
 
 ### Does Cheza254 provide jackpot predictions?
 
-Yes, daily, midweek, weekend and mega jackpot predictions.
+Yes, daily, midweek, weekend and [mega jackpot](https://sokaking.com/free-sportpesa-mega-jackpot-predictions-and-analysis) predictions.
 
 <!-- RESPONSIBLE_GAMBLING_START -->
 > **Responsible Gambling Notice:** Gambling involves financial risk. Please bet responsibly and only risk money you can afford to lose. If you need help or support, contact the national helpline at **0800-720-000** or visit our [Responsible Gambling Policy](/responsible-gambling).
