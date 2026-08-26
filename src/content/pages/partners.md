@@ -21,10 +21,3 @@ Soka King collaborates with, sports prediction platforms to power East Africa's 
 <!-- MEAT -->
 
 <!-- FAQ -->
-## Frequently Asked Questions - Soka King
-
-### Is Soka King free to use?
-Yes
-
-### How accurate are Soka King's football predictions?
-*85%+ win rate.
