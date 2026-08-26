@@ -1,6 +1,7 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "name": "Soka King",
+  "short_name": "Soka King",
+  "start_url": "/",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
