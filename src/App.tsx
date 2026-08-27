@@ -51,7 +51,6 @@ import InboundLinksBlock from './components/InboundLinksBlock';
 import CategoryPredictionsPage from './components/CategoryPredictionsPage';
 import FaqSection from './components/FaqSection';
 import MarkdownRenderer from './components/MarkdownRenderer';
-import NotFoundPage from './components/NotFoundPage';
 
 // Code-split heavy non-primary routes and overlay modals to reduce initial mobile JS bundle
 const JackpotPage = lazy(() => import('./components/JackpotPage'));
@@ -671,16 +670,6 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 </div>
               }>
               {(() => {
-                if (activePage === '404') {
-                  return (
-                    <NotFoundPage 
-                      onBackToHome={() => handleSelectPage('home')}
-                      onSelectPage={handleSelectPage}
-                      attemptedPage={activePage}
-                    />
-                  );
-                }
-
                 const category = PREDICTION_CATEGORIES.find(c => 
                   c.id === activePage || 
                   (c.id === 'sunpel-free-football-betting-tips' && activePage.startsWith('sunpel-free-football-betting-tips'))
@@ -799,17 +788,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 }
 
                 // DYNAMIC MARKDOWN PAGE (For newly created or existing .md files: Competitors, custom SEO Jackpot pages, etc.)
-                if (activePage !== 'home') {
-                  if (!hasMarkdownFile(activePage)) {
-                    return (
-                      <NotFoundPage 
-                        onBackToHome={() => handleSelectPage('home')}
-                        onSelectPage={handleSelectPage}
-                        attemptedPage={activePage}
-                      />
-                    );
-                  }
-
+                if (activePage !== 'home' && hasMarkdownFile(activePage)) {
                   const pageMd = getMarkdownContent(activePage);
 
                   // 1. Is it a jackpot page (has jackpotId or type === 'jackpot')?
@@ -862,15 +841,6 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                       />
                     );
                   }
-
-                  // If activePage has no valid renderer
-                  return (
-                    <NotFoundPage 
-                      onBackToHome={() => handleSelectPage('home')}
-                      onSelectPage={handleSelectPage}
-                      attemptedPage={activePage}
-                    />
-                  );
                 }
 
                 // DEFAULT: Home / Free Tips Page Layout

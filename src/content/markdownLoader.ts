@@ -112,15 +112,13 @@ export function getPageMetadata(pageKey: string): PageMetadata {
   if (PAGE_METADATA_MAP[normKey]) {
     return PAGE_METADATA_MAP[normKey];
   }
-  return {
-    pageKey: normKey,
-    title: 'Page Not Found - Soka King',
-    displayTitle: 'Page Not Found',
-    description: 'The requested football predictions page or category could not be found.',
-    keywords: 'football predictions, 404, not found',
-    link: `/${normKey}`,
-    listTitle: "Page Not Found",
-    listSubtitle: "This page does not exist or has been removed."
+  return PAGE_METADATA_MAP['home'] || {
+    pageKey: 'home',
+    title: 'Soka King | Football Predictions and Free Jackpot Tips',
+    displayTitle: 'Soka King Football Predictions & Tips',
+    description: 'Free daily football betting predictions, accurate mega jackpot tips, and football analysis.',
+    keywords: 'football predictions, jackpot tips, soccer predictions today',
+    link: '/',
   };
 }
 

@@ -111,13 +111,12 @@ export function getPageUrl(pageId: string): string {
 
 export function getPageIdFromUrl(pathname: string): string {
   const norm = getNormalizedPath(pathname);
-  if (norm === '/' || norm === '') return 'home';
-  if (norm === '/404' || norm === '/not-found') return '404';
+  if (norm === '/' || norm === '' || norm === '/404' || norm === '/not-found') return 'home';
   if (URL_TO_PAGE_MAP[norm]) return URL_TO_PAGE_MAP[norm];
 
   const rawSlug = norm.replace(/^\//, '');
   if (URL_TO_PAGE_MAP[`/${rawSlug}`]) return URL_TO_PAGE_MAP[`/${rawSlug}`];
   if (PAGE_TO_URL_MAP[rawSlug]) return rawSlug;
 
-  return '404';
+  return 'home';
 }
