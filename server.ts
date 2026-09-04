@@ -397,6 +397,14 @@ Sitemap: https://sokaking.com/sitemap.xml
     maxAge: '1d'
   }));
 
+  // Serve blog post local assets (images inside src/content/blog/[slug]/) directly at /blog-assets/[slug]/[file]
+  app.use('/blog-assets', express.static(path.resolve('.', 'src', 'content', 'blog'), {
+    maxAge: '7d',
+    setHeaders: (res) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+  }));
+
   // Serve Frontend with Vite in dev, or static files in production
   const isProd = process.env.NODE_ENV === 'production';
   if (!isProd) {

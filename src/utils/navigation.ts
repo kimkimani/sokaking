@@ -34,11 +34,14 @@ export const BASE_URL_TO_PAGE_MAP: Record<string, string> = {
   '/vip-packages': 'vip-packages',
   '/vip-tips': 'vip-packages',
   '/vip': 'vip-packages',
-  '/odds': 'vip-packages'
+  '/odds': 'vip-packages',
+  '/blog': 'blog'
 };
 
 export const BASE_PAGE_TO_URL_MAP: Record<string, string> = {
   'home': '/',
+  'blog': '/blog',
+  'blog-list': '/blog',
   'category-today': '/football-predictions-today',
   'category-yesterday': '/football-predictions-yesterday',
   'category-tomorrow': '/football-predictions-tomorrow',
@@ -104,6 +107,8 @@ export function getNormalizedPath(path: string): string {
 export function getPageUrl(pageId: string): string {
   if (!pageId || pageId === 'home' || pageId === 'not-found' || pageId === '404') return '/';
   if (pageId === 'today') return '/football-predictions-today';
+  if (pageId === 'blog' || pageId === 'blog-list') return '/blog';
+  if (pageId.startsWith('blog-')) return `/blog/${pageId.replace(/^blog-/, '')}`;
   if (PAGE_TO_URL_MAP[pageId]) return PAGE_TO_URL_MAP[pageId];
   if (pageId.startsWith('/')) return pageId;
   return `/${pageId}`;
@@ -112,6 +117,11 @@ export function getPageUrl(pageId: string): string {
 export function getPageIdFromUrl(pathname: string): string {
   const norm = getNormalizedPath(pathname);
   if (norm === '/' || norm === '' || norm === '/404' || norm === '/not-found') return 'home';
+  if (norm === '/blog') return 'blog';
+  if (norm.startsWith('/blog/')) {
+    const blogSlug = norm.replace(/^\/blog\//, '');
+    if (blogSlug) return `blog-${blogSlug}`;
+  }
   if (URL_TO_PAGE_MAP[norm]) return URL_TO_PAGE_MAP[norm];
 
   const rawSlug = norm.replace(/^\//, '');

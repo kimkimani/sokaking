@@ -87,6 +87,16 @@ export function classifyRoute(rawUrl: string): RouteStatusResult {
     };
   }
 
+  // 2b. Check if it is the blog or a blog post
+  if (normalized === '/blog' || normalized.startsWith('/blog/')) {
+    const slug = normalized.replace(/^\/blog\/?/, '');
+    return {
+      status: 200,
+      isSpamPattern: false,
+      pageId: slug ? `blog-${slug}` : 'blog'
+    };
+  }
+
   // 3. Check if it's in all sitemap / markdown routes
   try {
     const sitemapRoutes = getMarkdownRoutesSet();

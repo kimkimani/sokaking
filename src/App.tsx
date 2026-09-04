@@ -58,6 +58,9 @@ const JackpotListPage = lazy(() => import('./components/JackpotListPage'));
 const VipPackagesPage = lazy(() => import('./components/VipPackagesPage'));
 const StaticPages = lazy(() => import('./components/StaticPages'));
 const PaymentModal = lazy(() => import('./components/PaymentModal'));
+const BlogPage = lazy(() => import('./components/BlogPage'));
+const BlogPostPage = lazy(() => import('./components/BlogPostPage'));
+import { getBlogPostBySlug } from './content/blogLoader';
 
 import { 
   URL_TO_PAGE_MAP, 
@@ -164,6 +167,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   const defaultPage = initialPage || getInitialPage();
   const defaultJackpot = initialJackpotId || getInitialJackpot(defaultPage);
   const [activePage, setActivePage] = useState<string>(defaultPage);
+  const [blogAuthorFilter, setBlogAuthorFilter] = useState<string | null>(null);
   const [unlockedJackpots, setUnlockedJackpots] = useState<string[]>([]);
 
   // Keep unlocked jackpots in sync with purchases
@@ -432,7 +436,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     }
 
     // Push URL state for normal subpages
-    const url = PAGE_TO_URL_MAP[resolvedPageId] || `/${resolvedPageId}`;
+    const url = getPageUrl(resolvedPageId);
     if (url && typeof window !== 'undefined') {
       window.history.pushState(null, '', url);
     }
@@ -441,6 +445,8 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     if (resolvedPageId.startsWith('category-') || 
         resolvedPageId === 'jackpot-list' || 
         ALL_JACKPOT_IDS.includes(resolvedPageId) ||
+        resolvedPageId === 'blog' ||
+        resolvedPageId.startsWith('blog-') ||
         ['about', 'partners', 'responsible-gambling', 'privacy-policy', 'terms-of-use', 'contact'].includes(resolvedPageId)) {
       requestAnimationFrame(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
@@ -624,6 +630,18 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
             >
               VIP
             </a>
+            <a 
+              href={getPageUrl('blog')}
+              onClick={(e) => {
+                if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSelectPage('blog');
+                }
+              }}
+              className={`px-3.5 py-1.5 text-xs font-bold transition-all no-underline cursor-pointer rounded-full ${activePage === 'blog' || activePage.startsWith('blog-') ? 'bg-[var(--primary)] text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--primary)]'}`}
+            >
+              Blog
+            </a>
           </nav>
 
           {/* Right: Actions */}
@@ -785,6 +803,34 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                       onBackToHome={() => handleSelectPage('home')}
                     />
                   );
+                }
+
+                if (activePage === 'blog' || activePage === 'blog-list') {
+                  return (
+                    <BlogPage 
+                      onSelectPost={(slug) => handleSelectPage(`blog-${slug}`)}
+                      onBackToHome={() => handleSelectPage('home')}
+                      initialAuthorFilter={blogAuthorFilter || undefined}
+                    />
+                  );
+                }
+
+                if (activePage.startsWith('blog-')) {
+                  const blogSlug = activePage.replace(/^blog-/, '');
+                  const blogPost = getBlogPostBySlug(blogSlug);
+                  if (blogPost) {
+                    return (
+                      <BlogPostPage 
+                        post={blogPost}
+                        onBackToBlog={() => handleSelectPage('blog')}
+                        onSelectPost={(slug) => handleSelectPage(`blog-${slug}`)}
+                        onFilterByAuthor={(authorId) => {
+                          setBlogAuthorFilter(authorId);
+                          handleSelectPage('blog');
+                        }}
+                      />
+                    );
+                  }
                 }
 
                 // DYNAMIC MARKDOWN PAGE (For newly created or existing .md files: Competitors, custom SEO Jackpot pages, etc.)
@@ -1340,6 +1386,18 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 className="min-h-[44px] py-2 px-2 -mx-2 rounded-md flex items-center text-left hover:text-[var(--primary)] hover:bg-slate-200/50 dark:hover:bg-slate-900/50 transition-colors no-underline cursor-pointer text-slate-800 dark:text-slate-200 font-bold"
               >
                 VIP Subscription
+              </a>
+              <a 
+                href={getPageUrl('blog')}
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSelectPage('blog');
+                  }
+                }}
+                className="min-h-[44px] py-2 px-2 -mx-2 rounded-md flex items-center text-left hover:text-[var(--primary)] hover:bg-slate-200/50 dark:hover:bg-slate-900/50 transition-colors no-underline cursor-pointer text-slate-800 dark:text-slate-200 font-bold"
+              >
+                Analysis & Strategy Blog
               </a>
               <a 
                 href="/#odds-packs"

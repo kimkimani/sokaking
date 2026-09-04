@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)" />
+  <!-- Grid lines -->
+  <line x1="100" y1="350" x2="700" y2="350" stroke="#334155" stroke-width="2" />
+  <line x1="100" y1="100" x2="100" y2="350" stroke="#334155" stroke-width="2" />
+  
+  <!-- Poisson distribution curve / bars -->
+  <rect x="140" y="270" width="60" height="80" fill="#10b981" opacity="0.85" rx="4" />
+  <rect x="230" y="160" width="60" height="190" fill="#10b981" opacity="0.9" rx="4" />
+  <rect x="320" y="190" width="60" height="160" fill="#10b981" opacity="0.85" rx="4" />
+  <rect x="410" y="250" width="60" height="100" fill="#3b82f6" opacity="0.85" rx="4" />
+  <rect x="500" y="305" width="60" height="45" fill="#3b82f6" opacity="0.85" rx="4" />
+  <rect x="590" y="335" width="60" height="15" fill="#64748b" opacity="0.85" rx="4" />
+
+  <!-- Labels -->
+  <text x="170" y="380" fill="#94a3b8" font-family="monospace" font-size="14" text-anchor="middle">0 G</text>
+  <text x="260" y="380" fill="#94a3b8" font-family="monospace" font-size="14" text-anchor="middle">1 G</text>
+  <text x="350" y="380" fill="#94a3b8" font-family="monospace" font-size="14" text-anchor="middle">2 G</text>
+  <text x="440" y="380" fill="#94a3b8" font-family="monospace" font-size="14" text-anchor="middle">3 G</text>
+  <text x="530" y="380" fill="#94a3b8" font-family="monospace" font-size="14" text-anchor="middle">4 G</text>
+  <text x="620" y="380" fill="#94a3b8" font-family="monospace" font-size="14" text-anchor="middle">5+ G</text>
+
+  <!-- Title overlay -->
+  <text x="400" y="65" fill="#f8fafc" font-family="sans-serif" font-weight="bold" font-size="22" text-anchor="middle">POISSON GOAL PROBABILITY DISTRIBUTION</text>
+  <text x="400" y="95" fill="#10b981" font-family="monospace" font-size="13" text-anchor="middle">λ = 1.65 (Expected Goals Baseline)</text>
+</svg>

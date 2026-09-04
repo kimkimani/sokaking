@@ -1,13 +1,26 @@
 import fs from 'fs';
 import path from 'path';
 import { getAllMarkdownPages } from '../content/markdownLoader';
+import { BLOG_METADATA_LIST } from '../content/blogData';
 
 export const BASE_URL = 'https://sokaking.com';
 
 export function getMarkdownRoutesSet(): Set<string> {
   const mdRoutes = new Set<string>();
 
-  // 1. Scan markdownLoader (includes markdownData.ts and parsed pages)
+  // 1. Add blog index
+  mdRoutes.add('/blog');
+
+  // 2. Add all blog posts from metadata list
+  if (Array.isArray(BLOG_METADATA_LIST)) {
+    for (const post of BLOG_METADATA_LIST) {
+      if (post.slug) {
+        mdRoutes.add(`/blog/${post.slug}`);
+      }
+    }
+  }
+
+  // 3. Scan markdownLoader (includes markdownData.ts and parsed pages)
   try {
     const allMd = getAllMarkdownPages();
     for (const { pageKey, page } of allMd) {
@@ -24,7 +37,7 @@ export function getMarkdownRoutesSet(): Set<string> {
     console.error('Error getting markdown pages for sitemap:', err);
   }
 
-  // 2. Automatically scan all physical markdown files in src/content/pages/
+  // 4. Automatically scan all physical markdown files in src/content/pages/ and src/content/blog/
   try {
     const pagesDir = path.join(process.cwd(), 'src/content/pages');
     if (fs.existsSync(pagesDir)) {
@@ -41,6 +54,24 @@ export function getMarkdownRoutesSet(): Set<string> {
           } else {
             const pageSlug = file.replace(/\.md$/, '').toLowerCase();
             mdRoutes.add(`/${pageSlug}`);
+          }
+        }
+      }
+    }
+
+    const blogDir = path.join(process.cwd(), 'src/content/blog');
+    if (fs.existsSync(blogDir)) {
+      const entries = fs.readdirSync(blogDir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isFile() && entry.name.endsWith('.md')) {
+          const slug = entry.name.replace(/\.md$/, '').toLowerCase();
+          mdRoutes.add(`/blog/${slug}`);
+        } else if (entry.isDirectory()) {
+          const folderPath = path.join(blogDir, entry.name);
+          const subFiles = fs.readdirSync(folderPath);
+          const hasMd = subFiles.some((f: string) => f.toLowerCase().endsWith('.md'));
+          if (hasMd) {
+            mdRoutes.add(`/blog/${entry.name.toLowerCase()}`);
           }
         }
       }

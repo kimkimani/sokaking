@@ -1,6 +1,7 @@
 import { getMarkdownContent, buildCanonicalUrl } from '../content/markdownLoader.js';
 import { getPageIdFromUrl, getPageUrl } from './navigation.js';
 import { generatePageJsonLd } from './schemaGenerator.js';
+import { getBlogPostBySlug } from '../content/blogLoader.js';
 
 function escapeHtml(str: string): string {
   return str
@@ -18,13 +19,29 @@ export function injectSeoAndStructuredData(rawHtml: string, requestUrl: string):
   try {
     const urlPath = requestUrl.split('?')[0].split('#')[0] || '/';
     const pageId = getPageIdFromUrl(urlPath);
-    const pageMd = getMarkdownContent(pageId);
-    const canonicalUrl = buildCanonicalUrl(pageMd.link || getPageUrl(pageId), pageId);
+    let pageMd = getMarkdownContent(pageId);
+    let canonicalUrl = buildCanonicalUrl(pageMd.link || getPageUrl(pageId), pageId);
     const { fullGraph } = generatePageJsonLd(pageId);
 
-    const title = pageMd.title || 'Soka King - Premium Football Predictions and Jackpot Tips';
-    const description = pageMd.description || 'Free mathematical football predictions, 1X2 tips, over 2.5 goals, BTTS/GG picks, and jackpot analysis.';
-    const keywords = pageMd.keywords || 'football predictions, jackpot tips, soccer predictions';
+    let title = pageMd.title || 'Soka King - Premium Football Predictions and Jackpot Tips';
+    let description = pageMd.description || 'Free mathematical football predictions, 1X2 tips, over 2.5 goals, BTTS/GG picks, and jackpot analysis.';
+    let keywords = pageMd.keywords || 'football predictions, jackpot tips, soccer predictions';
+
+    if (pageId === 'blog') {
+      title = 'Football Betting Analytics & Strategy Blog | Soka King';
+      description = 'In-depth tactical breakdowns, Poisson distribution guides, SportPesa jackpot combination strategies, and quantitative bankroll models.';
+      keywords = 'football analytics blog, betting strategies, expected goals xg, sportpesa jackpot combinations, poisson football model';
+      canonicalUrl = 'https://sokaking.com/blog';
+    } else if (pageId.startsWith('blog-')) {
+      const slug = pageId.replace(/^blog-/, '');
+      const blogPost = getBlogPostBySlug(slug);
+      if (blogPost) {
+        title = `${blogPost.title} | Soka King Football Analytics Blog`;
+        description = blogPost.description;
+        keywords = (blogPost.tags || []).join(', ') + ', football analytics, soka king';
+        canonicalUrl = `https://sokaking.com/blog/${blogPost.slug}`;
+      }
+    }
 
     let html = rawHtml;
 

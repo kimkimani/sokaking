@@ -1,6 +1,6 @@
 {
   "name": "sokaking",
-  "description": "Premium sports betting predictions and SportPesa jackpot tips dashboard with dynamic design iterations.",
+  "description": "Premium football predictions, SportPesa jackpot tips, and football analytics & betting strategy blog managed with Markdown and verified author bios.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

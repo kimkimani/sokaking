@@ -354,5 +354,183 @@ ${mapEntries.join(',\n\n')}
   }
 }
 
+function syncBlog() {
+  try {
+    const blogDir = path.join(process.cwd(), 'src', 'content', 'blog');
+    const targetFile = path.join(process.cwd(), 'src', 'content', 'blogData.ts');
+
+    if (!fs.existsSync(blogDir)) {
+      console.log('[Sync Blog] Directory not found, creating:', blogDir);
+      fs.mkdirSync(blogDir, { recursive: true });
+    }
+
+    const entries = fs.readdirSync(blogDir, { withFileTypes: true });
+    const mapEntries: string[] = [];
+    const metaList: any[] = [];
+
+    // Public blog assets destination directory
+    const publicBlogAssetsDir = path.join(process.cwd(), 'public', 'blog-assets');
+    if (!fs.existsSync(publicBlogAssetsDir)) {
+      fs.mkdirSync(publicBlogAssetsDir, { recursive: true });
+    }
+
+    const blogItems: { filePath: string; defaultSlug: string; folderName?: string }[] = [];
+
+    for (const entry of entries) {
+      if (entry.isFile() && entry.name.endsWith('.md')) {
+        const defaultSlug = entry.name.replace(/\.md$/, '').toLowerCase();
+        blogItems.push({ filePath: path.join(blogDir, entry.name), defaultSlug });
+      } else if (entry.isDirectory()) {
+        const folderPath = path.join(blogDir, entry.name);
+        const subFiles = fs.readdirSync(folderPath);
+        // Look for index.md or [folderName].md
+        let mdFile = subFiles.find(f => f.toLowerCase() === 'index.md');
+        if (!mdFile) {
+          mdFile = subFiles.find(f => f.toLowerCase() === `${entry.name.toLowerCase()}.md`);
+        }
+        if (!mdFile) {
+          mdFile = subFiles.find(f => f.toLowerCase().endsWith('.md'));
+        }
+
+        if (mdFile) {
+          blogItems.push({
+            filePath: path.join(folderPath, mdFile),
+            defaultSlug: entry.name.toLowerCase(),
+            folderName: entry.name
+          });
+
+          // Copy any local images in the folder to public/blog-assets/[folderName]/
+          const destAssetFolder = path.join(publicBlogAssetsDir, entry.name);
+          if (!fs.existsSync(destAssetFolder)) {
+            fs.mkdirSync(destAssetFolder, { recursive: true });
+          }
+
+          for (const sf of subFiles) {
+            if (/\.(png|jpe?g|webp|gif|svg|avif)$/i.test(sf)) {
+              const srcImg = path.join(folderPath, sf);
+              const destImg = path.join(destAssetFolder, sf);
+              try {
+                fs.copyFileSync(srcImg, destImg);
+              } catch (copyErr) {
+                console.warn(`[Sync Blog] Failed to copy asset ${sf}:`, copyErr);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (const item of blogItems) {
+      const content = fs.readFileSync(item.filePath, 'utf-8');
+      const defaultSlug = item.defaultSlug;
+
+      // Extract frontmatter
+      const yamlMatch = content.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
+      let title = defaultSlug;
+      let slug = defaultSlug;
+      let description = '';
+      let date = new Date().toISOString().split('T')[0];
+      let author = 'john-mwangi';
+      let category = 'Analysis';
+      let tags: string[] = [];
+      let readTime = '5 min read';
+      let featured = false;
+      let coverImage = '';
+
+      if (yamlMatch) {
+        const yamlStr = yamlMatch[1];
+        const titleM = yamlStr.match(/^title:\s*"?(.*?)"?$/m);
+        if (titleM) title = titleM[1].trim();
+
+        const slugM = yamlStr.match(/^slug:\s*"?(.*?)"?$/m);
+        if (slugM) slug = slugM[1].trim().toLowerCase();
+
+        const descM = yamlStr.match(/^description:\s*"?(.*?)"?$/m);
+        if (descM) description = descM[1].trim();
+
+        const dateM = yamlStr.match(/^date:\s*"?(.*?)"?$/m);
+        if (dateM) date = dateM[1].trim();
+
+        const authorM = yamlStr.match(/^author:\s*"?(.*?)"?$/m);
+        if (authorM) author = authorM[1].trim();
+
+        const catM = yamlStr.match(/^category:\s*"?(.*?)"?$/m);
+        if (catM) category = catM[1].trim();
+
+        const rtM = yamlStr.match(/^readTime:\s*"?(.*?)"?$/m);
+        if (rtM) readTime = rtM[1].trim();
+
+        const featM = yamlStr.match(/^featured:\s*(true|false)/m);
+        if (featM) featured = featM[1] === 'true';
+
+        const imgM = yamlStr.match(/^coverImage:\s*"?(.*?)"?$/m);
+        if (imgM) coverImage = imgM[1].trim();
+
+        const tagsMatch = yamlStr.match(/^tags:\s*\[(.*?)\]/m);
+        if (tagsMatch) {
+          tags = tagsMatch[1].split(',').map(t => t.trim().replace(/^["']|["']$/g, ''));
+        }
+      }
+
+      // If coverImage is local relative path inside folder, resolve to public URL
+      if (item.folderName && coverImage && !coverImage.startsWith('http') && !coverImage.startsWith('/')) {
+        const cleanCover = coverImage.replace(/^\.\//, '');
+        coverImage = `/blog-assets/${item.folderName}/${cleanCover}`;
+      }
+
+      metaList.push({
+        slug,
+        title,
+        description,
+        date,
+        author,
+        category,
+        tags,
+        readTime,
+        featured,
+        coverImage,
+      });
+
+      const escapedContent = content.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\${/g, '\\${');
+      mapEntries.push(`  '${slug}': \`${escapedContent}\``);
+    }
+
+    // Sort metaList by date descending
+    metaList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    const fileContent = `/**
+ * AUTO-GENERATED BLOG POSTS FALLBACK DATA
+ * Synced automatically from src/content/blog/*.md
+ */
+
+export interface BlogMetaItem {
+  slug: string;
+  title: string;
+  description: string;
+  date: string;
+  author: string;
+  category: string;
+  tags: string[];
+  readTime: string;
+  featured: boolean;
+  coverImage?: string;
+}
+
+export const BLOG_METADATA_LIST: BlogMetaItem[] = ${JSON.stringify(metaList, null, 2)};
+
+export const RAW_BLOG_MAP: Record<string, string> = {
+${mapEntries.join(',\n\n')}
+};
+`;
+
+    fs.writeFileSync(targetFile, fileContent, 'utf-8');
+    console.log(`[Sync Blog] Successfully synced ${mapEntries.length} blog posts to ${targetFile}`);
+  } catch (err) {
+    console.error('[Sync Blog] Error syncing blog:', err);
+  }
+}
+
 syncPages();
 syncAuthors();
+syncBlog();
+
