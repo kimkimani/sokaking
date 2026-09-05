@@ -26,12 +26,21 @@ export function injectSeoAndStructuredData(rawHtml: string, requestUrl: string):
     let title = pageMd.title || 'Soka King - Premium Football Predictions and Jackpot Tips';
     let description = pageMd.description || 'Free mathematical football predictions, 1X2 tips, over 2.5 goals, BTTS/GG picks, and jackpot analysis.';
     let keywords = pageMd.keywords || 'football predictions, jackpot tips, soccer predictions';
+    let ogType = pageId === 'vip-packages' ? 'product' : 'website';
+    let ogImage = 'https://sokaking.com/icon.png';
+    let extraMetaTags = '';
+    let crawlerTitle = pageMd.displayTitle || pageMd.title;
+    let crawlerDesc = pageMd.description;
+    let crawlerBody = pageMd.intro ? pageMd.intro.slice(0, 500) : '';
 
     if (pageId === 'blog') {
       title = 'Football Betting Analytics & Strategy Blog | Soka King';
       description = 'In-depth tactical breakdowns, Poisson distribution guides, SportPesa jackpot combination strategies, and quantitative bankroll models.';
       keywords = 'football analytics blog, betting strategies, expected goals xg, sportpesa jackpot combinations, poisson football model';
       canonicalUrl = 'https://sokaking.com/blog';
+      crawlerTitle = 'Football Betting Analytics & Strategy Blog';
+      crawlerDesc = description;
+      crawlerBody = 'Discover mathematical betting models, Poisson goal distribution mechanics, Kelly criterion bankroll management, and SportPesa jackpot combination strategies.';
     } else if (pageId.startsWith('blog-')) {
       const slug = pageId.replace(/^blog-/, '');
       const blogPost = getBlogPostBySlug(slug);
@@ -40,6 +49,31 @@ export function injectSeoAndStructuredData(rawHtml: string, requestUrl: string):
         description = blogPost.description;
         keywords = (blogPost.tags || []).join(', ') + ', football analytics, soka king';
         canonicalUrl = `https://sokaking.com/blog/${blogPost.slug}`;
+        ogType = 'article';
+
+        if (blogPost.coverImage) {
+          if (blogPost.coverImage.startsWith('http')) {
+            ogImage = blogPost.coverImage;
+          } else if (blogPost.coverImage.startsWith('/')) {
+            ogImage = `https://sokaking.com${blogPost.coverImage}`;
+          } else {
+            const clean = blogPost.coverImage.replace(/^\.\//, '');
+            ogImage = `https://sokaking.com/blog-assets/${blogPost.slug}/${clean}`;
+          }
+        }
+
+        const pubDate = blogPost.date.includes('T') ? blogPost.date : `${blogPost.date}T08:00:00+03:00`;
+        const authorName = blogPost.author?.name || 'John K. Mwangi';
+        extraMetaTags = `
+    <!-- Article Specific Metadata for Google Discover & Social Networks -->
+    <meta property="article:published_time" content="${pubDate}" />
+    <meta property="article:author" content="${escapeHtml(authorName)}" />
+    <meta property="article:section" content="${escapeHtml(blogPost.category || 'Football Analytics')}" />
+    ${(blogPost.tags || []).map(t => `<meta property="article:tag" content="${escapeHtml(t)}" />`).join('\n    ')}`;
+
+        crawlerTitle = blogPost.title;
+        crawlerDesc = blogPost.description;
+        crawlerBody = blogPost.content ? blogPost.content.slice(0, 1000) : '';
       }
     }
 
@@ -62,17 +96,18 @@ export function injectSeoAndStructuredData(rawHtml: string, requestUrl: string):
     
     <!-- Open Graph / Social Sharing -->
     <meta property="og:site_name" content="Soka King" />
-    <meta property="og:type" content="${pageId === 'vip-packages' ? 'product' : 'website'}" />
+    <meta property="og:type" content="${ogType}" />
     <meta property="og:title" content="${escapeHtml(title)}" />
     <meta property="og:description" content="${escapeHtml(description)}" />
     <meta property="og:url" content="${canonicalUrl}" />
-    <meta property="og:image" content="https://sokaking.com/icon.png" />
+    <meta property="og:image" content="${ogImage}" />
+    ${extraMetaTags}
     
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeHtml(title)}" />
     <meta name="twitter:description" content="${escapeHtml(description)}" />
-    <meta name="twitter:image" content="https://sokaking.com/icon.png" />
+    <meta name="twitter:image" content="${ogImage}" />
 
     <!-- Schema.org JSON-LD Structured Data Graph -->
     <script type="application/ld+json" id="sokaking-schema-jsonld">
@@ -87,9 +122,9 @@ ${JSON.stringify(fullGraph, null, 2)}
     const crawlerBlock = `
     <!-- Hidden Semantic HTML for Search Engine Web Crawlers -->
     <div id="seo-crawler-content" class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;" aria-hidden="true">
-      <h2>${escapeHtml(pageMd.displayTitle || pageMd.title)}</h2>
-      <p>${escapeHtml(pageMd.description)}</p>
-      ${pageMd.intro ? `<div>${escapeHtml(pageMd.intro.slice(0, 500))}</div>` : ''}
+      <h2>${escapeHtml(crawlerTitle)}</h2>
+      <p>${escapeHtml(crawlerDesc)}</p>
+      ${crawlerBody ? `<div>${escapeHtml(crawlerBody)}</div>` : ''}
     </div>
 `;
     html = html.replace('<body>', `<body>\n${crawlerBlock}`);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { expandTopFixturesParameters, expandTopFixturesParametersAsync } from '../../../utils/topJackpotFixtures';
 
 export async function GET(req: NextRequest) {
   try {
@@ -53,8 +54,9 @@ export async function GET(req: NextRequest) {
     }
 
     if (fs.existsSync(filePath)) {
-      const content = fs.readFileSync(filePath, 'utf-8');
-      return new NextResponse(content, {
+      const rawContent = fs.readFileSync(filePath, 'utf-8');
+      const expandedContent = await expandTopFixturesParametersAsync(rawContent, normKey.includes('mega') ? 'sportpesa-mega' : 'sportpesa-mega');
+      return new NextResponse(expandedContent, {
         status: 200,
         headers: {
           'Content-Type': 'text/plain; charset=utf-8',

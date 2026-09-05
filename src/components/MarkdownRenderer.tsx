@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { expandTopFixturesParameters, fetchLiveMegaJackpotFixtures, getCachedLiveJackpotFixtures } from '../utils/topJackpotFixtures';
+import { Fixture } from '../types';
 
 interface MarkdownRendererProps {
   content: string;
   className?: string;
   postSlug?: string;
+  fixtures?: Fixture[];
+  jackpotId?: string;
 }
 
 /**
@@ -106,11 +110,38 @@ function parseInline(text: string, postSlug?: string): React.ReactNode[] {
   return nodes.length > 0 ? nodes : [text];
 }
 
-export default function MarkdownRenderer({ content, className = '', postSlug }: MarkdownRendererProps) {
+export default function MarkdownRenderer({
+  content,
+  className = '',
+  postSlug,
+  fixtures,
+  jackpotId = 'sportpesa-mega'
+}: MarkdownRendererProps) {
   if (!content) return null;
 
+  const [liveDbFixtures, setLiveDbFixtures] = useState<Fixture[] | null>(() => fixtures || getCachedLiveJackpotFixtures());
+
+  useEffect(() => {
+    if (fixtures && fixtures.length > 0) {
+      setLiveDbFixtures(fixtures);
+      return;
+    }
+    // If not supplied and content contains jackpot fixtures shortcode, fetch directly from DB
+    if (/TOP_MEGA_JACKPOT_FIXTURES|TOP_CONFIDENCE_FIXTURES|SPORTPESA_MEGA_TOP_CONFIDENCE/i.test(content)) {
+      fetchLiveMegaJackpotFixtures().then(fetched => {
+        if (fetched && fetched.length > 0) {
+          setLiveDbFixtures(fetched);
+        }
+      }).catch(() => {});
+    }
+  }, [fixtures, content]);
+
+  // Expand top jackpot / confidence fixtures parameters using live database fixtures
+  const activeFixtures = (fixtures && fixtures.length > 0) ? fixtures : (liveDbFixtures || undefined);
+  const expandedContent = expandTopFixturesParameters(content, jackpotId, activeFixtures);
+
   // 1. Clean out raw markdown marker headings and HTML comments
-  const cleanContent = content
+  const cleanContent = expandedContent
     .replace(/^#{1,4}\s*(INTRO|MIDDLE|MEAT|FAQ|MIDDLE_CONTENT|MEAT_CONTENT|RESPONSIBLE_GAMBLING_START|RESPONSIBLE_GAMBLING_END)\s*$/gim, '')
     .replace(/<!--[\s\S]*?-->/g, '')
     .trim();
@@ -128,6 +159,104 @@ export default function MarkdownRenderer({ content, className = '', postSlug }: 
 
     if (!trimmed) {
       i++;
+      continue;
+    }
+
+    // 0. Top Jackpot Confidence Fixture Line: e.g. "Parma vs Monza — 1", "Everton vs Manchester United — 2 (The game with the hifhest confidence score)"
+    const fixtureMatch = trimmed.match(/^(?:###\s+|\*\*)?(.+?\s+vs\s+.+?)\s*[—–-]\s*([0-9X]|DC1X|DC2X|DCX2|DC12|DC2)(?:\s*(\([^)]*(?:highest|hifhest)\s+confidence[^)]*\)))?(?:\*\*)?$/i);
+    if (fixtureMatch) {
+      const fixtureItems: Array<{
+        matchTeams: string;
+        matchTip: string;
+        isHighest: boolean;
+        highestSuffixText: string;
+        explanation: string;
+      }> = [];
+
+      let curIdx = i;
+      while (curIdx < lines.length) {
+        const curLine = lines[curIdx].trim();
+        if (!curLine) {
+          curIdx++;
+          continue;
+        }
+
+        const match = curLine.match(/^(?:###\s+|\*\*)?(.+?\s+vs\s+.+?)\s*[—–-]\s*([0-9X]|DC1X|DC2X|DCX2|DC12|DC2)(?:\s*(\([^)]*(?:highest|hifhest)\s+confidence[^)]*\)))?(?:\*\*)?$/i);
+        if (!match) {
+          break;
+        }
+
+        const matchTeams = match[1].trim();
+        const matchTip = match[2].trim();
+        const isHighest = !!match[3];
+        const highestSuffixText = match[3] ? match[3].trim() : '(The game with the hifhest confidence score)';
+
+        // Check if next non-empty line is the prediction explanation text
+        let explanation = '';
+        let nextIdx = curIdx + 1;
+        while (nextIdx < lines.length && !lines[nextIdx].trim()) {
+          nextIdx++;
+        }
+        if (nextIdx < lines.length) {
+          const candidateLine = lines[nextIdx].trim();
+          if (!candidateLine.startsWith('#') && !candidateLine.match(/^(?:###\s+|\*\*)?.+?\s+vs\s+.+?\s*[—–-]/i)) {
+            explanation = candidateLine;
+            curIdx = nextIdx; // Advance loop to include the explanation
+          }
+        }
+
+        fixtureItems.push({
+          matchTeams,
+          matchTip,
+          isHighest,
+          highestSuffixText,
+          explanation
+        });
+
+        curIdx++;
+      }
+
+      i = curIdx;
+
+      elements.push(
+        <div
+          key={`fixgroup-${i}`}
+          className="my-2.5 rounded-lg border border-[var(--border)] bg-[var(--card)]/80 overflow-hidden divide-y divide-[var(--border)]/40 shadow-2xs"
+        >
+          {fixtureItems.map((item, idx) => (
+            <div
+              key={`fix-item-${idx}`}
+              className={`px-3 py-2 sm:px-3.5 sm:py-2 transition-colors ${
+                item.isHighest
+                  ? 'bg-amber-500/[0.08] border-l-2 border-l-amber-500'
+                  : 'hover:bg-[var(--accent)]/30'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                  <span className="font-bold text-xs sm:text-sm text-[var(--text)]">
+                    {item.matchTeams}
+                  </span>
+                  <span className="text-[var(--text-muted)] text-xs font-semibold shrink-0">—</span>
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded font-mono font-bold text-[11px] bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 shrink-0">
+                    {item.matchTip}
+                  </span>
+                </div>
+                {item.isHighest && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/35 shrink-0">
+                    {item.highestSuffixText}
+                  </span>
+                )}
+              </div>
+              {item.explanation && (
+                <p className="text-[11px] sm:text-xs text-[var(--text-muted)] leading-tight mt-0.5 font-normal">
+                  {parseInline(item.explanation, postSlug)}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      );
       continue;
     }
 

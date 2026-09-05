@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, 
   Calendar, 
@@ -13,12 +13,14 @@ import {
   MessageCircle,
   Twitter,
   User,
-  Sparkles
+  Sparkles,
+  FileText
 } from 'lucide-react';
 import { BlogPost, getAllBlogPosts } from '../content/blogLoader';
 import { AuthorCard } from './AuthorCard';
 import MarkdownRenderer from './MarkdownRenderer';
 import { RelatedArticles } from './RelatedArticles';
+import { generateBlogPostJsonLd, calculateArticleWordCount } from '../utils/schemaGenerator';
 
 interface BlogPostPageProps {
   post: BlogPost;
@@ -34,6 +36,29 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
   onFilterByAuthor
 }) => {
   const [copied, setCopied] = useState(false);
+
+  // Calculate article word count
+  const wordCount = calculateArticleWordCount(post.content || post.raw);
+
+  // Sync rich Article & TechArticle JSON-LD structured data into document head
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const { fullGraph } = generateBlogPostJsonLd(post);
+        const schemaScriptId = 'sokaking-schema-jsonld';
+        let schemaScript = document.getElementById(schemaScriptId) as HTMLScriptElement | null;
+        if (!schemaScript) {
+          schemaScript = document.createElement('script');
+          schemaScript.id = schemaScriptId;
+          schemaScript.type = 'application/ld+json';
+          document.head.appendChild(schemaScript);
+        }
+        schemaScript.textContent = JSON.stringify(fullGraph, null, 2);
+      } catch (e) {
+        console.warn('Could not inject blog post schema in BlogPostPage:', e);
+      }
+    }
+  }, [post]);
 
   // All blog posts for dynamic related articles computation
   const allPosts = getAllBlogPosts();
@@ -109,6 +134,14 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
           <span className="text-[var(--text-muted)] flex items-center gap-1">
             <Clock className="w-3.5 h-3.5" /> {post.readTime}
           </span>
+          <span className="text-[var(--text-muted)] flex items-center gap-1">
+            <FileText className="w-3.5 h-3.5" /> {wordCount.toLocaleString()} words
+          </span>
+          {/poisson|expected-goals|xg|statistical|kelly|algorithm/i.test(post.slug + post.category) && (
+            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/20 text-[11px] flex items-center gap-1">
+              <Sparkles className="w-3 h-3" /> TechArticle Schema
+            </span>
+          )}
         </div>
 
         <h1 

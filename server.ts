@@ -6,6 +6,7 @@ import { createServer as createViteServer } from 'vite';
 import { generateSitemapXml, getAllSitemapRoutes, BASE_URL } from './src/utils/sitemapGenerator.js';
 import { injectSeoAndStructuredData, renderErrorPageHtml } from './src/utils/htmlInjector.js';
 import { classifyRoute } from './src/utils/urlClassifier.js';
+import { expandTopFixturesParameters, expandTopFixturesParametersAsync } from './src/utils/topJackpotFixtures.js';
 
 async function startServer() {
   const app = express();
@@ -195,7 +196,7 @@ Sitemap: https://sokaking.com/sitemap.xml
   });
 
   // Serve dynamic live Markdown directly from src/content/pages/
-  app.get('/api/markdown', (req, res) => {
+  app.get('/api/markdown', async (req, res) => {
     try {
       const key = (req.query.key as string) || 'home';
       let normKey = key.toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
@@ -228,7 +229,8 @@ Sitemap: https://sokaking.com/sitemap.xml
       }
 
       if (fs.existsSync(filePath)) {
-        const content = fs.readFileSync(filePath, 'utf-8');
+        const rawContent = fs.readFileSync(filePath, 'utf-8');
+        const content = await expandTopFixturesParametersAsync(rawContent, normKey.includes('mega') ? 'sportpesa-mega' : 'sportpesa-mega');
         res.setHeader('Content-Type', 'text/plain; charset=utf-8');
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
         return res.status(200).send(content);

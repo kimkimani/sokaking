@@ -331,7 +331,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
 
         {pageMd.intro ? (
           <div className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed">
-            <MarkdownRenderer content={pageMd.intro} />
+            <MarkdownRenderer content={pageMd.intro} fixtures={jackpot.fixtures} jackpotId={jackpot.id} />
           </div>
         ) : (
           <p className="text-xs text-[var(--text-muted)] max-w-2xl leading-relaxed">
@@ -812,7 +812,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
       {/* SEO Markdown Middle Section (Renders immediately after the major prediction table & picks summary) */}
       {pageMd.middle && (
         <div className="p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] text-left">
-          <MarkdownRenderer content={pageMd.middle} />
+          <MarkdownRenderer content={pageMd.middle} fixtures={jackpot.fixtures} jackpotId={jackpot.id} />
         </div>
       )}
 
@@ -849,7 +849,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
       {/* SEO Markdown Meat Section (Second last component of the page) */}
       {(pageMd.meat || (!pageMd.middle && pageMd.fullContent)) && (
         <div className="p-6 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] text-left space-y-4">
-          <MarkdownRenderer content={pageMd.meat || pageMd.fullContent} />
+          <MarkdownRenderer content={pageMd.meat || pageMd.fullContent} fixtures={jackpot.fixtures} jackpotId={jackpot.id} />
         </div>
       )}
 

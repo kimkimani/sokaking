@@ -1,9 +1,10 @@
 import { getMarkdownContent, buildCanonicalUrl, ParsedMarkdownPage } from '../content/markdownLoader';
-import { getAuthor } from '../content/authorLoader';
+import { getAuthor, ParsedAuthor } from '../content/authorLoader';
 import { getPageUrl, ALL_JACKPOT_IDS } from './navigation';
 import { jackpotsData } from '../jackpotsData';
 import { vipPackages, oddsPacks } from '../data';
 import { PREDICTION_CATEGORIES } from './predictionGenerator';
+import { getBlogPostBySlug, getAllBlogPosts, BlogPost } from '../content/blogLoader';
 
 export interface SchemaGraphResult {
   mainSchema: Record<string, any>;
@@ -15,7 +16,7 @@ export interface SchemaGraphResult {
 /**
  * Strips markdown and HTML formatting to return clean plain text for Schema.org fields.
  */
-function cleanSchemaText(text: string): string {
+export function cleanSchemaText(text: string): string {
   if (!text) return '';
   return text
     .replace(/<!--[\s\S]*?-->/g, '') // Remove HTML comments
@@ -29,6 +30,148 @@ function cleanSchemaText(text: string): string {
     .replace(/^[0-9]+\.\s+/gm, '') // Strip numbered list items
     .replace(/\s+/g, ' ') // Collapse multiple whitespaces
     .trim();
+}
+
+/**
+ * Accurately calculates article word count by stripping markdown formatting, code blocks, and HTML tags.
+ */
+export function calculateArticleWordCount(content: string): number {
+  if (!content) return 0;
+  const clean = content
+    .replace(/```[\s\S]*?```/g, '') // code blocks
+    .replace(/`[^`]+`/g, '') // inline code
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, '') // images
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // links
+    .replace(/<!--[\s\S]*?-->/g, '') // comments
+    .replace(/<[^>]+>/g, ' ') // html tags
+    .replace(/\$\$[\s\S]*?\$\$/g, ' ') // math blocks
+    .replace(/\$[^$]+\$/g, ' ') // inline math
+    .replace(/[|#*_~>\-+]/g, ' ') // markdown markers
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!clean) return 0;
+  return clean.split(/\s+/).filter(w => w.length > 0).length;
+}
+
+/**
+ * Formats reading time into ISO 8601 duration format (e.g. PT7M for 7 minutes).
+ */
+export function formatDurationIso(readTimeStr: string, wordCount: number): string {
+  const match = (readTimeStr || '').match(/(\d+)/);
+  const minutes = match ? parseInt(match[1], 10) : Math.max(1, Math.ceil(wordCount / 200));
+  return `PT${minutes}M`;
+}
+
+/**
+ * Resolves a blog post cover image to a fully qualified absolute HTTPS URL.
+ */
+export function resolveCoverImageUrl(coverImage: string | undefined, slug: string): string {
+  if (!coverImage) {
+    return 'https://sokaking.com/icon.png';
+  }
+  if (coverImage.startsWith('http://') || coverImage.startsWith('https://')) {
+    return coverImage;
+  }
+  if (coverImage.startsWith('/')) {
+    return `https://sokaking.com${coverImage}`;
+  }
+  const clean = coverImage.replace(/^\.\//, '');
+  return `https://sokaking.com/blog-assets/${slug}/${clean}`;
+}
+
+/**
+ * Canonical Soka King Organization publisher schema object.
+ */
+export const SOKAKING_PUBLISHER_SCHEMA = {
+  '@type': 'Organization',
+  '@id': 'https://sokaking.com/#organization',
+  name: 'Soka King',
+  legalName: 'Soka King Analytics Ltd',
+  foundingDate: '2021-03-15',
+  url: 'https://sokaking.com',
+  logo: {
+    '@type': 'ImageObject',
+    '@id': 'https://sokaking.com/#logo',
+    url: 'https://sokaking.com/icon.png',
+    caption: 'Soka King Sports Analytics Logo',
+    width: 512,
+    height: 512
+  },
+  sameAs: [
+    'https://twitter.com/sokaking_ke',
+    'https://facebook.com/sokakingkenya'
+  ],
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Galana Plaza, Galana Road, Kilimani',
+    addressLocality: 'Nairobi',
+    addressRegion: 'Nairobi County',
+    postalCode: '00100',
+    addressCountry: 'KE'
+  },
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: '+254740841375',
+    contactType: 'customer service',
+    email: 'support@sokapredictions.co.ke',
+    availableLanguage: ['en', 'sw'],
+    areaServed: 'KE'
+  }
+};
+
+/**
+ * Constructs a rich Person author schema object with credentials, bio, and expertise.
+ */
+export function buildAuthorSchema(author: ParsedAuthor): Record<string, any> {
+  const authorUrl = `https://sokaking.com/about-us#author-${author.id}`;
+  const authorSchema: Record<string, any> = {
+    '@type': 'Person',
+    '@id': authorUrl,
+    name: author.name,
+    jobTitle: author.role,
+    description: author.shortBio,
+    url: authorUrl,
+    worksFor: {
+      '@type': 'Organization',
+      name: 'Soka King',
+      url: 'https://sokaking.com'
+    },
+    knowsAbout: author.knowsAbout && author.knowsAbout.length > 0
+      ? author.knowsAbout
+      : [
+          'Football Statistical Modeling',
+          'Poisson Distribution',
+          'Expected Goals (xG)',
+          'Value Betting Analysis',
+          'Jackpot Optimization'
+        ]
+  };
+
+  if (author.avatar) {
+    authorSchema.image = author.avatar.startsWith('http')
+      ? author.avatar
+      : `https://sokaking.com${author.avatar.startsWith('/') ? '' : '/'}${author.avatar}`;
+  }
+
+  if (author.credentials) {
+    authorSchema.hasCredential = {
+      '@type': 'EducationalOccupationalCredential',
+      credentialCategory: 'degree',
+      name: author.credentials
+    };
+  }
+
+  if (author.social) {
+    const sameAsList: string[] = [];
+    if (author.social.twitter) sameAsList.push(author.social.twitter);
+    if (author.social.linkedin) sameAsList.push(author.social.linkedin);
+    if (sameAsList.length > 0) {
+      authorSchema.sameAs = sameAsList;
+    }
+  }
+
+  return authorSchema;
 }
 
 /**
@@ -181,6 +324,28 @@ export function buildBreadcrumbSchema(pageId: string, pageMd: ParsedMarkdownPage
       name: 'VIP Packages and Odds Packs',
       item: 'https://sokaking.com/vip-packages'
     });
+  } else if (pageId === 'blog' || pageId === 'blog-list') {
+    items.push({
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Football Analytics Blog',
+      item: 'https://sokaking.com/blog'
+    });
+  } else if (pageId.startsWith('blog-')) {
+    const slug = pageId.replace(/^blog-/, '');
+    const post = getBlogPostBySlug(slug);
+    items.push({
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Football Analytics Blog',
+      item: 'https://sokaking.com/blog'
+    });
+    items.push({
+      '@type': 'ListItem',
+      position: 3,
+      name: post ? cleanSchemaText(post.title) : pageTitle,
+      item: canonicalUrl
+    });
   } else {
     items.push({
       '@type': 'ListItem',
@@ -202,6 +367,209 @@ export function buildBreadcrumbSchema(pageId: string, pageMd: ParsedMarkdownPage
 }
 
 /**
+ * Generates comprehensive Article and TechArticle Schema.org JSON-LD structured data for blog posts.
+ * Includes Person author with expertise/credentials, publication timestamps, breadcrumbs,
+ * word count, reading time (ISO 8601 duration), keywords, cover images, and FAQ support.
+ */
+export function generateBlogPostJsonLd(post: BlogPost): SchemaGraphResult {
+  const canonicalUrl = `https://sokaking.com/blog/${post.slug}`;
+  const wordCount = calculateArticleWordCount(post.content || post.raw);
+  const timeRequired = formatDurationIso(post.readTime || '', wordCount);
+  const coverImageUrl = resolveCoverImageUrl(post.coverImage, post.slug);
+
+  // ISO timestamps with Kenya timezone (+03:00)
+  const publishedDate = post.date.includes('T') ? post.date : `${post.date}T08:00:00+03:00`;
+  const modifiedDate = new Date().toISOString();
+
+  const publisherObj = SOKAKING_PUBLISHER_SCHEMA;
+  const author = post.author || getAuthor(post.authorId || 'john-mwangi');
+  const authorObj = buildAuthorSchema(author);
+
+  // Determine if this is a technical / mathematical / statistical modeling guide
+  const isTechnical = 
+    /poisson|expected-goals|xg|statistical|kelly|bankroll|algorithm|draw|tactics|strategy|modeling|model|permutation/i.test(post.slug) ||
+    /mathematical|analysis|strategy|modeling|tactics|tactical/i.test(post.category || '') ||
+    (post.tags || []).some(t => /poisson|xg|math|statistical|model|analysis|kelly|probability|permutation/i.test(t));
+
+  const schemaTypes = isTechnical 
+    ? ['Article', 'TechArticle'] 
+    : ['Article', 'BlogPosting'];
+
+  const cleanTitle = cleanSchemaText(post.title);
+  const cleanDesc = cleanSchemaText(post.description);
+
+  // Strip markdown tags from beginning of article body for rich schema preview
+  const plainBody = cleanSchemaText(post.content || post.raw).slice(0, 1000);
+
+  const mainSchema: Record<string, any> = {
+    '@type': schemaTypes,
+    '@id': `${canonicalUrl}#article`,
+    isPartOf: {
+      '@type': 'WebPage',
+      '@id': canonicalUrl,
+      url: canonicalUrl,
+      name: cleanTitle,
+      description: cleanDesc
+    },
+    headline: cleanTitle,
+    name: cleanTitle,
+    description: cleanDesc,
+    url: canonicalUrl,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': canonicalUrl
+    },
+    image: [
+      coverImageUrl,
+      'https://sokaking.com/icon.png',
+      'https://sokaking.com/apple-touch-icon.png'
+    ],
+    thumbnailUrl: coverImageUrl,
+    datePublished: publishedDate,
+    dateModified: modifiedDate,
+    author: authorObj,
+    publisher: publisherObj,
+    inLanguage: 'en-KE',
+    isAccessibleForFree: true,
+    wordCount: wordCount,
+    timeRequired: timeRequired,
+    articleSection: post.category || 'Football Analytics',
+    keywords: (post.tags && post.tags.length > 0) ? post.tags.join(', ') : 'football analytics, betting strategies',
+    articleBody: plainBody,
+    copyrightHolder: {
+      '@type': 'Organization',
+      name: 'Soka King'
+    },
+    copyrightYear: new Date(publishedDate).getFullYear() || 2026
+  };
+
+  if (isTechnical) {
+    mainSchema.proficiencyLevel = 'Beginner to Advanced';
+    mainSchema.dependencies = 'Understanding of basic football match statistics, probability theory, and betting odds formulation';
+  }
+
+  if (author.reviewerName) {
+    mainSchema.reviewedBy = {
+      '@type': 'Person',
+      name: author.reviewerName,
+      jobTitle: author.reviewerTitle || 'Senior Quantitative Analyst',
+      worksFor: {
+        '@type': 'Organization',
+        name: 'Soka King'
+      }
+    };
+  }
+
+  const breadcrumbSchema = {
+    '@type': 'BreadcrumbList',
+    '@id': `${canonicalUrl}#breadcrumb`,
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://sokaking.com'
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Football Analytics Blog',
+        item: 'https://sokaking.com/blog'
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: cleanTitle,
+        item: canonicalUrl
+      }
+    ]
+  };
+
+  const faqSchema = extractFaqSchema(post.content || post.raw);
+
+  const graphEntities: Record<string, any>[] = [mainSchema, breadcrumbSchema];
+  if (faqSchema) {
+    graphEntities.push(faqSchema);
+  }
+
+  const fullGraph = {
+    '@context': 'https://schema.org',
+    '@graph': graphEntities
+  };
+
+  return {
+    mainSchema,
+    faqSchema,
+    breadcrumbSchema,
+    fullGraph
+  };
+}
+
+/**
+ * Generates CollectionPage and Blog structured data for the /blog hub.
+ */
+export function generateBlogIndexJsonLd(): SchemaGraphResult {
+  const blogCanonical = 'https://sokaking.com/blog';
+  const allPosts = getAllBlogPosts();
+  const publisherObj = SOKAKING_PUBLISHER_SCHEMA;
+
+  const mainSchema: Record<string, any> = {
+    '@type': 'Blog',
+    '@id': `${blogCanonical}#blog`,
+    name: 'Soka King Football Analytics & Prediction Strategy Blog',
+    headline: 'Football Analytics, Poisson Modeling & SportPesa Jackpot Strategy Guides',
+    description: 'In-depth tactical breakdowns, Poisson distribution guides, SportPesa jackpot combination strategies, and quantitative bankroll models.',
+    url: blogCanonical,
+    publisher: publisherObj,
+    inLanguage: 'en-KE',
+    blogPost: allPosts.map(p => {
+      const pUrl = `https://sokaking.com/blog/${p.slug}`;
+      const pCover = resolveCoverImageUrl(p.coverImage, p.slug);
+      return {
+        '@type': 'BlogPosting',
+        headline: cleanSchemaText(p.title),
+        description: cleanSchemaText(p.description),
+        url: pUrl,
+        image: pCover,
+        datePublished: p.date.includes('T') ? p.date : `${p.date}T08:00:00+03:00`,
+        author: {
+          '@type': 'Person',
+          name: p.author.name
+        }
+      };
+    })
+  };
+
+  const breadcrumbSchema = {
+    '@type': 'BreadcrumbList',
+    '@id': `${blogCanonical}#breadcrumb`,
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://sokaking.com'
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Football Analytics Blog',
+        item: blogCanonical
+      }
+    ]
+  };
+
+  return {
+    mainSchema,
+    breadcrumbSchema,
+    fullGraph: {
+      '@context': 'https://schema.org',
+      '@graph': [mainSchema, breadcrumbSchema]
+    }
+  };
+}
+
+/**
  * Builds Schema.org structured data specifically tailored for the page type:
  * 1. Article schema for Tips and Category analysis pages
  * 2. Product schema for VIP Packages and Odds Packs
@@ -209,6 +577,20 @@ export function buildBreadcrumbSchema(pageId: string, pageMd: ParsedMarkdownPage
  * 4. Informational WebPages (AboutPage, ContactPage, WebPage)
  */
 export function generatePageJsonLd(pageId: string): SchemaGraphResult {
+  // Check for specific blog post structured data
+  if (pageId.startsWith('blog-')) {
+    const slug = pageId.replace(/^blog-/, '');
+    const post = getBlogPostBySlug(slug);
+    if (post) {
+      return generateBlogPostJsonLd(post);
+    }
+  }
+
+  // Check for Blog index structured data
+  if (pageId === 'blog' || pageId === 'blog-list') {
+    return generateBlogIndexJsonLd();
+  }
+
   const pageMd = getMarkdownContent(pageId);
   const rawUrl = getPageUrl(pageId);
   const canonicalUrl = buildCanonicalUrl(pageMd.link || rawUrl, pageId);

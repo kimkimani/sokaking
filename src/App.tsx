@@ -51,6 +51,7 @@ import InboundLinksBlock from './components/InboundLinksBlock';
 import CategoryPredictionsPage from './components/CategoryPredictionsPage';
 import FaqSection from './components/FaqSection';
 import MarkdownRenderer from './components/MarkdownRenderer';
+import { setLiveJackpotFixturesCache } from './utils/topJackpotFixtures';
 
 // Code-split heavy non-primary routes and overlay modals to reduce initial mobile JS bundle
 const JackpotPage = lazy(() => import('./components/JackpotPage'));
@@ -292,6 +293,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
       if (Array.isArray(jackpotsRes) && jackpotsRes.length > 0) {
         setDbJackpots(jackpotsRes);
+        const mega = jackpotsRes.find((j: any) => j.id === 'sportpesa-mega' || j.slug === 'sportpesa-mega' || j.name?.toLowerCase().includes('mega'));
+        if (mega && Array.isArray(mega.fixtures) && mega.fixtures.length > 0) {
+          setLiveJackpotFixturesCache(mega.fixtures);
+        }
       }
       if (Array.isArray(vipRes) && vipRes.length > 0) {
         setDbVipPackages(vipRes);

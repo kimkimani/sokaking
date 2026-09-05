@@ -1,6 +1,7 @@
 import { RAW_MARKDOWN_MAP } from './markdownData';
 import { PAGE_METADATA_MAP, PageMetadata } from './pageMetadata';
 import { getAuthor, ParsedAuthor } from './authorLoader';
+import { expandTopFixturesParameters, generateTopConfidenceFixturesMarkdown } from '../utils/topJackpotFixtures';
 
 export interface ParsedMarkdownPage extends PageMetadata {
   author?: ParsedAuthor;
@@ -172,6 +173,16 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
 
   // Strip top H1 heading lines (`# ...`) from the body so they don't produce a second duplicate title
   cleanedContent = cleanedContent.replace(/^#\s+[^\r\n]+$/gm, '').trim();
+
+  // Expand any top mega jackpot / confidence fixtures parameters (e.g. {{TOP_MEGA_JACKPOT_FIXTURES}}, <!-- TOP_MEGA_JACKPOT_FIXTURES -->)
+  cleanedContent = expandTopFixturesParameters(cleanedContent, meta.jackpotId || 'sportpesa-mega');
+
+  // Also check if frontmatter explicitly enabled top confidence fixtures (e.g. topConfidenceFixtures: true or topConfidenceCount: 7)
+  const yamlTopConf = rawMd.match(/^---[\s\S]*?(?:topConfidenceFixtures|showTopConfidenceFixtures|topMegaJackpotFixtures):\s*(true|false|\d+)[\s\S]*?---/im);
+  if (yamlTopConf && yamlTopConf[1] !== 'false' && !cleanedContent.includes('highest confidence score')) {
+    const count = parseInt(yamlTopConf[1], 10) || 7;
+    cleanedContent += `\n\n### Top SportPesa Mega Jackpot Predictions by Confidence\n\n` + generateTopConfidenceFixturesMarkdown(meta.jackpotId || 'sportpesa-mega', count);
+  }
 
   // Extract INTRO, MIDDLE, MEAT, FAQ sections robustly using position indexing
   const tags = [
