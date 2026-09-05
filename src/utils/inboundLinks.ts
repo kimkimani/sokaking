@@ -142,7 +142,7 @@ const CURATED_LINKS: Record<string, Partial<InboundLinkItem>> = {
   },
   'sportpesa-mega': {
     title: 'SportPesa Mega Jackpot (17)',
-    url: '/free-sportpesa-mega-jackpot-predictions-and-analysis',
+    url: '/free-sportpesa-mega-jackpot-prediction',
     description: 'KES 300 Million pool analysis with double chance combinations for 17 fixtures.',
     tag: '17 Games | KES 300M+',
     icon: '💰',

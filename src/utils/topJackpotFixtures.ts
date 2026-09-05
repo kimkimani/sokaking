@@ -379,15 +379,166 @@ export function generateTopConfidenceFixturesMarkdown(
 }
 
 /**
- * Replaces any top confidence parameter / shortcode in markdown content with real dynamic jackpot fixtures.
+ * Checks whether a given tip or prediction string represents a double chance selection.
+ */
+export function isDoubleChanceTip(tip: string): boolean {
+  if (!tip) return false;
+  const clean = tip.trim().toUpperCase();
+  return (
+    clean.startsWith('DC') ||
+    clean === '1X' ||
+    clean === 'X2' ||
+    clean === '2X' ||
+    clean === '12' ||
+    clean === 'X1' ||
+    clean.includes('/') ||
+    clean.includes('&') ||
+    clean.toLowerCase().includes('double chance')
+  );
+}
+
+/**
+ * Retrieves only fixtures with double chance predictions (e.g. DC1X, DC2X, DCX2, DC2, 1X, X2, 12).
+ * Formats match header and description accordingly.
+ */
+export function getDoubleChanceJackpotFixtures(
+  source?: string | Fixture[],
+  count?: number
+): FormattedConfidenceFixture[] {
+  let fixtures: Fixture[] = [];
+
+  if (Array.isArray(source) && source.length > 0) {
+    fixtures = source;
+  } else if (liveMegaJackpotFixturesCache && liveMegaJackpotFixturesCache.length > 0) {
+    fixtures = liveMegaJackpotFixturesCache;
+  } else {
+    const jackpotId = typeof source === 'string' ? source : 'sportpesa-mega';
+    const jackpot = jackpotsData.find(
+      j => j.id === jackpotId || j.slug === jackpotId || j.id.toLowerCase().includes(jackpotId.toLowerCase())
+    ) || jackpotsData.find(j => j.id === 'sportpesa-mega') || jackpotsData[0];
+    fixtures = jackpot?.fixtures || [];
+  }
+
+  if (!fixtures || fixtures.length === 0) {
+    return [];
+  }
+
+  // 1. Curated picks matching double-chance targets
+  const matchingCurated: FormattedConfidenceFixture[] = [];
+  for (const target of SPORTPESA_MEGA_TARGET_PICKS) {
+    if (!isDoubleChanceTip(target.tip)) continue;
+
+    const found = fixtures.find(f =>
+      f.homeTeam.toLowerCase().includes(target.homeKeyword.toLowerCase()) &&
+      f.awayTeam.toLowerCase().includes(target.awayKeyword.toLowerCase())
+    );
+    if (found) {
+      const home = cleanTeamName(found.homeTeam);
+      const away = cleanTeamName(found.awayTeam);
+      const isHighest = !!target.isHighest;
+      const suffix = isHighest ? ' (The game with the hifhest confidence score)' : '';
+      const matchHeader = `${home} vs ${away} — ${target.tip}${suffix}`;
+      const description = target.customExplanation || getPredictionExplanation({ ...found, homeTeam: home, awayTeam: away }, target.tip, isHighest);
+
+      matchingCurated.push({
+        fixture: { ...found, homeTeam: home, awayTeam: away },
+        tipSymbol: target.tip,
+        isHighestConfidence: isHighest,
+        matchHeader,
+        description
+      });
+    }
+  }
+
+  if (matchingCurated.length > 0) {
+    return typeof count === 'number' && count > 0 ? matchingCurated.slice(0, count) : matchingCurated;
+  }
+
+  // 2. Generic dynamic fallback from live fixtures with double chance tips
+  const dcFixtures: FormattedConfidenceFixture[] = [];
+  for (const f of fixtures) {
+    const rawTip = (f as any).tip || f.prediction || '';
+    const tipSymbol = normalizeTipSymbol(rawTip);
+    if (isDoubleChanceTip(tipSymbol) || isDoubleChanceTip(rawTip)) {
+      const home = cleanTeamName(f.homeTeam);
+      const away = cleanTeamName(f.awayTeam);
+      const matchHeader = `${home} vs ${away} — ${tipSymbol}`;
+      const description = getPredictionExplanation({ ...f, homeTeam: home, awayTeam: away }, tipSymbol, false);
+      dcFixtures.push({
+        fixture: { ...f, homeTeam: home, awayTeam: away },
+        tipSymbol,
+        isHighestConfidence: false,
+        matchHeader,
+        description
+      });
+    }
+  }
+
+  if (dcFixtures.length > 0) {
+    return typeof count === 'number' && count > 0 ? dcFixtures.slice(0, count) : dcFixtures;
+  }
+
+  // 3. Intelligent fallback: if no explicit double chance predictions exist, pick competitive fixtures
+  const sortedCompetitive = [...fixtures].sort((a, b) => {
+    const confA = Number(a.confidence) || 50;
+    const confB = Number(b.confidence) || 50;
+    return Math.abs(confA - 50) - Math.abs(confB - 50);
+  });
+
+  const targetCount = Math.min(count || 4, Math.min(sortedCompetitive.length, 6));
+  const chosen = sortedCompetitive.slice(0, targetCount);
+
+  return chosen.map((f, idx) => {
+    const rawTip = (f as any).tip || f.prediction || '1';
+    let tipSymbol = 'DC1X';
+    if (rawTip === '2') tipSymbol = 'DC2X';
+    else if (rawTip === 'X' || idx % 2 === 1) tipSymbol = 'DC1X';
+    else tipSymbol = 'DCX2';
+
+    const home = cleanTeamName(f.homeTeam);
+    const away = cleanTeamName(f.awayTeam);
+    const matchHeader = `${home} vs ${away} — ${tipSymbol}`;
+    const description = getPredictionExplanation({ ...f, homeTeam: home, awayTeam: away }, tipSymbol, false);
+
+    return {
+      fixture: { ...f, homeTeam: home, awayTeam: away },
+      tipSymbol,
+      isHighestConfidence: false,
+      matchHeader,
+      description
+    };
+  });
+}
+
+/**
+ * Generates the clean markdown text string for only double chance jackpot fixtures.
+ */
+export function generateDoubleChanceFixturesMarkdown(
+  source?: string | Fixture[],
+  count?: number
+): string {
+  const fixtures = getDoubleChanceJackpotFixtures(source, count);
+  if (fixtures.length === 0) return '';
+
+  return fixtures
+    .map(item => `${item.matchHeader}\n\n${item.description}`)
+    .join('\n\n\n');
+}
+
+/**
+ * Replaces any top confidence or double chance parameter / shortcode in markdown content with real dynamic jackpot fixtures.
  * 
  * Supported parameters in markdown:
- * - `{{TOP_MEGA_JACKPOT_FIXTURES}}` or `{{TOP_MEGA_JACKPOT_FIXTURES:5}}` or `{{TOP_MEGA_JACKPOT_FIXTURES:7}}`
- * - `<!-- TOP_MEGA_JACKPOT_FIXTURES -->` or `<!-- TOP_MEGA_JACKPOT_FIXTURES:7 -->`
- * - `{{TOP_CONFIDENCE_FIXTURES}}` or `{{TOP_CONFIDENCE_FIXTURES:7}}`
- * - `<!-- TOP_CONFIDENCE_FIXTURES -->`
- * - `[TOP_MEGA_JACKPOT_FIXTURES]` or `[TOP_CONFIDENCE_FIXTURES]`
- * - `<!-- SPORTPESA_MEGA_TOP_CONFIDENCE -->` or `{{SPORTPESA_MEGA_TOP_CONFIDENCE}}`
+ * - Top Confidence:
+ *   - `{{TOP_MEGA_JACKPOT_FIXTURES}}` or `{{TOP_MEGA_JACKPOT_FIXTURES:5}}` or `{{TOP_MEGA_JACKPOT_FIXTURES:7}}`
+ *   - `<!-- TOP_MEGA_JACKPOT_FIXTURES -->`
+ *   - `{{TOP_CONFIDENCE_FIXTURES}}`
+ *   - `[TOP_MEGA_JACKPOT_FIXTURES]`
+ * - Double Chances:
+ *   - `{{MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES}}` or `{{DOUBLE_CHANCE_FIXTURES}}` or `{{TOP_DOUBLE_CHANCE_FIXTURES}}`
+ *   - `{{SPORTPESA_MEGA_DOUBLE_CHANCES}}` or `{{DOUBLE_CHANCES}}` or `{{DOUBLE_CHANCE}}`
+ *   - `<!-- MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES -->` or `<!-- DOUBLE_CHANCE_FIXTURES -->`
+ *   - `[MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES]` or `[DOUBLE_CHANCE_FIXTURES]`
  */
 export function expandTopFixturesParameters(
   content: string,
@@ -397,7 +548,7 @@ export function expandTopFixturesParameters(
   if (!content) return content;
 
   // Helper to extract count and jackpot from matched attribute strings
-  const parseParams = (rawAttrs: string, defaultCnt: number = 7): { count: number; jackpotId: string } => {
+  const parseParams = (rawAttrs: string, defaultCnt?: number): { count: number | undefined; jackpotId: string } => {
     let count = defaultCnt;
     let jackpotId = defaultJackpotId;
 
@@ -424,30 +575,48 @@ export function expandTopFixturesParameters(
     return { count, jackpotId };
   };
 
-  // Pattern 1: {{TOP_MEGA_JACKPOT_FIXTURES ...}} or {{TOP_CONFIDENCE_FIXTURES ...}}
-  const mustacheRegex = /\{\{\s*(?:TOP_MEGA_JACKPOT_FIXTURES|TOP_CONFIDENCE_FIXTURES|SPORTPESA_MEGA_TOP_CONFIDENCE|TOP_CONFIDENCE_JACKPOT_FIXTURES)([\s:][^}]*)?\}\}/gi;
+  // 1. Double Chance patterns: {{MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES ...}}, {{DOUBLE_CHANCE_FIXTURES ...}}, etc.
+  const dcMustacheRegex = /\{\{\s*(?:MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCE_FIXTURES|TOP_DOUBLE_CHANCE_FIXTURES|SPORTPESA_MEGA_DOUBLE_CHANCES|DOUBLE_CHANCE|DOUBLE_CHANCES|MEGA_JACKPOT_DOUBLE_CHANCE)([\s:][^}]*)?\}\}/gi;
+  const dcHtmlCommentRegex = /<!--\s*(?:MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCE_FIXTURES|TOP_DOUBLE_CHANCE_FIXTURES|SPORTPESA_MEGA_DOUBLE_CHANCES|DOUBLE_CHANCE|DOUBLE_CHANCES|MEGA_JACKPOT_DOUBLE_CHANCE)([\s:][^-]*)?-->/gi;
+  const dcBracketRegex = /\[\s*(?:MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCE_FIXTURES|TOP_DOUBLE_CHANCE_FIXTURES|SPORTPESA_MEGA_DOUBLE_CHANCES|DOUBLE_CHANCE|DOUBLE_CHANCES|MEGA_JACKPOT_DOUBLE_CHANCE)([\s:][^\]]*)?\]/gi;
 
-  // Pattern 2: <!-- TOP_MEGA_JACKPOT_FIXTURES ... -->
-  const htmlCommentRegex = /<!--\s*(?:TOP_MEGA_JACKPOT_FIXTURES|TOP_CONFIDENCE_FIXTURES|SPORTPESA_MEGA_TOP_CONFIDENCE|TOP_CONFIDENCE_JACKPOT_FIXTURES)([\s:][^-]*)?-->/gi;
-
-  // Pattern 3: [TOP_MEGA_JACKPOT_FIXTURES ...]
-  const bracketRegex = /\[\s*(?:TOP_MEGA_JACKPOT_FIXTURES|TOP_CONFIDENCE_FIXTURES|SPORTPESA_MEGA_TOP_CONFIDENCE)([\s:][^\]]*)?\]/gi;
+  // 2. Top Confidence patterns: {{TOP_MEGA_JACKPOT_FIXTURES ...}}, {{TOP_CONFIDENCE_FIXTURES ...}}, etc.
+  const topMustacheRegex = /\{\{\s*(?:TOP_MEGA_JACKPOT_FIXTURES|TOP_CONFIDENCE_FIXTURES|SPORTPESA_MEGA_TOP_CONFIDENCE|TOP_CONFIDENCE_JACKPOT_FIXTURES)([\s:][^}]*)?\}\}/gi;
+  const topHtmlCommentRegex = /<!--\s*(?:TOP_MEGA_JACKPOT_FIXTURES|TOP_CONFIDENCE_FIXTURES|SPORTPESA_MEGA_TOP_CONFIDENCE|TOP_CONFIDENCE_JACKPOT_FIXTURES)([\s:][^-]*)?-->/gi;
+  const topBracketRegex = /\[\s*(?:TOP_MEGA_JACKPOT_FIXTURES|TOP_CONFIDENCE_FIXTURES|SPORTPESA_MEGA_TOP_CONFIDENCE)([\s:][^\]]*)?\]/gi;
 
   let expanded = content;
 
-  expanded = expanded.replace(mustacheRegex, (_match, attrs) => {
+  // Expand double chances first
+  expanded = expanded.replace(dcMustacheRegex, (_match, attrs) => {
     const { count, jackpotId } = parseParams(attrs?.trim() || '');
-    return generateTopConfidenceFixturesMarkdown(customFixtures || jackpotId, count);
+    return generateDoubleChanceFixturesMarkdown(customFixtures || jackpotId, count);
   });
 
-  expanded = expanded.replace(htmlCommentRegex, (_match, attrs) => {
+  expanded = expanded.replace(dcHtmlCommentRegex, (_match, attrs) => {
     const { count, jackpotId } = parseParams(attrs?.trim() || '');
-    return generateTopConfidenceFixturesMarkdown(customFixtures || jackpotId, count);
+    return generateDoubleChanceFixturesMarkdown(customFixtures || jackpotId, count);
   });
 
-  expanded = expanded.replace(bracketRegex, (_match, attrs) => {
+  expanded = expanded.replace(dcBracketRegex, (_match, attrs) => {
     const { count, jackpotId } = parseParams(attrs?.trim() || '');
-    return generateTopConfidenceFixturesMarkdown(customFixtures || jackpotId, count);
+    return generateDoubleChanceFixturesMarkdown(customFixtures || jackpotId, count);
+  });
+
+  // Expand top confidence fixtures
+  expanded = expanded.replace(topMustacheRegex, (_match, attrs) => {
+    const { count, jackpotId } = parseParams(attrs?.trim() || '', 7);
+    return generateTopConfidenceFixturesMarkdown(customFixtures || jackpotId, count || 7);
+  });
+
+  expanded = expanded.replace(topHtmlCommentRegex, (_match, attrs) => {
+    const { count, jackpotId } = parseParams(attrs?.trim() || '', 7);
+    return generateTopConfidenceFixturesMarkdown(customFixtures || jackpotId, count || 7);
+  });
+
+  expanded = expanded.replace(topBracketRegex, (_match, attrs) => {
+    const { count, jackpotId } = parseParams(attrs?.trim() || '', 7);
+    return generateTopConfidenceFixturesMarkdown(customFixtures || jackpotId, count || 7);
   });
 
   return expanded;

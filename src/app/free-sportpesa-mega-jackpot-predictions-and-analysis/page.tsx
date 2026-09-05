@@ -1,11 +1,5 @@
-import { Metadata } from 'next';
-import { getPageMetadata } from '@/src/lib/generatePageMetadata';
-import SokaPageServer from '@/src/components/SokaPageServer';
+import { permanentRedirect } from 'next/navigation';
 
-export async function generateMetadata(): Promise<Metadata> {
-  return getPageMetadata('sportpesa-mega', '/free-sportpesa-mega-jackpot-predictions-and-analysis');
-}
-
-export default function SportpesaMegaPage() {
-  return <SokaPageServer pageId="sportpesa-mega" customCanonical="/free-sportpesa-mega-jackpot-predictions-and-analysis" />;
+export default function OldSportpesaMegaPage() {
+  permanentRedirect('/free-sportpesa-mega-jackpot-prediction');
 }

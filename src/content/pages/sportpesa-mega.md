@@ -58,6 +58,10 @@ Each individual game has its own uncertainty. That is why a good jackpot predict
 - Don't change every difficult selection
 - Use double chance intelligently. A Double chance covers two outcomes, but it costs more.
 
+### Key Double Chance Selections This Weekend
+
+{{MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES}}
+
 <!-- FAQ -->
 
 ## Frequently Asked Mega Jackpot Questions

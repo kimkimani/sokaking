@@ -127,7 +127,7 @@ export default function MarkdownRenderer({
       return;
     }
     // If not supplied and content contains jackpot fixtures shortcode, fetch directly from DB
-    if (/TOP_MEGA_JACKPOT_FIXTURES|TOP_CONFIDENCE_FIXTURES|SPORTPESA_MEGA_TOP_CONFIDENCE/i.test(content)) {
+    if (/TOP_MEGA_JACKPOT_FIXTURES|TOP_CONFIDENCE_FIXTURES|SPORTPESA_MEGA_TOP_CONFIDENCE|DOUBLE_CHANCE|DOUBLE_CHANCES/i.test(content)) {
       fetchLiveMegaJackpotFixtures().then(fetched => {
         if (fetched && fetched.length > 0) {
           setLiveDbFixtures(fetched);

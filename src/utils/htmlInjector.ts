@@ -310,7 +310,7 @@ export function renderErrorPageHtml(status: 404 | 410, requestUrl: string): stri
     
     <div class="actions">
       <a href="/football-predictions-today" class="btn btn-primary">Today's Predictions</a>
-      <a href="/free-sportpesa-mega-jackpot-predictions-and-analysis" class="btn btn-secondary">SportPesa Mega Jackpot</a>
+      <a href="/free-sportpesa-mega-jackpot-prediction" class="btn btn-secondary">SportPesa Mega Jackpot</a>
       <a href="/" class="btn btn-secondary">Home</a>
     </div>
 

@@ -120,6 +120,14 @@ async function startServer() {
   }
 
   // Sitemap & Robots.txt Routes
+  app.get([
+    '/free-sportpesa-mega-jackpot-predictions-and-analysis',
+    '/sportpesa-mega-jackpot-2026',
+    '/sportpesa-mega'
+  ], (_req, res) => {
+    return res.redirect(301, '/free-sportpesa-mega-jackpot-prediction');
+  });
+
   app.get(['/sitemap.xml', '/sitemap', '/api/sitemap.xml'], (_req, res) => {
     try {
       const xml = generateSitemapXml();
@@ -216,6 +224,7 @@ Sitemap: https://sokaking.com/sitemap.xml
       if (normKey === 'terms') normKey = 'terms-of-use';
       if (normKey === 'vip' || normKey === 'vip-tips' || normKey === 'odds') normKey = 'vip-packages';
       if (normKey === 'jackpot-tips') normKey = 'jackpot-list';
+      if (normKey === 'free-sportpesa-mega-jackpot-prediction' || normKey === 'free-sportpesa-mega-jackpot-predictions-and-analysis' || normKey === 'sportpesa-mega') normKey = 'sportpesa-mega';
 
       const pagesDir = path.join(process.cwd(), 'src', 'content', 'pages');
       let filePath = path.join(pagesDir, `${normKey}.md`);
