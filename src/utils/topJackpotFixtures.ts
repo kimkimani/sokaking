@@ -296,7 +296,7 @@ export function getTopConfidenceJackpotFixtures(
       const home = cleanTeamName(found.homeTeam);
       const away = cleanTeamName(found.awayTeam);
       const isHighest = !!target.isHighest;
-      const suffix = isHighest ? ' (The game with the hifhest confidence score)' : '';
+      const suffix = isHighest ? ' (The game with the highest confidence score)' : '';
       const matchHeader = `${home} vs ${away} — ${target.tip}${suffix}`;
       const description = target.customExplanation || getPredictionExplanation({ ...found, homeTeam: home, awayTeam: away }, target.tip, isHighest);
 
@@ -333,7 +333,7 @@ export function getTopConfidenceJackpotFixtures(
   const formatFixture = (fixture: Fixture, isHighest: boolean): FormattedConfidenceFixture => {
     const rawTip = (fixture as any).tip || fixture.prediction || '1';
     const tipSymbol = normalizeTipSymbol(rawTip);
-    const suffix = isHighest ? ' (The game with the hifhest confidence score)' : '';
+    const suffix = isHighest ? ' (The game with the highest confidence score)' : '';
     const home = cleanTeamName(fixture.homeTeam);
     const away = cleanTeamName(fixture.awayTeam);
     const matchHeader = `${home} vs ${away} — ${tipSymbol}${suffix}`;
@@ -436,7 +436,7 @@ export function getDoubleChanceJackpotFixtures(
       const home = cleanTeamName(found.homeTeam);
       const away = cleanTeamName(found.awayTeam);
       const isHighest = !!target.isHighest;
-      const suffix = isHighest ? ' (The game with the hifhest confidence score)' : '';
+      const suffix = isHighest ? ' (The game with the highest confidence score)' : '';
       const matchHeader = `${home} vs ${away} — ${target.tip}${suffix}`;
       const description = target.customExplanation || getPredictionExplanation({ ...found, homeTeam: home, awayTeam: away }, target.tip, isHighest);
 

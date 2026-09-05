@@ -162,8 +162,8 @@ export default function MarkdownRenderer({
       continue;
     }
 
-    // 0. Top Jackpot Confidence Fixture Line: e.g. "Parma vs Monza — 1", "Everton vs Manchester United — 2 (The game with the hifhest confidence score)"
-    const fixtureMatch = trimmed.match(/^(?:###\s+|\*\*)?(.+?\s+vs\s+.+?)\s*[—–-]\s*([0-9X]|DC1X|DC2X|DCX2|DC12|DC2)(?:\s*(\([^)]*(?:highest|hifhest)\s+confidence[^)]*\)))?(?:\*\*)?$/i);
+    // 0. Top Jackpot Confidence Fixture Line: e.g. "Parma vs Monza — 1", "Everton vs Manchester United — 2 (The game with the highest confidence score)"
+    const fixtureMatch = trimmed.match(/^(?:###\s+|\*\*)?(.+?\s+vs\s+.+?)\s*[—–-]\s*([0-9X]|DC1X|DC2X|DCX2|DC12|DC2)(?:\s*(\([^)]*(?:highest|highest)\s+confidence[^)]*\)))?(?:\*\*)?$/i);
     if (fixtureMatch) {
       const fixtureItems: Array<{
         matchTeams: string;
@@ -181,7 +181,7 @@ export default function MarkdownRenderer({
           continue;
         }
 
-        const match = curLine.match(/^(?:###\s+|\*\*)?(.+?\s+vs\s+.+?)\s*[—–-]\s*([0-9X]|DC1X|DC2X|DCX2|DC12|DC2)(?:\s*(\([^)]*(?:highest|hifhest)\s+confidence[^)]*\)))?(?:\*\*)?$/i);
+        const match = curLine.match(/^(?:###\s+|\*\*)?(.+?\s+vs\s+.+?)\s*[—–-]\s*([0-9X]|DC1X|DC2X|DCX2|DC12|DC2)(?:\s*(\([^)]*(?:highest|highest)\s+confidence[^)]*\)))?(?:\*\*)?$/i);
         if (!match) {
           break;
         }
@@ -189,7 +189,7 @@ export default function MarkdownRenderer({
         const matchTeams = match[1].trim();
         const matchTip = match[2].trim();
         const isHighest = !!match[3];
-        const highestSuffixText = match[3] ? match[3].trim() : '(The game with the hifhest confidence score)';
+        const highestSuffixText = match[3] ? match[3].trim() : '(The game with the highest confidence score)';
 
         // Check if next non-empty line is the prediction explanation text
         let explanation = '';
