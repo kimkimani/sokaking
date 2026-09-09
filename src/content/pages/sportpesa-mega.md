@@ -64,7 +64,7 @@ Check other Jackpots like:
 
 - [Betnumbers SportPesa Jackpot Prediction](https://sokaking.com/betnumbers-sportpesa-mega-jackpot-prediction)
 - [Mozzart Super Daily Jackpot Selections](https://sokaking.com/free-mozzart-super-daily-jackpot-predictions-and-analysis)
-- [SportPesa Midweek Jackpot Selections](https://sokaking.com/free-sportpesa-midweek-jackpot-predictions-and-analysis)
+- [SportPesa Midweek Jackpot Selections](https://sokaking.com/today-sportpesa-midweek-jackpot-prediction-and-tips)
 
 <!-- FAQ -->
 

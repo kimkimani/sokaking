@@ -150,7 +150,7 @@ const CURATED_LINKS: Record<string, Partial<InboundLinkItem>> = {
   },
   'sportpesa-midweek': {
     title: 'SportPesa Midweek Jackpot (13)',
-    url: '/free-sportpesa-midweek-jackpot-predictions-and-analysis',
+    url: '/today-sportpesa-midweek-jackpot-prediction-and-tips',
     description: '13-match midweek jackpot analysis with tactical fatigue matrices and covers.',
     tag: '13 Games | KES 15M+',
     icon: '⚽',

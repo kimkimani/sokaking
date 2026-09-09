@@ -386,7 +386,7 @@ For this week mega prediction, we have the following DC tips:
 Check other Jackpots like:
 
 - [Mozzart Super Daily Jackpot Selections](https://sokaking.com/free-mozzart-super-daily-jackpot-predictions-and-analysis)
-- [SportPesa Midweek Jackpot Selections](https://sokaking.com/free-sportpesa-midweek-jackpot-predictions-and-analysis)
+- [SportPesa Midweek Jackpot Selections](https://sokaking.com/today-sportpesa-midweek-jackpot-prediction-and-tips)
 
 
 ## How to Use Betnumbers Mega Jackpot Predictions
@@ -1559,7 +1559,7 @@ Double chance combinations are recommended for evenly matched games where neithe
 
 Check our other jackpot predictions:
 
-- [SportPesa Midweek Jackpot Analysis](https://sokaking.com/free-sportpesa-midweek-jackpot-predictions-and-analysis)
+- [SportPesa Midweek Jackpot Analysis](https://sokaking.com/today-sportpesa-midweek-jackpot-prediction-and-tips)
 - [Mozzart Super Daily Jackpot Selections](https://sokaking.com/free-mozzart-super-daily-jackpot-predictions-and-analysis)
 - [Betika Midweek Jackpot Tips](https://sokaking.com/free-betika-midweek-jackpot-predictions-and-analysis)
 
@@ -1594,7 +1594,7 @@ Yes, all 17 match predictions and probability rankings are published completely 
 title: "SportPesa Midweek Jackpot Predictions and Daily Tips (13 Games)"
 description: "Accurate SportPesa Midweek Jackpot predictions for all 13 matches. Get computer models and double chance tips for KES 10M+ prizes."
 keywords: "SportPesa Midweek Jackpot, SportPesa 13 games predictions, Midweek Jackpot tips, SportPesa double chance"
-link: "/free-sportpesa-midweek-jackpot-predictions-and-analysis"
+link: "/today-sportpesa-midweek-jackpot-prediction-and-tips"
 authorId: "david-ochieng"
 displayTitle: "SportPesa Midweek Jackpot Selections and Covers (13 Games)"
 unlockHeading: "Unlock SportPesa Midweek Jackpot Predictions"

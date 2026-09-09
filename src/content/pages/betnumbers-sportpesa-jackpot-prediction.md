@@ -56,7 +56,7 @@ For this week mega prediction, we have the following DC tips:
 Check other Jackpots like:
 
 - [Mozzart Super Daily Jackpot Selections](https://sokaking.com/free-mozzart-super-daily-jackpot-predictions-and-analysis)
-- [SportPesa Midweek Jackpot Selections](https://sokaking.com/free-sportpesa-midweek-jackpot-predictions-and-analysis)
+- [SportPesa Midweek Jackpot Selections](https://sokaking.com/today-sportpesa-midweek-jackpot-prediction-and-tips)
 
 
 ## How to Use Betnumbers Mega Jackpot Predictions

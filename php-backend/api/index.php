@@ -1282,7 +1282,7 @@ if ($path === '/sitemap.xml' || $path === '/sitemap') {
         '/free-betika-midweek-jackpot-predictions-and-analysis',
         '/free-mozzart-grand-jackpot-predictions-and-analysis',
         '/free-mozzart-super-daily-jackpot-predictions-and-analysis',
-        '/free-sportpesa-midweek-jackpot-predictions-and-analysis',
+        '/today-sportpesa-midweek-jackpot-prediction-and-tips',
         '/free-sportybet-jackpot-predictions-and-analysis',
         '/free-betpawa-pick-jackpot-predictions-and-analysis',
         '/free-odibet-laki-tatu-jackpot-predictions-and-analysis',

@@ -639,7 +639,7 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "displayTitle": "SportPesa Midweek Jackpot Selections and Covers (13 Games)",
     "description": "Accurate SportPesa Midweek Jackpot predictions for all 13 matches. Get computer models and double chance tips for KES 10M+ prizes.",
     "keywords": "SportPesa Midweek Jackpot, SportPesa 13 games predictions, Midweek Jackpot tips, SportPesa double chance",
-    "link": "/free-sportpesa-midweek-jackpot-predictions-and-analysis",
+    "link": "/today-sportpesa-midweek-jackpot-prediction-and-tips",
     "type": "jackpot",
     "jackpotId": "sportpesa-midweek",
     "authorId": "david-ochieng",
