@@ -31,7 +31,7 @@ Our [betnumber tips](https://sokaking.com/betnumbers-predictions) goal is to tur
 
 {{TOP_MEGA_JACKPOT_FIXTURES}}
 
-## BeNumbers SportPesa Mega Jackpot Double-Chance Tips
+## BetNumbers SportPesa Mega Jackpot Double-Chance Tips
 
 Double chance gives you two possible match outcomes instead of one.
 
