@@ -285,7 +285,8 @@ export function buildBreadcrumbSchema(pageId: string, pageMd: ParsedMarkdownPage
     Boolean(pageMd.jackpotId) || 
     pageId.includes('jackpot') ||
     pageId.includes('mega') ||
-    pageId.includes('midweek');
+    pageId.includes('midweek') ||
+    jackpotsData.some(j => j.id === pageId || j.slug === pageId);
 
   if (isJackpotPage) {
     // Level 2: Always "Jackpot Predictions"
@@ -305,48 +306,24 @@ export function buildBreadcrumbSchema(pageId: string, pageMd: ParsedMarkdownPage
       };
     }
 
-    // Check if this page is a sub-jackpot or competitor analysis page targeting a parent jackpot
-    const parentJackpotId = pageMd.jackpotId;
-    const isSubJackpot = Boolean(parentJackpotId && parentJackpotId !== pageId);
-
-    if (isSubJackpot && parentJackpotId) {
-      const parentUrl = buildCanonicalUrl(getPageUrl(parentJackpotId), parentJackpotId);
-      let parentTitle = 'Mega Jackpot Predictions';
-      
-      const parentJackpotConfig = jackpotsData.find(j => j.id === parentJackpotId || j.slug === parentJackpotId);
-      if (parentJackpotConfig) {
-        parentTitle = parentJackpotConfig.name;
-      } else {
-        const parentMeta = getMarkdownContent(parentJackpotId);
-        if (parentMeta && parentMeta.title) {
-          parentTitle = parentMeta.displayTitle || parentMeta.title.split('|')[0].trim();
-        }
-      }
-
-      // Level 3: Parent Jackpot (e.g. "SportPesa Mega Jackpot")
-      items.push({
-        '@type': 'ListItem',
-        position: 3,
-        name: cleanSchemaText(parentTitle),
-        item: parentUrl
-      });
-
-      // Level 4: Current Page Analysis (e.g. "Betnumbers SportPesa Mega Jackpot")
-      items.push({
-        '@type': 'ListItem',
-        position: 4,
-        name: pageTitle,
-        item: canonicalUrl
-      });
-    } else {
-      // Direct Primary Jackpot (Level 3)
-      items.push({
-        '@type': 'ListItem',
-        position: 3,
-        name: pageTitle,
-        item: canonicalUrl
-      });
+    // For all jackpot pages, Google and user navigation follow exactly 3 levels:
+    // Level 1: Home (https://sokaking.com)
+    // Level 2: Jackpot Predictions (https://sokaking.com/jackpot-tips)
+    // Level 3: [Jackpot Name] (canonicalUrl)
+    const jackpotConfig = jackpotsData.find(j => j.id === pageId || j.slug === pageId);
+    let level3Name = pageTitle;
+    if (jackpotConfig && jackpotConfig.name) {
+      level3Name = cleanSchemaText(jackpotConfig.name);
+    } else if (pageMd.displayTitle) {
+      level3Name = cleanSchemaText(pageMd.displayTitle);
     }
+
+    items.push({
+      '@type': 'ListItem',
+      position: 3,
+      name: level3Name,
+      item: canonicalUrl
+    });
 
     return {
       '@type': 'BreadcrumbList',

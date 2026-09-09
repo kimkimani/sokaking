@@ -173,23 +173,6 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
   const [expandedFixture, setExpandedFixture] = useState<number | null>(null);
   const pageMd = getMarkdownContent(pageId || jackpot.id);
 
-  const parentJackpotId = pageMd.jackpotId;
-  const isSubJackpot = Boolean(parentJackpotId && parentJackpotId !== (pageId || jackpot.id));
-  let parentTitle = 'Mega Jackpot Predictions';
-  let parentUrl = '/free-sportpesa-mega-jackpot-prediction';
-  if (isSubJackpot && parentJackpotId) {
-    const parentConfig = jackpotsData.find(j => j.id === parentJackpotId || j.slug === parentJackpotId);
-    if (parentConfig) {
-      parentTitle = parentConfig.name;
-    } else {
-      const parentMeta = getMarkdownContent(parentJackpotId);
-      if (parentMeta && parentMeta.title) {
-        parentTitle = parentMeta.displayTitle || parentMeta.title.split('|')[0].trim();
-      }
-    }
-    parentUrl = getPageUrl(parentJackpotId);
-  }
-
   // Compute earliest and latest match times for started/ended statuses
   const { earliestTime, latestTime } = useMemo(() => {
     const fixtureTimes = (jackpot.fixtures || [])
@@ -365,26 +348,9 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
           >
             Jackpot Predictions
           </a>
-          {isSubJackpot && parentJackpotId && (
-            <>
-              <ChevronRight className="w-3 h-3 text-slate-400 dark:text-slate-500 flex-shrink-0" />
-              <a
-                href={parentUrl}
-                onClick={(e) => {
-                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
-                    e.preventDefault();
-                    if (onSelectPage) onSelectPage(parentJackpotId);
-                  }
-                }}
-                className="hover:text-[var(--text)] transition-colors no-underline cursor-pointer font-semibold truncate max-w-[140px] md:max-w-[200px]"
-              >
-                {parentTitle}
-              </a>
-            </>
-          )}
           <ChevronRight className="w-3 h-3 text-slate-400 dark:text-slate-500 flex-shrink-0" />
-          <span className="text-[var(--text)] font-bold truncate max-w-[180px] md:max-w-[300px]" aria-current="page">
-            {pageMd.displayTitle || jackpot.name}
+          <span className="text-[var(--text)] font-bold truncate max-w-[200px] md:max-w-[320px]" aria-current="page">
+            {jackpot.name || pageMd.displayTitle}
           </span>
         </nav>
 
