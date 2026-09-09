@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { expandTopFixturesParameters, fetchLiveMegaJackpotFixtures, getCachedLiveJackpotFixtures, isDoubleChanceTip } from '../utils/topJackpotFixtures';
 import { Fixture } from '../types';
+import { getLinkRel } from '../utils/linkUtils';
 
 interface MarkdownRendererProps {
   content: string;
@@ -71,7 +72,7 @@ function parseInline(text: string, postSlug?: string): React.ReactNode[] {
           key={`link-${matchStart}`}
           href={linkUrl}
           target={isExternal ? '_blank' : undefined}
-          rel={isExternal ? 'noopener noreferrer' : undefined}
+          rel={getLinkRel(linkUrl)}
           className="text-indigo-500 hover:text-indigo-600 underline font-semibold transition-colors"
         >
           {linkText}

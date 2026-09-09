@@ -175,7 +175,7 @@ export default function PaymentModal({
               <a
                 href={`https://wa.me/254${POCHI_PHONE_NUMBER.replace(/^0/, '')}?text=${whatsappMessage}`}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="nofollow noopener noreferrer"
                 className="w-full py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-98 text-white font-mono text-xs font-black flex items-center justify-center gap-2 shadow-md no-underline cursor-pointer transition-all uppercase tracking-wider border-none"
               >
                 <PhoneCall className="w-4 h-4 text-white" />

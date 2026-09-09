@@ -1192,7 +1192,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
         <a 
           href={`https://wa.me/${(siteContacts.whatsapp || siteContacts.phone || '+254740841375').replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello Soka King Support, I need today tips')}`} 
           target="_blank" 
-          rel="noopener noreferrer"
+          rel="nofollow noopener noreferrer"
           aria-label="Chat with Soka King support on WhatsApp"
           title="Contact WhatsApp Support"
           className="w-12 h-12 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all duration-200"
@@ -1301,7 +1301,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 <a 
                   href={`https://wa.me/${siteContacts.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello Soka King Support, I need today tips')}`} 
                   target="_blank" 
-                  rel="noopener noreferrer" 
+                  rel="nofollow noopener noreferrer" 
                   className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border border-emerald-500/30 font-mono text-[11px] font-bold hover:bg-emerald-500/25 transition-all no-underline" 
                   title="WhatsApp Hotline"
                 >
@@ -1313,7 +1313,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 <a 
                   href={siteContacts.telegram} 
                   target="_blank" 
-                  rel="noopener noreferrer" 
+                  rel="nofollow noopener noreferrer" 
                   className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-sky-500/15 text-sky-950 dark:text-sky-200 border border-sky-500/30 font-mono text-[11px] font-bold hover:bg-sky-500/25 transition-all no-underline" 
                   title="Telegram Channel"
                 >
@@ -1325,7 +1325,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 <a 
                   href={siteContacts.facebook} 
                   target="_blank" 
-                  rel="noopener noreferrer" 
+                  rel="nofollow noopener noreferrer" 
                   className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-500/15 text-blue-950 dark:text-blue-200 border border-blue-500/30 font-mono text-[11px] font-bold hover:bg-blue-500/25 transition-all no-underline" 
                   title="Facebook Page"
                 >
@@ -1337,7 +1337,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 <a 
                   href={siteContacts.twitter} 
                   target="_blank" 
-                  rel="noopener noreferrer" 
+                  rel="nofollow noopener noreferrer" 
                   className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-500/15 text-slate-950 dark:text-slate-100 border border-slate-500/30 font-mono text-[11px] font-bold hover:bg-slate-500/25 transition-all no-underline" 
                   title="Twitter / X"
                 >
@@ -1349,7 +1349,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 <a 
                   href={siteContacts.instagram} 
                   target="_blank" 
-                  rel="noopener noreferrer" 
+                  rel="nofollow noopener noreferrer" 
                   className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-pink-500/15 text-pink-950 dark:text-pink-200 border border-pink-500/30 font-mono text-[11px] font-bold hover:bg-pink-500/25 transition-all no-underline" 
                   title="Instagram Page"
                 >
@@ -1361,7 +1361,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 <a 
                   href={siteContacts.youtube} 
                   target="_blank" 
-                  rel="noopener noreferrer" 
+                  rel="nofollow noopener noreferrer" 
                   className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/15 text-red-950 dark:text-red-200 border border-red-500/30 font-mono text-[11px] font-bold hover:bg-red-500/25 transition-all no-underline" 
                   title="YouTube Channel"
                 >

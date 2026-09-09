@@ -38,6 +38,7 @@ import { contactSocialTable } from '../data';
 import { AuthorCard } from './AuthorCard';
 import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
 import InboundLinksBlock from './InboundLinksBlock';
+import { getLinkRel } from '../utils/linkUtils';
 
 interface StaticPagesProps {
   pageId: string;
@@ -943,7 +944,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                         <a 
                           href={`https://wa.me/${siteContacts.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello Soka King Support, I need today tips')}`} 
                           target="_blank" 
-                          rel="noreferrer" 
+                          rel="nofollow noopener noreferrer" 
                           className="text-emerald-500 font-bold hover:underline font-mono block"
                         >
                           {siteContacts.whatsapp} (WhatsApp)
@@ -965,22 +966,22 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                       <strong className="block text-[var(--text)] text-[11px] font-bold font-mono uppercase tracking-wider">Official Social Channels</strong>
                       <div className="flex flex-wrap gap-2 text-[11px] font-mono">
                         {siteContacts.telegram && (
-                          <a href={siteContacts.telegram} target="_blank" rel="noreferrer" className="px-2 py-1 rounded bg-sky-500/10 text-sky-500 font-bold hover:bg-sky-500/20">
+                          <a href={siteContacts.telegram} target="_blank" rel="nofollow noopener noreferrer" className="px-2 py-1 rounded bg-sky-500/10 text-sky-500 font-bold hover:bg-sky-500/20">
                             Telegram
                           </a>
                         )}
                         {siteContacts.facebook && (
-                          <a href={siteContacts.facebook} target="_blank" rel="noreferrer" className="px-2 py-1 rounded bg-blue-500/10 text-blue-500 font-bold hover:bg-blue-500/20">
+                          <a href={siteContacts.facebook} target="_blank" rel="nofollow noopener noreferrer" className="px-2 py-1 rounded bg-blue-500/10 text-blue-500 font-bold hover:bg-blue-500/20">
                             Facebook
                           </a>
                         )}
                         {siteContacts.twitter && (
-                          <a href={siteContacts.twitter} target="_blank" rel="noreferrer" className="px-2 py-1 rounded bg-slate-500/10 text-slate-400 font-bold hover:bg-slate-500/20">
+                          <a href={siteContacts.twitter} target="_blank" rel="nofollow noopener noreferrer" className="px-2 py-1 rounded bg-slate-500/10 text-slate-400 font-bold hover:bg-slate-500/20">
                             X (Twitter)
                           </a>
                         )}
                         {siteContacts.instagram && (
-                          <a href={siteContacts.instagram} target="_blank" rel="noreferrer" className="px-2 py-1 rounded bg-pink-500/10 text-pink-500 font-bold hover:bg-pink-500/20">
+                          <a href={siteContacts.instagram} target="_blank" rel="nofollow noopener noreferrer" className="px-2 py-1 rounded bg-pink-500/10 text-pink-500 font-bold hover:bg-pink-500/20">
                             Instagram
                           </a>
                         )}
@@ -1132,7 +1133,7 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
                           {item.channelName}
                         </td>
                         <td className="py-3 px-3 font-mono font-semibold text-[var(--primary)] whitespace-nowrap">
-                          <a href={item.actionUrl} target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center gap-1">
+                          <a href={item.actionUrl} target="_blank" rel={getLinkRel(item.actionUrl)} className="hover:underline flex items-center gap-1">
                             <span>{item.contactValue}</span>
                           </a>
                         </td>
