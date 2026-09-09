@@ -15,7 +15,9 @@ import {
   XCircle,
   Calendar,
   TrendingUp,
-  Filter
+  Filter,
+  Home,
+  ChevronRight
 } from 'lucide-react';
 import { Fixture } from '../types';
 import { PredictionCategory, getCategoryCountText } from '../utils/predictionGenerator';
@@ -219,7 +221,48 @@ export default function CategoryPredictionsPage({
     <div id={`category-page-${category.id}`} className="space-y-6 text-left">
       
       {/* Navigation Breadcrumb */}
-      <div className="flex items-center gap-2 text-[11px]">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 font-mono overflow-x-auto scrollbar-none py-1">
+          <a 
+            href="/"
+            onClick={(e) => {
+              if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                e.preventDefault();
+                onBackToHome();
+              }
+            }}
+            className="hover:text-[var(--text)] transition-colors no-underline cursor-pointer flex items-center gap-1 font-semibold"
+          >
+            <Home className="w-3.5 h-3.5" />
+            <span>Home</span>
+          </a>
+          <ChevronRight className="w-3 h-3 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+          {category.id === 'category-today' ? (
+            <span className="text-[var(--text)] font-bold truncate max-w-[240px] md:max-w-[340px]" aria-current="page">
+              Free Football Predictions Today
+            </span>
+          ) : (
+            <>
+              <a
+                href="/football-predictions-today"
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    if (onSelectPage) onSelectPage('category-today');
+                  }
+                }}
+                className="hover:text-[var(--text)] transition-colors no-underline cursor-pointer font-semibold"
+              >
+                Free Football Predictions
+              </a>
+              <ChevronRight className="w-3 h-3 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+              <span className="text-[var(--text)] font-bold truncate max-w-[200px] md:max-w-[300px]" aria-current="page">
+                {pageMd.displayTitle || category.name}
+              </span>
+            </>
+          )}
+        </nav>
+
         <a 
           href="/"
           onClick={(e) => {
@@ -228,9 +271,10 @@ export default function CategoryPredictionsPage({
               onBackToHome();
             }
           }}
-          className="flex items-center gap-1 text-slate-750 dark:text-slate-250 hover:text-indigo-700 dark:hover:text-indigo-300 font-bold no-underline cursor-pointer transition-colors p-0"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-bold text-slate-800 dark:text-slate-200 hover:text-[var(--primary)] bg-slate-100 dark:bg-slate-900 border border-[var(--border)] transition-all cursor-pointer no-underline"
         >
-          <ArrowLeft className="w-3.5 h-3.5" /> Back Home
+          <ArrowLeft className="w-3.5 h-3.5 text-slate-700 dark:text-slate-300" />
+          <span>Home</span>
         </a>
       </div>
 

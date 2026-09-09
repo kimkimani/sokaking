@@ -4,7 +4,7 @@ description: "Mozzart Super Daily Jackpot predictions and 16-match computer simu
 keywords: "Mozzart Super Daily Jackpot predictions, Mozzart daily tips, Mozzart 16 matches"
 link: "/free-mozzart-super-daily-jackpot-predictions-and-analysis"
 authorId: "samuel-omondi"
-displayTitle: "Mozzart Super Daily Jackpot Selections""
+displayTitle: "Mozzart Super Daily Jackpot Selections"
 unlockHeading: "Unlock Mozzart Super Daily Selections"
 unlockDescription: "Get daily computer-simulated 16-game prediction tickets for Mozzart Super Daily."
 type: "jackpot"

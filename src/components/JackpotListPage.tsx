@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Trophy, Clock, ArrowRight, ShieldCheck, Zap, HelpCircle, Star } from 'lucide-react';
+import { Trophy, Clock, ArrowRight, ShieldCheck, Zap, HelpCircle, Star, Home, ChevronRight } from 'lucide-react';
 import { jackpotsData, JackpotConfig } from '../jackpotsData';
 import FaqSection from './FaqSection';
 import { getMarkdownContent } from '../content/markdownLoader';
@@ -89,7 +89,28 @@ export default function JackpotListPage({
   };
 
   return (
-    <div className="space-y-8 text-left animate-fadeIn">
+    <div className="space-y-6 text-left animate-fadeIn">
+      {/* Top Breadcrumb Navigation */}
+      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 font-mono overflow-x-auto scrollbar-none py-1">
+        <a
+          href="/"
+          onClick={(e) => {
+            if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+              e.preventDefault();
+              onSelectJackpot('home');
+            }
+          }}
+          className="hover:text-[var(--text)] transition-colors no-underline cursor-pointer flex items-center gap-1 font-semibold"
+        >
+          <Home className="w-3.5 h-3.5" />
+          <span>Home</span>
+        </a>
+        <ChevronRight className="w-3 h-3 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+        <span className="text-[var(--text)] font-bold" aria-current="page">
+          Jackpot Predictions
+        </span>
+      </nav>
+
       {/* 1. HERO HEADER BANNER */}
       <div className="relative overflow-hidden p-6 md:p-8 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)]">
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-emerald-500 via-[var(--primary)] to-indigo-500" />

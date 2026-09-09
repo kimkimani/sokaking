@@ -815,6 +815,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                       isLoading={loadingDb}
                       onOpenPayment={handleOpenPayment}
                       onBackToList={() => handleSelectPage('jackpot-list')}
+                      onSelectPage={handleSelectPage}
                       pageId={activePage}
                     />
                   );

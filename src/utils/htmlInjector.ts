@@ -21,7 +21,7 @@ export function injectSeoAndStructuredData(rawHtml: string, requestUrl: string):
     const pageId = getPageIdFromUrl(urlPath);
     let pageMd = getMarkdownContent(pageId);
     let canonicalUrl = buildCanonicalUrl(pageMd.link || getPageUrl(pageId), pageId);
-    const { fullGraph } = generatePageJsonLd(pageId);
+    const { fullGraph, mainSchema } = generatePageJsonLd(pageId);
 
     let title = pageMd.title || 'Soka King - Premium Football Predictions and Jackpot Tips';
     let description = pageMd.description || 'Free mathematical football predictions, 1X2 tips, over 2.5 goals, BTTS/GG picks, and jackpot analysis.';
@@ -75,6 +75,19 @@ export function injectSeoAndStructuredData(rawHtml: string, requestUrl: string):
         crawlerDesc = blogPost.description;
         crawlerBody = blogPost.content ? blogPost.content.slice(0, 1000) : '';
       }
+    } else if (mainSchema && mainSchema['@type'] === 'Article') {
+      ogType = 'article';
+      const pubDate = mainSchema.datePublished || '2026-08-17T06:00:00+03:00';
+      const modDate = mainSchema.dateModified || pubDate;
+      const authorName = mainSchema.author?.name || 'John K. Mwangi';
+      const section = mainSchema.articleSection || 'Jackpot Predictions & Tactical Analysis';
+      extraMetaTags = `
+    <!-- Article & QDF Freshness Metadata -->
+    <meta property="article:published_time" content="${pubDate}" />
+    <meta property="article:modified_time" content="${modDate}" />
+    <meta property="og:updated_time" content="${modDate}" />
+    <meta property="article:author" content="${escapeHtml(authorName)}" />
+    <meta property="article:section" content="${escapeHtml(section)}" />`;
     }
 
     let html = rawHtml;

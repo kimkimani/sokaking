@@ -1,10 +1,11 @@
 import { getMarkdownContent, buildCanonicalUrl, ParsedMarkdownPage } from '../content/markdownLoader';
 import { getAuthor, ParsedAuthor } from '../content/authorLoader';
-import { getPageUrl, ALL_JACKPOT_IDS } from './navigation';
+import { getPageUrl, ALL_JACKPOT_IDS, DYNAMIC_CATEGORY_PAGES, DYNAMIC_JACKPOT_PAGES } from './navigation';
 import { jackpotsData } from '../jackpotsData';
 import { vipPackages, oddsPacks } from '../data';
 import { PREDICTION_CATEGORIES } from './predictionGenerator';
 import { getBlogPostBySlug, getAllBlogPosts, BlogPost } from '../content/blogLoader';
+import { getCycleDateModified } from './cycleDateModified';
 
 export interface SchemaGraphResult {
   mainSchema: Record<string, any>;
@@ -29,6 +30,7 @@ export function cleanSchemaText(text: string): string {
     .replace(/^[-*+]\s+/gm, '') // Strip bullet points
     .replace(/^[0-9]+\.\s+/gm, '') // Strip numbered list items
     .replace(/\s+/g, ' ') // Collapse multiple whitespaces
+    .replace(/^["'\s]+|["'\s]+$/g, '') // Strip leading and trailing quotes
     .trim();
 }
 
@@ -253,11 +255,12 @@ export function extractFaqSchema(faqText: string | undefined): Record<string, an
 }
 
 /**
- * Builds breadcrumb structured data for any given page (minimum 2 items required by Google).
+ * Builds comprehensive BreadcrumbList structured data for any given page
+ * providing deep, contextual navigation hierarchy for search engines (minimum 2 items required by Google).
  */
 export function buildBreadcrumbSchema(pageId: string, pageMd: ParsedMarkdownPage, canonicalUrl: string): Record<string, any> | null {
-  // Never output single-item BreadcrumbList on the homepage
-  if (pageId === 'home' || pageId === '' || pageId === 'not-found') {
+  // Never output single-item BreadcrumbList on the homepage, 404, or empty
+  if (pageId === 'home' || pageId === '' || pageId === 'not-found' || pageId === '404') {
     return null;
   }
 
@@ -270,46 +273,73 @@ export function buildBreadcrumbSchema(pageId: string, pageMd: ParsedMarkdownPage
     }
   ];
 
-  const pageTitle = pageMd.displayTitle || pageMd.title.split('|')[0].trim();
+  const rawTitle = pageMd.displayTitle || pageMd.title.split('|')[0].trim();
+  const pageTitle = cleanSchemaText(rawTitle);
 
-  if (
-    pageId.startsWith('category-') || 
-    pageId === '254-sure-tips' || 
-    pageId === '254-golden-tips' ||
-    pageId === '4soka-tips' ||
-    pageId === '4soka-tips-prediction' ||
-    pageId === 'sokamastas-predictions-and-tips' ||
-    pageId === 'cheerplex-predictions-and-tips-today' || 
-    pageId === 'liobet-predictions-and-tips' || 
-    pageId === 'predictz-predictions' || 
-    pageId === 'soccervista' || 
-    pageId === 'soccervista-predictions-and-tips' || 
-    pageId === 'sunpel-free-football-betting-tips'
-  ) {
+  // 1. ALL JACKPOT PAGES
+  const isJackpotPage = 
+    pageId === 'jackpot-list' || 
+    ALL_JACKPOT_IDS.includes(pageId) || 
+    Boolean(DYNAMIC_JACKPOT_PAGES && DYNAMIC_JACKPOT_PAGES[pageId]) ||
+    pageMd.type === 'jackpot' || 
+    Boolean(pageMd.jackpotId) || 
+    pageId.includes('jackpot') ||
+    pageId.includes('mega') ||
+    pageId.includes('midweek');
+
+  if (isJackpotPage) {
+    // Level 2: Always "Jackpot Predictions"
     items.push({
       '@type': 'ListItem',
       position: 2,
-      name: 'Free Football Predictions',
-      item: 'https://sokaking.com/football-predictions-today'
-    });
-
-    if (pageId !== 'category-today') {
-      items.push({
-        '@type': 'ListItem',
-        position: 3,
-        name: pageTitle,
-        item: canonicalUrl
-      });
-    }
-  } else if (ALL_JACKPOT_IDS.includes(pageId) || pageId === 'jackpot-list') {
-    items.push({
-      '@type': 'ListItem',
-      position: 2,
-      name: 'Jackpots',
+      name: 'Jackpot Predictions',
       item: 'https://sokaking.com/jackpot-tips'
     });
 
-    if (pageId !== 'jackpot-list') {
+    // If on the jackpot directory hub itself (/jackpot-tips)
+    if (pageId === 'jackpot-list') {
+      return {
+        '@type': 'BreadcrumbList',
+        '@id': `${canonicalUrl}#breadcrumb`,
+        itemListElement: items
+      };
+    }
+
+    // Check if this page is a sub-jackpot or competitor analysis page targeting a parent jackpot
+    const parentJackpotId = pageMd.jackpotId;
+    const isSubJackpot = Boolean(parentJackpotId && parentJackpotId !== pageId);
+
+    if (isSubJackpot && parentJackpotId) {
+      const parentUrl = buildCanonicalUrl(getPageUrl(parentJackpotId), parentJackpotId);
+      let parentTitle = 'Mega Jackpot Predictions';
+      
+      const parentJackpotConfig = jackpotsData.find(j => j.id === parentJackpotId || j.slug === parentJackpotId);
+      if (parentJackpotConfig) {
+        parentTitle = parentJackpotConfig.name;
+      } else {
+        const parentMeta = getMarkdownContent(parentJackpotId);
+        if (parentMeta && parentMeta.title) {
+          parentTitle = parentMeta.displayTitle || parentMeta.title.split('|')[0].trim();
+        }
+      }
+
+      // Level 3: Parent Jackpot (e.g. "SportPesa Mega Jackpot")
+      items.push({
+        '@type': 'ListItem',
+        position: 3,
+        name: cleanSchemaText(parentTitle),
+        item: parentUrl
+      });
+
+      // Level 4: Current Page Analysis (e.g. "Betnumbers SportPesa Mega Jackpot")
+      items.push({
+        '@type': 'ListItem',
+        position: 4,
+        name: pageTitle,
+        item: canonicalUrl
+      });
+    } else {
+      // Direct Primary Jackpot (Level 3)
       items.push({
         '@type': 'ListItem',
         position: 3,
@@ -317,21 +347,99 @@ export function buildBreadcrumbSchema(pageId: string, pageMd: ParsedMarkdownPage
         item: canonicalUrl
       });
     }
-  } else if (pageId === 'vip-packages' || pageId === 'vip' || pageId === 'odds' || pageId === 'odds-packs') {
+
+    return {
+      '@type': 'BreadcrumbList',
+      '@id': `${canonicalUrl}#breadcrumb`,
+      itemListElement: items
+    };
+  }
+
+  // 2. ALL FOOTBALL PREDICTION & CATEGORY PAGES
+  const isPredictionOrCategory = 
+    pageId.startsWith('category-') ||
+    pageMd.type === 'category' ||
+    pageMd.type === 'competitor' ||
+    Boolean(DYNAMIC_CATEGORY_PAGES && DYNAMIC_CATEGORY_PAGES[pageId]) ||
+    pageId.includes('predict') ||
+    pageId.includes('tips') ||
+    pageId.includes('sure') ||
+    pageId.includes('golden') ||
+    pageId.includes('cheza') ||
+    pageId.includes('soka') ||
+    pageId.includes('sunpel') ||
+    pageId.includes('tabiri') ||
+    pageId.includes('forebet') ||
+    pageId.includes('soccervista') ||
+    pageId.includes('liobet') ||
+    pageId.includes('cheerplex');
+
+  if (isPredictionOrCategory) {
+    const parentPredictionUrl = 'https://sokaking.com/football-predictions-today';
+
+    if (pageId === 'category-today') {
+      items.push({
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Free Football Predictions Today',
+        item: parentPredictionUrl
+      });
+    } else {
+      // Level 2: "Free Football Predictions"
+      items.push({
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Free Football Predictions',
+        item: parentPredictionUrl
+      });
+
+      // Level 3: Specific Prediction Category / Model Page
+      items.push({
+        '@type': 'ListItem',
+        position: 3,
+        name: pageTitle,
+        item: canonicalUrl
+      });
+    }
+
+    return {
+      '@type': 'BreadcrumbList',
+      '@id': `${canonicalUrl}#breadcrumb`,
+      itemListElement: items
+    };
+  }
+
+  // 3. VIP PACKAGES / ODDS PACKS
+  if (pageId === 'vip-packages' || pageId === 'vip' || pageId === 'odds' || pageId === 'odds-packs') {
     items.push({
       '@type': 'ListItem',
       position: 2,
       name: 'VIP Packages and Odds Packs',
       item: 'https://sokaking.com/vip-packages'
     });
-  } else if (pageId === 'blog' || pageId === 'blog-list') {
+    return {
+      '@type': 'BreadcrumbList',
+      '@id': `${canonicalUrl}#breadcrumb`,
+      itemListElement: items
+    };
+  }
+
+  // 4. BLOG PAGES
+  if (pageId === 'blog' || pageId === 'blog-list') {
     items.push({
       '@type': 'ListItem',
       position: 2,
       name: 'Football Analytics Blog',
       item: 'https://sokaking.com/blog'
     });
-  } else if (pageId.startsWith('blog-')) {
+    return {
+      '@type': 'BreadcrumbList',
+      '@id': `${canonicalUrl}#breadcrumb`,
+      itemListElement: items
+    };
+  }
+
+  if (pageId.startsWith('blog-')) {
     const slug = pageId.replace(/^blog-/, '');
     const post = getBlogPostBySlug(slug);
     items.push({
@@ -346,22 +454,24 @@ export function buildBreadcrumbSchema(pageId: string, pageMd: ParsedMarkdownPage
       name: post ? cleanSchemaText(post.title) : pageTitle,
       item: canonicalUrl
     });
-  } else {
-    items.push({
-      '@type': 'ListItem',
-      position: 2,
-      name: pageTitle,
-      item: canonicalUrl
-    });
+    return {
+      '@type': 'BreadcrumbList',
+      '@id': `${canonicalUrl}#breadcrumb`,
+      itemListElement: items
+    };
   }
 
-  // Google requires at least 2 items in BreadcrumbList
-  if (items.length < 2) {
-    return null;
-  }
+  // 5. CORPORATE & ALL OTHER PAGES
+  items.push({
+    '@type': 'ListItem',
+    position: 2,
+    name: pageTitle,
+    item: canonicalUrl
+  });
 
   return {
     '@type': 'BreadcrumbList',
+    '@id': `${canonicalUrl}#breadcrumb`,
     itemListElement: items
   };
 }
@@ -594,10 +704,10 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
   const pageMd = getMarkdownContent(pageId);
   const rawUrl = getPageUrl(pageId);
   const canonicalUrl = buildCanonicalUrl(pageMd.link || rawUrl, pageId);
-  const nowIso = new Date().toISOString();
   // Safe Kenya local time publication anchor (2026-08-17)
   const datePublished = '2026-08-17T06:00:00+03:00';
-  const dateModified = nowIso;
+  // Deterministic weekly/daily cycle dateModified tracking active jackpot rounds for Google QDF
+  const dateModified = getCycleDateModified(pageId, pageMd.jackpotId);
 
   const publisherObj = {
     '@type': 'Organization',
@@ -881,7 +991,7 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
   }
   // TYPE 5: Prediction Tips and Category Pages and Jackpot Analysis -> Article Schema
   else {
-    const isJackpotPage = ALL_JACKPOT_IDS.includes(pageId);
+    const isJackpotPage = ALL_JACKPOT_IDS.includes(pageId) || pageMd.type === 'jackpot' || !!pageMd.jackpotId || pageId.includes('jackpot');
     const categoryName = isJackpotPage 
       ? 'Jackpot Predictions and Tactical Analysis' 
       : 'Football Betting Predictions and Analysis';
@@ -911,6 +1021,11 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
   }
 
   // Construct combined Graph representation for rich JSON-LD (Only root has @context)
+  if (breadcrumbSchema) {
+    mainSchema.breadcrumb = {
+      '@id': `${canonicalUrl}#breadcrumb`
+    };
+  }
   const graphEntities: Record<string, any>[] = [mainSchema];
   
   if (breadcrumbSchema) {

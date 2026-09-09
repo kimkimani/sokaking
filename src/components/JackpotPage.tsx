@@ -14,9 +14,12 @@ import {
   BookmarkCheck,
   Smartphone,
   ArrowLeft,
-  ClipboardList
+  ClipboardList,
+  Home,
+  ChevronRight
 } from 'lucide-react';
-import { JackpotConfig } from '../jackpotsData';
+import { JackpotConfig, jackpotsData } from '../jackpotsData';
+import { getPageUrl } from '../utils/navigation';
 import { calculateProbabilities, getRefinedConfidence } from '../utils/probability';
 import { isDoubleChanceTip } from '../utils/topJackpotFixtures';
 import VotePoll from './VotePoll';
@@ -35,6 +38,7 @@ interface JackpotPageProps {
   hasPaid: boolean;
   onOpenPayment: (pkgName: string, price: number, id: string | number, slug: string, type: 'vip' | 'jackpot' | 'odds') => void;
   onBackToList?: () => void;
+  onSelectPage?: (page: string) => void;
   pageId?: string;
   isLoading?: boolean;
 }
@@ -165,9 +169,26 @@ const JackpotCountdownTimer = memo(function JackpotCountdownTimer({
   );
 });
 
-export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToList, pageId, isLoading = false }: JackpotPageProps) {
+export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToList, onSelectPage, pageId, isLoading = false }: JackpotPageProps) {
   const [expandedFixture, setExpandedFixture] = useState<number | null>(null);
   const pageMd = getMarkdownContent(pageId || jackpot.id);
+
+  const parentJackpotId = pageMd.jackpotId;
+  const isSubJackpot = Boolean(parentJackpotId && parentJackpotId !== (pageId || jackpot.id));
+  let parentTitle = 'Mega Jackpot Predictions';
+  let parentUrl = '/free-sportpesa-mega-jackpot-prediction';
+  if (isSubJackpot && parentJackpotId) {
+    const parentConfig = jackpotsData.find(j => j.id === parentJackpotId || j.slug === parentJackpotId);
+    if (parentConfig) {
+      parentTitle = parentConfig.name;
+    } else {
+      const parentMeta = getMarkdownContent(parentJackpotId);
+      if (parentMeta && parentMeta.title) {
+        parentTitle = parentMeta.displayTitle || parentMeta.title.split('|')[0].trim();
+      }
+    }
+    parentUrl = getPageUrl(parentJackpotId);
+  }
 
   // Compute earliest and latest match times for started/ended statuses
   const { earliestTime, latestTime } = useMemo(() => {
@@ -314,16 +335,69 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
 
   return (
     <div className="space-y-6 text-left">
-      {/* Back Button if inside a list detail navigation */}
-      {onBackToList && (
-        <button 
-          onClick={onBackToList}
-          className="min-h-[44px] flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-black text-slate-800 dark:text-slate-200 hover:text-[var(--primary)] bg-slate-100 dark:bg-slate-900 border border-[var(--border)] transition-all cursor-pointer w-fit"
-        >
-          <ArrowLeft className="w-4 h-4 text-slate-700 dark:text-slate-300" />
-          <span>Back to All Jackpots</span>
-        </button>
-      )}
+      {/* Top Breadcrumb and Back Navigation */}
+      <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 font-mono overflow-x-auto scrollbar-none py-1">
+          <a
+            href="/"
+            onClick={(e) => {
+              if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                e.preventDefault();
+                if (onSelectPage) onSelectPage('home');
+              }
+            }}
+            className="hover:text-[var(--text)] transition-colors no-underline cursor-pointer flex items-center gap-1 font-semibold"
+          >
+            <Home className="w-3.5 h-3.5" />
+            <span>Home</span>
+          </a>
+          <ChevronRight className="w-3 h-3 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+          <a
+            href="/jackpot-tips"
+            onClick={(e) => {
+              if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                e.preventDefault();
+                if (onBackToList) onBackToList();
+                else if (onSelectPage) onSelectPage('jackpot-list');
+              }
+            }}
+            className="hover:text-[var(--text)] transition-colors no-underline cursor-pointer font-semibold"
+          >
+            Jackpot Predictions
+          </a>
+          {isSubJackpot && parentJackpotId && (
+            <>
+              <ChevronRight className="w-3 h-3 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+              <a
+                href={parentUrl}
+                onClick={(e) => {
+                  if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    if (onSelectPage) onSelectPage(parentJackpotId);
+                  }
+                }}
+                className="hover:text-[var(--text)] transition-colors no-underline cursor-pointer font-semibold truncate max-w-[140px] md:max-w-[200px]"
+              >
+                {parentTitle}
+              </a>
+            </>
+          )}
+          <ChevronRight className="w-3 h-3 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+          <span className="text-[var(--text)] font-bold truncate max-w-[180px] md:max-w-[300px]" aria-current="page">
+            {pageMd.displayTitle || jackpot.name}
+          </span>
+        </nav>
+
+        {onBackToList && (
+          <button 
+            onClick={onBackToList}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-bold text-slate-800 dark:text-slate-200 hover:text-[var(--primary)] bg-slate-100 dark:bg-slate-900 border border-[var(--border)] transition-all cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-700 dark:text-slate-300" />
+            <span>All Jackpots</span>
+          </button>
+        )}
+      </div>
 
       {/* 1. TOP TITLE AND MARKDOWN INTRO BOX */}
       <div className="p-5 md:p-6 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] relative overflow-hidden text-left space-y-3">
