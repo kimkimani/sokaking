@@ -94,12 +94,16 @@ export const BlogPage: React.FC<BlogPageProps> = ({
     <div className="space-y-8 text-left max-w-7xl mx-auto">
       {/* Breadcrumbs */}
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-[var(--text-muted)] font-mono">
-        <button 
-          onClick={onBackToHome}
-          className="hover:text-[var(--primary)] transition-colors cursor-pointer bg-transparent border-none p-0 text-[var(--text-muted)] font-mono"
+        <a 
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            onBackToHome();
+          }}
+          className="hover:text-[var(--primary)] transition-colors cursor-pointer bg-transparent border-none p-0 text-[var(--text-muted)] font-mono no-underline"
         >
           Home
-        </button>
+        </a>
         <ChevronRight className="w-3.5 h-3.5" />
         <span className="text-[var(--text)] font-bold">Football Analytics Blog</span>
         {selectedAuthorId && activeAuthor && (
@@ -268,7 +272,14 @@ export const BlogPage: React.FC<BlogPageProps> = ({
         <article className="rounded-[var(--radius)] border-2 border-[var(--primary)]/30 bg-[var(--card)] shadow-[var(--shadow)] overflow-hidden transition-all hover:border-[var(--primary)] group">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
             {featuredPost.coverImage && (
-              <div className="lg:col-span-5 relative h-56 lg:h-auto overflow-hidden bg-slate-900">
+              <a 
+                href={`/blog/${featuredPost.slug}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onSelectPost(featuredPost.slug);
+                }}
+                className="lg:col-span-5 relative h-56 lg:h-auto overflow-hidden bg-slate-900 block"
+              >
                 <img 
                   src={featuredPost.coverImage} 
                   alt={featuredPost.title} 
@@ -279,7 +290,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({
                 <div className="absolute top-3 left-3 bg-[var(--primary)] text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-md shadow-md flex items-center gap-1">
                   <Sparkles className="w-3 h-3" /> Featured Analysis
                 </div>
-              </div>
+              </a>
             )}
 
             <div className={`p-6 md:p-8 space-y-4 flex flex-col justify-between ${featuredPost.coverImage ? 'lg:col-span-7' : 'lg:col-span-12'}`}>
@@ -296,11 +307,17 @@ export const BlogPage: React.FC<BlogPageProps> = ({
                   </span>
                 </div>
 
-                <h2 
-                  onClick={() => onSelectPost(featuredPost.slug)}
-                  className="text-xl md:text-2xl font-extrabold text-[var(--text)] group-hover:text-[var(--primary)] transition-colors cursor-pointer leading-snug font-display m-0"
-                >
-                  {featuredPost.title}
+                <h2 className="text-xl md:text-2xl font-extrabold text-[var(--text)] group-hover:text-[var(--primary)] transition-colors leading-snug font-display m-0">
+                  <a 
+                    href={`/blog/${featuredPost.slug}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onSelectPost(featuredPost.slug);
+                    }}
+                    className="hover:text-[var(--primary)] text-inherit no-underline"
+                  >
+                    {featuredPost.title}
+                  </a>
                 </h2>
 
                 <p className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed">
@@ -324,13 +341,17 @@ export const BlogPage: React.FC<BlogPageProps> = ({
                   </div>
                 </div>
 
-                <button
-                  onClick={() => onSelectPost(featuredPost.slug)}
-                  className="px-4 py-2 bg-[var(--primary)] hover:bg-emerald-800 text-white text-xs font-black rounded-[var(--radius)] transition-all flex items-center gap-1.5 cursor-pointer border-none shadow-xs"
+                <a
+                  href={`/blog/${featuredPost.slug}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectPost(featuredPost.slug);
+                  }}
+                  className="px-4 py-2 bg-[var(--primary)] hover:bg-emerald-800 text-white text-xs font-black rounded-[var(--radius)] transition-all flex items-center gap-1.5 cursor-pointer border-none shadow-xs no-underline"
                 >
                   <span>Read Full Article</span>
                   <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                </a>
               </div>
             </div>
           </div>
@@ -378,9 +399,13 @@ export const BlogPage: React.FC<BlogPageProps> = ({
               >
                 {/* Optional Cover Image */}
                 {post.coverImage && (
-                  <div 
-                    onClick={() => onSelectPost(post.slug)}
-                    className="h-44 overflow-hidden relative cursor-pointer bg-slate-900"
+                  <a 
+                    href={`/blog/${post.slug}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onSelectPost(post.slug);
+                    }}
+                    className="h-44 overflow-hidden relative cursor-pointer bg-slate-900 block"
                   >
                     <img 
                       src={post.coverImage} 
@@ -392,7 +417,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({
                     <span className="absolute top-2.5 left-2.5 bg-black/60 backdrop-blur-sm text-white text-[9.5px] font-mono font-bold px-2 py-0.5 rounded border border-white/10">
                       {post.category}
                     </span>
-                  </div>
+                  </a>
                 )}
 
                 <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
@@ -414,11 +439,17 @@ export const BlogPage: React.FC<BlogPageProps> = ({
                       </span>
                     </div>
 
-                    <h3 
-                      onClick={() => onSelectPost(post.slug)}
-                      className="text-sm md:text-base font-extrabold text-[var(--text)] group-hover:text-[var(--primary)] transition-colors cursor-pointer leading-snug line-clamp-2 m-0"
-                    >
-                      {post.title}
+                    <h3 className="text-sm md:text-base font-extrabold text-[var(--text)] group-hover:text-[var(--primary)] transition-colors leading-snug line-clamp-2 m-0">
+                      <a
+                        href={`/blog/${post.slug}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onSelectPost(post.slug);
+                        }}
+                        className="hover:text-[var(--primary)] text-inherit no-underline"
+                      >
+                        {post.title}
+                      </a>
                     </h3>
 
                     <p className="text-xs text-[var(--text-muted)] leading-relaxed line-clamp-3">
@@ -447,13 +478,17 @@ export const BlogPage: React.FC<BlogPageProps> = ({
                     </div>
 
                     {/* Action */}
-                    <button
-                      onClick={() => onSelectPost(post.slug)}
-                      className="p-1.5 text-[var(--primary)] hover:bg-[var(--primary)]/10 rounded-md transition-colors cursor-pointer bg-transparent border-none"
+                    <a
+                      href={`/blog/${post.slug}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onSelectPost(post.slug);
+                      }}
+                      className="p-1.5 text-[var(--primary)] hover:bg-[var(--primary)]/10 rounded-md transition-colors cursor-pointer inline-flex items-center justify-center no-underline"
                       aria-label={`Read article: ${post.title}`}
                     >
                       <ArrowRight className="w-4 h-4" />
-                    </button>
+                    </a>
                   </div>
                 </div>
               </article>

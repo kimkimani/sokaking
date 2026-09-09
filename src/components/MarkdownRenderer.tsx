@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { expandTopFixturesParameters, fetchLiveMegaJackpotFixtures, getCachedLiveJackpotFixtures } from '../utils/topJackpotFixtures';
+import React, { useState, useEffect, useMemo } from 'react';
+import { expandTopFixturesParameters, fetchLiveMegaJackpotFixtures, getCachedLiveJackpotFixtures, isDoubleChanceTip } from '../utils/topJackpotFixtures';
 import { Fixture } from '../types';
 
 interface MarkdownRendererProps {
@@ -108,6 +108,120 @@ function parseInline(text: string, postSlug?: string): React.ReactNode[] {
   }
 
   return nodes.length > 0 ? nodes : [text];
+}
+
+interface CompactJackpotTopConfidenceSectionProps {
+  items: Array<{
+    matchTeams: string;
+    matchTip: string;
+    isHighest: boolean;
+    highestSuffixText: string;
+    explanation: string;
+  }>;
+  postSlug?: string;
+}
+
+function CompactJackpotTopConfidenceSection({ items, postSlug }: CompactJackpotTopConfidenceSectionProps) {
+  const [filter, setFilter] = useState<'all' | 'dc'>('all');
+
+  const dcItems = useMemo(() => {
+    return items.filter(item => isDoubleChanceTip(item.matchTip));
+  }, [items]);
+
+  const displayedItems = filter === 'dc' ? dcItems : items;
+
+  return (
+    <div className="my-2.5 rounded-lg border border-[var(--border)] bg-[var(--card)]/90 overflow-hidden shadow-2xs">
+      {/* Compact Top Header Bar with Filter Tags */}
+      <div className="px-2.5 py-1.5 sm:px-3 sm:py-1.5 bg-slate-50 dark:bg-slate-900/60 border-b border-[var(--border)]/70 flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-1.5 text-[10.5px] sm:text-[11px] font-mono font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+          <span>Top Confidence Picks</span>
+        </div>
+
+        {/* Filter Tags: All vs Double Chance Only */}
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setFilter('all')}
+            className={`px-2 py-0.5 rounded text-[9.5px] sm:text-[10px] font-mono font-bold transition-all cursor-pointer ${
+              filter === 'all'
+                ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950 shadow-2xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-transparent hover:bg-slate-200/50 dark:hover:bg-slate-800/50'
+            }`}
+          >
+            All Picks ({items.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilter('dc')}
+            className={`px-2 py-0.5 rounded text-[9.5px] sm:text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center gap-1 ${
+              filter === 'dc'
+                ? 'bg-amber-500 text-slate-950 font-black shadow-2xs'
+                : 'text-amber-800 dark:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25'
+            }`}
+          >
+            <span>⚡ Double Chance Only</span>
+            <span className="text-[9px] opacity-85">({dcItems.length})</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Compact Fixtures List */}
+      <div className="divide-y divide-[var(--border)]/40">
+        {displayedItems.length === 0 ? (
+          <div className="p-3 text-center text-xs font-mono text-[var(--text-muted)]">
+            No double chance fixtures found in this selection.
+          </div>
+        ) : (
+          displayedItems.map((item, idx) => {
+            const isDC = isDoubleChanceTip(item.matchTip);
+            return (
+              <div
+                key={`fix-item-${idx}`}
+                className={`px-2.5 py-1.5 sm:px-3 sm:py-1.5 transition-colors ${
+                  item.isHighest
+                    ? 'bg-amber-500/[0.08] border-l-2 border-l-amber-500'
+                    : 'hover:bg-[var(--accent)]/30'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-1.5 flex-wrap sm:flex-nowrap">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="font-bold text-[11.5px] sm:text-xs text-[var(--text)] truncate">
+                      {item.matchTeams}
+                    </span>
+                    <span className="text-[var(--text-muted)] text-[11px] font-semibold shrink-0">—</span>
+                    <span className={`inline-flex items-center px-1.5 py-0.2 rounded font-mono font-black text-[10px] sm:text-[10.5px] shrink-0 ${
+                      isDC
+                        ? 'bg-amber-500/20 text-amber-950 dark:text-amber-200 border border-amber-500/40'
+                        : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30'
+                    }`}>
+                      {item.matchTip}
+                    </span>
+                    {isDC && (
+                      <span className="text-[8.5px] font-mono font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 bg-amber-500/15 px-1 py-0.2 rounded border border-amber-500/25">
+                        DC
+                      </span>
+                    )}
+                  </div>
+                  {item.isHighest && (
+                    <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[8.5px] sm:text-[9px] font-black font-mono uppercase tracking-wider bg-amber-500 text-slate-950 shrink-0 shadow-2xs">
+                      Highest Confidence
+                    </span>
+                  )}
+                </div>
+                {item.explanation && (
+                  <p className="text-[10.5px] sm:text-[11px] text-[var(--text-muted)] leading-tight mt-0.5 font-normal">
+                    {parseInline(item.explanation, postSlug)}
+                  </p>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function MarkdownRenderer({
@@ -219,43 +333,11 @@ export default function MarkdownRenderer({
       i = curIdx;
 
       elements.push(
-        <div
+        <CompactJackpotTopConfidenceSection
           key={`fixgroup-${i}`}
-          className="my-2.5 rounded-lg border border-[var(--border)] bg-[var(--card)]/80 overflow-hidden divide-y divide-[var(--border)]/40 shadow-2xs"
-        >
-          {fixtureItems.map((item, idx) => (
-            <div
-              key={`fix-item-${idx}`}
-              className={`px-3 py-2 sm:px-3.5 sm:py-2 transition-colors ${
-                item.isHighest
-                  ? 'bg-amber-500/[0.08] border-l-2 border-l-amber-500'
-                  : 'hover:bg-[var(--accent)]/30'
-              }`}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
-                  <span className="font-bold text-xs sm:text-sm text-[var(--text)]">
-                    {item.matchTeams}
-                  </span>
-                  <span className="text-[var(--text-muted)] text-xs font-semibold shrink-0">—</span>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded font-mono font-bold text-[11px] bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 shrink-0">
-                    {item.matchTip}
-                  </span>
-                </div>
-                {item.isHighest && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/35 shrink-0">
-                    {item.highestSuffixText}
-                  </span>
-                )}
-              </div>
-              {item.explanation && (
-                <p className="text-[11px] sm:text-xs text-[var(--text-muted)] leading-tight mt-0.5 font-normal">
-                  {parseInline(item.explanation, postSlug)}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
+          items={fixtureItems}
+          postSlug={postSlug}
+        />
       );
       continue;
     }

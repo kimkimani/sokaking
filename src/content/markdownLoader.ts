@@ -108,19 +108,79 @@ export function hasMarkdownFile(pageKey: string): boolean {
   return false;
 }
 
+export function parseFrontmatter(rawMd: string): Partial<PageMetadata> {
+  const result: Partial<PageMetadata> = {};
+  const yamlMatch = rawMd.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
+  if (!yamlMatch) return result;
+
+  const yamlStr = yamlMatch[1];
+  const titleY = yamlStr.match(/^title:\s*"?(.*?)"?$/m);
+  if (titleY) result.title = titleY[1].trim();
+
+  const dtY = yamlStr.match(/^(?:displayTitle|pageTitle):\s*"?(.*?)"?$/m);
+  if (dtY) result.displayTitle = dtY[1].trim();
+
+  const descY = yamlStr.match(/^description:\s*"?(.*?)"?$/m);
+  if (descY) result.description = descY[1].trim();
+
+  const kwY = yamlStr.match(/^keywords:\s*"?(.*?)"?$/m);
+  if (kwY) result.keywords = kwY[1].trim();
+
+  const linkY = yamlStr.match(/^link:\s*"?(.*?)"?$/m);
+  if (linkY) {
+    let l = linkY[1].trim();
+    if (!l.startsWith('/')) l = '/' + l;
+    if (l.endsWith('/') && l !== '/') l = l.slice(0, -1);
+    result.link = l;
+  }
+
+  const typeY = yamlStr.match(/^type:\s*"?(.*?)"?$/m);
+  if (typeY) result.type = typeY[1].trim();
+
+  const jidY = yamlStr.match(/^(?:jackpotId|jackpot_id):\s*"?(.*?)"?$/m);
+  if (jidY) result.jackpotId = jidY[1].trim();
+
+  const aidY = yamlStr.match(/^(?:authorId|author_id|author):\s*"?(.*?)"?$/m);
+  if (aidY) result.authorId = aidY[1].trim();
+
+  const uhY = yamlStr.match(/^(?:unlockHeading|unlock_heading):\s*"?(.*?)"?$/m);
+  if (uhY) result.unlockHeading = uhY[1].trim();
+
+  const udY = yamlStr.match(/^(?:unlockDescription|unlock_description):\s*"?(.*?)"?$/m);
+  if (udY) result.unlockDescription = udY[1].trim();
+
+  const ltY = yamlStr.match(/^(?:listTitle|list_title):\s*"?(.*?)"?$/m);
+  if (ltY) result.listTitle = ltY[1].trim();
+
+  const lsY = yamlStr.match(/^(?:listSubtitle|list_subtitle):\s*"?(.*?)"?$/m);
+  if (lsY) result.listSubtitle = lsY[1].trim();
+
+  const ftY = yamlStr.match(/^(?:faqTitle|faqHeading|faq_title):\s*"?(.*?)"?$/m);
+  if (ftY) result.faqTitle = ftY[1].trim();
+
+  return result;
+}
+
 export function getPageMetadata(pageKey: string): PageMetadata {
   const normKey = normalizePageKey(pageKey);
-  if (PAGE_METADATA_MAP[normKey]) {
-    return PAGE_METADATA_MAP[normKey];
-  }
-  return PAGE_METADATA_MAP['home'] || {
-    pageKey: 'home',
+  let base = PAGE_METADATA_MAP[normKey] || PAGE_METADATA_MAP['home'] || {
+    pageKey: normKey || 'home',
     title: 'Soka King | Football Predictions and Free Jackpot Tips',
     displayTitle: 'Soka King Football Predictions & Tips',
     description: 'Free daily football betting predictions, accurate mega jackpot tips, and football analysis.',
     keywords: 'football predictions, jackpot tips, soccer predictions today',
-    link: '/',
+    link: normKey ? `/${normKey}` : '/',
   };
+
+  if (typeof window === 'undefined') {
+    const raw = readServerPageFile(normKey);
+    if (raw) {
+      const liveFront = parseFrontmatter(raw);
+      base = { ...base, ...liveFront, pageKey: normKey };
+    }
+  }
+
+  return base;
 }
 
 function loadRawMarkdown(pageKey: string): string {
@@ -143,7 +203,15 @@ function loadRawMarkdown(pageKey: string): string {
 }
 
 export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMarkdownPage {
-  const meta = getPageMetadata(keyName);
+  const baseMeta = getPageMetadata(keyName);
+  const liveFront = parseFrontmatter(rawMd);
+  const meta: PageMetadata = { ...baseMeta, ...liveFront, pageKey: keyName || baseMeta.pageKey };
+  if (meta.link) {
+    let l = meta.link.trim();
+    if (!l.startsWith('/')) l = '/' + l;
+    if (l.endsWith('/') && l !== '/') l = l.slice(0, -1);
+    meta.link = l;
+  }
 
   // Extract FAQ title from comments or frontmatter if present
   let faqTitle = meta.faqTitle || meta.faqHeading || '';
@@ -390,6 +458,34 @@ export function getDynamicUrlMaps(
       if (!pageToUrlMap[pId]) {
         pageToUrlMap[pId] = url;
       }
+    }
+  }
+
+  // Live filesystem scan on server to guarantee any edits to `link:` in src/content/pages/ take instant effect
+  if (typeof window === 'undefined') {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const pagesDir = path.join(process.cwd(), 'src', 'content', 'pages');
+      if (fs.existsSync(pagesDir)) {
+        const files = fs.readdirSync(pagesDir);
+        for (const file of files) {
+          if (file.endsWith('.md')) {
+            const pageKey = file.replace(/\.md$/, '').toLowerCase();
+            const rawContent = fs.readFileSync(path.join(pagesDir, file), 'utf-8');
+            const linkMatch = rawContent.match(/^(?:link|Link):\s*"?(.*?)"?$/m);
+            if (linkMatch && linkMatch[1]) {
+              let normLink = linkMatch[1].trim().toLowerCase();
+              if (!normLink.startsWith('/')) normLink = '/' + normLink;
+              if (normLink.endsWith('/') && normLink !== '/') normLink = normLink.slice(0, -1);
+              urlToPageMap[normLink] = pageKey;
+              pageToUrlMap[pageKey] = normLink;
+            }
+          }
+        }
+      }
+    } catch {
+      // Ignore
     }
   }
 

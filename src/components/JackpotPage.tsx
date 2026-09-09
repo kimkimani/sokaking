@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { JackpotConfig } from '../jackpotsData';
 import { calculateProbabilities, getRefinedConfidence } from '../utils/probability';
+import { isDoubleChanceTip } from '../utils/topJackpotFixtures';
 import VotePoll from './VotePoll';
 import VoteNudgeSnippet from './VoteNudgeSnippet';
 import FaqSection from './FaqSection';
@@ -224,6 +225,19 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
       };
     });
   }, [jackpot.fixtures]);
+
+  const [fixtureFilter, setFixtureFilter] = useState<'all' | 'dc'>('all');
+
+  const doubleChanceCount = useMemo(() => {
+    return processedFixtures.filter(f => f.isDoubleChance || isDoubleChanceTip(f.prediction)).length;
+  }, [processedFixtures]);
+
+  const displayedFixtures = useMemo(() => {
+    if (fixtureFilter === 'dc') {
+      return processedFixtures.filter(f => f.isDoubleChance || isDoubleChanceTip(f.prediction));
+    }
+    return processedFixtures;
+  }, [processedFixtures, fixtureFilter]);
 
   const toggleExpand = (id: number) => {
     setExpandedFixture(expandedFixture === id ? null : id);
@@ -540,7 +554,41 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
 
       {/* 4. MODERN ULTRA-COMPACT 1X2 FIXTURE BETSLIP GRID */}
       <div className="rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] overflow-hidden">
-        <div className="bg-slate-50 dark:bg-slate-900/30 border-b border-[var(--border)] p-3 text-xs font-bold text-[var(--text)] hidden md:grid grid-cols-12 gap-2 uppercase tracking-wide">
+        {/* Compact Filter Tag Header Bar: All Games vs Double Chance Only */}
+        <div className="px-3 py-2 bg-slate-50 dark:bg-slate-900/60 border-b border-[var(--border)] flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setFixtureFilter('all')}
+              className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold transition-all cursor-pointer ${
+                fixtureFilter === 'all'
+                  ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950 shadow-2xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800'
+              }`}
+            >
+              All Games ({processedFixtures.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setFixtureFilter('dc')}
+              className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                fixtureFilter === 'dc'
+                  ? 'bg-amber-500 text-slate-950 font-black shadow-2xs'
+                  : 'text-amber-800 dark:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30'
+              }`}
+            >
+              <span>⚡ Double Chance Only</span>
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-500/25 font-black">
+                {doubleChanceCount}
+              </span>
+            </button>
+          </div>
+          <span className="text-[10.5px] font-mono text-slate-700 dark:text-slate-300 font-semibold">
+            Showing {displayedFixtures.length} of {processedFixtures.length} Matches
+          </span>
+        </div>
+
+        <div className="bg-slate-50/70 dark:bg-slate-900/40 border-b border-[var(--border)] p-2.5 text-xs font-bold text-[var(--text)] hidden md:grid grid-cols-12 gap-2 uppercase tracking-wide">
           <div className="col-span-5 text-left">Match Details & Teams</div>
           <div className="col-span-5 text-center">Recommended 1X2 Expert Tip Options</div>
           <div className="col-span-2 text-right">Confidence & Action</div>
@@ -549,12 +597,14 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
         <div className="divide-y divide-[var(--border)]">
           {isLoading ? (
             <JackpotShimmerLoader count={jackpot.gamesCount || 10} />
-          ) : processedFixtures.length === 0 ? (
+          ) : displayedFixtures.length === 0 ? (
             <div className="p-8 text-center text-xs font-mono text-[var(--text-muted)]">
-              No jackpot fixtures available for this selection.
+              {fixtureFilter === 'dc' 
+                ? 'No fixtures with double chance predictions found for this jackpot.'
+                : 'No jackpot fixtures available for this selection.'}
             </div>
           ) : (
-            processedFixtures.map((match) => {
+            displayedFixtures.map((match) => {
             // First 3 fixtures are unlocked for preview, or everything if paid
             const isUnlocked = true;
             const isExpanded = expandedFixture === match.id;
@@ -571,20 +621,20 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                     : 'bg-slate-50/10 dark:bg-slate-900/5'
                 }`}
               >
-                {/* Compact Row */}
-                <div className="p-3.5 grid grid-cols-12 items-center gap-4">
+                {/* Ultra-Compact Row */}
+                <div className="p-2.5 sm:p-3 grid grid-cols-12 items-center gap-3">
                   
                   {/* Left Column: Match metadata, Teams & Scores */}
-                  <div className="col-span-12 md:col-span-5 flex items-center gap-3 min-w-0">
+                  <div className="col-span-12 md:col-span-5 flex items-center gap-2.5 min-w-0">
                     {/* Fixture Number Badge */}
-                    <div className={`w-7 h-7 rounded-lg ${isUnlocked ? 'bg-[var(--primary)] text-white font-black' : 'bg-slate-200 dark:bg-slate-850 text-slate-500 font-bold'} text-[11px] font-mono flex items-center justify-center shrink-0 shadow-2xs`}>
+                    <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg ${isUnlocked ? 'bg-[var(--primary)] text-white font-black' : 'bg-slate-200 dark:bg-slate-850 text-slate-500 font-bold'} text-[10.5px] sm:text-[11px] font-mono flex items-center justify-center shrink-0 shadow-2xs`}>
                       {match.fixtureNumber}
                     </div>
                     
                     {/* Teams and metadata */}
-                    <div className="min-w-0 flex-1 text-left space-y-2">
+                    <div className="min-w-0 flex-1 text-left space-y-1.5">
                       {/* Meta header info */}
-                      <div className="flex items-center flex-wrap gap-1.5 text-[9.5px] font-black text-slate-800 dark:text-slate-200 font-mono uppercase tracking-wider min-w-0 leading-none">
+                      <div className="flex items-center flex-wrap gap-1.5 text-[9px] sm:text-[9.5px] font-black text-slate-800 dark:text-slate-200 font-mono uppercase tracking-wider min-w-0 leading-none">
                         <FlagImage countryFlag={match.countryFlag || (match as any).country_flag} flag={match.leagueFlag} countryName={match.countryName || (match as any).country_name || match.leagueCountry} />
                         <span className="truncate max-w-[90px] text-slate-900 dark:text-slate-100 font-bold">{match.leagueName || (match as any).league_name}</span>
                         <span className="text-slate-400 dark:text-slate-600 font-black">•</span>
@@ -612,15 +662,15 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                       </div>
 
                       {/* Match kickoff date & time */}
-                      <div className="mt-1 text-[10px] font-mono text-indigo-800 dark:text-indigo-300 font-black flex items-center gap-1 select-none leading-none">
+                      <div className="text-[9.5px] sm:text-[10px] font-mono text-indigo-800 dark:text-indigo-300 font-black flex items-center gap-1 select-none leading-none">
                         <Clock className="w-3 h-3 text-indigo-600 dark:text-indigo-400 shrink-0" />
                         <span>{match.kickoffTime || match.date || match.time}</span>
                       </div>
                       
-                      {/* Vertical Teams & Scores Layout */}
-                      <div className="space-y-1.5">
+                      {/* Vertical Teams & Scores Layout - Compact */}
+                      <div className="space-y-1">
                         {/* Home team */}
-                        <div className="flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900/40 px-2.5 py-1.5 rounded-lg border border-slate-200/80 dark:border-slate-800/60">
+                        <div className="flex items-center justify-between gap-2 bg-slate-50 dark:bg-slate-900/40 px-2.5 py-1 rounded-lg border border-slate-200/80 dark:border-slate-800/60">
                           <span className="text-xs font-black text-slate-900 dark:text-slate-100 truncate max-w-[170px] sm:max-w-none" title={match.homeTeam}>
                             {match.homeTeam}
                           </span>
@@ -629,7 +679,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                           </span>
                         </div>
                         {/* Away team */}
-                        <div className="flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900/40 px-2.5 py-1.5 rounded-lg border border-slate-200/80 dark:border-slate-800/60">
+                        <div className="flex items-center justify-between gap-2 bg-slate-50 dark:bg-slate-900/40 px-2.5 py-1 rounded-lg border border-slate-200/80 dark:border-slate-800/60">
                           <span className="text-xs font-black text-slate-900 dark:text-slate-100 truncate max-w-[170px] sm:max-w-none" title={match.awayTeam}>
                             {match.awayTeam}
                           </span>
@@ -656,7 +706,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                     </div>
                   </div>
 
-                  {/* Middle Column: 1X2 Slip Grid Buttons (Modern sportsbook design) */}
+                  {/* Middle Column: 1X2 Slip Grid Buttons (Modern sportsbook design - Compact) */}
                   <div className="col-span-12 md:col-span-4 grid grid-cols-3 gap-1.5">
                     {(['1', 'X', '2'] as const).map((option) => {
                       const isPick = isOptionPicked(match.prediction, option);
@@ -667,7 +717,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                         <button
                           key={option}
                           onClick={() => isUnlocked ? toggleExpand(match.id) : onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
-                          className={`relative py-2.5 px-1.5 rounded-xl border font-mono text-center transition-all duration-200 flex flex-col items-center justify-center min-h-[52px] overflow-hidden ${
+                          className={`relative py-2 px-1 rounded-xl border font-mono text-center transition-all duration-200 flex flex-col items-center justify-center min-h-[48px] overflow-hidden ${
                             !isUnlocked
                               ? 'bg-slate-50 dark:bg-slate-950/40 border-dashed border-slate-300 dark:border-slate-800 text-slate-500 dark:text-slate-500 cursor-pointer'
                               : isPick

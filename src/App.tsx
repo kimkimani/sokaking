@@ -195,13 +195,47 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
   // Dynamic SEO Client-side update driven by markdown frontmatter and Schema.org
   useEffect(() => {
-    const pageMd = getMarkdownContent(activePage);
-    const fallbackUrl = PAGE_TO_URL_MAP[activePage] || `/${activePage}`;
-    const canonicalPath = pageMd.link || fallbackUrl;
-    const fullCanonicalUrl = buildCanonicalUrl(canonicalPath, activePage);
+    let canonicalPath: string;
+    let fullCanonicalUrl: string;
+    let pageTitle: string;
+    let pageDesc: string;
+    let pageKeywords: string;
+    let pageOgType = 'website';
+    let pageOgImage = 'https://sokaking.com/icon.png';
+
+    if (activePage === 'blog' || activePage === 'blog-list') {
+      canonicalPath = '/blog';
+      fullCanonicalUrl = 'https://sokaking.com/blog';
+      pageTitle = 'Football Betting Analytics & Strategy Blog | Soka King';
+      pageDesc = 'In-depth tactical breakdowns, Poisson distribution guides, SportPesa jackpot combination strategies, and quantitative bankroll models.';
+      pageKeywords = 'football analytics blog, betting strategies, expected goals xg, sportpesa jackpot combinations, poisson football model';
+    } else if (activePage.startsWith('blog-')) {
+      const blogSlug = activePage.replace(/^blog-/, '');
+      const blogPost = getBlogPostBySlug(blogSlug);
+      canonicalPath = `/blog/${blogPost ? blogPost.slug : blogSlug}`;
+      fullCanonicalUrl = `https://sokaking.com${canonicalPath}`;
+      pageTitle = blogPost ? `${blogPost.title} | Soka King Football Analytics Blog` : 'Football Analytics Blog | Soka King';
+      pageDesc = blogPost ? blogPost.description : 'Football betting analytics and predictive modeling.';
+      pageKeywords = blogPost ? (blogPost.tags || []).join(', ') + ', football analytics, soka king' : 'football betting analytics';
+      pageOgType = 'article';
+      if (blogPost?.coverImage) {
+        pageOgImage = blogPost.coverImage.startsWith('http')
+          ? blogPost.coverImage
+          : `https://sokaking.com${blogPost.coverImage.startsWith('/') ? '' : '/'}${blogPost.coverImage}`;
+      }
+    } else {
+      const pageMd = getMarkdownContent(activePage);
+      const fallbackUrl = PAGE_TO_URL_MAP[activePage] || `/${activePage}`;
+      canonicalPath = pageMd.link || fallbackUrl;
+      fullCanonicalUrl = buildCanonicalUrl(canonicalPath, activePage);
+      pageTitle = pageMd.title;
+      pageDesc = pageMd.description;
+      pageKeywords = pageMd.keywords;
+      pageOgType = activePage === 'vip-packages' ? 'product' : 'website';
+    }
     
-    if (pageMd.title) {
-      document.title = pageMd.title;
+    if (pageTitle) {
+      document.title = pageTitle;
     }
 
     const updateMetaTag = (name: string, value: string, attrName = 'name') => {
@@ -214,27 +248,27 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
       element.setAttribute('content', value);
     };
 
-    if (pageMd.description) {
-      updateMetaTag('description', pageMd.description);
-      updateMetaTag('og:description', pageMd.description, 'property');
-      updateMetaTag('twitter:description', pageMd.description);
+    if (pageDesc) {
+      updateMetaTag('description', pageDesc);
+      updateMetaTag('og:description', pageDesc, 'property');
+      updateMetaTag('twitter:description', pageDesc);
     }
 
-    if (pageMd.title) {
-      updateMetaTag('og:title', pageMd.title, 'property');
-      updateMetaTag('twitter:title', pageMd.title);
+    if (pageTitle) {
+      updateMetaTag('og:title', pageTitle, 'property');
+      updateMetaTag('twitter:title', pageTitle);
     }
 
-    if (pageMd.keywords) {
-      updateMetaTag('keywords', pageMd.keywords);
+    if (pageKeywords) {
+      updateMetaTag('keywords', pageKeywords);
     }
 
     updateMetaTag('og:url', fullCanonicalUrl, 'property');
-    updateMetaTag('og:type', activePage === 'vip-packages' ? 'product' : 'website', 'property');
+    updateMetaTag('og:type', pageOgType, 'property');
     updateMetaTag('og:site_name', 'Soka King', 'property');
-    updateMetaTag('og:image', 'https://sokaking.com/icon.png', 'property');
+    updateMetaTag('og:image', pageOgImage, 'property');
     updateMetaTag('twitter:card', 'summary_large_image');
-    updateMetaTag('twitter:image', 'https://sokaking.com/icon.png');
+    updateMetaTag('twitter:image', pageOgImage);
 
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {

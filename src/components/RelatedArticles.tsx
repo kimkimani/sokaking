@@ -276,7 +276,19 @@ export const RelatedArticles: React.FC<RelatedArticlesProps> = ({
                     )}
 
                     <h3 className="text-sm sm:text-base font-bold text-[var(--text)] group-hover:text-[var(--primary)] transition-colors line-clamp-2 m-0 leading-snug">
-                      {post.title}
+                      <a
+                        href={`/blog/${post.slug}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onSelectPost(post.slug);
+                          if (typeof window !== 'undefined') {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }
+                        }}
+                        className="hover:text-[var(--primary)] text-inherit no-underline"
+                      >
+                        {post.title}
+                      </a>
                     </h3>
 
                     <p className="text-xs text-[var(--text-muted)] line-clamp-2 m-0 leading-relaxed">
@@ -295,10 +307,20 @@ export const RelatedArticles: React.FC<RelatedArticlesProps> = ({
                       </span>
                     </div>
 
-                    <span className="text-xs font-bold text-[var(--primary)] group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                    <a
+                      href={`/blog/${post.slug}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onSelectPost(post.slug);
+                        if (typeof window !== 'undefined') {
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                      }}
+                      className="text-xs font-bold text-[var(--primary)] group-hover:translate-x-1 transition-transform inline-flex items-center gap-1 no-underline"
+                    >
                       <span>Read</span>
                       <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
+                    </a>
                   </div>
                 </div>
               </article>

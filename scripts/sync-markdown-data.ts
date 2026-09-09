@@ -442,8 +442,12 @@ function syncBlog() {
         const titleM = yamlStr.match(/^title:\s*"?(.*?)"?$/m);
         if (titleM) title = titleM[1].trim();
 
-        const slugM = yamlStr.match(/^slug:\s*"?(.*?)"?$/m);
-        if (slugM) slug = slugM[1].trim().toLowerCase();
+        const slugM = yamlStr.match(/^slug:\s*"?([^"\r\n]*)"?/m);
+        if (slugM && slugM[1].trim()) {
+          slug = slugM[1].trim().toLowerCase();
+        } else {
+          slug = defaultSlug;
+        }
 
         const descM = yamlStr.match(/^description:\s*"?(.*?)"?$/m);
         if (descM) description = descM[1].trim();

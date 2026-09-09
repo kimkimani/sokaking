@@ -429,6 +429,10 @@ Sitemap: https://sokaking.com/sitemap.xml
       const url = req.originalUrl;
       const classification = classifyRoute(url);
 
+      if (classification.status === 301 && classification.redirectTo) {
+        return res.redirect(301, classification.redirectTo);
+      }
+
       if (classification.status !== 200) {
         return res.redirect(302, '/');
       }
@@ -475,6 +479,10 @@ Sitemap: https://sokaking.com/sitemap.xml
       app.get('*', (req, res) => {
         const url = req.originalUrl;
         const classification = classifyRoute(url);
+
+        if (classification.status === 301 && classification.redirectTo) {
+          return res.redirect(301, classification.redirectTo);
+        }
 
         if (classification.status !== 200) {
           return res.redirect(302, '/');

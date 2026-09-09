@@ -1,10 +1,13 @@
 import { getAllSitemapRoutes, getMarkdownRoutesSet } from './sitemapGenerator.js';
-import { URL_TO_PAGE_MAP, getNormalizedPath } from './navigation.js';
+import { URL_TO_PAGE_MAP, PAGE_TO_URL_MAP, getNormalizedPath, getPageUrl, getPageIdFromUrl } from './navigation.js';
+import { BLOG_METADATA_LIST } from '../content/blogData.js';
+import { getBlogPostBySlug } from '../content/blogLoader.js';
 
 export interface RouteStatusResult {
-  status: 200 | 404 | 410;
+  status: 200 | 301 | 404 | 410;
   isSpamPattern: boolean;
   pageId: string | null;
+  redirectTo?: string;
   reason?: string;
 }
 
@@ -61,7 +64,8 @@ const STATIC_ASSET_EXTENSIONS = new Set([
 /**
  * Inspects an incoming URL path and classifies it for HTTP status and search engine handling.
  * 
- * - Valid routes -> HTTP 200
+ * - Valid canonical routes -> HTTP 200
+ * - Aliases, legacy URLs, or non-canonical slugs -> HTTP 301 Permanent Redirect to canonical URL
  * - Legacy spam / deprecated historical URL patterns -> HTTP 410 (Gone) to rapidly drop from Google index
  * - Unknown non-existent routes -> HTTP 404 (Not Found)
  */
@@ -69,7 +73,18 @@ export function classifyRoute(rawUrl: string): RouteStatusResult {
   const cleanPath = (rawUrl.split('?')[0].split('#')[0] || '/').trim();
   const normalized = getNormalizedPath(cleanPath);
 
-  // 1. Check if it's the home page
+  // 1. If path has uppercase letters or trailing slash (and isn't root), redirect 301 to normalized
+  if (cleanPath !== '/' && cleanPath !== normalized) {
+    return {
+      status: 301,
+      isSpamPattern: false,
+      pageId: null,
+      redirectTo: normalized,
+      reason: 'Redirect to normalized lowercase non-trailing-slash URL'
+    };
+  }
+
+  // 2. Check if it's the home page
   if (normalized === '/') {
     return {
       status: 200,
@@ -78,41 +93,86 @@ export function classifyRoute(rawUrl: string): RouteStatusResult {
     };
   }
 
-  // 2. Check if it's a direct match in URL_TO_PAGE_MAP
-  if (URL_TO_PAGE_MAP[normalized]) {
+  // 3. Check if it is the blog index or a blog post
+  if (normalized === '/blog') {
     return {
       status: 200,
       isSpamPattern: false,
-      pageId: URL_TO_PAGE_MAP[normalized]
+      pageId: 'blog'
     };
   }
+  if (normalized.startsWith('/blog/')) {
+    const slug = normalized.replace(/^\/blog\/?/, '').trim();
+    if (!slug) {
+      return {
+        status: 301,
+        isSpamPattern: false,
+        pageId: 'blog',
+        redirectTo: '/blog',
+        reason: 'Redirect /blog/ to canonical /blog'
+      };
+    }
 
-  // 2b. Check if it is the blog or a blog post
-  if (normalized === '/blog' || normalized.startsWith('/blog/')) {
-    const slug = normalized.replace(/^\/blog\/?/, '');
-    return {
-      status: 200,
-      isSpamPattern: false,
-      pageId: slug ? `blog-${slug}` : 'blog'
-    };
-  }
+    // Explicitly return 410 Gone for legacy deleted blog posts to purge from search engines
+    const DELETED_BLOG_SLUGS = new Set([
+      'bankroll-management-for-football-bettors',
+      'mastering-expected-goals-xg-football-predictions',
+      'sportpesa-mega-jackpot-combination-strategies',
+      'sportpesa-midweek-jackpot-13-game-tactics',
+      'spotting-high-value-draws-in-european-leagues',
+      'under-over-goals-market-statistical-edges'
+    ]);
+    if (DELETED_BLOG_SLUGS.has(slug)) {
+      return {
+        status: 410,
+        isSpamPattern: false,
+        pageId: null,
+        reason: 'Blog post has been permanently removed'
+      };
+    }
 
-  // 3. Check if it's in all sitemap / markdown routes
-  try {
-    const sitemapRoutes = getMarkdownRoutesSet();
-    if (sitemapRoutes.has(normalized)) {
-      const pageKey = normalized.replace(/^\//, '');
+    const post = getBlogPostBySlug(slug);
+    const existsInList = Array.isArray(BLOG_METADATA_LIST) && BLOG_METADATA_LIST.some(item => item.slug === slug);
+    if (post || existsInList) {
       return {
         status: 200,
         isSpamPattern: false,
-        pageId: pageKey
+        pageId: `blog-${post?.slug || slug}`
       };
     }
-  } catch (err) {
-    // Fallback if sitemap scan fails
+
+    return {
+      status: 404,
+      isSpamPattern: false,
+      pageId: null,
+      reason: 'Blog post not found'
+    };
   }
 
-  // 4. Check if it matches known legacy spam patterns from expired domain history
+  // 4. Resolve pageId and enforce strict single canonical URL
+  const pageId = getPageIdFromUrl(normalized);
+  if (pageId && pageId !== 'home') {
+    const canonicalUrl = getPageUrl(pageId);
+
+    // If accessed via an alias, old path, or non-canonical slug, 301 redirect to the single true canonical URL
+    if (canonicalUrl && normalized !== canonicalUrl) {
+      return {
+        status: 301,
+        isSpamPattern: false,
+        pageId,
+        redirectTo: canonicalUrl,
+        reason: `Enforcing single canonical link: ${normalized} -> ${canonicalUrl}`
+      };
+    }
+
+    return {
+      status: 200,
+      isSpamPattern: false,
+      pageId
+    };
+  }
+
+  // 5. Check if it matches known legacy spam patterns from expired domain history
   for (const pattern of LEGACY_SPAM_REGEX_PATTERNS) {
     if (pattern.test(cleanPath) || pattern.test(normalized)) {
       return {
@@ -124,7 +184,7 @@ export function classifyRoute(rawUrl: string): RouteStatusResult {
     }
   }
 
-  // 5. Query string spam inspection (e.g. ?p=123, ?id=xxx, ?page=xxx on non-existent endpoints)
+  // 6. Query string spam inspection (e.g. ?p=123, ?id=xxx, ?page=xxx on non-existent endpoints)
   const queryString = rawUrl.includes('?') ? rawUrl.split('?')[1] : '';
   if (queryString) {
     if (
@@ -140,7 +200,7 @@ export function classifyRoute(rawUrl: string): RouteStatusResult {
     }
   }
 
-  // 6. Check if it looks like an old dead file extension
+  // 7. Check if it looks like an old dead file extension
   const extensionMatch = normalized.match(/\.([a-z0-9]+)$/i);
   if (extensionMatch) {
     const ext = extensionMatch[1].toLowerCase();
@@ -154,7 +214,7 @@ export function classifyRoute(rawUrl: string): RouteStatusResult {
     }
   }
 
-  // 7. General non-existent route -> HTTP 404
+  // 8. General non-existent route -> HTTP 404
   return {
     status: 404,
     isSpamPattern: false,

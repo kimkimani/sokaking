@@ -99,12 +99,16 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
       {/* Top Breadcrumb and Back Navigation */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] font-mono overflow-x-auto scrollbar-none">
-          <button 
-            onClick={onBackToBlog}
-            className="hover:text-[var(--primary)] transition-colors cursor-pointer bg-transparent border-none p-0 text-[var(--text-muted)] font-mono"
+          <a 
+            href="/blog"
+            onClick={(e) => {
+              e.preventDefault();
+              onBackToBlog();
+            }}
+            className="hover:text-[var(--primary)] transition-colors cursor-pointer bg-transparent border-none p-0 text-[var(--text-muted)] font-mono no-underline"
           >
             Blog
-          </button>
+          </a>
           <ChevronRight className="w-3.5 h-3.5 shrink-0" />
           <span className="text-[var(--primary)] font-bold shrink-0">{post.category}</span>
           <ChevronRight className="w-3.5 h-3.5 shrink-0" />
@@ -113,13 +117,17 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
           </span>
         </nav>
 
-        <button
-          onClick={onBackToBlog}
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors cursor-pointer bg-transparent border-none p-0 self-start sm:self-auto"
+        <a
+          href="/blog"
+          onClick={(e) => {
+            e.preventDefault();
+            onBackToBlog();
+          }}
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors cursor-pointer bg-transparent border-none p-0 self-start sm:self-auto no-underline"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>All Articles</span>
-        </button>
+        </a>
       </div>
 
       {/* Article Header Card */}
