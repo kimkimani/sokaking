@@ -73,6 +73,38 @@ function readServerPageFile(pageKey: string): string | null {
   return null;
 }
 
+/**
+ * Returns the filesystem modification time (mtime) of a page's markdown file.
+ */
+export function getServerFileMtime(pageKey: string): Date | null {
+  if (typeof window === 'undefined') {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const pagesDir = path.join(process.cwd(), 'src', 'content', 'pages');
+      const cleanKey = pageKey.toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
+      if (!cleanKey) return null;
+
+      const directFile = path.join(pagesDir, `${cleanKey}.md`);
+      if (fs.existsSync(directFile)) {
+        return fs.statSync(directFile).mtime;
+      }
+
+      if (fs.existsSync(pagesDir)) {
+        const filenames = fs.readdirSync(pagesDir);
+        for (const file of filenames) {
+          if (file.toLowerCase() === `${cleanKey}.md` || file.toLowerCase() === cleanKey) {
+            return fs.statSync(path.join(pagesDir, file)).mtime;
+          }
+        }
+      }
+    } catch (e) {
+      // fs is unavailable
+    }
+  }
+  return null;
+}
+
 export function normalizePageKey(pageKey: string): string {
   let rawKey = (pageKey || '').toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
   if (!rawKey) return 'home';
@@ -158,6 +190,18 @@ export function parseFrontmatter(rawMd: string): Partial<PageMetadata> {
   const ftY = yamlStr.match(/^(?:faqTitle|faqHeading|faq_title):\s*"?(.*?)"?$/m);
   if (ftY) result.faqTitle = ftY[1].trim();
 
+  const dmY = yamlStr.match(/^(?:dateModified|date_modified|modifiedDate|modified_date|lastModified|last_modified|updatedAt|updated_at):\s*"?(.*?)"?$/m);
+  if (dmY) result.dateModified = dmY[1].trim();
+
+  const dpY = yamlStr.match(/^(?:datePublished|date_published|publishedDate|published_date|date):\s*"?(.*?)"?$/m);
+  if (dpY) result.datePublished = dpY[1].trim();
+
+  const tcY = yamlStr.match(/^topConfidenceFixtures:\s*(true|false)/m);
+  if (tcY) result.topConfidenceFixtures = tcY[1] === 'true';
+
+  const tccY = yamlStr.match(/^topConfidenceCount:\s*(\d+)/m);
+  if (tccY) result.topConfidenceCount = parseInt(tccY[1], 10);
+
   return result;
 }
 
@@ -173,6 +217,14 @@ export function getPageMetadata(pageKey: string): PageMetadata {
   };
 
   if (typeof window === 'undefined') {
+    const fileMtime = getServerFileMtime(normKey);
+    if (fileMtime) {
+      base.mtime = fileMtime.toISOString();
+      if (!base.dateModified) {
+        base.dateModified = fileMtime.toISOString();
+      }
+    }
+
     const raw = readServerPageFile(normKey);
     if (raw) {
       const liveFront = parseFrontmatter(raw);
@@ -331,6 +383,12 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
 
   const resolvedAuthor = getAuthor(meta.authorId || meta.authorName || 'john-mwangi');
 
+  let fileMtime: string | undefined = meta.mtime;
+  if (!fileMtime && typeof window === 'undefined') {
+    const m = getServerFileMtime(keyName);
+    if (m) fileMtime = m.toISOString();
+  }
+
   return {
     ...meta,
     author: resolvedAuthor,
@@ -341,6 +399,9 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
     faq,
     faqTitle: faqTitle || undefined,
     fullContent: cleanedContent,
+    mtime: fileMtime,
+    dateModified: meta.dateModified || fileMtime,
+    datePublished: meta.datePublished || '2026-08-17T06:00:00+03:00',
   };
 }
 
@@ -359,8 +420,16 @@ export async function fetchLiveMarkdownContent(pageKey: string): Promise<ParsedM
       const res = await fetch(`/api/markdown?key=${encodeURIComponent(pageKey)}`, { cache: 'no-store' });
       if (res.ok) {
         const rawMd = await res.text();
+        const mtimeHeader = res.headers.get('x-file-mtime') || res.headers.get('last-modified');
         if (rawMd && rawMd.length > 5) {
-          return parseMarkdownPage(rawMd, pageKey);
+          const parsed = parseMarkdownPage(rawMd, pageKey);
+          if (mtimeHeader) {
+            parsed.mtime = mtimeHeader;
+            if (!parsed.dateModified) {
+              parsed.dateModified = mtimeHeader;
+            }
+          }
+          return parsed;
         }
       }
     } catch (e) {

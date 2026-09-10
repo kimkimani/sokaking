@@ -238,10 +238,13 @@ Sitemap: https://sokaking.com/sitemap.xml
       }
 
       if (fs.existsSync(filePath)) {
+        const stat = fs.statSync(filePath);
         const rawContent = fs.readFileSync(filePath, 'utf-8');
         const content = await expandTopFixturesParametersAsync(rawContent, normKey.includes('mega') ? 'sportpesa-mega' : 'sportpesa-mega');
         res.setHeader('Content-Type', 'text/plain; charset=utf-8');
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Last-Modified', stat.mtime.toUTCString());
+        res.setHeader('x-file-mtime', stat.mtime.toISOString());
         return res.status(200).send(content);
       }
 

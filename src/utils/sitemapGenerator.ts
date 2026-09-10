@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import { getAllMarkdownPages } from '../content/markdownLoader';
+import { getAllMarkdownPages, getMarkdownContent } from '../content/markdownLoader';
 import { BLOG_METADATA_LIST } from '../content/blogData';
+import { getPageIdFromUrl } from './navigation';
+import { getPageDateModified } from './cycleDateModified';
 
 export const BASE_URL = 'https://sokaking.com';
 
@@ -135,12 +137,20 @@ export function getAllSitemapRoutes(): string[] {
 export function generateSitemapXml(): string {
   const routes = getAllSitemapRoutes();
   const mdRoutes = getMarkdownRoutesSet();
-  const currentDate = new Date().toISOString();
 
   const urlEntries = routes.map((p) => {
     const fullUrl = p === '/' ? BASE_URL : `${BASE_URL}${p}`;
     const isMarkdownPage = mdRoutes.has(p);
     const isJackpotOrPred = p.includes('jackpot') || p.includes('prediction') || p.includes('tips') || p.includes('sure') || p === '/';
+
+    const pageId = getPageIdFromUrl(p);
+    let pageLastMod = '';
+    try {
+      const pageMd = getMarkdownContent(pageId);
+      pageLastMod = getPageDateModified(pageId, pageMd);
+    } catch {
+      pageLastMod = '2026-08-17T06:00:00+03:00';
+    }
 
     let priority = '0.50';
     let changeFreq = 'weekly';
@@ -158,7 +168,7 @@ export function generateSitemapXml(): string {
 
     return `  <url>
     <loc>${fullUrl}</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>${pageLastMod}</lastmod>
     <changefreq>${changeFreq}</changefreq>
     <priority>${priority}</priority>
   </url>`;

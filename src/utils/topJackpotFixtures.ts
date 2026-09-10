@@ -25,6 +25,13 @@ export function setLiveJackpotFixturesCache(fixtures: Fixture[]): void {
 }
 
 /**
+ * Get the timestamp of the last live database fixtures fetch.
+ */
+export function getLastLiveFetchTime(): number {
+  return lastLiveFetchTime;
+}
+
+/**
  * Get current cached database fixtures if available.
  */
 export function getCachedLiveJackpotFixtures(): Fixture[] | null {

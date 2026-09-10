@@ -31,6 +31,24 @@ interface PageMeta {
   listSubtitle?: string;
   faqTitle?: string;
   faqHeading?: string;
+  dateModified?: string;
+  lastModified?: string;
+  datePublished?: string;
+  mtime?: string;
+  topConfidenceFixtures?: boolean;
+  topConfidenceCount?: number;
+}
+
+function formatEatIso(d: Date): string {
+  const eatOffsetMs = 3 * 60 * 60 * 1000;
+  const eatDate = new Date(d.getTime() + eatOffsetMs);
+  const year = eatDate.getUTCFullYear();
+  const month = String(eatDate.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(eatDate.getUTCDate()).padStart(2, '0');
+  const hours = String(eatDate.getUTCHours()).padStart(2, '0');
+  const minutes = String(eatDate.getUTCMinutes()).padStart(2, '0');
+  const seconds = String(eatDate.getUTCSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}+03:00`;
 }
 
 function parseFrontmatterFromRaw(rawMd: string, keyName: string): PageMeta {
@@ -59,6 +77,11 @@ function parseFrontmatterFromRaw(rawMd: string, keyName: string): PageMeta {
   let unlockDescription = '';
   let listTitle = '';
   let listSubtitle = '';
+  let dateModified = '';
+  let lastModified = '';
+  let datePublished = '';
+  let topConfidenceFixtures = false;
+  let topConfidenceCount = 5;
 
   const yamlMatch = rawMd.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
   if (yamlMatch) {
@@ -131,6 +154,18 @@ function parseFrontmatterFromRaw(rawMd: string, keyName: string): PageMeta {
 
     const lsY = yamlStr.match(/^listSubtitle:\s*"?(.*?)"?$/m);
     if (lsY) listSubtitle = lsY[1].trim();
+
+    const dmY = yamlStr.match(/^(?:dateModified|date_modified|modifiedDate|modified_date|lastModified|last_modified|updatedAt|updated_at):\s*"?(.*?)"?$/m);
+    if (dmY) dateModified = dmY[1].trim();
+
+    const dpY = yamlStr.match(/^(?:datePublished|date_published|publishedDate|published_date|date):\s*"?(.*?)"?$/m);
+    if (dpY) datePublished = dpY[1].trim();
+
+    const tcY = yamlStr.match(/^topConfidenceFixtures:\s*(true|false)/m);
+    if (tcY) topConfidenceFixtures = tcY[1] === 'true';
+
+    const tccY = yamlStr.match(/^topConfidenceCount:\s*(\d+)/m);
+    if (tccY) topConfidenceCount = parseInt(tccY[1], 10);
   }
 
   // Extract HTML comments fallback
@@ -224,7 +259,12 @@ function parseFrontmatterFromRaw(rawMd: string, keyName: string): PageMeta {
     unlockHeading: unlockHeading || displayTitle || title,
     unlockDescription: unlockDescription || description,
     listTitle: listTitle || "Today's Free Football Predictions",
-    listSubtitle: listSubtitle || "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes."
+    listSubtitle: listSubtitle || "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
+    dateModified: dateModified || undefined,
+    lastModified: lastModified || dateModified || undefined,
+    datePublished: datePublished || undefined,
+    topConfidenceFixtures: topConfidenceFixtures || undefined,
+    topConfidenceCount: topConfidenceCount || undefined,
   };
 }
 
@@ -246,9 +286,18 @@ function syncPages() {
     for (const file of files) {
       if (file.endsWith('.md')) {
         const key = file.replace(/\.md$/, '').toLowerCase();
-        const content = fs.readFileSync(path.join(pagesDir, file), 'utf-8');
+        const filePath = path.join(pagesDir, file);
+        const content = fs.readFileSync(filePath, 'utf-8');
+        const stat = fs.statSync(filePath);
         
-        metaMap[key] = parseFrontmatterFromRaw(content, key);
+        const pageMeta = parseFrontmatterFromRaw(content, key);
+        if (stat && stat.mtime) {
+          pageMeta.mtime = stat.mtime.toISOString();
+          if (!pageMeta.dateModified) {
+            pageMeta.dateModified = formatEatIso(stat.mtime);
+          }
+        }
+        metaMap[key] = pageMeta;
 
         const escapedContent = content.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\${/g, '\\${');
         mapEntries.push(`  '${key}': \`${escapedContent}\``);
@@ -303,6 +352,12 @@ export interface PageMetadata {
   listSubtitle?: string;
   faqTitle?: string;
   faqHeading?: string;
+  dateModified?: string;
+  lastModified?: string;
+  datePublished?: string;
+  mtime?: string;
+  topConfidenceFixtures?: boolean;
+  topConfidenceCount?: number;
 }
 
 export const PAGE_METADATA_MAP: Record<string, PageMetadata> = ${JSON.stringify(metaMap, null, 2)};

@@ -280,7 +280,11 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
     // Dynamic Schema.org JSON-LD structured data injection
     try {
-      const { fullGraph } = generatePageJsonLd(activePage);
+      const activeJackpot = dbJackpots.find(j => j.id === activePage || j.slug === activePage) ||
+                            jackpotsData.find(j => j.id === activePage || j.slug === activePage);
+      const { fullGraph } = generatePageJsonLd(activePage, activeJackpot?.fixtures, {
+        jackpot: activeJackpot
+      });
       const schemaScriptId = 'sokaking-schema-jsonld';
       let schemaScript = document.getElementById(schemaScriptId) as HTMLScriptElement | null;
       if (!schemaScript) {
@@ -293,7 +297,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     } catch (e) {
       console.warn('Could not generate Schema.org JSON-LD for page:', activePage, e);
     }
-  }, [activePage]);
+  }, [activePage, dbJackpots]);
 
   // FAQ state
   const [openFaq, setOpenFaq] = useState<number | null>(null);

@@ -5,7 +5,7 @@ import { jackpotsData } from '../jackpotsData';
 import { vipPackages, oddsPacks } from '../data';
 import { PREDICTION_CATEGORIES } from './predictionGenerator';
 import { getBlogPostBySlug, getAllBlogPosts, BlogPost } from '../content/blogLoader';
-import { getCycleDateModified } from './cycleDateModified';
+import { getCycleDateModified, getPageDateModified } from './cycleDateModified';
 
 export interface SchemaGraphResult {
   mainSchema: Record<string, any>;
@@ -663,7 +663,11 @@ export function generateBlogIndexJsonLd(): SchemaGraphResult {
  * 3. CollectionPage / ItemList schema for Lists and Hubs
  * 4. Informational WebPages (AboutPage, ContactPage, WebPage)
  */
-export function generatePageJsonLd(pageId: string): SchemaGraphResult {
+export function generatePageJsonLd(
+  pageId: string,
+  customFixtures?: any[],
+  options?: { dateModified?: string; jackpot?: any }
+): SchemaGraphResult {
   // Check for specific blog post structured data
   if (pageId.startsWith('blog-')) {
     const slug = pageId.replace(/^blog-/, '');
@@ -682,9 +686,13 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
   const rawUrl = getPageUrl(pageId);
   const canonicalUrl = buildCanonicalUrl(pageMd.link || rawUrl, pageId);
   // Safe Kenya local time publication anchor (2026-08-17)
-  const datePublished = '2026-08-17T06:00:00+03:00';
-  // Deterministic weekly/daily cycle dateModified tracking active jackpot rounds for Google QDF
-  const dateModified = getCycleDateModified(pageId, pageMd.jackpotId);
+  const datePublished = pageMd.datePublished || '2026-08-17T06:00:00+03:00';
+  // Comprehensive dateModified: accurately updates on page content edits, new jackpot fixtures, frontmatter date, and weekly QDF milestones
+  const dateModified = getPageDateModified(pageId, pageMd, {
+    customFixtures,
+    jackpot: options?.jackpot,
+    dateModified: options?.dateModified,
+  });
 
   const publisherObj = {
     '@type': 'Organization',
@@ -839,6 +847,8 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
       name: cleanSchemaText(pageMd.title) || 'Football Jackpots Predictions and Analysis Hub',
       description: cleanSchemaText(pageMd.description) || 'Comprehensive football jackpot predictions, mathematical combinations, and slip analysis for SportPesa, Betika, Mozzart, and SportyBet.',
       url: canonicalUrl,
+      datePublished: datePublished,
+      dateModified: dateModified,
       mainEntity: {
         '@type': 'ItemList',
         name: 'Kenyan and Global Football Jackpot Predictions',
@@ -863,6 +873,8 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
       name: cleanSchemaText(pageMd.title) || 'Soka King - Kenya\'s #1 Football Predictions and Jackpot Portal',
       description: cleanSchemaText(pageMd.description) || 'Free mathematical football predictions, 1X2 tips, over 2.5 goals, BTTS/GG picks, and jackpot analysis.',
       url: canonicalUrl,
+      datePublished: datePublished,
+      dateModified: dateModified,
       mainEntity: {
         '@type': 'ItemList',
         name: 'Football Prediction Categories and Analysis Hubs',
@@ -879,6 +891,8 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
       name: cleanSchemaText(pageMd.title),
       description: cleanSchemaText(pageMd.description),
       url: canonicalUrl,
+      datePublished: datePublished,
+      dateModified: dateModified,
       mainEntity: {
         '@type': 'Organization',
         name: 'Soka King',
@@ -902,6 +916,8 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
       name: cleanSchemaText(pageMd.title),
       description: cleanSchemaText(pageMd.description),
       url: canonicalUrl,
+      datePublished: datePublished,
+      dateModified: dateModified,
       mainEntity: {
         '@type': 'Organization',
         name: 'Soka King Support and Editorial Office',
@@ -998,7 +1014,25 @@ export function generatePageJsonLd(pageId: string): SchemaGraphResult {
   }
 
   // Construct combined Graph representation for rich JSON-LD (Only root has @context)
-  if (breadcrumbSchema) {
+  // Note: Schema.org specifies that 'breadcrumb' is ONLY a valid property on WebPage and its subclasses
+  // (e.g. CollectionPage, AboutPage, ContactPage, FAQPage, ItemPage).
+  // It is NOT a valid property on Article or Product. Attaching 'breadcrumb' directly to Article or Product
+  // triggers Google Search Console / Rich Results validation errors ("Unexpected property for Article. breadcrumb",
+  // "Unexpected property for Product. breadcrumb").
+  const isWebPageType = (type?: string) => [
+    'WebPage',
+    'AboutPage',
+    'ContactPage',
+    'CollectionPage',
+    'FAQPage',
+    'ItemPage',
+    'SearchResultsPage',
+    'MedicalWebPage',
+    'ProfilePage',
+    'QAPage'
+  ].includes(type || '');
+
+  if (breadcrumbSchema && isWebPageType(mainSchema['@type'])) {
     mainSchema.breadcrumb = {
       '@id': `${canonicalUrl}#breadcrumb`
     };

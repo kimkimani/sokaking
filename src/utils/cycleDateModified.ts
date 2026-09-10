@@ -179,3 +179,187 @@ export function getCycleDateModified(
   }
   return buildEatDate(eatYear, eatMonth, eatDate - 1, 7, 0);
 }
+
+/**
+ * Calculates the comprehensive, true dateModified for Schema.org and SEO meta tags.
+ * 
+ * Accurately updates when:
+ * 1. A page's markdown content changes (detected via physical file mtime on server or client headers)
+ * 2. New jackpot fixtures are published/updated (detected via jackpotsData mtime, live cache fetch, and round schedule)
+ * 3. Frontmatter overrides (dateModified / lastModified / updatedAt) are provided
+ * 4. Deterministic weekly/daily QDF cycle milestones occur as regular maintenance baseline
+ * 
+ * Guarantees:
+ * - dateModified <= now (never in the future)
+ * - dateModified >= 2026-08-17T06:00:00+03:00 (never before site launch anchor)
+ * - Formatted in East Africa Time ISO 8601 (YYYY-MM-DDTHH:mm:ss+03:00)
+ */
+export function getPageDateModified(
+  pageId: string,
+  pageMd?: any,
+  options?: {
+    customFixtures?: any[];
+    jackpot?: any;
+    dateModified?: string;
+    referenceDate?: Date;
+  }
+): string {
+  const isStaticLegal = ['privacy-policy', 'terms-of-use', 'responsible-gambling', 'partners'].includes(pageId);
+  const now = options?.referenceDate || new Date();
+  const candidates: number[] = [];
+
+  // Minimum safe anchor: 2026-08-17T06:00:00+03:00
+  const siteAnchor = new Date('2026-08-17T06:00:00+03:00').getTime();
+  const nowMs = now.getTime();
+
+  // 1. Explicit option or frontmatter date override
+  const explicit = options?.dateModified || pageMd?.dateModified || pageMd?.lastModified || pageMd?.updatedAt;
+  if (explicit && typeof explicit === 'string') {
+    const parsed = new Date(explicit).getTime();
+    if (!isNaN(parsed) && parsed > 0 && parsed <= nowMs) {
+      candidates.push(parsed);
+    }
+  }
+
+  // 2. Physical page file modification time on disk (Server / Node.js environment)
+  if (typeof window === 'undefined') {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const cleanKey = (pageId || '').toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
+      if (cleanKey) {
+        const pagesDir = path.join(process.cwd(), 'src', 'content', 'pages');
+        let filePath = path.join(pagesDir, `${cleanKey}.md`);
+        if (!fs.existsSync(filePath) && fs.existsSync(pagesDir)) {
+          const files = fs.readdirSync(pagesDir);
+          const match = files.find((f: string) => f.toLowerCase() === `${cleanKey}.md` || f.toLowerCase() === cleanKey);
+          if (match) filePath = path.join(pagesDir, match);
+        }
+
+        if (fs.existsSync(filePath)) {
+          const stat = fs.statSync(filePath);
+          if (stat && stat.mtime) {
+            const mtimeMs = stat.mtime.getTime();
+            if (mtimeMs <= nowMs && mtimeMs >= siteAnchor) {
+              candidates.push(mtimeMs);
+            }
+          }
+        }
+      }
+    } catch {
+      // fs unavailable in browser
+    }
+  }
+
+  // 3. Client-side mtime passed via pageMd
+  if (pageMd?.mtime) {
+    const parsedMtime = new Date(pageMd.mtime).getTime();
+    if (!isNaN(parsedMtime) && parsedMtime <= nowMs && parsedMtime >= siteAnchor) {
+      candidates.push(parsedMtime);
+    }
+  }
+
+  // 4. Jackpot Fixtures Changes / New Fixtures
+  const targetJackpotId = pageMd?.jackpotId || (pageId.includes('jackpot') ? pageId : undefined);
+  const hasJackpotFixtures = !!targetJackpotId || 
+    pageMd?.topConfidenceFixtures === true ||
+    (typeof pageMd?.fullContent === 'string' && pageMd.fullContent.includes('{{TOP_MEGA_JACKPOT_FIXTURES}}')) ||
+    pageId.includes('mega') || pageId.includes('jackpot');
+
+  if (hasJackpotFixtures) {
+    // 4a. Check src/jackpotsData.ts file modification time (in Node.js)
+    if (typeof window === 'undefined') {
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const jackpotsDataPath = path.join(process.cwd(), 'src', 'jackpotsData.ts');
+        if (fs.existsSync(jackpotsDataPath)) {
+          const stat = fs.statSync(jackpotsDataPath);
+          if (stat && stat.mtime) {
+            const jpMtime = stat.mtime.getTime();
+            if (jpMtime <= nowMs && jpMtime >= siteAnchor) {
+              candidates.push(jpMtime);
+            }
+          }
+        }
+      } catch {}
+    }
+
+    // 4b. Check live database fixtures fetch time
+    try {
+      const { getLastLiveFetchTime } = require('./topJackpotFixtures.js');
+      const lastFetch = getLastLiveFetchTime?.() || 0;
+      if (lastFetch > 0 && lastFetch <= nowMs && lastFetch >= siteAnchor) {
+        candidates.push(lastFetch);
+      }
+    } catch {}
+
+    // 4c. Inspect fixtures for individual timestamps and round kickoff schedule
+    let fixtures: any[] = options?.customFixtures || options?.jackpot?.fixtures || [];
+    if ((!fixtures || fixtures.length === 0) && typeof window === 'undefined') {
+      try {
+        const { jackpotsData } = require('../jackpotsData.js');
+        const jp = jackpotsData.find((j: any) => j.id === targetJackpotId || j.slug === targetJackpotId || j.id === 'sportpesa-mega');
+        fixtures = jp?.fixtures || [];
+      } catch {}
+    }
+
+    if (Array.isArray(fixtures) && fixtures.length > 0) {
+      for (const f of fixtures) {
+        if (f?.updatedAt) {
+          const fTime = new Date(f.updatedAt).getTime();
+          if (!isNaN(fTime) && fTime <= nowMs && fTime >= siteAnchor) {
+            candidates.push(fTime);
+          }
+        }
+      }
+
+      // Check earliest kickoff time to determine when this round's fixtures opened
+      const kickoffTimes = fixtures
+        .map(f => f?.kickoffTime ? new Date(f.kickoffTime).getTime() : 0)
+        .filter(t => !isNaN(t) && t > 0);
+
+      if (kickoffTimes.length > 0) {
+        const earliestKickoffMs = Math.min(...kickoffTimes);
+        
+        // Convert kickoff to EAT
+        const eatOffsetMs = 3 * 60 * 60 * 1000;
+        const kickoffEat = new Date(earliestKickoffMs + eatOffsetMs);
+        const kickoffDay = kickoffEat.getUTCDay(); // 0=Sun, 6=Sat
+
+        // For weekend jackpots (kickoffs Sat/Sun/Fri):
+        // Active round opened on Wednesday 09:30 EAT
+        let daysToWednesday = (kickoffDay - 3 + 7) % 7;
+        if (daysToWednesday === 0 && kickoffEat.getUTCHours() < 9) daysToWednesday = 7;
+        
+        const roundOpenEat = new Date(kickoffEat);
+        roundOpenEat.setUTCDate(roundOpenEat.getUTCDate() - daysToWednesday);
+        roundOpenEat.setUTCHours(9, 30, 0, 0);
+        const roundOpenUtcMs = roundOpenEat.getTime() - eatOffsetMs;
+
+        if (roundOpenUtcMs <= nowMs && roundOpenUtcMs >= siteAnchor) {
+          candidates.push(roundOpenUtcMs);
+        }
+      }
+    }
+  }
+
+  // 5. Deterministic weekly/daily cycle milestone
+  const cycleDateStr = getCycleDateModified(pageId, targetJackpotId, now);
+  const cycleMs = new Date(cycleDateStr).getTime();
+  if (!isNaN(cycleMs) && cycleMs <= nowMs) {
+    if (isStaticLegal && candidates.length === 0) {
+      return '2026-08-17T06:00:00+03:00';
+    }
+    candidates.push(cycleMs);
+  }
+
+  // 6. Pick latest timestamp <= now and >= siteAnchor
+  const validCandidates = candidates.filter(t => t <= nowMs && t >= siteAnchor);
+  if (validCandidates.length > 0) {
+    const latestMs = Math.max(...validCandidates);
+    return formatEatIsoString(new Date(latestMs));
+  }
+
+  return cycleDateStr;
+}
