@@ -178,21 +178,21 @@ export default function PredictionsList({
     
     if (result === 'won') {
       return (
-        <span className="flex items-center gap-1 text-[10.5px] bg-emerald-500 bg-opacity-15 text-emerald-800 dark:text-emerald-400 font-black px-2 py-0.5 rounded border border-emerald-500 border-opacity-35 font-mono">
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> {showScore ? scoreText : null}
+        <span className="flex items-center gap-1 text-[10.5px] bg-emerald-100 dark:bg-emerald-950/70 text-emerald-900 dark:text-emerald-200 font-black px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800 font-mono">
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" /> {showScore ? scoreText : null}
         </span>
       );
     }
     if (result === 'lost') {
       return (
-        <span className="flex items-center gap-1 text-[10.5px] bg-red-500 bg-opacity-15 text-red-800 dark:text-red-400 font-black px-2 py-0.5 rounded border border-red-500 border-opacity-35 font-mono">
-          <XCircle className="w-3.5 h-3.5 text-red-500 shrink-0" /> {showScore ? scoreText : null}
+        <span className="flex items-center gap-1 text-[10.5px] bg-rose-100 dark:bg-rose-950/70 text-rose-900 dark:text-rose-200 font-black px-2 py-0.5 rounded border border-rose-300 dark:border-rose-800 font-mono">
+          <XCircle className="w-3.5 h-3.5 text-rose-700 dark:text-rose-400 shrink-0" /> {showScore ? scoreText : null}
         </span>
       );
     }
     return (
-      <span className="flex items-center gap-1 text-[10.5px] bg-slate-500 bg-opacity-15 text-slate-800 dark:text-slate-200 font-bold px-2 py-0.5 rounded border border-slate-500 border-opacity-30 font-mono">
-        <Clock className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400 shrink-0" /> {showScore ? 'PENDING' : null}
+      <span className="flex items-center gap-1 text-[10.5px] bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-bold px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 font-mono">
+        <Clock className="w-3.5 h-3.5 text-slate-700 dark:text-slate-300 shrink-0" /> {showScore ? 'PENDING' : null}
       </span>
     );
   };
@@ -215,7 +215,7 @@ export default function PredictionsList({
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[var(--primary)] to-emerald-500" />
         
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-[var(--primary)] bg-opacity-10 border border-[var(--primary)] border-opacity-25 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center shrink-0">
             <TrendingUp className="w-5 h-5 text-[var(--primary)]" />
           </div>
           <div>

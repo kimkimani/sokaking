@@ -87,14 +87,14 @@ export default function OddsPacks({
                 </p>
 
                 {/* Mini analytics row */}
-                <div className="grid grid-cols-2 gap-2 p-2.5 rounded-[var(--radius)] bg-[var(--background)] bg-opacity-80 border border-[var(--border)] text-[10px] mb-4">
+                <div className="grid grid-cols-2 gap-2 p-2.5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] text-[10px] mb-4">
                   <div>
-                    <span className="text-slate-600 block uppercase font-mono font-bold">Picks Ratio</span>
-                    <strong className="text-slate-900 font-extrabold">{pack.picksPerDay} Selections / Slip</strong>
+                    <span className="text-slate-700 dark:text-slate-300 block uppercase font-mono font-bold">Picks Ratio</span>
+                    <strong className="text-slate-950 dark:text-slate-100 font-extrabold">{pack.picksPerDay} Selections / Slip</strong>
                   </div>
                   <div>
-                    <span className="text-slate-600 block uppercase font-mono font-bold">Risk Profile</span>
-                    <strong className="text-slate-900 font-extrabold">{pack.riskLevel}</strong>
+                    <span className="text-slate-700 dark:text-slate-300 block uppercase font-mono font-bold">Risk Profile</span>
+                    <strong className="text-slate-950 dark:text-slate-100 font-extrabold">{pack.riskLevel}</strong>
                   </div>
                 </div>
               </div>

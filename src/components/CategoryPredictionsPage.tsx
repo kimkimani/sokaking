@@ -334,42 +334,42 @@ export default function CategoryPredictionsPage({
               {/* Middle Row: Detailed Stats Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {/* Total Posted */}
-                <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--background)] bg-opacity-30 relative overflow-hidden group hover:border-indigo-500/30 transition-all">
+                <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--card)] relative overflow-hidden group hover:border-indigo-500/30 transition-all">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold text-[var(--text-muted)] uppercase tracking-wider">Total Predictions Posted</span>
+                    <span className="text-[10px] font-mono font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Total Predictions Posted</span>
                     <TrendingUp className="w-4 h-4 text-indigo-500" />
                   </div>
                   <div className="mt-2 flex items-baseline gap-2">
                     <span className="text-2.5xl font-black font-mono text-[var(--text)]">{yesterdayStats.total}</span>
-                    <span className="text-[10px] text-[var(--text-muted)] font-bold">Mathematical Slates</span>
+                    <span className="text-[10px] text-slate-700 dark:text-slate-300 font-bold">Mathematical Slates</span>
                   </div>
-                  <div className="mt-1 text-[9px] text-slate-400 font-mono">100% Calculated Coverage</div>
+                  <div className="mt-1 text-[10px] text-slate-600 dark:text-slate-300 font-mono">100% Calculated Coverage</div>
                 </div>
 
                 {/* Won Slips */}
-                <div className="p-4 rounded-xl border border-emerald-500/15 bg-emerald-500/[0.02] relative overflow-hidden group hover:border-emerald-500/30 transition-all">
+                <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.04] relative overflow-hidden group hover:border-emerald-500/40 transition-all">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Won Predictions</span>
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    <span className="text-[10px] font-mono font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">Won Predictions</span>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-2.5xl font-black font-mono text-emerald-600 dark:text-emerald-400">{yesterdayStats.wonCount}</span>
-                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Matches Settled Won</span>
+                    <span className="text-2.5xl font-black font-mono text-emerald-800 dark:text-emerald-300">{yesterdayStats.wonCount}</span>
+                    <span className="text-[10px] text-emerald-800 dark:text-emerald-300 font-bold">Matches Settled Won</span>
                   </div>
-                  <div className="mt-1 text-[9px] text-emerald-500/80 font-mono">Win Probability: {yesterdayStats.winRate}%</div>
+                  <div className="mt-1 text-[10px] text-emerald-900 dark:text-emerald-200 font-mono font-bold">Win Probability: {yesterdayStats.winRate}%</div>
                 </div>
 
                 {/* Lost Slips */}
-                <div className="p-4 rounded-xl border border-rose-500/10 bg-rose-500/[0.005] relative overflow-hidden group hover:border-rose-500/25 transition-all">
+                <div className="p-4 rounded-xl border border-rose-500/20 bg-rose-500/[0.03] relative overflow-hidden group hover:border-rose-500/35 transition-all">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold text-[var(--text-muted)] uppercase tracking-wider">Lost Predictions</span>
+                    <span className="text-[10px] font-mono font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Lost Predictions</span>
                     <XCircle className="w-4 h-4 text-rose-500" />
                   </div>
                   <div className="mt-2 flex items-baseline gap-2">
                     <span className="text-2.5xl font-black font-mono text-[var(--text)]">{yesterdayStats.lostCount}</span>
-                    <span className="text-[10px] text-[var(--text-muted)] font-bold">Matches Settled Lost</span>
+                    <span className="text-[10px] text-slate-700 dark:text-slate-300 font-bold">Matches Settled Lost</span>
                   </div>
-                  <div className="mt-1 text-[9px] text-slate-400 font-mono">Loss Variance: {yesterdayStats.lossRate}%</div>
+                  <div className="mt-1 text-[10px] text-slate-600 dark:text-slate-300 font-mono">Loss Variance: {yesterdayStats.lossRate}%</div>
                 </div>
               </div>
 
@@ -574,24 +574,24 @@ export default function CategoryPredictionsPage({
           {listJackpots.map((jackpot) => (
             <div 
               key={jackpot.id}
-              className="p-4 rounded-xl border border-[var(--border)] bg-[var(--background)] bg-opacity-40 hover:border-indigo-500/30 transition-all duration-300 flex flex-col justify-between gap-3 group"
+              className="p-4 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-indigo-500/30 transition-all duration-300 flex flex-col justify-between gap-3 group"
             >
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono font-bold text-slate-700 dark:text-slate-300">
+                  <span className="text-[10.5px] font-mono font-bold text-slate-700 dark:text-slate-300">
                     {jackpot.gamesCount} GAMES
                   </span>
-                  <span className="text-[9px] font-mono font-black text-emerald-800 dark:text-emerald-300 bg-emerald-500/15 px-1.5 py-0.5 rounded border border-emerald-500/30">
+                  <span className="text-[9.5px] font-mono font-black text-emerald-900 dark:text-emerald-200 bg-emerald-100 dark:bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
                     {jackpot.submissionsFill} FULL
                   </span>
                 </div>
                 <div className="text-xs font-black text-[var(--text)] group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors uppercase font-mono">
                   {jackpot.name}
                 </div>
-                <p className="text-[10px] text-[var(--text-muted)]">
-                  Pool: <strong className="font-mono text-emerald-700 dark:text-emerald-400">{jackpot.estimatedPool}</strong>
+                <p className="text-[11px] text-slate-700 dark:text-slate-300">
+                  Pool: <strong className="font-mono text-emerald-800 dark:text-emerald-300">{jackpot.estimatedPool}</strong>
                 </p>
-                <p className="text-[9px] text-slate-600 dark:text-slate-400 font-mono">
+                <p className="text-[10px] text-slate-600 dark:text-slate-300 font-mono">
                   {jackpot.nextGameStartTime}
                 </p>
               </div>
@@ -638,7 +638,7 @@ export default function CategoryPredictionsPage({
               {vipPackages.map((pkg) => (
                 <div 
                   key={pkg.id}
-                  className="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--background)] bg-opacity-40 hover:border-indigo-500/30 transition-all duration-300 flex items-center justify-between gap-4"
+                  className="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-indigo-500/30 transition-all duration-300 flex items-center justify-between gap-4"
                 >
                   <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
@@ -646,22 +646,22 @@ export default function CategoryPredictionsPage({
                         {pkg.name}
                       </div>
                       {pkg.isFeatured && (
-                        <span className="text-[8px] font-black uppercase bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded font-mono animate-pulse">
+                        <span className="text-[9px] font-black uppercase bg-amber-400 text-slate-950 px-1.5 py-0.5 rounded font-mono shadow-2xs">
                           BEST
                         </span>
                       )}
                     </div>
-                    <p className="text-[10px] text-[var(--text-muted)] line-clamp-1">
+                    <p className="text-[11px] text-slate-700 dark:text-slate-300 line-clamp-1">
                       {pkg.description}
                     </p>
-                    <div className="text-[9px] font-mono text-slate-700 dark:text-slate-300">
+                    <div className="text-[10px] font-mono text-slate-700 dark:text-slate-300">
                       Duration: <strong className="text-indigo-700 dark:text-indigo-400">{pkg.durationDays} Days</strong>
                     </div>
                   </div>
 
                   <div className="text-right shrink-0">
-                    <span className="text-[9px] font-mono text-slate-700 dark:text-slate-300 block uppercase">Price</span>
-                    <span className="text-xs font-black font-mono text-emerald-700 dark:text-emerald-400 block">
+                    <span className="text-[10px] font-mono text-slate-700 dark:text-slate-300 block uppercase font-bold">Price</span>
+                    <span className="text-xs font-black font-mono text-emerald-800 dark:text-emerald-300 block">
                       KES {pkg.price}
                     </span>
                     <button 
@@ -685,28 +685,28 @@ export default function CategoryPredictionsPage({
               {oddsPacks.map((pack) => (
                 <div 
                   key={pack.id}
-                  className="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--background)] bg-opacity-40 hover:border-indigo-500/30 transition-all duration-300 flex items-center justify-between gap-4"
+                  className="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-indigo-500/30 transition-all duration-300 flex items-center justify-between gap-4"
                 >
                   <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <div className="text-xs font-black text-[var(--text)] truncate uppercase font-mono">
                         {pack.name}
                       </div>
-                      <span className="text-[8px] font-mono font-black px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30">
+                      <span className="text-[9px] font-mono font-black px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800">
                         {pack.tag}
                       </span>
                     </div>
-                    <p className="text-[10px] text-[var(--text-muted)] line-clamp-1">
+                    <p className="text-[11px] text-slate-700 dark:text-slate-300 line-clamp-1">
                       {pack.description}
                     </p>
-                    <div className="text-[9px] font-mono text-slate-700 dark:text-slate-300">
+                    <div className="text-[10px] font-mono text-slate-700 dark:text-slate-300">
                       Target Odds: <strong className="text-indigo-700 dark:text-indigo-400">{pack.oddsMinDecimal}</strong> | Risk: <strong className="text-amber-800 dark:text-amber-400">{pack.riskLevel}</strong>
                     </div>
                   </div>
 
                   <div className="text-right shrink-0">
-                    <span className="text-[9px] font-mono text-slate-700 dark:text-slate-300 block uppercase">Price</span>
-                    <span className="text-xs font-black font-mono text-emerald-700 dark:text-emerald-400 block">
+                    <span className="text-[10px] font-mono text-slate-700 dark:text-slate-300 block uppercase font-bold">Price</span>
+                    <span className="text-xs font-black font-mono text-emerald-800 dark:text-emerald-300 block">
                       KES {pack.price}
                     </span>
                     <button 

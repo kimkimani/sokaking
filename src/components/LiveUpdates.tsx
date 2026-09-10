@@ -63,10 +63,10 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures = [] }:
     const avgConf = total > 0 ? (dbFixtures.reduce((sum, f) => sum + getRefinedConfidence(f), 0) / total).toFixed(1) : '85.2';
 
     return [
-      { label: "Verified Win Accuracy", value: `${winRate}%`, trend: `${won} won out of ${settled.length || total} settled`, color: "text-emerald-600 dark:text-emerald-400" },
-      { label: "Active Fixture Pool", value: `${total || 45}`, trend: "Daily analyzed matches", color: "text-[var(--primary)]" },
-      { label: "High Confidence", value: `${highConf}%`, trend: "Confidence rating ≥ 80%", color: "text-amber-600 dark:text-amber-400" },
-      { label: "Avg Model Score", value: `${avgConf}%`, trend: "Poisson distribution index", color: "text-emerald-600 dark:text-emerald-400" },
+      { label: "Verified Win Accuracy", value: `${winRate}%`, trend: `${won} won out of ${settled.length || total} settled`, color: "text-emerald-800 dark:text-emerald-300" },
+      { label: "Active Fixture Pool", value: `${total || 45}`, trend: "Daily analyzed matches", color: "text-slate-900 dark:text-slate-100" },
+      { label: "High Confidence", value: `${highConf}%`, trend: "Confidence rating ≥ 80%", color: "text-amber-800 dark:text-amber-300" },
+      { label: "Avg Model Score", value: `${avgConf}%`, trend: "Poisson distribution index", color: "text-emerald-800 dark:text-emerald-300" },
     ];
   }, [dbFixtures]);
 
@@ -119,11 +119,11 @@ export default function LiveUpdates({ onScrollTo, fixtures: propFixtures = [] }:
           {metrics.map((m, idx) => (
             <div 
               key={idx}
-              className="p-3 rounded-[var(--radius)] bg-[var(--background)] bg-opacity-50 border border-[var(--border)]"
+              className="p-3 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)]"
             >
-              <span className="text-[10px] text-[var(--text-muted)] block uppercase font-mono tracking-tight">{m.label}</span>
+              <span className="text-[10.5px] font-bold text-slate-700 dark:text-slate-300 block uppercase font-mono tracking-tight">{m.label}</span>
               <strong className={`text-lg font-black font-mono block mt-1 ${m.color}`}>{m.value}</strong>
-              <span className="text-[9px] text-[var(--text-muted)] mt-0.5 block">{m.trend}</span>
+              <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400 mt-0.5 block">{m.trend}</span>
             </div>
           ))}
         </div>

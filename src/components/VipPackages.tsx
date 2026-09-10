@@ -72,7 +72,7 @@ export default function VipPackages({
                 <ul className="space-y-3 mb-6">
                   {pkg.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start gap-2.5 text-xs text-[var(--text)]">
-                      <div className="p-0.5 rounded-full bg-emerald-500 bg-opacity-15 text-emerald-700 mt-0.5 flex-shrink-0">
+                      <div className="p-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 mt-0.5 flex-shrink-0">
                         <Check className="w-3 h-3 stroke-[3]" />
                       </div>
                       <span className="leading-tight">{feature}</span>
