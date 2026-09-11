@@ -1273,12 +1273,12 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
             }
           }}
           className={`min-h-[44px] flex flex-col items-center justify-center py-1.5 px-3 rounded-lg text-[10px] font-extrabold transition-all no-underline cursor-pointer ${
-            ['jackpot-list', 'betika-grand', 'betika-midweek', 'sportpesa-midweek', 'mozzart-super-grand', 'mozzart-super-daily', 'sportybet-jackpot', 'betpawa-pick-jackpot', 'odibet-laki-tatu'].includes(activePage)
+            ['jackpot-list', 'betika-grand', 'betika-midweek', 'sportpesa-midweek', 'mozzart-super-grand', 'mozzart-super-daily'].includes(activePage)
               ? 'bg-[var(--primary)] text-white shadow-3xs font-black'
               : 'bg-transparent text-slate-700 dark:text-slate-300 hover:text-[var(--text)]'
           }`}
         >
-          <Layers className={`w-4 h-4 mb-0.5 ${['jackpot-list', 'betika-grand', 'betika-midweek', 'sportpesa-midweek', 'mozzart-super-grand', 'mozzart-super-daily', 'sportybet-jackpot', 'betpawa-pick-jackpot', 'odibet-laki-tatu'].includes(activePage) ? 'text-white' : ''}`} />
+          <Layers className={`w-4 h-4 mb-0.5 ${['jackpot-list', 'betika-grand', 'betika-midweek', 'sportpesa-midweek', 'mozzart-super-grand', 'mozzart-super-daily'].includes(activePage) ? 'text-white' : ''}`} />
           <span>Jackpots</span>
         </a>
       </nav>

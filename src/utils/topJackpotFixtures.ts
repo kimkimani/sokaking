@@ -831,55 +831,6 @@ export const ALL_JACKPOT_CONFIGS: Record<string, JackpotTagConfig> = {
     ].join('\n'),
     defaultSubCombosShort: 'the 13/13 main progressive jackpot, with cash bonus payout tiers for 12, 11, and 10 correct match outcomes'
   },
-  'sportybet-jackpot': {
-    id: 'sportybet-jackpot',
-    name: 'SportyBet 12 Jackpot',
-    shortName: 'SportyBet 12',
-    matchCount: 12,
-    stakeText: 'KSh 50',
-    prefixes: ['SPORTYBET_JACKPOT', 'SPORTYBET', 'SPORTY_JACKPOT'],
-    defaultSchedule: 'Saturday, September 20, from 17:00, with the remaining fixtures continuing throughout Sunday, September 21',
-    defaultSubCombosParagraph: 'The SportyBet 12 Jackpot coupon requires bettors to predict 12 top-tier matches with a KSh 50 stake, offering a substantial jackpot prize pool alongside consolation cash bonus payouts for 10 and 11 correct outcomes.',
-    defaultSubCombosList: [
-      '- **12/12 Main Jackpot**: Top cash prize for a perfect ticket',
-      '- **11/12 Bonus Tier**: High consolation cash payout',
-      '- **10/12 Bonus Tier**: Consolation prize tier'
-    ].join('\n'),
-    defaultSubCombosShort: 'the 12/12 top jackpot prize, with bonus cash tiers for 11 and 10 correct predictions'
-  },
-  'betpawa-pick-jackpot': {
-    id: 'betpawa-pick-jackpot',
-    name: 'betPawa Pick13 Jackpot',
-    shortName: 'betPawa Pick13',
-    matchCount: 13,
-    stakeText: 'KSh 5–10',
-    prefixes: ['BETPAWA_PICK_JACKPOT', 'BETPAWA_PICK', 'BETPAWA', 'BETPAWA_JACKPOT'],
-    defaultSchedule: 'Tuesday, September 23, from 22:00, with the remaining fixtures continuing throughout Thursday, September 25',
-    defaultSubCombosParagraph: 'The betPawa Pick13 Jackpot provides an accessible 13-game challenge at a stake of KSh 5 to KSh 10, delivering guaranteed jackpot pool prizes and consolation bonus tiers for 10, 11, and 12 correct match calls.',
-    defaultSubCombosList: [
-      '- **13/13 Pick Jackpot**: Top jackpot cash payout',
-      '- **12/13 Bonus Tier**: High consolation cash prize',
-      '- **11/13 Bonus Tier**: Medium consolation prize',
-      '- **10/13 Bonus Tier**: Consolation payout tier'
-    ].join('\n'),
-    defaultSubCombosShort: 'the 13/13 jackpot prize pool, with consolation bonuses for 12, 11, and 10 correct selections'
-  },
-  'odibet-laki-tatu': {
-    id: 'odibet-laki-tatu',
-    name: 'Odibets Laki Tatu Daily Jackpot',
-    shortName: 'Odibets Laki Tatu',
-    matchCount: 10,
-    stakeText: 'KSh 15',
-    prefixes: ['ODIBET_LAKI_TATU', 'ODIBET', 'LAKI_TATU', 'ODIBETS_JACKPOT', 'LAKITATU'],
-    defaultSchedule: 'Saturday, September 27, from 19:00, with the remaining fixtures continuing throughout Sunday, September 28',
-    defaultSubCombosParagraph: 'The Odibets Laki Tatu Daily Jackpot features 10 selected fixtures with an affordable KSh 15 stake, rewarding a perfect 10/10 ticket with a guaranteed KSh 300,000 daily prize and consolation bonuses for 8 and 9 correct predictions.',
-    defaultSubCombosList: [
-      '- **10/10 Laki Tatu Prize**: Guaranteed KSh 300,000 daily grand payout',
-      '- **9/10 Bonus Tier**: Consolation cash prize',
-      '- **8/10 Bonus Tier**: Runner-up consolation prize'
-    ].join('\n'),
-    defaultSubCombosShort: 'the KSh 300,000 daily 10/10 jackpot, with consolation bonuses for 9 and 8 correct picks'
-  },
   'mozzart-super-daily': {
     id: 'mozzart-super-daily',
     name: 'Mozzart Super Daily Jackpot',
@@ -898,7 +849,7 @@ export const ALL_JACKPOT_CONFIGS: Record<string, JackpotTagConfig> = {
 };
 
 /**
- * Resolves a jackpot prefix or raw ID string to one of the 8 canonical jackpot IDs.
+ * Resolves a jackpot prefix or raw ID string to one of the canonical jackpot IDs.
  */
 export function resolveJackpotId(raw?: string, defaultJackpotId: string = 'sportpesa-mega'): string {
   if (!raw) return defaultJackpotId;
@@ -911,9 +862,6 @@ export function resolveJackpotId(raw?: string, defaultJackpotId: string = 'sport
   if (s.includes('mozzart-super') || s.includes('super-daily') || s.includes('mozzart-daily')) return 'mozzart-super-daily';
   if (s.includes('mozzart')) return 'mozzart-grand';
   if (s.includes('sportpesa-midweek') || s.includes('sp-midweek') || (s.includes('midweek') && !s.includes('betika'))) return 'sportpesa-midweek';
-  if (s.includes('sportybet') || s.includes('sporty')) return 'sportybet-jackpot';
-  if (s.includes('betpawa') || s.includes('pawa')) return 'betpawa-pick-jackpot';
-  if (s.includes('odibet') || s.includes('laki-tatu') || s.includes('lakitatu')) return 'odibet-laki-tatu';
   if (s.includes('mega') || s.includes('sportpesa')) return 'sportpesa-mega';
 
   return defaultJackpotId;
@@ -1267,11 +1215,11 @@ export function expandTopFixturesParameters(
   // Group 1: Prefix (or undefined for generic)
   // Group 2: Suffix
   // Group 3: Attributes
-  const universalTagRegex = /\{\{\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|SPORTYBET_JACKPOT|SPORTYBET|SPORTY_JACKPOT|BETPAWA_PICK_JACKPOT|BETPAWA_PICK|BETPAWA|BETPAWA_JACKPOT|ODIBET_LAKI_TATU|ODIBET|LAKI_TATU|ODIBETS_JACKPOT|LAKITATU|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^}]*)?\}\}/gi;
+  const universalTagRegex = /\{\{\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^}]*)?\}\}/gi;
 
-  const universalHtmlCommentRegex = /<!--\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|SPORTYBET_JACKPOT|SPORTYBET|SPORTY_JACKPOT|BETPAWA_PICK_JACKPOT|BETPAWA_PICK|BETPAWA|BETPAWA_JACKPOT|ODIBET_LAKI_TATU|ODIBET|LAKI_TATU|ODIBETS_JACKPOT|LAKITATU|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^-]*)?-->/gi;
+  const universalHtmlCommentRegex = /<!--\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^-]*)?-->/gi;
 
-  const universalBracketRegex = /\[\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|SPORTYBET_JACKPOT|SPORTYBET|SPORTY_JACKPOT|BETPAWA_PICK_JACKPOT|BETPAWA_PICK|BETPAWA|BETPAWA_JACKPOT|ODIBET_LAKI_TATU|ODIBET|LAKI_TATU|ODIBETS_JACKPOT|LAKITATU|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^\]]*)?\]/gi;
+  const universalBracketRegex = /\[\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^\]]*)?\]/gi;
 
   const executeReplacement = (_full: string, prefixRaw: string | undefined, suffixRaw: string, attrsRaw: string | undefined): string => {
     const prefix = prefixRaw ? prefixRaw.toUpperCase() : '';

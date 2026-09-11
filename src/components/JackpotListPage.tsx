@@ -57,27 +57,6 @@ export default function JackpotListPage({
           badgeText: 'MZ',
           logoColor: 'text-amber-600 dark:text-amber-400'
         };
-      case 'sportybet-jackpot':
-        return {
-          brand: 'SportyBet',
-          bgClass: 'bg-red-600/15 text-red-950 dark:text-red-200 border-red-500/30',
-          badgeText: 'SB',
-          logoColor: 'text-red-600 dark:text-red-400'
-        };
-      case 'betpawa-pick-jackpot':
-        return {
-          brand: 'betPawa',
-          bgClass: 'bg-lime-600/15 text-lime-950 dark:text-lime-200 border-lime-500/30',
-          badgeText: 'BP',
-          logoColor: 'text-lime-600 dark:text-lime-400'
-        };
-      case 'odibet-laki-tatu':
-        return {
-          brand: 'OdiBet',
-          bgClass: 'bg-green-600/15 text-green-950 dark:text-green-200 border-green-500/30',
-          badgeText: 'OD',
-          logoColor: 'text-green-600 dark:text-green-400'
-        };
       default:
         return {
           brand: 'Premium',

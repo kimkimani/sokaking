@@ -66,17 +66,15 @@ export function getCycleDateModified(
   const jId = (jackpotId || '').toLowerCase();
   const pId = pageId.toLowerCase();
 
-  const isMidweek = jId.includes('midweek') || pId.includes('midweek') ||
-                    jId === 'odibet-laki-tatu' || jId === 'betpawa-pick-jackpot' ||
-                    pId === 'odibet-laki-tatu' || pId === 'betpawa-pick-jackpot';
+  const isMidweek = jId.includes('midweek') || pId.includes('midweek');
 
   const isDaily = jId.includes('daily') || pId.includes('daily') ||
                   pId === 'today' || pId === 'football-predictions-today';
 
   const isWeekendJackpot = !isMidweek && !isDaily && (
-    jId.includes('mega') || jId.includes('grand') || jId.includes('sportybet') ||
+    jId.includes('mega') || jId.includes('grand') ||
     pId.includes('mega') || pId.includes('grand') || pId.includes('jackpot') ||
-    jId === 'sportpesa-mega' || jId === 'sportybet-jackpot' || jId === 'mozzart-grand'
+    jId === 'sportpesa-mega' || jId === 'mozzart-grand'
   );
 
   // 1. Weekend Mega Jackpots Cycle (SportPesa Mega, Betika Grand, SportyBet, etc.)

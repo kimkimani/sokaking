@@ -130,12 +130,6 @@ export function getTargetDateForJackpot(jackpotId: string, referenceDate?: Date)
       dailyStart.setHours(now.getHours() - 1);
       return dailyStart;
     }
-    case 'sportybet-jackpot':
-      return getUpcomingDay(6, 14, 0); // Sat 14:00 EAT
-    case 'betpawa-pick-jackpot':
-      return getUpcomingDay(2, 19, 0); // Tue 19:00 EAT
-    case 'odibet-laki-tatu':
-      return getUpcomingDay(3, 17, 0); // Wed 17:00 EAT
     default:
       return getUpcomingDay(6, 16, 30);
   }

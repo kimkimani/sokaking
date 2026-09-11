@@ -180,30 +180,6 @@ const CURATED_LINKS: Record<string, Partial<InboundLinkItem>> = {
     icon: '⏰',
     type: 'jackpot',
   },
-  'odibet-laki-tatu': {
-    title: 'OdiBet Laki Tatu Daily',
-    url: '/free-odibet-laki-tatu-jackpot-predictions-and-analysis',
-    description: 'Daily 10-match micro jackpot selections with low entry stake and high returns.',
-    tag: '10 Games | Daily',
-    icon: '🎁',
-    type: 'jackpot',
-  },
-  'sportybet-jackpot': {
-    title: 'SportyBet 12 Jackpot',
-    url: '/free-sportybet-jackpot-predictions-and-analysis',
-    description: '12-game weekly master ticket optimized for African football betting markets.',
-    tag: '12 Games Pool',
-    icon: '🚀',
-    type: 'jackpot',
-  },
-  'betpawa-pick-jackpot': {
-    title: 'betPawa Pick 13 Jackpot',
-    url: '/free-betpawa-pick-jackpot-predictions-and-analysis',
-    description: 'Pick 13 jackpot analysis with small stake leverage and mathematically vetted picks.',
-    tag: '13 Games Pool',
-    icon: '🎟️',
-    type: 'jackpot',
-  },
 
   // --- STATIC and VIP PAGES ---
   'vip-packages': {
@@ -353,9 +329,6 @@ export function detectPageType(
     norm.startsWith('sportpesa-') || 
     norm.startsWith('betika-') || 
     norm.startsWith('mozzart-') || 
-    norm.startsWith('odibet-') || 
-    norm.startsWith('sportybet-') || 
-    norm.startsWith('betpawa-') || 
     norm.includes('jackpot')
   ) {
     return 'jackpot';
@@ -587,16 +560,13 @@ export function getInboundLinks(
       defaultSubtitle = 'Explore the weekend Mega Jackpot (17), Betika Midweek (15), and Mozzart daily jackpot prize pools.';
     } else if (norm.includes('betika-midweek')) {
       defaultTitle = 'Alternative Jackpots to Betika Midweek (15 Games)';
-      defaultSubtitle = 'Compare Betika Midweek slips with SportPesa Mega, Mozzart Grand, and Odibet Laki Tatu.';
+      defaultSubtitle = 'Compare Betika Midweek slips with SportPesa Mega and Mozzart Grand.';
     } else if (norm.includes('mozzart-grand') || norm.includes('mozzart-super-grand')) {
       defaultTitle = 'Alternative Jackpots to Mozzart Grand 16/20';
       defaultSubtitle = 'Explore SportPesa Mega Jackpot, Mozzart Super Daily, and Betika jackpot slip combinations.';
     } else if (norm.includes('mozzart-super-daily')) {
       defaultTitle = 'Daily and Weekly Jackpot Alternatives';
       defaultSubtitle = 'Compare Mozzart Daily picks with weekend Mega Jackpots and midweek 15-game slips.';
-    } else if (norm.includes('odibet')) {
-      defaultTitle = 'Alternative Kenyan Jackpots to Odibet Laki Tatu';
-      defaultSubtitle = 'Explore SportPesa Mega, Betika Midweek, and Mozzart football jackpot slips.';
     } else if (norm.includes('jackpot-list')) {
       defaultTitle = 'Featured Jackpot Slips and VIP Combinations';
       defaultSubtitle = 'Explore our top recommended weekly jackpot slips with Poisson probability analysis.';

@@ -198,13 +198,10 @@ function formatJackpotGame($g, $pdo = null) {
 // Jackpot Slug to Table Map
 $jackpotTableMap = [
     'betika-midweek' => 'betika_midweek_jackpot',
-    'betpawa-pick-jackpot' => 'betpawa_pick13_jackpot',
     'mozzart-grand' => 'mozzart_bet_grand_jackpot',
     'mozzart-super-daily' => 'mozzart_super_daily',
-    'odibet-laki-tatu' => 'odibet_laki_tatu',
     'sportpesa-mega' => 'sportpesa_mega_jackpot',
-    'sportpesa-midweek' => 'sportpesa_midweek_jackpot',
-    'sportybet-jackpot' => 'sportybet_jackpot'
+    'sportpesa-midweek' => 'sportpesa_midweek_jackpot'
 ];
 
 // -------------------------------------------------------------
@@ -1283,9 +1280,6 @@ if ($path === '/sitemap.xml' || $path === '/sitemap') {
         '/free-mozzart-grand-jackpot-predictions-and-analysis',
         '/free-mozzart-super-daily-jackpot-predictions-and-analysis',
         '/today-sportpesa-midweek-jackpot-prediction-and-tips',
-        '/free-sportybet-jackpot-predictions-and-analysis',
-        '/free-betpawa-pick-jackpot-predictions-and-analysis',
-        '/free-odibet-laki-tatu-jackpot-predictions-and-analysis',
         '/vip-packages',
         '/about-us',
         '/partners',

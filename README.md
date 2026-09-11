@@ -28,9 +28,6 @@ The system actively supports all 8 primary jackpots available in Kenya:
 | `betika-midweek` | Betika Midweek Jackpot | 15 | KSh 15 | `BETIKA_MIDWEEK_`, `BETIKA_` |
 | `mozzart-grand` | Mozzart Super Grand Jackpot | 20 | KSh 50 | `MOZZART_GRAND_`, `MOZZART_` |
 | `sportpesa-midweek` | SportPesa Midweek Jackpot | 13 | KSh 99 | `SPORTPESA_MIDWEEK_`, `SP_MIDWEEK_`, `MIDWEEK_` |
-| `sportybet-jackpot` | SportyBet 12 Jackpot | 12 | KSh 50 | `SPORTYBET_JACKPOT_`, `SPORTYBET_` |
-| `betpawa-pick-jackpot` | betPawa Pick13 Jackpot | 13 | KSh 5–10 | `BETPAWA_PICK_JACKPOT_`, `BETPAWA_PICK_`, `BETPAWA_` |
-| `odibet-laki-tatu` | Odibets Laki Tatu Daily Jackpot | 10 | KSh 15 | `ODIBET_LAKI_TATU_`, `ODIBET_`, `LAKI_TATU_` |
 | `mozzart-super-daily` | Mozzart Super Daily Jackpot | 16 | KSh 20 | `MOZZART_SUPER_DAILY_`, `SUPER_DAILY_`, `MOZZART_DAILY_` |
 
 *Note: You can also use the generic prefix `JACKPOT_` on any page with a `jackpotId` declared in its frontmatter, or pass `jackpot="<id>"` inside any tag.*
