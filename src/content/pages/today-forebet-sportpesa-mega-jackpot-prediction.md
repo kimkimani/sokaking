@@ -69,7 +69,7 @@ Predictions can change as new information becomes available. Before the matches 
 
 Use the **Sokaking Forebet Sportpesa Mega predictions** as part of your research rather than treating them as guaranteed results. Compare the available information, consider the risks involved and make your own final assessment of each fixture.
 
-Also check our dedicated [SportPesa Mega Jackpot Prediction](/free-sportpesa-mega-jackpot-prediction) page for our full weekly 17-game analysis.
+Also check our dedicated [SportPesa Mega Jackpot Prediction](/sportpesa-mega-jackpot-prediction) page for our full weekly 17-game analysis.
 
 <!-- FAQ -->
 
@@ -89,7 +89,7 @@ Directly copying automated predictions without checking team news and tactical c
 
 ### Where can I get updated SportPesa Mega Jackpot predictions?
 
-Sokaking provides updated analysis, probability rankings, and expert picks for the [SportPesa Mega Jackpot](/free-sportpesa-mega-jackpot-prediction) every week, complete with double-chance strategies and bonus optimization.
+Sokaking provides updated analysis, probability rankings, and expert picks for the [SportPesa Mega Jackpot](/sportpesa-mega-jackpot-prediction) every week, complete with double-chance strategies and bonus optimization.
 
 ## Final Verdict: Using Forebet Effectively
 

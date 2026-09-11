@@ -1275,7 +1275,7 @@ if ($path === '/sitemap.xml' || $path === '/sitemap') {
         '/liobet-predictions-and-tips',
         '/sunpel-free-football-betting-tips-and-soccer-predictions',
         '/jackpot-tips',
-        '/free-sportpesa-mega-jackpot-prediction',
+        '/sportpesa-mega-jackpot-prediction',
         '/free-betika-midweek-jackpot-predictions-and-analysis',
         '/free-mozzart-grand-jackpot-predictions-and-analysis',
         '/free-mozzart-super-daily-jackpot-predictions-and-analysis',

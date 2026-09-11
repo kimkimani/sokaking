@@ -97,7 +97,7 @@ Using Forebet probability splits:
 * **Tight Contest (Probability Split: 38% - 32% - 30%):** Apply a **Double Chance (1X or X2)**. In these fixtures, a single outcome has a 62% likelihood of failing.
 * **Stalemate Alert (Draw Probability $\ge 35\%$):** Consider a **1X or X2** cover, or a **12** double chance if both teams rarely draw but match up evenly.
 
-You can also explore our dedicated [SportPesa Mega Jackpot Prediction](/free-sportpesa-mega-jackpot-prediction) page for our full weekly 17-game analysis and banker selections.
+You can also explore our dedicated [SportPesa Mega Jackpot Prediction](/sportpesa-mega-jackpot-prediction) page for our full weekly 17-game analysis and banker selections.
 
 ## How to Analyze the SportPesa 17 Games Step-by-Step
 
@@ -124,7 +124,7 @@ Forebet utilizes complex algorithms based on Poisson mathematical distribution, 
 Directly copying automated predictions without checking team news and tactical context is risky. We recommend using Forebet as a statistical guide, then applying double-chance coverage on close matchups.
 
 ### Where can I get updated SportPesa Mega Jackpot predictions?
-Sokaking provides updated analysis, probability rankings, and expert picks for the [SportPesa Mega Jackpot](/free-sportpesa-mega-jackpot-prediction) every week, complete with double-chance strategies and bonus optimization.
+Sokaking provides updated analysis, probability rankings, and expert picks for the [SportPesa Mega Jackpot](/sportpesa-mega-jackpot-prediction) every week, complete with double-chance strategies and bonus optimization.
 
 ## Final Verdict: Using Forebet Effectively
 

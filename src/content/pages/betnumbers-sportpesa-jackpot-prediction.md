@@ -15,7 +15,7 @@ topConfidenceCount: 5
 
 <!-- INTRO -->
 
-Get the latest Betnumbers [SportPesa Mega Jackpot prediction](https://sokaking.com/free-sportpesa-mega-jackpot-prediction). Sokaking King has the Betnumbers Mega MJP Jackpot Prediction for this Week Ready. Don't miss the bet numbers predictions for the mega jackpot this weekend.
+Get the latest Betnumbers [SportPesa Mega Jackpot prediction](https://sokaking.com/sportpesa-mega-jackpot-prediction). Sokaking King has the Betnumbers Mega MJP Jackpot Prediction for this Week Ready. Don't miss the bet numbers predictions for the mega jackpot this weekend.
 
 <!-- MIDDLE -->
 

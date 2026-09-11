@@ -2,7 +2,7 @@
 title: "SportPesa Mega Jackpot Prediction This Week: Accurate 17 Games"
 description: "Get our free SportPesa Mega Jackpot prediction for all 17 games today. We have Sure accurate 1X2 tips and doubleChance tips for this week and weekend key games"
 keywords: "sportpesa mega jackpot prediction, sportpesa mega jackpot prediction this week, sportpesa jackpot prediction, mega jackpot prediction, sportpesa mega jackpot prediction 17 games, mega jackpot prediction 17 games today, mega jackpot predictions today, mega jackpot tips, sportpesa jackpot analysis, mega jackpot analysis, free sportpesa predictions, accurate sportpesa mega jackpot predictions, sure mega jackpot predictions this weekend, megajackpot prediction"
-link: "/free-sportpesa-mega-jackpot-prediction"
+link: "/sportpesa-mega-jackpot-prediction"
 authorId: "john-mwangi"
 displayTitle: "SportPesa Mega Jackpot Prediction Today – All Accurate 17 Games"
 unlockHeading: "Unlock All Accurate 17 SportPesa Mega Jackpot Predictions"
