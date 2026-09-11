@@ -15,21 +15,23 @@ jackpotId: "betika-midweek"
 ## Betika Midweek Jackpot Predictions and Daily Tips (15 Games)
 
 <!-- INTRO -->
-Welcome to Soka King's Betika Midweek Jackpot prediction portal. Our computer models analyze all 15 midweek matches to give you accurate selections for the KES 15 Million prize pool.
+Welcome to Soka King's Betika Midweek Jackpot prediction portal. Matches kick off on {{BETIKA_MIDWEEK_SCHEDULE}}, covering premier competition from {{BETIKA_MIDWEEK_LEAGUES}}. This round's computer model {{BETIKA_MIDWEEK_SELECTIONS_INCLUDE}}.
 
 <!-- MIDDLE -->
 The Betika Midweek Jackpot features 15 matches with entry tickets starting at KES 15. Our analytical engine breaks down form guides, injury reports, and Poisson distribution probabilities to maximize your bonus returns.
+
+{{BETIKA_MIDWEEK_UPSET_ALERT}}
 
 <!-- MEAT -->
 ## Betika Midweek Jackpot Tactical Overview
 
 Betika Midweek Jackpot offers high value with 15 fixtures and generous bonus tiers starting from 12 correct picks.
 
-### Key Highlights and Rules
-- **Grand Prize**: KES 15,000,000 for 15/15 correct selections.
-- **Bonus Tiers**: Paid for 14, 13, and 12 correct predictions.
-- **Stake**: KES 15 per entry ticket.
-- **Double Chance**: Permitted for up to 3 choices per ticket.
+### Prize Structure & Combinations
+{{BETIKA_MIDWEEK_SUB_COMBOS:list}}
+
+### Top Double Chance Coverage Picks
+{{BETIKA_MIDWEEK_DOUBLE_CHANCE_FIXTURES:4}}
 
 <!-- RESPONSIBLE_GAMBLING_START -->
 > **Responsible Gambling Notice:** Gambling involves financial risk. Please bet responsibly and only risk money you can afford to lose. If you need help or support, contact the national helpline at **0800-720-000** or visit our [Responsible Gambling Policy](/responsible-gambling).

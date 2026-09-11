@@ -28,7 +28,9 @@ The current SportPesa Mega Jackpot Pro jackpot predictions stand at [KSh 132,873
 
 ## How the SportPesa Mega Jackpot Prediction Works
 
-The current [SportPesa Mega Jackpot Pro](https://www.ke.sportpesa.com/en/mega-jackpot-pro) has 17 pre-selected football games. The standard Mega Jackpot Pro bet needs you to have a stake of KSh 99. But note that the final cost will increase when you have double-chance coverages.
+The current [SportPesa Mega Jackpot Pro](https://www.ke.sportpesa.com/en/mega-jackpot-pro) has 17 pre-selected football games. Matches are selected from {{MEGA_JACKPOT_LEAGUES}}. The first games are scheduled for {{MEGA_JACKPOT_DATES}}, and the supplied selections include {{MEGA_JACKPOT_SELECTIONS}}. The standard Mega Jackpot Pro bet needs you to have a stake of KSh 99. But note that the final cost will increase when you have double-chance coverages.
+
+{{MEGA_JACKPOT_SUB_COMBOS}}
 
 Always check the latest SportPesa instructions before submitting a ticket because betting procedures, fixtures, and promotional conditions can change.
 
@@ -57,6 +59,8 @@ Each game has its own uncertainty. That is why a good jackpot prediction should 
 - Do not ignore Draws. Do not ever overlook draw chances.
 - Don't change every difficult selection
 - Use double chance intelligently. A Double chance covers two outcomes, but it costs more.
+
+{{MEGA_JACKPOT_UPSET_ALERT}}
 
 {{MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES}}
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { expandTopFixturesParameters, fetchLiveMegaJackpotFixtures, getCachedLiveJackpotFixtures, isDoubleChanceTip } from '../utils/topJackpotFixtures';
+import { expandTopFixturesParameters, fetchLiveJackpotFixtures, fetchLiveMegaJackpotFixtures, getCachedLiveJackpotFixtures, isDoubleChanceTip } from '../utils/topJackpotFixtures';
 import { Fixture } from '../types';
 import { getLinkRel } from '../utils/linkUtils';
 
@@ -234,7 +234,7 @@ export default function MarkdownRenderer({
 }: MarkdownRendererProps) {
   if (!content) return null;
 
-  const [liveDbFixtures, setLiveDbFixtures] = useState<Fixture[] | null>(() => fixtures || getCachedLiveJackpotFixtures());
+  const [liveDbFixtures, setLiveDbFixtures] = useState<Fixture[] | null>(() => fixtures || getCachedLiveJackpotFixtures(jackpotId));
 
   useEffect(() => {
     if (fixtures && fixtures.length > 0) {
@@ -242,14 +242,14 @@ export default function MarkdownRenderer({
       return;
     }
     // If not supplied and content contains jackpot fixtures shortcode, fetch directly from DB
-    if (/TOP_MEGA_JACKPOT_FIXTURES|TOP_CONFIDENCE_FIXTURES|SPORTPESA_MEGA_TOP_CONFIDENCE|DOUBLE_CHANCE|DOUBLE_CHANCES/i.test(content)) {
-      fetchLiveMegaJackpotFixtures().then(fetched => {
+    if (/TOP_.*FIXTURES|SPORTPESA.*TOP|DOUBLE_CHANCE|LEAGUES|LEAGUE_NAMES|.*SCHEDULE|.*DATES|.*SELECTIONS|.*OUTCOMES|UPSET_ALERT|.*COMBOS|.*JACKPOT/i.test(content)) {
+      fetchLiveJackpotFixtures(jackpotId).then(fetched => {
         if (fetched && fetched.length > 0) {
           setLiveDbFixtures(fetched);
         }
       }).catch(() => {});
     }
-  }, [fixtures, content]);
+  }, [fixtures, jackpotId, content]);
 
   // Expand top jackpot / confidence fixtures parameters using live database fixtures
   const activeFixtures = (fixtures && fixtures.length > 0) ? fixtures : (liveDbFixtures || undefined);

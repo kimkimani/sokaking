@@ -11,40 +11,76 @@ export interface FormattedConfidenceFixture {
 
 // In-memory cache for live database jackpot fixtures
 let liveMegaJackpotFixturesCache: Fixture[] | null = null;
+const liveJackpotsCache: Record<string, Fixture[]> = {};
+const lastLiveFetchTimes: Record<string, number> = {};
 let lastLiveFetchTime = 0;
 const CACHE_TTL_MS = 60 * 1000; // 1 minute TTL
 
 /**
  * Manually update the live jackpot fixtures cache (called by App.tsx or dataStore when DB data arrives).
  */
-export function setLiveJackpotFixturesCache(fixtures: Fixture[]): void {
+export function setLiveJackpotFixturesCache(fixtures: Fixture[], jackpotId: string = 'sportpesa-mega'): void {
+  const resolved = resolveJackpotId(jackpotId, 'sportpesa-mega');
   if (Array.isArray(fixtures) && fixtures.length > 0) {
-    liveMegaJackpotFixturesCache = fixtures;
-    lastLiveFetchTime = Date.now();
+    liveJackpotsCache[resolved] = fixtures;
+    lastLiveFetchTimes[resolved] = Date.now();
+    if (resolved === 'sportpesa-mega') {
+      liveMegaJackpotFixturesCache = fixtures;
+      lastLiveFetchTime = Date.now();
+    }
   }
 }
 
 /**
  * Get the timestamp of the last live database fixtures fetch.
  */
-export function getLastLiveFetchTime(): number {
-  return lastLiveFetchTime;
+export function getLastLiveFetchTime(jackpotId: string = 'sportpesa-mega'): number {
+  const resolved = resolveJackpotId(jackpotId, 'sportpesa-mega');
+  return lastLiveFetchTimes[resolved] || lastLiveFetchTime;
 }
 
 /**
- * Get current cached database fixtures if available.
+ * Get current cached database fixtures if available for a specific jackpot.
  */
-export function getCachedLiveJackpotFixtures(): Fixture[] | null {
-  return liveMegaJackpotFixturesCache;
+export function getCachedLiveJackpotFixtures(jackpotId: string = 'sportpesa-mega'): Fixture[] | null {
+  const resolved = resolveJackpotId(jackpotId, 'sportpesa-mega');
+  return liveJackpotsCache[resolved] || (resolved === 'sportpesa-mega' ? liveMegaJackpotFixturesCache : null);
 }
 
 /**
- * Actively fetches the current SportPesa Mega Jackpot fixtures and predictions directly from the database API.
+ * Helper to parse raw API fixture into standard typed Fixture.
  */
-export async function fetchLiveMegaJackpotFixtures(forceRefresh: boolean = false): Promise<Fixture[]> {
+function parseApiFixture(f: any, idx: number): Fixture {
+  return {
+    id: f.id || idx + 1,
+    fixtureNumber: f.fixtureNumber || f.position || idx + 1,
+    homeTeam: f.homeTeam || f.home_team_name || 'Home Team',
+    awayTeam: f.awayTeam || f.away_team_name || 'Away Team',
+    prediction: f.tip || f.prediction || '1',
+    confidence: Number(f.confidence) || 75,
+    leagueName: f.leagueName || f.league || '',
+    countryName: f.countryName || f.country || '',
+    kickoffTime: f.kickoffTime || f.date || '',
+    status: f.status || 'NS',
+    result: f.result || 'pending',
+    homeScore: f.homeScore !== undefined ? f.homeScore : '-',
+    awayScore: f.awayScore !== undefined ? f.awayScore : '-'
+  };
+}
+
+/**
+ * Actively fetches jackpot fixtures directly from the database API for any jackpot ID.
+ */
+export async function fetchLiveJackpotFixtures(
+  jackpotId: string = 'sportpesa-mega',
+  forceRefresh: boolean = false
+): Promise<Fixture[]> {
+  const resolved = resolveJackpotId(jackpotId, 'sportpesa-mega');
   const now = Date.now();
-  if (!forceRefresh && liveMegaJackpotFixturesCache && liveMegaJackpotFixturesCache.length > 0 && (now - lastLiveFetchTime < CACHE_TTL_MS)) {
-    return liveMegaJackpotFixturesCache;
+  const lastFetch = lastLiveFetchTimes[resolved] || 0;
+
+  if (!forceRefresh && liveJackpotsCache[resolved]?.length && (now - lastFetch < CACHE_TTL_MS)) {
+    return liveJackpotsCache[resolved];
   }
 
   try {
@@ -60,33 +96,21 @@ export async function fetchLiveMegaJackpotFixtures(forceRefresh: boolean = false
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data)) {
-        const mega = data.find((j: any) => 
-          j.id === 'sportpesa-mega' || 
-          j.slug === 'sportpesa-mega' || 
-          j.name?.toLowerCase().includes('mega')
-        );
+        for (const item of data) {
+          const itemResolvedId = resolveJackpotId(item.id || item.slug || item.name, '');
+          if (itemResolvedId && Array.isArray(item.fixtures) && item.fixtures.length > 0) {
+            const parsed = item.fixtures.map(parseApiFixture);
+            liveJackpotsCache[itemResolvedId] = parsed;
+            lastLiveFetchTimes[itemResolvedId] = now;
+            if (itemResolvedId === 'sportpesa-mega') {
+              liveMegaJackpotFixturesCache = parsed;
+              lastLiveFetchTime = now;
+            }
+          }
+        }
 
-        if (mega && Array.isArray(mega.fixtures) && mega.fixtures.length > 0) {
-          const parsedFixtures: Fixture[] = mega.fixtures.map((f: any, idx: number) => ({
-            id: f.id || idx + 1,
-            fixtureNumber: f.fixtureNumber || f.position || idx + 1,
-            homeTeam: f.homeTeam || f.home_team_name || 'Home Team',
-            awayTeam: f.awayTeam || f.away_team_name || 'Away Team',
-            prediction: f.tip || f.prediction || '1',
-            tip: f.tip || f.prediction || '1',
-            confidence: Number(f.confidence) || 75,
-            leagueName: f.leagueName || '',
-            countryName: f.countryName || '',
-            kickoffTime: f.kickoffTime || f.date || '',
-            status: f.status || 'NS',
-            result: f.result || 'pending',
-            homeScore: f.homeScore !== undefined ? f.homeScore : '-',
-            awayScore: f.awayScore !== undefined ? f.awayScore : '-'
-          }));
-
-          liveMegaJackpotFixturesCache = parsedFixtures;
-          lastLiveFetchTime = now;
-          return parsedFixtures;
+        if (liveJackpotsCache[resolved]?.length) {
+          return liveJackpotsCache[resolved];
         }
       }
     }
@@ -94,17 +118,45 @@ export async function fetchLiveMegaJackpotFixtures(forceRefresh: boolean = false
     console.warn('[topJackpotFixtures] Warning fetching live database fixtures:', err);
   }
 
-  if (liveMegaJackpotFixturesCache && liveMegaJackpotFixturesCache.length > 0) {
+  if (liveJackpotsCache[resolved]?.length) {
+    return liveJackpotsCache[resolved];
+  }
+  if (resolved === 'sportpesa-mega' && liveMegaJackpotFixturesCache?.length) {
     return liveMegaJackpotFixturesCache;
   }
 
-  const fallback = jackpotsData.find(j => j.id === 'sportpesa-mega') || jackpotsData[0];
+  const fallback = jackpotsData.find(j => j.id === resolved || j.slug === resolved) ||
+                   jackpotsData.find(j => j.id === 'sportpesa-mega') ||
+                   jackpotsData[0];
   return fallback?.fixtures || [];
+}
+
+/**
+ * Actively fetches the current SportPesa Mega Jackpot fixtures and predictions directly from the database API.
+ */
+export async function fetchLiveMegaJackpotFixtures(forceRefresh: boolean = false): Promise<Fixture[]> {
+  return fetchLiveJackpotFixtures('sportpesa-mega', forceRefresh);
 }
 
 // Preload database fixtures in background if fetch is available
 if (typeof fetch !== 'undefined') {
-  fetchLiveMegaJackpotFixtures().catch(() => {});
+  fetchLiveJackpotFixtures('sportpesa-mega').catch(() => {});
+}
+
+/**
+ * Resolves fixtures for a given source (either direct Fixture array, or jackpot ID).
+ */
+export function getFixturesForJackpot(source?: string | Fixture[]): { jackpotId: string; fixtures: Fixture[] } {
+  if (Array.isArray(source) && source.length > 0) {
+    return { jackpotId: 'sportpesa-mega', fixtures: source };
+  }
+  const jackpotId = resolveJackpotId(typeof source === 'string' ? source : undefined, 'sportpesa-mega');
+  const cached = getCachedLiveJackpotFixtures(jackpotId);
+  if (cached && cached.length > 0) {
+    return { jackpotId, fixtures: cached };
+  }
+  const found = jackpotsData.find(j => j.id === jackpotId || j.slug === jackpotId);
+  return { jackpotId, fixtures: found?.fixtures || [] };
 }
 
 /**
@@ -274,55 +326,45 @@ export function getTopConfidenceJackpotFixtures(
   count: number = 7,
   highestAtEnd: boolean = true
 ): FormattedConfidenceFixture[] {
-  let fixtures: Fixture[] = [];
-
-  if (Array.isArray(source) && source.length > 0) {
-    fixtures = source;
-  } else if (liveMegaJackpotFixturesCache && liveMegaJackpotFixturesCache.length > 0) {
-    fixtures = liveMegaJackpotFixturesCache;
-  } else {
-    const jackpotId = typeof source === 'string' ? source : 'sportpesa-mega';
-    const jackpot = jackpotsData.find(
-      j => j.id === jackpotId || j.slug === jackpotId || j.id.toLowerCase().includes(jackpotId.toLowerCase())
-    ) || jackpotsData.find(j => j.id === 'sportpesa-mega') || jackpotsData[0];
-    fixtures = jackpot?.fixtures || [];
-  }
+  const { jackpotId, fixtures } = getFixturesForJackpot(source);
 
   if (!fixtures || fixtures.length === 0) {
     return [];
   }
 
-  // 1. Check if the active jackpot fixtures contain the curated SportPesa Mega targets from the database
-  const matchingCurated: FormattedConfidenceFixture[] = [];
-  for (const target of SPORTPESA_MEGA_TARGET_PICKS) {
-    const found = fixtures.find(f =>
-      f.homeTeam.toLowerCase().includes(target.homeKeyword.toLowerCase()) &&
-      f.awayTeam.toLowerCase().includes(target.awayKeyword.toLowerCase())
-    );
-    if (found) {
-      const home = cleanTeamName(found.homeTeam);
-      const away = cleanTeamName(found.awayTeam);
-      const isHighest = !!target.isHighest;
-      const suffix = isHighest ? ' (The game with the highest confidence score)' : '';
-      const matchHeader = `${home} vs ${away} — ${target.tip}${suffix}`;
-      const description = target.customExplanation || getPredictionExplanation({ ...found, homeTeam: home, awayTeam: away }, target.tip, isHighest);
+  // 1. For SportPesa Mega, check if fixtures match the curated target picks
+  if (jackpotId === 'sportpesa-mega') {
+    const matchingCurated: FormattedConfidenceFixture[] = [];
+    for (const target of SPORTPESA_MEGA_TARGET_PICKS) {
+      const found = fixtures.find(f =>
+        f.homeTeam.toLowerCase().includes(target.homeKeyword.toLowerCase()) &&
+        f.awayTeam.toLowerCase().includes(target.awayKeyword.toLowerCase())
+      );
+      if (found) {
+        const home = cleanTeamName(found.homeTeam);
+        const away = cleanTeamName(found.awayTeam);
+        const isHighest = !!target.isHighest;
+        const suffix = isHighest ? ' (The game with the highest confidence score)' : '';
+        const matchHeader = `${home} vs ${away} — ${target.tip}${suffix}`;
+        const description = target.customExplanation || getPredictionExplanation({ ...found, homeTeam: home, awayTeam: away }, target.tip, isHighest);
 
-      matchingCurated.push({
-        fixture: { ...found, homeTeam: home, awayTeam: away },
-        tipSymbol: target.tip,
-        isHighestConfidence: isHighest,
-        matchHeader,
-        description
-      });
+        matchingCurated.push({
+          fixture: { ...found, homeTeam: home, awayTeam: away },
+          tipSymbol: target.tip,
+          isHighestConfidence: isHighest,
+          matchHeader,
+          description
+        });
+      }
+    }
+
+    if (matchingCurated.length >= 4) {
+      return matchingCurated;
     }
   }
 
-  if (matchingCurated.length >= 4) {
-    return matchingCurated;
-  }
-
-  // 2. Generic dynamic fallback: Clamp count to reasonable range (between 5 and 7 by default)
-  const targetCount = Math.min(Math.max(count || 7, 3), Math.min(fixtures.length, 17));
+  // 2. Generic dynamic confidence ranking for any jackpot
+  const targetCount = Math.min(Math.max(count || 7, 3), Math.min(fixtures.length, 20));
 
   // Sort by confidence descending
   const sorted = [...fixtures].sort((a, b) => (Number(b.confidence) || 0) - (Number(a.confidence) || 0));
@@ -412,53 +454,43 @@ export function getDoubleChanceJackpotFixtures(
   source?: string | Fixture[],
   count?: number
 ): FormattedConfidenceFixture[] {
-  let fixtures: Fixture[] = [];
-
-  if (Array.isArray(source) && source.length > 0) {
-    fixtures = source;
-  } else if (liveMegaJackpotFixturesCache && liveMegaJackpotFixturesCache.length > 0) {
-    fixtures = liveMegaJackpotFixturesCache;
-  } else {
-    const jackpotId = typeof source === 'string' ? source : 'sportpesa-mega';
-    const jackpot = jackpotsData.find(
-      j => j.id === jackpotId || j.slug === jackpotId || j.id.toLowerCase().includes(jackpotId.toLowerCase())
-    ) || jackpotsData.find(j => j.id === 'sportpesa-mega') || jackpotsData[0];
-    fixtures = jackpot?.fixtures || [];
-  }
+  const { jackpotId, fixtures } = getFixturesForJackpot(source);
 
   if (!fixtures || fixtures.length === 0) {
     return [];
   }
 
-  // 1. Curated picks matching double-chance targets
-  const matchingCurated: FormattedConfidenceFixture[] = [];
-  for (const target of SPORTPESA_MEGA_TARGET_PICKS) {
-    if (!isDoubleChanceTip(target.tip)) continue;
+  // 1. Curated picks matching double-chance targets for SportPesa Mega
+  if (jackpotId === 'sportpesa-mega') {
+    const matchingCurated: FormattedConfidenceFixture[] = [];
+    for (const target of SPORTPESA_MEGA_TARGET_PICKS) {
+      if (!isDoubleChanceTip(target.tip)) continue;
 
-    const found = fixtures.find(f =>
-      f.homeTeam.toLowerCase().includes(target.homeKeyword.toLowerCase()) &&
-      f.awayTeam.toLowerCase().includes(target.awayKeyword.toLowerCase())
-    );
-    if (found) {
-      const home = cleanTeamName(found.homeTeam);
-      const away = cleanTeamName(found.awayTeam);
-      const isHighest = !!target.isHighest;
-      const suffix = isHighest ? ' (The game with the highest confidence score)' : '';
-      const matchHeader = `${home} vs ${away} — ${target.tip}${suffix}`;
-      const description = target.customExplanation || getPredictionExplanation({ ...found, homeTeam: home, awayTeam: away }, target.tip, isHighest);
+      const found = fixtures.find(f =>
+        f.homeTeam.toLowerCase().includes(target.homeKeyword.toLowerCase()) &&
+        f.awayTeam.toLowerCase().includes(target.awayKeyword.toLowerCase())
+      );
+      if (found) {
+        const home = cleanTeamName(found.homeTeam);
+        const away = cleanTeamName(found.awayTeam);
+        const isHighest = !!target.isHighest;
+        const suffix = isHighest ? ' (The game with the highest confidence score)' : '';
+        const matchHeader = `${home} vs ${away} — ${target.tip}${suffix}`;
+        const description = target.customExplanation || getPredictionExplanation({ ...found, homeTeam: home, awayTeam: away }, target.tip, isHighest);
 
-      matchingCurated.push({
-        fixture: { ...found, homeTeam: home, awayTeam: away },
-        tipSymbol: target.tip,
-        isHighestConfidence: isHighest,
-        matchHeader,
-        description
-      });
+        matchingCurated.push({
+          fixture: { ...found, homeTeam: home, awayTeam: away },
+          tipSymbol: target.tip,
+          isHighestConfidence: isHighest,
+          matchHeader,
+          description
+        });
+      }
     }
-  }
 
-  if (matchingCurated.length > 0) {
-    return typeof count === 'number' && count > 0 ? matchingCurated.slice(0, count) : matchingCurated;
+    if (matchingCurated.length > 0) {
+      return typeof count === 'number' && count > 0 ? matchingCurated.slice(0, count) : matchingCurated;
+    }
   }
 
   // 2. Generic dynamic fallback from live fixtures with double chance tips
@@ -533,19 +565,694 @@ export function generateDoubleChanceFixturesMarkdown(
 }
 
 /**
- * Replaces any top confidence or double chance parameter / shortcode in markdown content with real dynamic jackpot fixtures.
+ * Standard curated league names arrangement for SportPesa Mega Jackpot matches.
+ * Exactly: "Serie A, Ligue 1, Serie B, La Liga, the Premier League, Jupiler Pro League, Primeira Liga, Süper Lig, Superliga and Eliteserien"
+ */
+export const DEFAULT_SPORTPESA_MEGA_LEAGUES: string[] = [
+  'Serie A',
+  'Ligue 1',
+  'Serie B',
+  'La Liga',
+  'the Premier League',
+  'Jupiler Pro League',
+  'Primeira Liga',
+  'Süper Lig',
+  'Superliga',
+  'Eliteserien'
+];
+
+/**
+ * Formats an individual league name according to standard editorial conventions (e.g., adding "the" where appropriate).
+ */
+export function formatLeagueName(name: string): string {
+  if (!name) return '';
+  const trimmed = name.trim();
+  const lower = trimmed.toLowerCase();
+
+  if (lower === 'premier league' || lower === 'english premier league' || lower === 'epl') {
+    return 'the Premier League';
+  }
+  if (lower === 'championship' || lower === 'english championship') {
+    return 'the Championship';
+  }
+  if (lower === 'premiership' || lower === 'scottish premiership') {
+    return 'the Scottish Premiership';
+  }
+  if (lower === 'super lig' || lower === 'süper lig' || lower === 'turkey super lig') {
+    return 'Süper Lig';
+  }
+  if (lower === 'primeira liga' || lower === 'portugal primeira liga') {
+    return 'Primeira Liga';
+  }
+  if (lower === 'jupiler pro league' || lower === 'belgian pro league') {
+    return 'Jupiler Pro League';
+  }
+  if (lower === 'la liga' || lower === 'laliga' || lower === 'primera division') {
+    return 'La Liga';
+  }
+  if (lower === 'serie a') {
+    return 'Serie A';
+  }
+  if (lower === 'serie b') {
+    return 'Serie B';
+  }
+  if (lower === 'ligue 1') {
+    return 'Ligue 1';
+  }
+  if (lower === 'ligue 2') {
+    return 'Ligue 2';
+  }
+  if (lower === 'bundesliga') {
+    return 'the Bundesliga';
+  }
+  if (lower === 'eredivisie') {
+    return 'the Eredivisie';
+  }
+  if (lower === 'superliga' || lower === 'danish superliga') {
+    return 'Superliga';
+  }
+  if (lower === 'eliteserien' || lower === 'norwegian eliteserien') {
+    return 'Eliteserien';
+  }
+  if (lower === 'allsvenskan') {
+    return 'Allsvenskan';
+  }
+  if (lower === 'ekstraklasa') {
+    return 'Ekstraklasa';
+  }
+  if (lower === 'czech liga' || lower === 'czech first league') {
+    return 'the Czech First League';
+  }
+
+  // Preserve existing "the " prefix
+  if (/^the\s+/i.test(trimmed)) {
+    return trimmed;
+  }
+
+  return trimmed;
+}
+
+/**
+ * Joins an array of league names with commas and natural "and" before the final item.
+ * Example: ["Serie A", "Ligue 1", ..., "Eliteserien"] -> "Serie A, Ligue 1, ..., Superliga and Eliteserien"
+ */
+export function joinLeagueNames(leagues: string[]): string {
+  if (!leagues || leagues.length === 0) return '';
+  if (leagues.length === 1) return leagues[0];
+  if (leagues.length === 2) return `${leagues[0]} and ${leagues[1]}`;
+  const allButLast = leagues.slice(0, -1).join(', ');
+  return `${allButLast} and ${leagues[leagues.length - 1]}`;
+}
+
+/**
+ * Retrieves the league names for a jackpot slate, supporting curated arrangement or live fixture extraction.
+ */
+export function getJackpotLeagueNames(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto'
+): string[] {
+  let jackpotId = 'sportpesa-mega';
+  let fixtures: Fixture[] = [];
+
+  if (Array.isArray(source) && source.length > 0) {
+    fixtures = source;
+  } else if (typeof source === 'string' && source) {
+    jackpotId = resolveJackpotId(source, 'sportpesa-mega');
+    const jackpot = jackpotsData.find(j => j.id === jackpotId || j.slug === jackpotId);
+    if (jackpot && Array.isArray(jackpot.fixtures)) {
+      fixtures = jackpot.fixtures;
+    }
+  } else {
+    const defaultJackpot = jackpotsData.find(j => j.id === 'sportpesa-mega');
+    if (defaultJackpot && Array.isArray(defaultJackpot.fixtures)) {
+      fixtures = defaultJackpot.fixtures;
+    }
+  }
+
+  // Curated SportPesa Mega leagues
+  if (mode === 'curated' && jackpotId === 'sportpesa-mega') {
+    return [...DEFAULT_SPORTPESA_MEGA_LEAGUES];
+  }
+
+  // If fixtures are available, extract directly
+  if (fixtures.length > 0) {
+    const rawLeagues = fixtures
+      .map(f => f.leagueName || (f as any).league_name || (f as any).league || '')
+      .filter(l => l && l.trim().length > 1);
+
+    const seen = new Set<string>();
+    const formatted: string[] = [];
+    for (const raw of rawLeagues) {
+      const clean = formatLeagueName(raw);
+      const key = clean.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        formatted.push(clean);
+      }
+    }
+
+    if (formatted.length > 0) {
+      return formatted;
+    }
+  }
+
+  return [...DEFAULT_SPORTPESA_MEGA_LEAGUES];
+}
+
+/**
+ * Generates formatted league names text for any jackpot (or SportPesa Mega by default).
+ */
+export function generateJackpotLeaguesText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto'
+): string {
+  const leagues = getJackpotLeagueNames(source, mode);
+  return joinLeagueNames(leagues);
+}
+
+/**
+ * Backwards compatibility alias for SportPesa Mega Jackpot.
+ */
+export function generateMegaJackpotLeaguesText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto'
+): string {
+  return generateJackpotLeaguesText(source || 'sportpesa-mega', mode);
+}
+
+/**
+ * Metadata configuration for all 8 available jackpots in Kenya.
+ */
+export interface JackpotTagConfig {
+  id: string;
+  name: string;
+  shortName: string;
+  matchCount: number;
+  stakeText: string;
+  prefixes: string[];
+  defaultSchedule?: string;
+  defaultSelections?: string;
+  defaultUpsetAlert?: string;
+  defaultSubCombosParagraph: string;
+  defaultSubCombosList: string;
+  defaultSubCombosShort: string;
+}
+
+export const ALL_JACKPOT_CONFIGS: Record<string, JackpotTagConfig> = {
+  'sportpesa-mega': {
+    id: 'sportpesa-mega',
+    name: 'SportPesa Mega Jackpot Pro',
+    shortName: 'SportPesa Mega',
+    matchCount: 17,
+    stakeText: 'KSh 99',
+    prefixes: ['MEGA_JACKPOT', 'SPORTPESA_MEGA', 'SPORTPESA_MEGA_JACKPOT', 'MEGA'],
+    defaultSchedule: 'Saturday, September 12, from 19:00, with the remaining fixtures continuing throughout Sunday, September 13',
+    defaultSelections: '6 home wins, 2 draws, 5 away wins and 4 double chances',
+    defaultUpsetAlert: "St Johnstone vs Hibernian (Scottish Premiership) and Espanyol vs Sevilla (La Liga) represent this weekend's primary upset alerts, where narrow head-to-head margins and unpredictable away form make double chance coverage (X2 or 1X) highly advisable.",
+    defaultSubCombosParagraph: 'SportPesa Mega Jackpot Pro offers five distinct combination tiers from the same 17-game coupon at KSh 99 per line: the full 17-match jackpot, the 16-game sub-jackpot (matches 2–17), the 15-game sub-jackpot (matches 3–17), the 14-game sub-jackpot (matches 4–17), and the 13-game sub-jackpot (matches 5–17), each featuring standalone guaranteed jackpots and cash bonuses.',
+    defaultSubCombosList: [
+      '- **17-Game Mega Jackpot**: Matches 1–17 (Full Mega Jackpot + 12–16 bonus tiers)',
+      '- **16-Game Sub-Jackpot**: Matches 2–17 (Standalone jackpot & bonuses)',
+      '- **15-Game Sub-Jackpot**: Matches 3–17 (Standalone jackpot & bonuses)',
+      '- **14-Game Sub-Jackpot**: Matches 4–17 (Standalone jackpot & bonuses)',
+      '- **13-Game Sub-Jackpot**: Matches 5–17 (Standalone jackpot & bonuses)'
+    ].join('\n'),
+    defaultSubCombosShort: 'the 17-match main jackpot, the 16-game combo (matches 2–17), the 15-game combo (matches 3–17), the 14-game combo (matches 4–17), and the 13-game combo (matches 5–17)'
+  },
+  'betika-midweek': {
+    id: 'betika-midweek',
+    name: 'Betika Midweek Jackpot',
+    shortName: 'Betika Midweek',
+    matchCount: 15,
+    stakeText: 'KSh 15',
+    prefixes: ['BETIKA_MIDWEEK', 'BETIKA', 'BETIKA_JACKPOT'],
+    defaultSchedule: 'Saturday, September 27, from 16:30, with the remaining fixtures continuing throughout Sunday, September 28',
+    defaultSubCombosParagraph: 'The Betika Midweek Jackpot features a 15-game football slate with an entry stake of KSh 15, offering a grand prize of KSh 15 Million along with guaranteed cash bonus payouts for 12, 13, and 14 correct predictions.',
+    defaultSubCombosList: [
+      '- **15/15 Grand Prize**: KSh 15,000,000 top jackpot prize',
+      '- **14/15 Bonus Tier**: High-tier cash consolation bonus',
+      '- **13/15 Bonus Tier**: Mid-tier cash consolation bonus',
+      '- **12/15 Bonus Tier**: Entry consolation prize tier'
+    ].join('\n'),
+    defaultSubCombosShort: 'the 15/15 Grand Prize (KSh 15M) and bonus payout tiers for 14, 13, and 12 correct match picks'
+  },
+  'mozzart-grand': {
+    id: 'mozzart-grand',
+    name: 'Mozzart Super Grand Jackpot',
+    shortName: 'Mozzart Grand',
+    matchCount: 20,
+    stakeText: 'KSh 50',
+    prefixes: ['MOZZART_GRAND', 'MOZZART', 'MOZZART_JACKPOT', 'MOZZART_GRAND_JACKPOT'],
+    defaultSchedule: 'Saturday, September 20, from 18:00, with the remaining fixtures continuing throughout Sunday, September 21',
+    defaultSubCombosParagraph: 'The Mozzart Super Grand Jackpot spans 20 pre-selected matches with a standard stake of KSh 50, featuring a fixed top prize of KSh 200 Million alongside cash bonus payouts for 17, 18, and 19 correct predictions, plus a unique consolation prize for correctly calling 0 matches.',
+    defaultSubCombosList: [
+      '- **20/20 Grand Prize**: KSh 200,000,000 fixed cash jackpot',
+      '- **19/20 Bonus Tier**: Significant cash payout bonus',
+      '- **18/20 Bonus Tier**: Substantial consolation bonus',
+      '- **17/20 Bonus Tier**: Entry-level cash bonus tier',
+      '- **0/20 Unique Prize**: Consolation reward for getting zero predictions correct'
+    ].join('\n'),
+    defaultSubCombosShort: 'the 20/20 Grand Prize (KSh 200M), bonus payouts for 19, 18, and 17 correct picks, and the unique 0/20 consolation prize'
+  },
+  'sportpesa-midweek': {
+    id: 'sportpesa-midweek',
+    name: 'SportPesa Midweek Jackpot',
+    shortName: 'SportPesa Midweek',
+    matchCount: 13,
+    stakeText: 'KSh 99',
+    prefixes: ['SPORTPESA_MIDWEEK', 'SP_MIDWEEK', 'MIDWEEK', 'SPORTPESA_MIDWEEK_JACKPOT'],
+    defaultSchedule: 'Friday, September 19, from 20:00',
+    defaultSubCombosParagraph: 'The SportPesa Midweek Jackpot challenges bettors to predict 13 competitive games for a stake of KSh 99, featuring a progressive multi-million shilling jackpot starting from KSh 10 Million and guaranteed cash bonuses for 10, 11, and 12 correct predictions.',
+    defaultSubCombosList: [
+      '- **13/13 Midweek Jackpot**: Progressive multi-million top cash prize',
+      '- **12/13 Bonus Tier**: Top consolation cash payout',
+      '- **11/13 Bonus Tier**: Medium consolation bonus',
+      '- **10/13 Bonus Tier**: Entry consolation prize tier'
+    ].join('\n'),
+    defaultSubCombosShort: 'the 13/13 main progressive jackpot, with cash bonus payout tiers for 12, 11, and 10 correct match outcomes'
+  },
+  'sportybet-jackpot': {
+    id: 'sportybet-jackpot',
+    name: 'SportyBet 12 Jackpot',
+    shortName: 'SportyBet 12',
+    matchCount: 12,
+    stakeText: 'KSh 50',
+    prefixes: ['SPORTYBET_JACKPOT', 'SPORTYBET', 'SPORTY_JACKPOT'],
+    defaultSchedule: 'Saturday, September 20, from 17:00, with the remaining fixtures continuing throughout Sunday, September 21',
+    defaultSubCombosParagraph: 'The SportyBet 12 Jackpot coupon requires bettors to predict 12 top-tier matches with a KSh 50 stake, offering a substantial jackpot prize pool alongside consolation cash bonus payouts for 10 and 11 correct outcomes.',
+    defaultSubCombosList: [
+      '- **12/12 Main Jackpot**: Top cash prize for a perfect ticket',
+      '- **11/12 Bonus Tier**: High consolation cash payout',
+      '- **10/12 Bonus Tier**: Consolation prize tier'
+    ].join('\n'),
+    defaultSubCombosShort: 'the 12/12 top jackpot prize, with bonus cash tiers for 11 and 10 correct predictions'
+  },
+  'betpawa-pick-jackpot': {
+    id: 'betpawa-pick-jackpot',
+    name: 'betPawa Pick13 Jackpot',
+    shortName: 'betPawa Pick13',
+    matchCount: 13,
+    stakeText: 'KSh 5–10',
+    prefixes: ['BETPAWA_PICK_JACKPOT', 'BETPAWA_PICK', 'BETPAWA', 'BETPAWA_JACKPOT'],
+    defaultSchedule: 'Tuesday, September 23, from 22:00, with the remaining fixtures continuing throughout Thursday, September 25',
+    defaultSubCombosParagraph: 'The betPawa Pick13 Jackpot provides an accessible 13-game challenge at a stake of KSh 5 to KSh 10, delivering guaranteed jackpot pool prizes and consolation bonus tiers for 10, 11, and 12 correct match calls.',
+    defaultSubCombosList: [
+      '- **13/13 Pick Jackpot**: Top jackpot cash payout',
+      '- **12/13 Bonus Tier**: High consolation cash prize',
+      '- **11/13 Bonus Tier**: Medium consolation prize',
+      '- **10/13 Bonus Tier**: Consolation payout tier'
+    ].join('\n'),
+    defaultSubCombosShort: 'the 13/13 jackpot prize pool, with consolation bonuses for 12, 11, and 10 correct selections'
+  },
+  'odibet-laki-tatu': {
+    id: 'odibet-laki-tatu',
+    name: 'Odibets Laki Tatu Daily Jackpot',
+    shortName: 'Odibets Laki Tatu',
+    matchCount: 10,
+    stakeText: 'KSh 15',
+    prefixes: ['ODIBET_LAKI_TATU', 'ODIBET', 'LAKI_TATU', 'ODIBETS_JACKPOT', 'LAKITATU'],
+    defaultSchedule: 'Saturday, September 27, from 19:00, with the remaining fixtures continuing throughout Sunday, September 28',
+    defaultSubCombosParagraph: 'The Odibets Laki Tatu Daily Jackpot features 10 selected fixtures with an affordable KSh 15 stake, rewarding a perfect 10/10 ticket with a guaranteed KSh 300,000 daily prize and consolation bonuses for 8 and 9 correct predictions.',
+    defaultSubCombosList: [
+      '- **10/10 Laki Tatu Prize**: Guaranteed KSh 300,000 daily grand payout',
+      '- **9/10 Bonus Tier**: Consolation cash prize',
+      '- **8/10 Bonus Tier**: Runner-up consolation prize'
+    ].join('\n'),
+    defaultSubCombosShort: 'the KSh 300,000 daily 10/10 jackpot, with consolation bonuses for 9 and 8 correct picks'
+  },
+  'mozzart-super-daily': {
+    id: 'mozzart-super-daily',
+    name: 'Mozzart Super Daily Jackpot',
+    shortName: 'Mozzart Super Daily',
+    matchCount: 16,
+    stakeText: 'KSh 20',
+    prefixes: ['MOZZART_SUPER_DAILY', 'SUPER_DAILY', 'MOZZART_DAILY', 'SUPER_DAILY_JACKPOT'],
+    defaultSchedule: 'Monday, September 22, from 18:00, with the remaining fixtures continuing throughout Tuesday, September 23',
+    defaultSubCombosParagraph: 'The Mozzart Super Daily Jackpot is an intensive 16-game daily coupon with a KSh 20 stake, delivering a daily jackpot prize of KSh 200,000 for 16/16 correct calls and tiered consolation prizes.',
+    defaultSubCombosList: [
+      '- **16/16 Super Daily Prize**: KSh 200,000 daily top prize',
+      '- **Consolation Tiers**: Consolation cash payouts for near-miss tickets'
+    ].join('\n'),
+    defaultSubCombosShort: 'the 16/16 daily jackpot (KSh 200,000) and consolation bonus tiers'
+  }
+};
+
+/**
+ * Resolves a jackpot prefix or raw ID string to one of the 8 canonical jackpot IDs.
+ */
+export function resolveJackpotId(raw?: string, defaultJackpotId: string = 'sportpesa-mega'): string {
+  if (!raw) return defaultJackpotId;
+  const s = raw.toLowerCase().trim().replace(/_/g, '-');
+
+  // Exact ID match
+  if (ALL_JACKPOT_CONFIGS[s]) return s;
+
+  if (s.includes('betika')) return 'betika-midweek';
+  if (s.includes('mozzart-super') || s.includes('super-daily') || s.includes('mozzart-daily')) return 'mozzart-super-daily';
+  if (s.includes('mozzart')) return 'mozzart-grand';
+  if (s.includes('sportpesa-midweek') || s.includes('sp-midweek') || (s.includes('midweek') && !s.includes('betika'))) return 'sportpesa-midweek';
+  if (s.includes('sportybet') || s.includes('sporty')) return 'sportybet-jackpot';
+  if (s.includes('betpawa') || s.includes('pawa')) return 'betpawa-pick-jackpot';
+  if (s.includes('odibet') || s.includes('laki-tatu') || s.includes('lakitatu')) return 'odibet-laki-tatu';
+  if (s.includes('mega') || s.includes('sportpesa')) return 'sportpesa-mega';
+
+  return defaultJackpotId;
+}
+
+/**
+ * Standard default constants for SportPesa Mega Jackpot.
+ */
+export const DEFAULT_SPORTPESA_MEGA_SCHEDULE = ALL_JACKPOT_CONFIGS['sportpesa-mega'].defaultSchedule!;
+export const DEFAULT_SPORTPESA_MEGA_SELECTIONS = ALL_JACKPOT_CONFIGS['sportpesa-mega'].defaultSelections!;
+export const DEFAULT_SPORTPESA_MEGA_UPSET_ALERT = ALL_JACKPOT_CONFIGS['sportpesa-mega'].defaultUpsetAlert!;
+export const DEFAULT_SPORTPESA_MEGA_SUB_COMBOS = ALL_JACKPOT_CONFIGS['sportpesa-mega'].defaultSubCombosParagraph;
+
+/**
+ * Generates upset alert text for any jackpot fixtures.
+ */
+export function generateJackpotUpsetAlertText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto'
+): string {
+  const { jackpotId, fixtures } = getFixturesForJackpot(source);
+  const cfg = ALL_JACKPOT_CONFIGS[jackpotId];
+
+  // Curated upset alert when explicitly requested
+  if (mode === 'curated') {
+    return cfg?.defaultUpsetAlert || DEFAULT_SPORTPESA_MEGA_UPSET_ALERT;
+  }
+
+  // Dynamic analysis from coupon fixtures
+  if (fixtures.length >= 2) {
+    const sorted = [...fixtures].sort((a, b) => {
+      const confA = typeof a.confidence === 'number' ? a.confidence : 75;
+      const confB = typeof b.confidence === 'number' ? b.confidence : 75;
+      const isDrawA = normalizeTipSymbol(a.prediction || (a as any).tip || '') === 'X' ? 1 : 0;
+      const isDrawB = normalizeTipSymbol(b.prediction || (b as any).tip || '') === 'X' ? 1 : 0;
+      if (isDrawA !== isDrawB) return isDrawB - isDrawA;
+      return confA - confB;
+    });
+
+    const f1 = sorted[0];
+    const f2 = sorted[1];
+
+    const getRec = (f: Fixture) => {
+      const tip = normalizeTipSymbol(f.prediction || (f as any).tip || '');
+      if (tip === 'X') return '1X or X2';
+      if (tip === '1') return '1X';
+      if (tip === '2' || tip === 'DC2') return 'X2';
+      return '1X or X2';
+    };
+
+    const f1Rec = getRec(f1);
+    const f2Rec = getRec(f2);
+    const l1 = formatLeagueName(f1.leagueName || (f1 as any).league || 'League');
+    const l2 = formatLeagueName(f2.leagueName || (f2 as any).league || 'League');
+    const t1Home = cleanTeamName(f1.homeTeam);
+    const t1Away = cleanTeamName(f1.awayTeam);
+    const t2Home = cleanTeamName(f2.homeTeam);
+    const t2Away = cleanTeamName(f2.awayTeam);
+
+    return `${t1Home} vs ${t1Away} (${l1}) and ${t2Home} vs ${t2Away} (${l2}) represent this round's primary upset alerts, where narrow margins make double chance coverage (${f1Rec} and ${f2Rec}) essential.`;
+  }
+
+  return cfg?.defaultUpsetAlert || DEFAULT_SPORTPESA_MEGA_UPSET_ALERT;
+}
+
+/**
+ * Backwards compatibility alias for SportPesa Mega Jackpot upset alert.
+ */
+export function generateMegaJackpotUpsetAlertText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto'
+): string {
+  return generateJackpotUpsetAlertText(source || 'sportpesa-mega', mode);
+}
+
+/**
+ * Generates sub-jackpot combos / bonus tiers overview text for any jackpot.
+ */
+export function generateJackpotSubCombosText(
+  jackpotIdOrSource?: string,
+  format: 'paragraph' | 'list' | 'short' = 'paragraph'
+): string {
+  const jackpotId = resolveJackpotId(jackpotIdOrSource, 'sportpesa-mega');
+  const cfg = ALL_JACKPOT_CONFIGS[jackpotId] || ALL_JACKPOT_CONFIGS['sportpesa-mega'];
+
+  if (format === 'list') {
+    return cfg.defaultSubCombosList;
+  }
+  if (format === 'short') {
+    return cfg.defaultSubCombosShort;
+  }
+  return cfg.defaultSubCombosParagraph;
+}
+
+/**
+ * Backwards compatibility alias for SportPesa Mega Jackpot sub combos.
+ */
+export function generateMegaJackpotSubCombosText(
+  format: 'paragraph' | 'list' | 'short' = 'paragraph'
+): string {
+  return generateJackpotSubCombosText('sportpesa-mega', format);
+}
+
+/**
+ * Generates formatted date/time schedule text for any jackpot fixtures.
+ * Note: Applies +3 hours (UTC+3 / East Africa Time) to all dates/times.
+ */
+export function generateJackpotScheduleText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto',
+  timezoneOffsetHours: number = 3
+): string {
+  const { jackpotId, fixtures } = getFixturesForJackpot(source);
+  const cfg = ALL_JACKPOT_CONFIGS[jackpotId];
+
+  if (mode === 'curated') {
+    return cfg?.defaultSchedule || DEFAULT_SPORTPESA_MEGA_SCHEDULE;
+  }
+
+  if (fixtures.length > 0) {
+    const validDates = fixtures
+      .map(f => {
+        if (!f.kickoffTime) return null;
+        const d = new Date(f.kickoffTime.replace(' ', 'T'));
+        if (isNaN(d.getTime())) return null;
+        return new Date(d.getTime() + timezoneOffsetHours * 60 * 60 * 1000);
+      })
+      .filter((d): d is Date => d !== null)
+      .sort((a, b) => a.getTime() - b.getTime());
+
+    if (validDates.length > 0) {
+      const first = validDates[0];
+      const last = validDates[validDates.length - 1];
+
+      const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+      const startDay = daysOfWeek[first.getUTCDay()];
+      const startMonth = months[first.getUTCMonth()];
+      const startDateNum = first.getUTCDate();
+      const startHour = String(first.getUTCHours()).padStart(2, '0');
+      const startMinute = String(first.getUTCMinutes()).padStart(2, '0');
+      const startTime = `${startHour}:${startMinute}`;
+
+      const endDay = daysOfWeek[last.getUTCDay()];
+      const endMonth = months[last.getUTCMonth()];
+      const endDateNum = last.getUTCDate();
+
+      if (startDay !== endDay || first.getUTCMonth() !== last.getUTCMonth() || startDateNum !== endDateNum) {
+        return `${startDay}, ${startMonth} ${startDateNum}, from ${startTime}, with the remaining fixtures continuing throughout ${endDay}, ${endMonth} ${endDateNum}`;
+      } else {
+        return `${startDay}, ${startMonth} ${startDateNum}, from ${startTime}`;
+      }
+    }
+  }
+
+  return cfg?.defaultSchedule || DEFAULT_SPORTPESA_MEGA_SCHEDULE;
+}
+
+/**
+ * Backwards compatibility alias for SportPesa Mega schedule.
+ */
+export function generateMegaJackpotScheduleText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto',
+  timezoneOffsetHours: number = 3
+): string {
+  return generateJackpotScheduleText(source || 'sportpesa-mega', mode, timezoneOffsetHours);
+}
+
+/**
+ * Calculates outcome distribution (home wins, draws, away wins) for any jackpot predictions.
+ */
+export function getJackpotDoubleChancesCount(source?: string | Fixture[]): number {
+  const { fixtures } = getFixturesForJackpot(source);
+  if (!fixtures || fixtures.length === 0) return 0;
+  return fixtures.filter(f => {
+    const rawTip = f.prediction || (f as any).tip || '';
+    return isDoubleChanceTip(rawTip) || isDoubleChanceTip(normalizeTipSymbol(rawTip));
+  }).length;
+}
+
+/**
+ * Generates the breakdown of prediction outcomes for any jackpot (e.g. "10 home wins, 1 draw, 6 away wins and 4 double chances").
+ * When includePrefix is true, prepends "selections include ".
+ */
+export function generateJackpotSelectionsText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto',
+  includePrefix: boolean = false
+): string {
+  const { jackpotId, fixtures } = getFixturesForJackpot(source);
+  const cfg = ALL_JACKPOT_CONFIGS[jackpotId];
+
+  if (mode === 'curated') {
+    const body = cfg?.defaultSelections || DEFAULT_SPORTPESA_MEGA_SELECTIONS;
+    return includePrefix ? `selections include ${body}` : body;
+  }
+
+  if (fixtures.length > 0) {
+    let homeWins = 0;
+    let draws = 0;
+    let awayWins = 0;
+    let doubleChances = 0;
+
+    for (const f of fixtures) {
+      const rawPrediction = f.prediction || (f as any).tip || '';
+      const tip = normalizeTipSymbol(rawPrediction);
+      const isDc = isDoubleChanceTip(rawPrediction) || isDoubleChanceTip(tip);
+      if (isDc) {
+        doubleChances++;
+      } else if (tip === '1') {
+        homeWins++;
+      } else if (tip === 'X') {
+        draws++;
+      } else {
+        awayWins++;
+      }
+    }
+
+    const parts: string[] = [
+      `${homeWins} home win${homeWins === 1 ? '' : 's'}`,
+      `${draws} draw${draws === 1 ? '' : 's'}`,
+      `${awayWins} away win${awayWins === 1 ? '' : 's'}`
+    ];
+    if (doubleChances > 0) {
+      parts.push(`${doubleChances} double chance${doubleChances === 1 ? '' : 's'}`);
+    }
+
+    let body = '';
+    if (parts.length === 1) {
+      body = parts[0];
+    } else if (parts.length === 2) {
+      body = `${parts[0]} and ${parts[1]}`;
+    } else {
+      const last = parts.pop();
+      body = `${parts.join(', ')} and ${last}`;
+    }
+
+    return includePrefix ? `selections include ${body}` : body;
+  }
+
+  const body = cfg?.defaultSelections || DEFAULT_SPORTPESA_MEGA_SELECTIONS;
+  return includePrefix ? `selections include ${body}` : body;
+}
+
+/**
+ * Backwards compatibility alias for SportPesa Mega selections.
+ */
+export function generateMegaJackpotSelectionsText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto'
+): string {
+  return generateJackpotSelectionsText(source || 'sportpesa-mega', mode, false);
+}
+
+/**
+ * Helper to parse tag parameters: count, jackpot, mode, format.
+ */
+interface ParsedTagParams {
+  jackpotId: string;
+  count?: number;
+  mode: 'auto' | 'fixtures' | 'curated';
+  format: 'paragraph' | 'list' | 'short';
+}
+
+function parseAllTagParams(rawAttrs: string, tagJackpotHint: string, defaultJackpotId: string): ParsedTagParams {
+  let jackpotId = resolveJackpotId(tagJackpotHint || defaultJackpotId, defaultJackpotId);
+  let count: number | undefined = undefined;
+  let mode: 'auto' | 'fixtures' | 'curated' = 'auto';
+  let format: 'paragraph' | 'list' | 'short' = 'paragraph';
+
+  if (!rawAttrs) return { jackpotId, count, mode, format };
+
+  const attrs = rawAttrs.trim();
+
+  // Colon shorthand: e.g. :5 or :7
+  const countMatch = attrs.match(/^:(\d+)/);
+  if (countMatch) {
+    count = parseInt(countMatch[1], 10);
+  }
+
+  // Key-value count: count=5
+  const kvCountMatch = attrs.match(/count\s*=\s*["']?(\d+)["']?/i);
+  if (kvCountMatch) {
+    count = parseInt(kvCountMatch[1], 10);
+  }
+
+  // Mode: :fixtures, :curated, :live, :dynamic
+  if (/fixture|live|dynamic/i.test(attrs)) {
+    mode = 'fixtures';
+  } else if (/curated|example|default/i.test(attrs)) {
+    mode = 'curated';
+  }
+
+  // Format: :list, :short, :paragraph
+  if (/list/i.test(attrs)) {
+    format = 'list';
+  } else if (/short/i.test(attrs)) {
+    format = 'short';
+  }
+
+  // Explicit jackpot specification: jackpot="betika-midweek" or id="mozzart-grand"
+  const jackpotMatch = attrs.match(/(?:jackpot|id)\s*=\s*["']?([a-zA-Z0-9_-]+)["']?/i);
+  if (jackpotMatch) {
+    jackpotId = resolveJackpotId(jackpotMatch[1], jackpotId);
+  }
+
+  return { jackpotId, count, mode, format };
+}
+
+/**
+ * Universal tag replacer supporting all 8 Kenyan jackpots and generic jackpot tags.
  * 
- * Supported parameters in markdown:
- * - Top Confidence:
- *   - `{{TOP_MEGA_JACKPOT_FIXTURES}}` or `{{TOP_MEGA_JACKPOT_FIXTURES:5}}` or `{{TOP_MEGA_JACKPOT_FIXTURES:7}}`
- *   - `<!-- TOP_MEGA_JACKPOT_FIXTURES -->`
- *   - `{{TOP_CONFIDENCE_FIXTURES}}`
- *   - `[TOP_MEGA_JACKPOT_FIXTURES]`
- * - Double Chances:
- *   - `{{MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES}}` or `{{DOUBLE_CHANCE_FIXTURES}}` or `{{TOP_DOUBLE_CHANCE_FIXTURES}}`
- *   - `{{SPORTPESA_MEGA_DOUBLE_CHANCES}}` or `{{DOUBLE_CHANCES}}` or `{{DOUBLE_CHANCE}}`
- *   - `<!-- MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES -->` or `<!-- DOUBLE_CHANCE_FIXTURES -->`
- *   - `[MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES]` or `[DOUBLE_CHANCE_FIXTURES]`
+ * Supported Syntax:
+ * - Mustache: {{TAG}}
+ * - HTML comment: <!-- TAG -->
+ * - Brackets: [TAG]
+ * 
+ * Supported Jackpot Prefixes:
+ * - MEGA_JACKPOT_ / SPORTPESA_MEGA_ / MEGA_
+ * - BETIKA_MIDWEEK_ / BETIKA_
+ * - MOZZART_GRAND_ / MOZZART_
+ * - SPORTPESA_MIDWEEK_ / SP_MIDWEEK_ / MIDWEEK_
+ * - SPORTYBET_JACKPOT_ / SPORTYBET_
+ * - BETPAWA_PICK_JACKPOT_ / BETPAWA_PICK_ / BETPAWA_
+ * - ODIBET_LAKI_TATU_ / ODIBET_ / LAKI_TATU_
+ * - MOZZART_SUPER_DAILY_ / SUPER_DAILY_ / MOZZART_DAILY_
+ * - Generic: JACKPOT_ (resolves dynamically to current page's jackpot)
+ * 
+ * Supported Suffixes:
+ * - DATES / SCHEDULE
+ * - SELECTIONS_INCLUDE
+ * - SELECTIONS / OUTCOMES / DISTRIBUTION
+ * - UPSET_ALERT / UPSET_ALERTS / UPSETS
+ * - SUB_COMBOS / COMBOS / BONUSES / TIERS
+ * - LEAGUES / LEAGUE_NAMES
+ * - DOUBLE_CHANCE_FIXTURES / DOUBLE_CHANCES / DOUBLE_CHANCE
+ * - TOP_FIXTURES / TOP_CONFIDENCE_FIXTURES / TOP_CONFIDENCE
  */
 export function expandTopFixturesParameters(
   content: string,
@@ -554,88 +1261,110 @@ export function expandTopFixturesParameters(
 ): string {
   if (!content) return content;
 
-  // Helper to extract count and jackpot from matched attribute strings
-  const parseParams = (rawAttrs: string, defaultCnt?: number): { count: number | undefined; jackpotId: string } => {
-    let count = defaultCnt;
-    let jackpotId = defaultJackpotId;
-
-    if (!rawAttrs) return { count, jackpotId };
-
-    // Format :5 or :7
-    const colonMatch = rawAttrs.match(/^:(\d+)/);
-    if (colonMatch) {
-      count = parseInt(colonMatch[1], 10);
-    }
-
-    // Key-value pairs: count=5 or count="5"
-    const countMatch = rawAttrs.match(/count\s*=\s*["']?(\d+)["']?/i);
-    if (countMatch) {
-      count = parseInt(countMatch[1], 10);
-    }
-
-    // Key-value pairs: jackpot="sportpesa-mega"
-    const jackpotMatch = rawAttrs.match(/(?:jackpot|id)\s*=\s*["']?([a-zA-Z0-9_-]+)["']?/i);
-    if (jackpotMatch) {
-      jackpotId = jackpotMatch[1];
-    }
-
-    return { count, jackpotId };
-  };
-
-  // 1. Double Chance patterns: {{MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES ...}}, {{DOUBLE_CHANCE_FIXTURES ...}}, etc.
-  const dcMustacheRegex = /\{\{\s*(?:MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCE_FIXTURES|TOP_DOUBLE_CHANCE_FIXTURES|SPORTPESA_MEGA_DOUBLE_CHANCES|DOUBLE_CHANCE|DOUBLE_CHANCES|MEGA_JACKPOT_DOUBLE_CHANCE)([\s:][^}]*)?\}\}/gi;
-  const dcHtmlCommentRegex = /<!--\s*(?:MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCE_FIXTURES|TOP_DOUBLE_CHANCE_FIXTURES|SPORTPESA_MEGA_DOUBLE_CHANCES|DOUBLE_CHANCE|DOUBLE_CHANCES|MEGA_JACKPOT_DOUBLE_CHANCE)([\s:][^-]*)?-->/gi;
-  const dcBracketRegex = /\[\s*(?:MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCE_FIXTURES|TOP_DOUBLE_CHANCE_FIXTURES|SPORTPESA_MEGA_DOUBLE_CHANCES|DOUBLE_CHANCE|DOUBLE_CHANCES|MEGA_JACKPOT_DOUBLE_CHANCE)([\s:][^\]]*)?\]/gi;
-
-  // 2. Top Confidence patterns: {{TOP_MEGA_JACKPOT_FIXTURES ...}}, {{TOP_CONFIDENCE_FIXTURES ...}}, etc.
-  const topMustacheRegex = /\{\{\s*(?:TOP_MEGA_JACKPOT_FIXTURES|TOP_CONFIDENCE_FIXTURES|SPORTPESA_MEGA_TOP_CONFIDENCE|TOP_CONFIDENCE_JACKPOT_FIXTURES)([\s:][^}]*)?\}\}/gi;
-  const topHtmlCommentRegex = /<!--\s*(?:TOP_MEGA_JACKPOT_FIXTURES|TOP_CONFIDENCE_FIXTURES|SPORTPESA_MEGA_TOP_CONFIDENCE|TOP_CONFIDENCE_JACKPOT_FIXTURES)([\s:][^-]*)?-->/gi;
-  const topBracketRegex = /\[\s*(?:TOP_MEGA_JACKPOT_FIXTURES|TOP_CONFIDENCE_FIXTURES|SPORTPESA_MEGA_TOP_CONFIDENCE)([\s:][^\]]*)?\]/gi;
-
   let expanded = content;
 
-  // Expand double chances first
-  expanded = expanded.replace(dcMustacheRegex, (_match, attrs) => {
-    const { count, jackpotId } = parseParams(attrs?.trim() || '');
-    return generateDoubleChanceFixturesMarkdown(customFixtures || jackpotId, count);
-  });
+  // Regular expression capturing tag components:
+  // Group 1: Prefix (or undefined for generic)
+  // Group 2: Suffix
+  // Group 3: Attributes
+  const universalTagRegex = /\{\{\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|SPORTYBET_JACKPOT|SPORTYBET|SPORTY_JACKPOT|BETPAWA_PICK_JACKPOT|BETPAWA_PICK|BETPAWA|BETPAWA_JACKPOT|ODIBET_LAKI_TATU|ODIBET|LAKI_TATU|ODIBETS_JACKPOT|LAKITATU|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^}]*)?\}\}/gi;
 
-  expanded = expanded.replace(dcHtmlCommentRegex, (_match, attrs) => {
-    const { count, jackpotId } = parseParams(attrs?.trim() || '');
-    return generateDoubleChanceFixturesMarkdown(customFixtures || jackpotId, count);
-  });
+  const universalHtmlCommentRegex = /<!--\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|SPORTYBET_JACKPOT|SPORTYBET|SPORTY_JACKPOT|BETPAWA_PICK_JACKPOT|BETPAWA_PICK|BETPAWA|BETPAWA_JACKPOT|ODIBET_LAKI_TATU|ODIBET|LAKI_TATU|ODIBETS_JACKPOT|LAKITATU|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^-]*)?-->/gi;
 
-  expanded = expanded.replace(dcBracketRegex, (_match, attrs) => {
-    const { count, jackpotId } = parseParams(attrs?.trim() || '');
-    return generateDoubleChanceFixturesMarkdown(customFixtures || jackpotId, count);
-  });
+  const universalBracketRegex = /\[\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|SPORTYBET_JACKPOT|SPORTYBET|SPORTY_JACKPOT|BETPAWA_PICK_JACKPOT|BETPAWA_PICK|BETPAWA|BETPAWA_JACKPOT|ODIBET_LAKI_TATU|ODIBET|LAKI_TATU|ODIBETS_JACKPOT|LAKITATU|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^\]]*)?\]/gi;
 
-  // Expand top confidence fixtures
-  expanded = expanded.replace(topMustacheRegex, (_match, attrs) => {
-    const { count, jackpotId } = parseParams(attrs?.trim() || '', 7);
-    return generateTopConfidenceFixturesMarkdown(customFixtures || jackpotId, count || 7);
-  });
+  const executeReplacement = (_full: string, prefixRaw: string | undefined, suffixRaw: string, attrsRaw: string | undefined): string => {
+    const prefix = prefixRaw ? prefixRaw.toUpperCase() : '';
+    const suffix = suffixRaw.toUpperCase();
+    const attrs = attrsRaw || '';
 
-  expanded = expanded.replace(topHtmlCommentRegex, (_match, attrs) => {
-    const { count, jackpotId } = parseParams(attrs?.trim() || '', 7);
-    return generateTopConfidenceFixturesMarkdown(customFixtures || jackpotId, count || 7);
-  });
+    const { jackpotId, count, mode, format } = parseAllTagParams(attrs, prefix, defaultJackpotId);
+    const fixturesToUse = customFixtures && jackpotId === defaultJackpotId ? customFixtures : jackpotId;
 
-  expanded = expanded.replace(topBracketRegex, (_match, attrs) => {
-    const { count, jackpotId } = parseParams(attrs?.trim() || '', 7);
-    return generateTopConfidenceFixturesMarkdown(customFixtures || jackpotId, count || 7);
-  });
+    switch (suffix) {
+      case 'DATES':
+      case 'DATE':
+      case 'SCHEDULE':
+        return generateJackpotScheduleText(fixturesToUse, mode, 3);
+
+      case 'SELECTIONS_INCLUDE':
+        return generateJackpotSelectionsText(fixturesToUse, mode, true);
+
+      case 'SELECTIONS':
+      case 'SELECTION':
+      case 'OUTCOMES':
+      case 'DISTRIBUTION':
+        return generateJackpotSelectionsText(fixturesToUse, mode, false);
+
+      case 'DOUBLE_CHANCE_COUNT':
+      case 'DOUBLE_CHANCES_COUNT':
+      case 'DC_COUNT': {
+        const dcCount = getJackpotDoubleChancesCount(fixturesToUse);
+        if (format === 'short') return String(dcCount);
+        return `${dcCount} double chance${dcCount === 1 ? '' : 's'}`;
+      }
+
+      case 'UPSET_ALERT':
+      case 'UPSET_ALERTS':
+      case 'UPSETS':
+        return generateJackpotUpsetAlertText(fixturesToUse, mode);
+
+      case 'SUB_COMBOS':
+      case 'SUB_JACKPOTS':
+      case 'COMBOS':
+      case 'BONUSES':
+      case 'TIERS':
+        return generateJackpotSubCombosText(jackpotId, format);
+
+      case 'LEAGUES':
+      case 'LEAGUE_NAMES':
+        return generateJackpotLeaguesText(fixturesToUse, mode);
+
+      case 'DOUBLE_CHANCE_FIXTURES':
+      case 'DOUBLE_CHANCES':
+      case 'DOUBLE_CHANCE':
+        return generateDoubleChanceFixturesMarkdown(fixturesToUse, count);
+
+      case 'TOP_FIXTURES':
+      case 'TOP_CONFIDENCE_FIXTURES':
+      case 'TOP_CONFIDENCE':
+        return generateTopConfidenceFixturesMarkdown(fixturesToUse, count || 7);
+
+      default:
+        return _full;
+    }
+  };
+
+  // Top confidence shorthand prefix pattern: e.g. {{TOP_MEGA_JACKPOT_FIXTURES}}, {{TOP_BETIKA_MIDWEEK_FIXTURES}}, etc.
+  const topPrefixMustache = /\{\{\s*TOP_(MEGA_JACKPOT|SPORTPESA_MEGA|BETIKA_MIDWEEK|BETIKA|MOZZART_GRAND|MOZZART|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTYBET_JACKPOT|SPORTYBET|BETPAWA_PICK_JACKPOT|BETPAWA_PICK|BETPAWA|ODIBET_LAKI_TATU|ODIBET|LAKI_TATU|MOZZART_SUPER_DAILY|SUPER_DAILY|JACKPOT)_FIXTURES([\s:][^}]*)?\}\}/gi;
+  const topPrefixHtmlComment = /<!--\s*TOP_(MEGA_JACKPOT|SPORTPESA_MEGA|BETIKA_MIDWEEK|BETIKA|MOZZART_GRAND|MOZZART|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTYBET_JACKPOT|SPORTYBET|BETPAWA_PICK_JACKPOT|BETPAWA_PICK|BETPAWA|ODIBET_LAKI_TATU|ODIBET|LAKI_TATU|MOZZART_SUPER_DAILY|SUPER_DAILY|JACKPOT)_FIXTURES([\s:][^-]*)?-->/gi;
+  const topPrefixBracket = /\[\s*TOP_(MEGA_JACKPOT|SPORTPESA_MEGA|BETIKA_MIDWEEK|BETIKA|MOZZART_GRAND|MOZZART|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTYBET_JACKPOT|SPORTYBET|BETPAWA_PICK_JACKPOT|BETPAWA_PICK|BETPAWA|ODIBET_LAKI_TATU|ODIBET|LAKI_TATU|MOZZART_SUPER_DAILY|SUPER_DAILY|JACKPOT)_FIXTURES([\s:][^\]]*)?\]/gi;
+
+  const executeTopReplacement = (_full: string, prefixRaw: string, attrsRaw: string | undefined): string => {
+    const { jackpotId, count } = parseAllTagParams(attrsRaw || '', prefixRaw, defaultJackpotId);
+    const fixturesToUse = customFixtures && jackpotId === defaultJackpotId ? customFixtures : jackpotId;
+    return generateTopConfidenceFixturesMarkdown(fixturesToUse, count || 7);
+  };
+
+  expanded = expanded.replace(topPrefixMustache, executeTopReplacement);
+  expanded = expanded.replace(topPrefixHtmlComment, executeTopReplacement);
+  expanded = expanded.replace(topPrefixBracket, executeTopReplacement);
+
+  // Apply universal replacements
+  expanded = expanded.replace(universalTagRegex, executeReplacement);
+  expanded = expanded.replace(universalHtmlCommentRegex, executeReplacement);
+  expanded = expanded.replace(universalBracketRegex, executeReplacement);
 
   return expanded;
 }
 
 /**
- * Asynchronously expands markdown by first fetching current fixtures directly from the live database.
+ * Asynchronously expands markdown by fetching current fixtures directly from the live database for SportPesa Mega.
  */
 export async function expandTopFixturesParametersAsync(
   content: string,
   defaultJackpotId: string = 'sportpesa-mega'
 ): Promise<string> {
-  const liveFixtures = await fetchLiveMegaJackpotFixtures();
+  const liveFixtures = defaultJackpotId === 'sportpesa-mega' ? await fetchLiveMegaJackpotFixtures() : undefined;
   return expandTopFixturesParameters(content, defaultJackpotId, liveFixtures);
 }
