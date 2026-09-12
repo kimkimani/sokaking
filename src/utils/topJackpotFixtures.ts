@@ -921,7 +921,7 @@ export function generateJackpotUpsetAlertText(
     const t2Home = cleanTeamName(f2.homeTeam);
     const t2Away = cleanTeamName(f2.awayTeam);
 
-    return `${t1Home} vs ${t1Away} (${l1}) and ${t2Home} vs ${t2Away} (${l2}) represent this round's primary upset alerts, where narrow margins make double chance coverage (${f1Rec} and ${f2Rec}) essential.`;
+    return `${t1Home} vs ${t1Away} (${l1}) and ${t2Home} vs ${t2Away} (${l2})`;
   }
 
   return cfg?.defaultUpsetAlert || DEFAULT_SPORTPESA_MEGA_UPSET_ALERT;
@@ -1011,7 +1011,7 @@ export function generateJackpotScheduleText(
       const endDateNum = last.getUTCDate();
 
       if (startDay !== endDay || first.getUTCMonth() !== last.getUTCMonth() || startDateNum !== endDateNum) {
-        return `${startDay}, ${startMonth} ${startDateNum}, from ${startTime}, with the remaining fixtures continuing throughout ${endDay}, ${endMonth} ${endDateNum}`;
+        return `${startDay}, ${startMonth} ${startDateNum}, from ${startTime}, and the last fixture to be played on ${endDay}, ${endMonth} ${endDateNum}`;
       } else {
         return `${startDay}, ${startMonth} ${startDateNum}, from ${startTime}`;
       }
