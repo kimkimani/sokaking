@@ -13,7 +13,6 @@ jackpotId: "sportpesa-midweek"
 
 <!-- INTRO -->
 
-
 Soka King publishes free Scometix Midweek Jackpot predictions for every match on the weekly ticket. Each fixture includes written match analysis, a confidence rating, and community voting information to help you understand the reasoning behind every selection before making your final choices.
 
 <!-- MIDDLE -->
