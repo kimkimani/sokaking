@@ -51,6 +51,7 @@ Our Tabiri Soka Football Predictions process focuses on the information most rel
 - Goals -Scoring and defensive trends for goal markets.
 - Team News - Injuries, suspensions and expected lineups.
 
+<!-- FAQ -->
 ## Tabiri Soka Prediction FAQs
 
 ### What is Tabiri Soka prediction?

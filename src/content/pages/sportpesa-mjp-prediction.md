@@ -48,6 +48,7 @@ To make you as our fun, Sokaking experts add double chance variace to add the ch
 
 Double chance makes the hard fixture easy to win, as you have two winning options. Although we have {{MEGA_JACKPOT_SELECTIONS}} in our predictions. Be keen on the double chances you select. Any additional DC selection will need additional stakes. SportPesa will only allow you to take a maximum of 10 double combinations.
 
+<!-- FAQ -->
 ## Frequently Asked MJP Questions
 
 ### What is SportPesa MJP?
