@@ -26,7 +26,7 @@ We publish SokaKing MJP predictions for all 17 selected matches during midweek. 
 
 MJP is the most popular jackpot competition in Kenya. SportPesa updates a 17 games list every week to give its users a chance to win millions. The fun part is, you do not need to win all matches. Sporpesa gives a bonus fr a slected correctely predicted games og not less than 12 fixtures.
 
-At Soka King, we take those fixture and anyze the all. This week, Sporpesa MJP will be played from {{MEGA_JACKPOT_DATES}}. We already dropped a MJP whole match list for you. Each match has a prediction and a detailed anysis to what preditions selection is best. For exmaple, This week, we have the below list as out top prediction of the week:
+At Soka King, we take those fixture and anyze the all. This week, Sporpesa MJP will be played from {{MEGA_JACKPOT_DATES}}. We already dropped a MJP whole match list for you. Each match has a prediction and a detailed analysis to what preditions selection is best. For exmaple, This week, we have the below list as out top prediction of the week:
 
 {{TOP_CONFIDENCE_FIXTURES:4}}
 
