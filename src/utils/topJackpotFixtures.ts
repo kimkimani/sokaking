@@ -765,6 +765,10 @@ export interface JackpotTagConfig {
   stakeText: string;
   prefixes: string[];
   defaultSchedule?: string;
+  defaultStartDate?: string;
+  defaultEndDate?: string;
+  defaultStartTime?: string;
+  defaultEndTime?: string;
   defaultSelections?: string;
   defaultUpsetAlert?: string;
   defaultSubCombosParagraph: string;
@@ -781,6 +785,10 @@ export const ALL_JACKPOT_CONFIGS: Record<string, JackpotTagConfig> = {
     stakeText: 'KSh 99',
     prefixes: ['MEGA_JACKPOT', 'SPORTPESA_MEGA', 'SPORTPESA_MEGA_JACKPOT', 'MEGA'],
     defaultSchedule: 'Saturday, September 12, from 19:00, with the remaining fixtures continuing throughout Sunday, September 13',
+    defaultStartDate: 'Saturday, September 12',
+    defaultEndDate: 'Sunday, September 13',
+    defaultStartTime: '19:00',
+    defaultEndTime: '23:00',
     defaultSelections: '6 home wins, 2 draws, 5 away wins and 4 double chances',
     defaultUpsetAlert: "St Johnstone vs Hibernian (Scottish Premiership) and Espanyol vs Sevilla (La Liga) represent this weekend's primary upset alerts, where narrow head-to-head margins and unpredictable away form make double chance coverage (X2 or 1X) highly advisable.",
     defaultSubCombosParagraph: 'SportPesa Mega Jackpot Pro offers five distinct combination tiers from the same 17-game coupon at KSh 99 per line: the full 17-match jackpot, the 16-game sub-jackpot (matches 2–17), the 15-game sub-jackpot (matches 3–17), the 14-game sub-jackpot (matches 4–17), and the 13-game sub-jackpot (matches 5–17), each featuring standalone guaranteed jackpots and cash bonuses.',
@@ -801,6 +809,10 @@ export const ALL_JACKPOT_CONFIGS: Record<string, JackpotTagConfig> = {
     stakeText: 'KSh 15',
     prefixes: ['BETIKA_MIDWEEK', 'BETIKA', 'BETIKA_JACKPOT'],
     defaultSchedule: 'Saturday, September 27, from 16:30, with the remaining fixtures continuing throughout Sunday, September 28',
+    defaultStartDate: 'Saturday, September 27',
+    defaultEndDate: 'Sunday, September 28',
+    defaultStartTime: '16:30',
+    defaultEndTime: '22:00',
     defaultSubCombosParagraph: 'The Betika Midweek Jackpot features a 15-game football slate with an entry stake of KSh 15, offering a grand prize of KSh 15 Million along with guaranteed cash bonus payouts for 12, 13, and 14 correct predictions.',
     defaultSubCombosList: [
       '- **15/15 Grand Prize**: KSh 15,000,000 top jackpot prize',
@@ -818,6 +830,10 @@ export const ALL_JACKPOT_CONFIGS: Record<string, JackpotTagConfig> = {
     stakeText: 'KSh 50',
     prefixes: ['MOZZART_GRAND', 'MOZZART', 'MOZZART_JACKPOT', 'MOZZART_GRAND_JACKPOT'],
     defaultSchedule: 'Saturday, September 20, from 18:00, with the remaining fixtures continuing throughout Sunday, September 21',
+    defaultStartDate: 'Saturday, September 20',
+    defaultEndDate: 'Sunday, September 21',
+    defaultStartTime: '18:00',
+    defaultEndTime: '23:00',
     defaultSubCombosParagraph: 'The Mozzart Super Grand Jackpot spans 20 pre-selected matches with a standard stake of KSh 50, featuring a fixed top prize of KSh 200 Million alongside cash bonus payouts for 17, 18, and 19 correct predictions, plus a unique consolation prize for correctly calling 0 matches.',
     defaultSubCombosList: [
       '- **20/20 Grand Prize**: KSh 200,000,000 fixed cash jackpot',
@@ -836,6 +852,10 @@ export const ALL_JACKPOT_CONFIGS: Record<string, JackpotTagConfig> = {
     stakeText: 'KSh 99',
     prefixes: ['SPORTPESA_MIDWEEK', 'SP_MIDWEEK', 'MIDWEEK', 'SPORTPESA_MIDWEEK_JACKPOT'],
     defaultSchedule: 'Friday, September 19, from 20:00',
+    defaultStartDate: 'Friday, September 19',
+    defaultEndDate: 'Saturday, September 20',
+    defaultStartTime: '20:00',
+    defaultEndTime: '23:00',
     defaultSubCombosParagraph: 'The SportPesa Midweek Jackpot challenges bettors to predict 13 competitive games for a stake of KSh 99, featuring a progressive multi-million shilling jackpot starting from KSh 10 Million and guaranteed cash bonuses for 10, 11, and 12 correct predictions.',
     defaultSubCombosList: [
       '- **13/13 Midweek Jackpot**: Progressive multi-million top cash prize',
@@ -853,6 +873,10 @@ export const ALL_JACKPOT_CONFIGS: Record<string, JackpotTagConfig> = {
     stakeText: 'KSh 20',
     prefixes: ['MOZZART_SUPER_DAILY', 'SUPER_DAILY', 'MOZZART_DAILY', 'SUPER_DAILY_JACKPOT'],
     defaultSchedule: 'Monday, September 22, from 18:00, with the remaining fixtures continuing throughout Tuesday, September 23',
+    defaultStartDate: 'Monday, September 22',
+    defaultEndDate: 'Tuesday, September 23',
+    defaultStartTime: '18:00',
+    defaultEndTime: '23:00',
     defaultSubCombosParagraph: 'The Mozzart Super Daily Jackpot is an intensive 16-game daily coupon with a KSh 20 stake, delivering a daily jackpot prize of KSh 200,000 for 16/16 correct calls and tiered consolation prizes.',
     defaultSubCombosList: [
       '- **16/16 Super Daily Prize**: KSh 200,000 daily top prize',
@@ -885,6 +909,8 @@ export function resolveJackpotId(raw?: string, defaultJackpotId: string = 'sport
  * Standard default constants for SportPesa Mega Jackpot.
  */
 export const DEFAULT_SPORTPESA_MEGA_SCHEDULE = ALL_JACKPOT_CONFIGS['sportpesa-mega'].defaultSchedule!;
+export const DEFAULT_SPORTPESA_MEGA_START_DATE = ALL_JACKPOT_CONFIGS['sportpesa-mega'].defaultStartDate || 'Saturday, September 12';
+export const DEFAULT_SPORTPESA_MEGA_END_DATE = ALL_JACKPOT_CONFIGS['sportpesa-mega'].defaultEndDate || 'Sunday, September 13';
 export const DEFAULT_SPORTPESA_MEGA_SELECTIONS = ALL_JACKPOT_CONFIGS['sportpesa-mega'].defaultSelections!;
 export const DEFAULT_SPORTPESA_MEGA_UPSET_ALERT = ALL_JACKPOT_CONFIGS['sportpesa-mega'].defaultUpsetAlert!;
 export const DEFAULT_SPORTPESA_MEGA_SUB_COMBOS = ALL_JACKPOT_CONFIGS['sportpesa-mega'].defaultSubCombosParagraph;
@@ -980,22 +1006,40 @@ export function generateMegaJackpotSubCombosText(
 }
 
 /**
- * Generates formatted date/time schedule text for any jackpot fixtures.
+ * Structured date and time details for jackpot slates.
+ */
+export interface JackpotParsedDates {
+  jackpotId: string;
+  startDate: string;        // e.g. "Saturday, September 12"
+  endDate: string;          // e.g. "Sunday, September 13"
+  startTime: string;        // e.g. "19:00"
+  endTime: string;          // e.g. "23:00"
+  startDay: string;         // e.g. "Saturday"
+  endDay: string;           // e.g. "Sunday"
+  startDateTime: string;    // e.g. "Saturday, September 12, from 19:00"
+  endDateTime: string;      // e.g. "Sunday, September 13 at 23:00"
+  shortStartDate: string;   // e.g. "Sep 12"
+  shortEndDate: string;     // e.g. "Sep 13"
+  scheduleText: string;     // e.g. "Saturday, September 12, from 19:00, with the remaining fixtures continuing throughout Sunday, September 13"
+}
+
+/**
+ * Extracts and formats parsed dates (start date, end date, kickoff time, end time) for any jackpot.
  * Note: Applies +3 hours (UTC+3 / East Africa Time) to all dates/times.
  */
-export function generateJackpotScheduleText(
+export function getJackpotDates(
   source?: string | Fixture[],
   mode: 'curated' | 'fixtures' | 'auto' = 'auto',
   timezoneOffsetHours: number = 3
-): string {
+): JackpotParsedDates {
   const { jackpotId, fixtures } = getFixturesForJackpot(source);
   const cfg = ALL_JACKPOT_CONFIGS[jackpotId];
 
-  if (mode === 'curated') {
-    return cfg?.defaultSchedule || DEFAULT_SPORTPESA_MEGA_SCHEDULE;
-  }
+  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-  if (fixtures.length > 0) {
+  if (mode !== 'curated' && fixtures.length > 0) {
     const validDates = fixtures
       .map(f => {
         if (!f.kickoffTime) return null;
@@ -1010,9 +1054,6 @@ export function generateJackpotScheduleText(
       const first = validDates[0];
       const last = validDates[validDates.length - 1];
 
-      const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
       const startDay = daysOfWeek[first.getUTCDay()];
       const startMonth = months[first.getUTCMonth()];
       const startDateNum = first.getUTCDate();
@@ -1023,16 +1064,144 @@ export function generateJackpotScheduleText(
       const endDay = daysOfWeek[last.getUTCDay()];
       const endMonth = months[last.getUTCMonth()];
       const endDateNum = last.getUTCDate();
+      const endHour = String(last.getUTCHours()).padStart(2, '0');
+      const endMinute = String(last.getUTCMinutes()).padStart(2, '0');
+      const endTime = `${endHour}:${endMinute}`;
 
+      const startDate = `${startDay}, ${startMonth} ${startDateNum}`;
+      const endDate = `${endDay}, ${endMonth} ${endDateNum}`;
+      const shortStartDate = `${shortMonths[first.getUTCMonth()]} ${startDateNum}`;
+      const shortEndDate = `${shortMonths[last.getUTCMonth()]} ${endDateNum}`;
+      const startDateTime = `${startDate}, from ${startTime}`;
+      const endDateTime = `${endDate} at ${endTime}`;
+
+      let scheduleText = '';
       if (startDay !== endDay || first.getUTCMonth() !== last.getUTCMonth() || startDateNum !== endDateNum) {
-        return `${startDay}, ${startMonth} ${startDateNum}, from ${startTime}, and the last fixture to be played on ${endDay}, ${endMonth} ${endDateNum}`;
+        scheduleText = `${startDay}, ${startMonth} ${startDateNum}, from ${startTime}, and the last fixture to be played on ${endDay}, ${endMonth} ${endDateNum}`;
       } else {
-        return `${startDay}, ${startMonth} ${startDateNum}, from ${startTime}`;
+        scheduleText = `${startDay}, ${startMonth} ${startDateNum}, from ${startTime}`;
       }
+
+      return {
+        jackpotId,
+        startDate,
+        endDate,
+        startTime,
+        endTime,
+        startDay,
+        endDay,
+        startDateTime,
+        endDateTime,
+        shortStartDate,
+        shortEndDate,
+        scheduleText
+      };
     }
   }
 
-  return cfg?.defaultSchedule || DEFAULT_SPORTPESA_MEGA_SCHEDULE;
+  // Fallback to static configuration
+  const startDate = cfg?.defaultStartDate || 'Saturday, September 12';
+  const endDate = cfg?.defaultEndDate || 'Sunday, September 13';
+  const startTime = cfg?.defaultStartTime || '19:00';
+  const endTime = cfg?.defaultEndTime || '23:00';
+  const startDay = startDate.split(',')[0].trim();
+  const endDay = endDate.split(',')[0].trim();
+  const startDateTime = `${startDate}, from ${startTime}`;
+  const endDateTime = `${endDate} at ${endTime}`;
+
+  const shortStartDateMatch = startDate.match(/([A-Za-z]+)\s+(\d+)/);
+  const shortStartDate = shortStartDateMatch ? `${shortStartDateMatch[1].slice(0, 3)} ${shortStartDateMatch[2]}` : startDate;
+  const shortEndDateMatch = endDate.match(/([A-Za-z]+)\s+(\d+)/);
+  const shortEndDate = shortEndDateMatch ? `${shortEndDateMatch[1].slice(0, 3)} ${shortEndDateMatch[2]}` : endDate;
+
+  return {
+    jackpotId,
+    startDate,
+    endDate,
+    startTime,
+    endTime,
+    startDay,
+    endDay,
+    startDateTime,
+    endDateTime,
+    shortStartDate,
+    shortEndDate,
+    scheduleText: cfg?.defaultSchedule || DEFAULT_SPORTPESA_MEGA_SCHEDULE
+  };
+}
+
+/**
+ * Generates formatted date/time schedule text for any jackpot fixtures.
+ * Note: Applies +3 hours (UTC+3 / East Africa Time) to all dates/times.
+ */
+export function generateJackpotScheduleText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto',
+  timezoneOffsetHours: number = 3
+): string {
+  return getJackpotDates(source, mode, timezoneOffsetHours).scheduleText;
+}
+
+/**
+ * Generates formatted start date text for any jackpot fixtures.
+ * e.g., "Saturday, September 12" or "Saturday, September 12, from 19:00"
+ */
+export function generateJackpotStartDateText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto',
+  timezoneOffsetHours: number = 3,
+  formatOrOptions?: string | { withTime?: boolean; short?: boolean; day?: boolean }
+): string {
+  const dates = getJackpotDates(source, mode, timezoneOffsetHours);
+  const fmt = typeof formatOrOptions === 'string' ? formatOrOptions.toLowerCase() : '';
+  const opts = typeof formatOrOptions === 'object' && formatOrOptions !== null ? formatOrOptions : {};
+
+  if (opts.day || fmt === 'day') return dates.startDay;
+  if (opts.short || fmt === 'short') return dates.shortStartDate;
+  if (opts.withTime || fmt === 'time' || fmt === 'full' || fmt === 'datetime') return dates.startDateTime;
+  return dates.startDate;
+}
+
+/**
+ * Generates formatted end date text for any jackpot fixtures.
+ * e.g., "Sunday, September 13" or "Sunday, September 13 at 23:00"
+ */
+export function generateJackpotEndDateText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto',
+  timezoneOffsetHours: number = 3,
+  formatOrOptions?: string | { withTime?: boolean; short?: boolean; day?: boolean }
+): string {
+  const dates = getJackpotDates(source, mode, timezoneOffsetHours);
+  const fmt = typeof formatOrOptions === 'string' ? formatOrOptions.toLowerCase() : '';
+  const opts = typeof formatOrOptions === 'object' && formatOrOptions !== null ? formatOrOptions : {};
+
+  if (opts.day || fmt === 'day') return dates.endDay;
+  if (opts.short || fmt === 'short') return dates.shortEndDate;
+  if (opts.withTime || fmt === 'time' || fmt === 'full' || fmt === 'datetime') return dates.endDateTime;
+  return dates.endDate;
+}
+
+/**
+ * Generates kickoff time of the earliest match in the jackpot slate (e.g., "19:00").
+ */
+export function generateJackpotStartTimeText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto',
+  timezoneOffsetHours: number = 3
+): string {
+  return getJackpotDates(source, mode, timezoneOffsetHours).startTime;
+}
+
+/**
+ * Generates kickoff time of the final match in the jackpot slate (e.g., "23:00").
+ */
+export function generateJackpotEndTimeText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto',
+  timezoneOffsetHours: number = 3
+): string {
+  return getJackpotDates(source, mode, timezoneOffsetHours).endTime;
 }
 
 /**
@@ -1044,6 +1213,30 @@ export function generateMegaJackpotScheduleText(
   timezoneOffsetHours: number = 3
 ): string {
   return generateJackpotScheduleText(source || 'sportpesa-mega', mode, timezoneOffsetHours);
+}
+
+/**
+ * Backwards compatibility alias for SportPesa Mega start date.
+ */
+export function generateMegaJackpotStartDateText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto',
+  timezoneOffsetHours: number = 3,
+  formatOrOptions?: string | { withTime?: boolean; short?: boolean; day?: boolean }
+): string {
+  return generateJackpotStartDateText(source || 'sportpesa-mega', mode, timezoneOffsetHours, formatOrOptions);
+}
+
+/**
+ * Backwards compatibility alias for SportPesa Mega end date.
+ */
+export function generateMegaJackpotEndDateText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto',
+  timezoneOffsetHours: number = 3,
+  formatOrOptions?: string | { withTime?: boolean; short?: boolean; day?: boolean }
+): string {
+  return generateJackpotEndDateText(source || 'sportpesa-mega', mode, timezoneOffsetHours, formatOrOptions);
 }
 
 /**
@@ -1139,14 +1332,14 @@ interface ParsedTagParams {
   jackpotId: string;
   count?: number;
   mode: 'auto' | 'fixtures' | 'curated';
-  format: 'paragraph' | 'list' | 'short';
+  format: 'paragraph' | 'list' | 'short' | 'time' | 'full' | 'day';
 }
 
 function parseAllTagParams(rawAttrs: string, tagJackpotHint: string, defaultJackpotId: string): ParsedTagParams {
   let jackpotId = resolveJackpotId(tagJackpotHint || defaultJackpotId, defaultJackpotId);
   let count: number | undefined = undefined;
   let mode: 'auto' | 'fixtures' | 'curated' = 'auto';
-  let format: 'paragraph' | 'list' | 'short' = 'paragraph';
+  let format: 'paragraph' | 'list' | 'short' | 'time' | 'full' | 'day' = 'paragraph';
 
   if (!rawAttrs) return { jackpotId, count, mode, format };
 
@@ -1171,11 +1364,17 @@ function parseAllTagParams(rawAttrs: string, tagJackpotHint: string, defaultJack
     mode = 'curated';
   }
 
-  // Format: :list, :short, :paragraph
+  // Format: :list, :short, :paragraph, :time, :full, :datetime, :day
   if (/list/i.test(attrs)) {
     format = 'list';
   } else if (/short/i.test(attrs)) {
     format = 'short';
+  } else if (/(?:with-)?time|datetime|full/i.test(attrs)) {
+    format = 'full';
+  } else if (/day/i.test(attrs)) {
+    format = 'day';
+  } else if (/paragraph/i.test(attrs)) {
+    format = 'paragraph';
   }
 
   // Explicit jackpot specification: jackpot="betika-midweek" or id="mozzart-grand"
@@ -1208,6 +1407,8 @@ function parseAllTagParams(rawAttrs: string, tagJackpotHint: string, defaultJack
  * 
  * Supported Suffixes:
  * - DATES / SCHEDULE
+ * - START_DATE / START_DATES / STARTING_DATE / START_TIME / START_DATETIME / START_DAY / KICKOFF_DATE
+ * - END_DATE / END_DATES / ENDING_DATE / END_TIME / END_DATETIME / END_DAY / CLOSING_DATE
  * - SELECTIONS_INCLUDE
  * - SELECTIONS / OUTCOMES / DISTRIBUTION
  * - UPSET_ALERT / UPSET_ALERTS / UPSETS
@@ -1229,11 +1430,11 @@ export function expandTopFixturesParameters(
   // Group 1: Prefix (or undefined for generic)
   // Group 2: Suffix
   // Group 3: Attributes
-  const universalTagRegex = /\{\{\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^}]*)?\}\}/gi;
+  const universalTagRegex = /\{\{\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(START_DATE|START_DATES|STARTING_DATE|STARTDATE|STARTDATES|START_TIME|STARTTIME|START_DATETIME|STARTDATETIME|START_DAY|STARTDAY|KICKOFF_DATE|KICKOFF_TIME|KICKOFF_DATETIME|FIRST_DATE|FIRST_MATCH_DATE|END_DATE|END_DATES|ENDING_DATE|ENDDATE|ENDDATES|END_TIME|ENDTIME|END_DATETIME|ENDDATETIME|END_DAY|ENDDAY|CLOSING_DATE|CLOSING_TIME|CLOSING_DATETIME|LAST_DATE|LAST_MATCH_DATE|FINISH_DATE|FINISH_TIME|DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^}]*)?\}\}/gi;
 
-  const universalHtmlCommentRegex = /<!--\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^-]*)?-->/gi;
+  const universalHtmlCommentRegex = /<!--\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(START_DATE|START_DATES|STARTING_DATE|STARTDATE|STARTDATES|START_TIME|STARTTIME|START_DATETIME|STARTDATETIME|START_DAY|STARTDAY|KICKOFF_DATE|KICKOFF_TIME|KICKOFF_DATETIME|FIRST_DATE|FIRST_MATCH_DATE|END_DATE|END_DATES|ENDING_DATE|ENDDATE|ENDDATES|END_TIME|ENDTIME|END_DATETIME|ENDDATETIME|END_DAY|ENDDAY|CLOSING_DATE|CLOSING_TIME|CLOSING_DATETIME|LAST_DATE|LAST_MATCH_DATE|FINISH_DATE|FINISH_TIME|DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^-]*)?-->/gi;
 
-  const universalBracketRegex = /\[\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^\]]*)?\]/gi;
+  const universalBracketRegex = /\[\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(START_DATE|START_DATES|STARTING_DATE|STARTDATE|STARTDATES|START_TIME|STARTTIME|START_DATETIME|STARTDATETIME|START_DAY|STARTDAY|KICKOFF_DATE|KICKOFF_TIME|KICKOFF_DATETIME|FIRST_DATE|FIRST_MATCH_DATE|END_DATE|END_DATES|ENDING_DATE|ENDDATE|ENDDATES|END_TIME|ENDTIME|END_DATETIME|ENDDATETIME|END_DAY|ENDDAY|CLOSING_DATE|CLOSING_TIME|CLOSING_DATETIME|LAST_DATE|LAST_MATCH_DATE|FINISH_DATE|FINISH_TIME|DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^\]]*)?\]/gi;
 
   const executeReplacement = (_full: string, prefixRaw: string | undefined, suffixRaw: string, attrsRaw: string | undefined): string => {
     const prefix = prefixRaw ? prefixRaw.toUpperCase() : '';
@@ -1244,6 +1445,56 @@ export function expandTopFixturesParameters(
     const fixturesToUse = customFixtures && jackpotId === defaultJackpotId ? customFixtures : jackpotId;
 
     switch (suffix) {
+      case 'START_DATE':
+      case 'START_DATES':
+      case 'STARTING_DATE':
+      case 'STARTDATE':
+      case 'STARTDATES':
+      case 'FIRST_DATE':
+      case 'FIRST_MATCH_DATE':
+      case 'KICKOFF_DATE':
+        return generateJackpotStartDateText(fixturesToUse, mode, 3, format);
+
+      case 'START_TIME':
+      case 'STARTTIME':
+      case 'KICKOFF_TIME':
+        return generateJackpotStartTimeText(fixturesToUse, mode, 3);
+
+      case 'START_DATETIME':
+      case 'STARTDATETIME':
+      case 'KICKOFF_DATETIME':
+        return generateJackpotStartDateText(fixturesToUse, mode, 3, 'full');
+
+      case 'START_DAY':
+      case 'STARTDAY':
+        return generateJackpotStartDateText(fixturesToUse, mode, 3, 'day');
+
+      case 'END_DATE':
+      case 'END_DATES':
+      case 'ENDING_DATE':
+      case 'ENDDATE':
+      case 'ENDDATES':
+      case 'LAST_DATE':
+      case 'LAST_MATCH_DATE':
+      case 'CLOSING_DATE':
+      case 'FINISH_DATE':
+        return generateJackpotEndDateText(fixturesToUse, mode, 3, format);
+
+      case 'END_TIME':
+      case 'ENDTIME':
+      case 'CLOSING_TIME':
+      case 'FINISH_TIME':
+        return generateJackpotEndTimeText(fixturesToUse, mode, 3);
+
+      case 'END_DATETIME':
+      case 'ENDDATETIME':
+      case 'CLOSING_DATETIME':
+        return generateJackpotEndDateText(fixturesToUse, mode, 3, 'full');
+
+      case 'END_DAY':
+      case 'ENDDAY':
+        return generateJackpotEndDateText(fixturesToUse, mode, 3, 'day');
+
       case 'DATES':
       case 'DATE':
       case 'SCHEDULE':
@@ -1276,7 +1527,10 @@ export function expandTopFixturesParameters(
       case 'COMBOS':
       case 'BONUSES':
       case 'TIERS':
-        return generateJackpotSubCombosText(jackpotId, format);
+        return generateJackpotSubCombosText(
+          jackpotId,
+          format === 'list' || format === 'short' ? format : 'paragraph'
+        );
 
       case 'LEAGUES':
       case 'LEAGUE_NAMES':
