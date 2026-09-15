@@ -25,7 +25,7 @@ Soka King publishes free Scometix Midweek Jackpot predictions, match analysis, c
 
 The SportPesa Midweek Jackpot is a popular midweek football betting competition featuring 13 matches selected by SportPesa. Unlike the weekend Mega Jackpot, the Midweek Jackpot often features a strong selection of European club competition fixtures.
 
-The current Midweek jackpot stretched from the following leagues: {{JACKPOT_LEAGUES}}.
+The current Midweek jackpot stretched from the following leagues: {{SPORTPESA_MIDWEEK_LEAGUES}}.
 
 Soka King provides free Scometix Midweek Jackpot predictions for all 13 fixtures; the match schedule is as follows: {{JACKPOT_SCHEDULE}}
 
