@@ -1307,12 +1307,13 @@ export function expandTopFixturesParameters(
 }
 
 /**
- * Asynchronously expands markdown by fetching current fixtures directly from the live database for SportPesa Mega.
+ * Asynchronously expands markdown by fetching current fixtures directly from the live database for any specified jackpot.
  */
 export async function expandTopFixturesParametersAsync(
   content: string,
   defaultJackpotId: string = 'sportpesa-mega'
 ): Promise<string> {
-  const liveFixtures = defaultJackpotId === 'sportpesa-mega' ? await fetchLiveMegaJackpotFixtures() : undefined;
-  return expandTopFixturesParameters(content, defaultJackpotId, liveFixtures);
+  const resolved = resolveJackpotId(defaultJackpotId, 'sportpesa-mega');
+  const liveFixtures = await fetchLiveJackpotFixtures(resolved);
+  return expandTopFixturesParameters(content, resolved, liveFixtures);
 }

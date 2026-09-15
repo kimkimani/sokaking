@@ -4,6 +4,8 @@
  */
 
 export const RAW_MARKDOWN_MAP: Record<string, string> = {
+  '100-mega-jackpot-prediction': ``,
+
   '254-golden-tips': `---
 title: "254 Golden Tips"
 displayTitle: "254 Golden Tips and Predictions"
@@ -217,21 +219,23 @@ jackpotId: "betika-midweek"
 ## Betika Midweek Jackpot Predictions and Daily Tips (15 Games)
 
 <!-- INTRO -->
-Welcome to Soka King's Betika Midweek Jackpot prediction portal. Our computer models analyze all 15 midweek matches to give you accurate selections for the KES 15 Million prize pool.
+Welcome to Soka King's Betika Midweek Jackpot prediction portal. Matches kick off on {{BETIKA_MIDWEEK_SCHEDULE}}, covering premier competition from {{BETIKA_MIDWEEK_LEAGUES}}. This round's computer model {{BETIKA_MIDWEEK_SELECTIONS_INCLUDE}}.
 
 <!-- MIDDLE -->
 The Betika Midweek Jackpot features 15 matches with entry tickets starting at KES 15. Our analytical engine breaks down form guides, injury reports, and Poisson distribution probabilities to maximize your bonus returns.
+
+{{BETIKA_MIDWEEK_UPSET_ALERT}}
 
 <!-- MEAT -->
 ## Betika Midweek Jackpot Tactical Overview
 
 Betika Midweek Jackpot offers high value with 15 fixtures and generous bonus tiers starting from 12 correct picks.
 
-### Key Highlights and Rules
-- **Grand Prize**: KES 15,000,000 for 15/15 correct selections.
-- **Bonus Tiers**: Paid for 14, 13, and 12 correct predictions.
-- **Stake**: KES 15 per entry ticket.
-- **Double Chance**: Permitted for up to 3 choices per ticket.
+### Prize Structure & Combinations
+{{BETIKA_MIDWEEK_SUB_COMBOS:list}}
+
+### Top Double Chance Coverage Picks
+{{BETIKA_MIDWEEK_DOUBLE_CHANCE_FIXTURES:4}}
 
 <!-- RESPONSIBLE_GAMBLING_START -->
 > **Responsible Gambling Notice:** Gambling involves financial risk. Please bet responsibly and only risk money you can afford to lose. If you need help or support, contact the national helpline at **0800-720-000** or visit our [Responsible Gambling Policy](/responsible-gambling).
@@ -429,43 +433,6 @@ Neither should automatically be considered superior. Model output and expert and
 <!-- RESPONSIBLE_GAMBLING_START -->
 > **Responsible Gambling Notice:** Gambling involves financial risk. Please bet responsibly and only risk money you can afford to lose. If you need help or support, contact the national helpline at **0800-720-000** or visit our [Responsible Gambling Policy](/responsible-gambling).
 <!-- RESPONSIBLE_GAMBLING_END -->`,
-
-  'betpawa-pick-jackpot': `---
-title: "betPawa Pick 13 Jackpot Predictions and Selections"
-description: "betPawa Pick 13 jackpot predictions. Low-stake high-return jackpot tips, double chance combinations, and banker selections."
-keywords: "betPawa Pick 13 jackpot predictions, betPawa tips, betPawa jackpot Kenya"
-link: "/free-betpawa-pick-jackpot-predictions-and-analysis"
-authorId: "samuel-omondi"
-displayTitle: "betPawa Pick 13 Jackpot Selections and Covers"
-responsibleGambling: "Play responsibly. Gambling is restricted to 18+. Helpline: 0800-720-000."
-unlockHeading: "Unlock betPawa Pick 13 Jackpot Predictions"
-unlockDescription: "Get instant access to optimized 13-game jackpot slips with double chance combinations for betPawa Kenya."
-type: "jackpot"
-jackpotId: "betpawa-pick-jackpot"
----
-
-## betPawa Pick 13 Jackpot Predictions and Selections
-
-<!-- INTRO -->
-Welcome to Soka King's betPawa Pick 13 Jackpot prediction page. Utilize our mathematical match predictions to construct winning tickets for betPawa's Pick 13 jackpot.
-
-<!-- MIDDLE -->
-betPawa's Pick 13 jackpot allows players to bet with minimal stakes (from KES 5 or 10). Our predictive system processes historical head-to-head records and goal expectations to guide your picks.
-
-<!-- MEAT -->
-## betPawa Pick 13 Tactical Breakdown
-
-betPawa is renowned for ultra-low minimum stakes and high win bonuses.
-
-### Jackpot Rules and Bonus Thresholds
-- **13/13 Correct**: Pick 13 Jackpot Grand Prize.
-- **Bonuses**: Paid for 12, 11, and 10 correct selections.
-- **Stake**: Starting at KES 5 to KES 10.
-
-<!-- RESPONSIBLE_GAMBLING_START -->
-> **Responsible Gambling Notice:** Gambling involves financial risk. Please bet responsibly and only risk money you can afford to lose. If you need help or support, contact the national helpline at **0800-720-000** or visit our [Responsible Gambling Policy](/responsible-gambling).
-<!-- RESPONSIBLE_GAMBLING_END -->
-`,
 
   'category-btts': `---
 title: "Both Teams To Score (BTTS / GG) Predictions - Soka King"
@@ -956,14 +923,14 @@ Yes! Our daily football predictions are completely free for all users. .
 `,
 
   'forebet-sportpesa-mega-jackpot-prediction': `---
-title: "Forebet SportPesa Mega Jackpot Prediction: Mathematical 17 Games Analysis"
-displayTitle: "Forebet SportPesa Mega Jackpot Prediction"
-description: "Get our free Forebet SportPesa Mega Jackpot prediction insights for all 17 games this week. Compare mathematical algorithms, probability percentages, and double chance tips."
-keywords: "forebet sportpesa mega jackpot prediction, forebet mega jackpot prediction, forebet sportpesa jackpot, forebet sportpesa prediction this week, forebet jackpot prediction, forebet 17 games prediction, mathematical mega jackpot prediction, forebet kenya sportpesa"
+title: "Forebet Sportpesa Mega Jackpot Prediction This Weekend Tips"
+displayTitle: "Forebet Sportpesa Mega Jackpot Prediction This Weekend"
+description: "Free expert today Forebet Sportpesa Mega Jackpot prediction this weekend with all 17 TIPS, match picks, confidence ratings, community votes and analysis."
+keywords: "forebet sportpesa mega, forebet sportpesa mega jackpot, forebet sportpesa mega jackpot prediction, forebet sportpesa mega jackpot prediction this weekend, forebet mega jackpot tips, forebet sportpesa mega prediction, sportpesa mega forebet, sportpesa mega jackpot forebet prediction, forebet sportpesa jackpot prediction, forebet mega jackpot prediction today, forebet today mega jackpot prediction, forebet prediction for weekend mega jackpot"
 link: "/forebet-sportpesa-mega-jackpot-prediction"
 authorId: "john-mwangi"
-unlockHeading: "Unlock All Accurate 17 SportPesa Mega Jackpot Predictions"
-unlockDescription: "Get ready for sure mega jackpot predictions for this weekend to have instant access to full 1X2 selections, banker probability rankings, and low-variance double-chance covers for SportPesa Jackpots."
+unlockHeading: "Unlock forebet mega jackpot prediction tips"
+unlockDescription: "Get ready for today sure forebet mega jackpot tips for this weekend for free 100%"
 type: "jackpot"
 jackpotId: "sportpesa-mega"
 topConfidenceFixtures: true
@@ -972,85 +939,61 @@ topConfidenceCount: 7
 
 <!-- INTRO -->
 
-Looking for the latest **Forebet SportPesa Mega Jackpot prediction** this week? Many football punters turn to Forebet for mathematical predictions, algorithm-generated probability scores, and statistical forecasts across all 17 fixtures. On Sokaking, we combine rigorous statistical models with contextual football analysis to give you a complete perspective before placing your ticket.
+Get the latest Forebet Sportpesa Mega Jackpot prediction this weekend with all 17 games by Sokaking. We bring together the weekend coupon, match-by-match picks, voting percentages, confidence levels, and a complete prediction summary, just for you.
+
+If you are searching for Free expert predictions for Forebet Mega Jackpot Tips, use the Sokaking below anylysis win this week Bonus. Find the complete **forebet mega jackpot prediction today**, with every match, its predicted outcome, confidence level and community voting breakdown.
 
 <!-- MIDDLE -->
 
-# Forebet SportPesa Mega Jackpot Prediction
+## Forebet Sportpesa Mega Tips
 
-Forebet has long been one of the most recognized automated prediction platforms in world football. By utilizing mathematical algorithms, historical head-to-head statistics, and Poisson goal distributions, Forebet generates automated 1X2 percentages, predicted scores, and over/under estimates for thousands of matches daily.
-
-When applied to the competitive **SportPesa Mega Jackpot 17-game pool**, Forebet’s algorithm provides an objective mathematical foundation. However, successful jackpot betting requires understanding both what the numbers show and what the algorithm misses.
-
-> **Independent Analysis Notice:** This page provides an independent analytical review and comparison of Forebet's prediction methodology for the SportPesa Mega Jackpot. We are not affiliated with or operated by Forebet.
-
-## Understanding Forebet's Mathematical Model for Jackpots
-
-Forebet calculates match outcomes based on mathematical formulas:
-
-1. **Probability Distribution:** Forebet assigns a percentage probability to the three primary 1X2 outcomes (e.g., Home Win: 48%, Draw: 28%, Away Win: 24%).
-2. **Correct Score Modeling:** An expected scoreline (such as 2-1 or 1-1) is derived from Poisson distribution calculations based on expected goals (xG), home scoring rates, and away defensive stability.
-3. **Weather and Distance Metrics:** Forebet incorporates match venue conditions and environmental data to calculate potential performance dampening.
-
-For jackpot players, these percentages allow you to quickly identify matches where a statistical favorite exists versus games that are pure coin-flips.
+The selections above give you a view of the Forebet Sportpesa Mega Jackpot prediction, with the available community opinion for each fixture. Each game has the competition, kickoff time, matchup, suggested outcome and the community pools between the home win, draw and away win.
 
 <!-- MEAT -->
 
-## Where Forebet Mathematical Predictions Excel
+## Free Forebet Sportpesa Mega Jackpot Predictions This Week
 
-A purely mathematical approach offers distinct advantages when evaluating a massive 17-game weekend ticket:
+The Mega Jackpot is a 17 game football prediction challenge that requires you to correctly call the outcome of every selected fixture. Our **Forebet Sportpesa Mega Jackpot predictions** bring all of this week's games together with individual match picks, confidence ratings, community voting figures, and a closer look at the fixtures that could prove decisive on the coupon.
 
-### 1. Eliminating Emotional Bias
-Human tipsters frequently suffer from cognitive bias—favoring popular clubs, historical reputations, or exciting narratives. Forebet’s algorithm treats all teams equally, evaluating pure numbers regardless of brand name.
+This week's Sportpesa Mega Jackpot features a Fixture of European league fixtures, with matches from {{MEGA_JACKPOT_LEAGUES}}. This coupon has competitive fixtures where the available prediction and community opinion do not always point in the same direction. {{MEGA_JACKPOT_UPSET_ALERT}}
 
-### 2. Identifying Long-Term Home Advantage
-Certain lower-tier leagues featured in the SportPesa Mega Jackpot (such as the English Championship, Spanish Segunda, or Scandinavian divisions) have intense home-field statistical trends that Forebet captures with precision.
+Our **Forebet Sportpesa Mega prediction** currently carries an overall medium confidence rating. The currect forebet mega has {{MEGA_JACKPOT_SELECTIONS}} across the 17 games tips we have. Alongside the predictions, we have the the community percentages. This is a useful useful indication of how other users are approaching each fixture to help you understand other users perspectives.
 
-### 3. Highlighting High-Probability Draws
-Forebet’s algorithm is particularly effective at detecting defensive, low-scoring matchups where both sides exhibit high draw frequencies. When a jackpot game shows a Draw probability above 33%, it immediately signals a prime candidate for a double chance.
+The first mega games are scheduled for Saturday, {{MEGA_JACKPOT_DATES}}.
 
-## The Blind Spots of Mathematical Models
+## How to Use Sokaking Forebet Sportpesa Mega Predictions and Tips
 
-While statistical models excel at historical pattern matching, football is played by humans under dynamic conditions. The key blind spots of automated systems include:
+Sokaking Forebet Sportpesa Mega predictions are designed to give you a clear starting point when analyzing the 17 fixtures on the weekly Mega Jackpot coupon.To have an almost perfect final 1X2 picks: .
 
-* **Sudden Managerial Departures:** When a club appoints a new manager midweek, player motivation and tactical structure change immediately—factors historical databases cannot reflect.
-* **Squad Rotation & Key Injuries:** If a key striker or first-choice goalkeeper is ruled out in late training, a historical algorithm will still calculate probabilities based on games where they played.
-* **Dead Rubber Fixtures & Motivation:** Late-season or cup matches where one team has already achieved promotion, escaped relegation, or rested players for a final can render standard statistics obsolete.
-* **Derby & Emotional Tension:** Local derbies often defy statistical logic due to heightened cards, referee pressure, and emotional volatility.
+### 1. Review the full 17-game coupon
 
-## Combining Forebet Predictions with Human Tactical Analysis
+Start by going through every fixture before making your selections. Looking at the complete list helps you identify the matches that appear more straightforward and those where the outcome is harder to call.
 
-The most disciplined strategy for tackling the 17-game jackpot is a hybrid framework:
+### 2. Check the predicted outcome
 
-$$\\text{Statistical Probability (Forebet)} + \\text{Tactical & Lineup Context (Sokaking)} = \\text{Optimal Selection}$$
+Each fixture has a  **1, X or 2** result. A **1** represents a home win, **X** represents a draw, while **2** represents an away win. Check the prediction alongside the confidence rating before deciding how much weight to give it.
 
-| Factor | Forebet Algorithm | Sokaking Human & Tactical Analysis |
-| :--- | :--- | :--- |
-| **Historical Data** | Analyzes 500+ historical fixtures instantly | Synthesizes relevant recent 6-match trends |
-| **Tactical Matchups** | Relies on past goal concession numbers | Assesses tactical shapes (e.g. low block vs high press) |
-| **Team News & Lineups** | Limited real-time adjustment | Analyzes confirmed lineups 60 minutes before kickoff |
-| **Double Chance Selection** | Identifies narrow probability splits | Strategically places covers on high-variance fixtures |
-| **Jackpot Risk Management** | Evaluates matches in isolation | Balances total ticket combinations and bonus thresholds |
+### 3. Compare the community votes
 
-## Forebet Double Chance Strategy for the Mega Jackpot
+The community voting percentages offer another perspective on each game. If the prediction and the majority of voters favor the same outcome, you may want to examine that selection more closely. When the voting is split between two or three results, the match may require more analysis.
 
-The SportPesa Mega Jackpot allows double-chance combinations that dramatically increase your winning coverage. The challenge is deciding which of the 17 games justify doubling up without inflating ticket costs exponentially.
+### 4. Pay attention to Our confidence levels
 
-Using Forebet probability splits:
+Not every game on a Mega Jackpot coupon carries the same level of certainty. Medium-confidence selections may have stronger statistical support, while low-confidence fixtures can be much more difficult to predict. Our Top fixture are:
 
-* **Clear Banker (Probability $\\ge 55\\%$):** Take a single 1X2 pick. The statistical edge is substantial enough to preserve your budget.
-* **Tight Contest (Probability Split: 38% - 32% - 30%):** Apply a **Double Chance (1X or X2)**. In these fixtures, a single outcome has a 62% likelihood of failing.
-* **Stalemate Alert (Draw Probability $\\ge 35\\%$):** Consider a **1X or X2** cover, or a **12** double chance if both teams rarely draw but match up evenly.
+{{TOP_CONFIDENCE_FIXTURES:3}}
 
-You can also explore our dedicated [SportPesa Mega Jackpot Prediction](/sportpesa-mega-jackpot-prediction) page for our full weekly 17-game analysis and banker selections.
+### 5. Look at the difficult fixtures
 
-## How to Analyze the SportPesa 17 Games Step-by-Step
+Some matches can determine whether a 17-game combination succeeds or fails. Games with closely matched teams, divided community votes or conflicting prediction signals deserve additional attention before you settle on your final pick.
 
-1. **Review the Raw Fixtures:** Check kickoff times and league distributions as soon as SportPesa publishes the weekly card.
-2. **Consult Mathematical Baselines:** Examine Forebet's probability scores to establish baseline expectations for each match.
-3. **Filter Out Low-Confidence Games:** Flag matches where the highest outcome probability is under 40%. These are your primary upset candidates.
-4. **Cross-Check Confirmed Team News:** Look for suspended defenders, injured playmakers, and tactical shifts before locking in your choices.
-5. **Secure Strategic Bonuses:** Remember that SportPesa awards substantial cash bonuses for 12, 13, 14, 15, and 16 correct predictions. Aiming for consistent bonus coverage protects your bankroll over the season.
+### 6. Make your final selections
+
+Use the **Sokaking Forebet Sportpesa Mega predictions** as part of your research. Consider the available double chance options like:
+
+{{MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES}}
+
+Also check our dedicated [SportPesa Mega Jackpot Prediction](/sportpesa-mega-jackpot-prediction) page for our full weekly 17 game analysis.
 
 <!-- FAQ -->
 
@@ -1069,12 +1012,8 @@ Forebet utilizes complex algorithms based on Poisson mathematical distribution, 
 Directly copying automated predictions without checking team news and tactical context is risky. We recommend using Forebet as a statistical guide, then applying double-chance coverage on close matchups.
 
 ### Where can I get updated SportPesa Mega Jackpot predictions?
-Sokaking provides updated analysis, probability rankings, and expert picks for the [SportPesa Mega Jackpot](/sportpesa-mega-jackpot-prediction) every week, complete with double-chance strategies and bonus optimization.
 
-## Final Verdict: Using Forebet Effectively
-
-Forebet is a valuable asset for any serious football bettor seeking mathematical clarity. When combined with verified team news, tactical awareness, and disciplined bankroll management, mathematical predictions provide a dependable foundation for building competitive SportPesa Mega Jackpot tickets.
-`,
+Sokaking provides updated analysis, probability rankings, and expert picks for the [SportPesa Mega Jackpot](/sportpesa-mega-jackpot-prediction) every week, complete with double-chance strategies and bonus optimization.`,
 
   'home': `---
 title: "SokaKing Football Predictions and Free Tips"
@@ -1267,43 +1206,6 @@ With daily matches from around the globe, Mozzart Super Daily demands continuous
 <!-- RESPONSIBLE_GAMBLING_END -->
 `,
 
-  'odibet-laki-tatu': `---
-title: "OdiBet Laki Tatu Jackpot Predictions and Daily Tips"
-description: "OdiBet Laki Tatu daily jackpot predictions for 10 games. KES 300,000 cash prize analysis for KES 15 stake."
-keywords: "OdiBet Laki Tatu predictions, OdiBet daily jackpot tips, OdiBet 10 games"
-link: "/free-odibet-laki-tatu-jackpot-predictions-and-analysis"
-authorId: "grace-wanjiku"
-displayTitle: "OdiBet Laki Tatu Jackpot Selections (10 Games)"
-responsibleGambling: "Play responsibly. 18+ only. Helpline: 0800-720-000."
-unlockHeading: "Unlock OdiBet Laki Tatu Jackpot Predictions"
-unlockDescription: "Get daily 10-game jackpot predictions for OdiBet's KES 300,000 cash pool."
-type: "jackpot"
-jackpotId: "odibet-laki-tatu"
----
-
-## OdiBet Laki Tatu Jackpot Predictions and Daily Tips
-
-<!-- INTRO -->
-Welcome to Soka King's OdiBet Laki Tatu Jackpot prediction page. Access daily 10-game forecasts powered by our sports analytics engine.
-
-<!-- MIDDLE -->
-OdiBet's Laki Tatu Jackpot features 10 fixtures with a jackpot prize of KES 300,000 for a small KES 15 entry stake. Soka King provides daily updated picks for fast turnaround.
-
-<!-- MEAT -->
-## OdiBet Laki Tatu Jackpot Master Blueprint
-
-OdiBet's Laki Tatu is a popular daily short-format jackpot in Kenya.
-
-### Highlights and Rules
-- **10/10 Correct**: KES 300,000 Cash Prize.
-- **Entry Fee**: KES 15.
-- **Frequency**: Daily draws.
-
-<!-- RESPONSIBLE_GAMBLING_START -->
-> **Responsible Gambling Notice:** Gambling involves financial risk. Please bet responsibly and only risk money you can afford to lose. If you need help or support, contact the national helpline at **0800-720-000** or visit our [Responsible Gambling Policy](/responsible-gambling).
-<!-- RESPONSIBLE_GAMBLING_END -->
-`,
-
   'partners': `---
 title: "Our Strategic Partners - Soka King"
 description: "Soka King partners with supporters and moajor prediction sites"
@@ -1385,6 +1287,77 @@ Sports forecasting involves probability and risk. We encourage users to treat sp
 2. **Defined Entertainment Budget**: Allocate a fixed monthly bankroll that will not affect living expenses.
 3. **No Chasing Losses**: Avoid escalating stake sizes after failed slips.
 4. **Self-Exclusion Options**: Contact support@sokaking.com to block STK triggers or purge your account.
+
+<!-- RESPONSIBLE_GAMBLING_START -->
+> **Responsible Gambling Notice:** Gambling involves financial risk. Please bet responsibly and only risk money you can afford to lose. If you need help or support, contact the national helpline at **0800-720-000** or visit our [Responsible Gambling Policy](/responsible-gambling).
+<!-- RESPONSIBLE_GAMBLING_END -->
+`,
+
+  'scometix-midweek-jackpot-predictions': `---
+title: "scometix midweek jackpot predictions"
+description: "Accurate and free SportPesa scometix midweek jackpot predictions for this week and weekend"
+keywords: "scometix midweek jackpot predictions, scometix midweek, scometix mid jackpot predictions"
+link: "/scometix-midweek-jackpot-predictions"
+authorId: "david-ochieng"
+displayTitle: "scometix midweek jackpot predictions"
+unlockHeading: "Unlock SportPesa scometix mid jackpot predictions"
+unlockDescription: "Sokiang King has all the scometix midweek jackpot predictions ready for you. Unlock Pro level for SportPesa bonus wins"
+type: "jackpot"
+jackpotId: "sportpesa-midweek"
+---
+
+<!-- INTRO -->
+
+Soka King publishes free Scometix Midweek Jackpot predictions for every match on the weekly ticket. Each fixture includes written match analysis, a confidence rating, and community voting information to help you understand the reasoning behind every selection before making your final choices.
+
+<!-- MIDDLE -->
+
+Soka King publishes free Scometix Midweek Jackpot predictions, match analysis, confidence ratings, and available community voting information. You do not need to register or pay to access the free predictions.
+
+<!-- MEAT -->
+
+## Free Scometix Midweek Jackpot Predictions This Week
+
+The SportPesa Midweek Jackpot is a popular midweek football betting competition featuring 13 matches selected by SportPesa. Unlike the weekend Mega Jackpot, the Midweek Jackpot often features a strong selection of European club competition fixtures.
+
+The current Midweek jackpot stretched from the following leagues: {{JACKPOT_LEAGUES}}.
+
+Soka King provides free Scometix Midweek Jackpot predictions for all 13 fixtures; the match schedule is as follows: {{JACKPOT_SCHEDULE}}
+
+## How to Use Scometix Midweek Jackpot Predictions
+
+Start by reading the analysis for each of the 13 SportPesa Midweek Jackpot fixtures before making your final selections. Avoid relying on league position or recent form alone because team rotation, European commitments, and fixture congestion can heavily influence midweek matches.
+
+Pay particular attention to the confidence rating attached to each Scometix prediction. High-confidence selections may provide a stronger indication of the expected result, while medium- and low-confidence games deserve closer consideration because the match can realistically produce an alternative outcome.
+
+For this week, the top confidence fixtures are:
+
+{{TOP_CONFIDENCE_FIXTURES:5}}
+
+To minimize losses, Scometix Midweek Tips spans sobule chances to the following fixtures:
+
+{{DOUBLE_CHANCE_FIXTURES}}
+
+Use the full picks summary to see all 13 Scometix Midweek Jackpot predictions in one place before finalizing your ticket. All free Soka King predictions and match analysis are available without registration or subscription.
+
+## SportPesa Scometix Midweek Jackpot Expert Analysis
+
+The 13-game SportPesa Midweek Jackpot provides a shorter ticket compared with the 17-game weekend Mega Jackpot. Many Kenyan football punters follow the competition because the smaller number of fixtures makes it easier to study individual matches in detail.
+
+Our Scometix Midweek Jackpot analysis focuses on several important factors before arriving at a prediction. {{JACKPOT_UPSET_ALERT}}
+
+<!-- FAQ -->
+
+## Frequently Asked Questions About Scometix SportPesa Predictions
+
+### Are Soka King Scometix Midweek Jackpot predictions free?
+Yes. Soka King publishes free Scometix Midweek Jackpot predictions, match analysis, confidence ratings, and available community voting information. You do not need to register or pay to access the free predictions.
+
+### What does Scometix mean in the Midweek Jackpot predictions?
+Scometix is the prediction-focused analysis format used for this page. It combines match information, recent performance, team news, goal trends, and other relevant indicators to explain the possible outcomes of the 13 fixtures.
+
+### Can I use Scometix predictions to guarantee a jackpot win?
+No. Football outcomes are unpredictable, and no prediction system can guarantee a jackpot win. Use the analysis as information to support your own decisions, and never stake more money than you can afford to lose.
 
 <!-- RESPONSIBLE_GAMBLING_START -->
 > **Responsible Gambling Notice:** Gambling involves financial risk. Please bet responsibly and only risk money you can afford to lose. If you need help or support, contact the national helpline at **0800-720-000** or visit our [Responsible Gambling Policy](/responsible-gambling).
@@ -1533,7 +1506,7 @@ The current SportPesa Mega Jackpot Pro jackpot predictions stand at [KSh 132,873
 
 ## How the SportPesa Mega Jackpot Prediction Works
 
-The current [SportPesa Mega Jackpot Pro](https://www.ke.sportpesa.com/en/mega-jackpot-pro) has 17 pre-selected football games. The standard Mega Jackpot Pro bet needs you to have a stake of KSh 99. But note that the final cost will increase when you have double-chance coverages.
+The current [SportPesa Mega Jackpot Pro](https://www.ke.sportpesa.com/en/mega-jackpot-pro) has 17 pre-selected football games. Matches are selected from {{MEGA_JACKPOT_LEAGUES}}. The first games are scheduled for {{MEGA_JACKPOT_DATES}}, and the supplied selections include {{MEGA_JACKPOT_SELECTIONS}}. The standard Mega Jackpot Pro bet needs you to have a stake of KSh 99. But note that the final cost will increase when you have double-chance coverages.
 
 Always check the latest SportPesa instructions before submitting a ticket because betting procedures, fixtures, and promotional conditions can change.
 
@@ -1548,6 +1521,8 @@ For this weekend, our preferred high-confidence best selections are:
 ## SportPesa Mega Jackpot Bonuses
 
 The jackpot isn't necessarily an all-or-nothing situation. You don't have to get all 17 games correct. SportPesa's current Mega Jackpot bonus eligibility is 12/17, 13/17, 14/17, 15/17, and 16/17.
+
+{{MEGA_JACKPOT_SUB_COMBOS:list}}
 
 The actual bonus amount you get is based on the total winners. The bonus is divided among qualifying winners in the applicable class. This means a good mega jackpot prediction strategy should not focus on getting 17/17.
 
@@ -1640,42 +1615,80 @@ The 13-fixture SportPesa Midweek Jackpot is a favorite among Kenyan football pun
 <!-- RESPONSIBLE_GAMBLING_END -->
 `,
 
-  'sportybet-jackpot': `---
-title: "SportyBet Jackpot Predictions and Master Ticket Analysis"
-description: "SportyBet weekly jackpot predictions and master ticket analysis. Poisson probability and team metrics for SportyBet jackpot."
-keywords: "SportyBet jackpot predictions, SportyBet tips, SportyBet 12 games jackpot"
-link: "/free-sportybet-jackpot-predictions-and-analysis"
-authorId: "grace-wanjiku"
-displayTitle: "SportyBet Weekly Jackpot Selections and Master Ticket"
-responsibleGambling: "Play responsibly and observe betting limits. Helpline: 0800-720-000."
-unlockHeading: "Unlock SportyBet Jackpot Master Ticket"
-unlockDescription: "Get 12-game weekly jackpot predictions optimized for SportyBet Kenya and Nigeria."
+  'sportpesa-mjp-prediction': `---
+title: "SportPesa MJP Prediction Today - MjpPrediction"
+description: "Get Free MJP SportPesa predictions today and this week MJPPrediction."
+keywords: "mjp sportpesa, mjpprediction, sportpesa mjp prediction, mjp sportpesa prediction, mjp prediction sportpesa, mjp prediction this week, mjp prediction today, free sportpesa mjp prediction, free mjp prediction, mjp jackpot prediction, mjp free tips prediction"
+link: "/sportpesa-mjp-prediction"
+authorId: "david-ochieng"
+displayTitle: "MJP SportPesa Prediction"
+unlockHeading: "Unlock this week's SportPesa MjpPrediction"
+unlockDescription: "Soka King has the latest MJP selections ready for you, with expert match analysis, football tips, and Pro-level insights."
 type: "jackpot"
-jackpotId: "sportybet-jackpot"
+jackpotId: "sportpesa-mega"
+topConfidenceFixtures: true
+topConfidenceCount: 7
 ---
 
-## SportyBet Jackpot Predictions and Master Ticket Analysis
-
 <!-- INTRO -->
-Welcome to Soka King's SportyBet Jackpot prediction portal. Get accurate match forecasting and master ticket selections for SportyBet's weekly jackpot.
+
+Free expert MJP predictions for 17 games, each with a 1x2 pick, detailed analysis behind the tip, community votes, and a confidence chance. All tips are published for free, with no payments or sign-ups.
 
 <!-- MIDDLE -->
-SportyBet's 12-game weekly jackpot is popular across Kenya and Nigeria. Soka King uses Poisson goal modeling and team performance trends to optimize your ticket selections.
+We publish SokaKing MJP predictions for all 17 selected matches during midweek. All our tips are analyzed and updated as soon as SportPesa drops the full selected fixtures.
 
 <!-- MEAT -->
-## SportyBet Jackpot Strategy and Guide
 
-SportyBet offers a streamlined 12-game jackpot with lower ticket costs and fast payout processing.
+## SportPesa MJP Prediction for All 17 Games
 
-### Key Mechanics
-- **12/12 Correct**: Main Jackpot Pool.
-- **Bonus Tiers**: Awarded for 11 and 10 correct picks.
-- **Stake**: Low entry fees with flexible multi-bet ticket builder options.
+MJP is the most popular jackpot competition in Kenya. SportPesa updates a 17 games list every week to give its users a chance to win millions. The fun part is, you do not need to win all matches. Sporpesa gives a bonus fr a slected correctely predicted games og not less than 12 fixtures.
+
+At Soka King, we take those fixture and anyze the all. This week, Sporpesa MJP will be played from {{MEGA_JACKPOT_DATES}}. We already dropped a MJP whole match list for you. Each match has a prediction and a detailed anysis to what preditions selection is best. For exmaple, This week, we have the below list as out top prediction of the week:
+
+{{TOP_CONFIDENCE_FIXTURES:4}}
+
+All MJP tips are selected from all popular leages. This week's list is made from {{MEGA_JACKPOT_LEAGUES}}
+
+## Our MJP SportPesa Prediction for This Week
+
+We do not forget our fan base, as we all them to vote their best predicted outome. This will help everyone come up with the best optimal prediction that balances the expert tips and users' predictions. Always check the whole list.
+
+Our tips are fun and interactive, with optimal choices for bonus MJP SportPesa prediction. Always leave a vote on all fixture and seleted the precitio which you think best fits a match.
+
+For our fun base, This week Mega Jackpot coupon has two fixtures likely to produce surprise results and go against the majority prediction. Watch out {{MEGA_JACKPOT_UPSET_ALERT}} for a surprise result and tighten your probability.
+
+## The MjPrediction DC Coupon
+
+To make you as our fun, Sokaking experts add double chance variace to add the chances og hitting a bonus. Our current free MJP prediction will feature the following double-chance fixtures:
+
+{{MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES}}
+
+Double chance makes the hard fixture easy to win, as you have two winning options. Although we have {{MEGA_JACKPOT_SELECTIONS}} in our predictions. Be keen on the double chances you select. Any additional DC selection will need additional stakes. SportPesa will only allow you to take a maximum of 10 double combinations.
+
+<!-- FAQ -->
+## Frequently Asked MJP Questions
+
+### What is SportPesa MJP?
+
+SportPesa MJP is a football prediction competition for a selection of 17 matches for players to predict.
+
+### Is MJP the same as the SportPesa Mega Jackpot?
+
+Yes. In SportPesa, **MJP** is **Mega Jackpot**, and it is the same competition.
+
+### How should I choose difficult MJP fixtures?
+
+For hard games, we add a double chance option where it is available and appropriate.
+
+### Can I vote on the MJP predictions?
+
+Yes. For community voting, you submit your preferred prediction for individual fixtures. Community votes gives a view of how other punters expect a match to finish.
 
 <!-- RESPONSIBLE_GAMBLING_START -->
-> **Responsible Gambling Notice:** Gambling involves financial risk. Please bet responsibly and only risk money you can afford to lose. If you need help or support, contact the national helpline at **0800-720-000** or visit our [Responsible Gambling Policy](/responsible-gambling).
-<!-- RESPONSIBLE_GAMBLING_END -->
-`,
+
+> **Responsible Gambling Notice:** Gambling involves financial risk. Predictions are not guarantees of winnings. Only stake money you can afford to lose and use football analysis as information rather than certainty. Read our [Responsible Gambling Policy](/responsible-gambling).
+
+<!-- RESPONSIBLE_GAMBLING_END -->`,
 
   'stakegains-sportpesa-mega-jackpot-prediction': ``,
 
@@ -1793,6 +1806,7 @@ Our Tabiri Soka Football Predictions process focuses on the information most rel
 - Goals -Scoring and defensive trends for goal markets.
 - Team News - Injuries, suspensions and expected lineups.
 
+<!-- FAQ -->
 ## Tabiri Soka Prediction FAQs
 
 ### What is Tabiri Soka prediction?

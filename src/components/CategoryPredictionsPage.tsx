@@ -327,7 +327,7 @@ export default function CategoryPredictionsPage({
 
               {pageMd.intro && (
                 <div className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed pt-2 border-t border-[var(--border)]/50">
-                  <MarkdownRenderer content={pageMd.intro} />
+                  <MarkdownRenderer content={pageMd.intro} jackpotId={pageMd.jackpotId || pageId} />
                 </div>
               )}
 
@@ -478,7 +478,7 @@ export default function CategoryPredictionsPage({
               
               <div className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed">
                 {pageMd.intro ? (
-                  <MarkdownRenderer content={pageMd.intro} />
+                  <MarkdownRenderer content={pageMd.intro} jackpotId={pageMd.jackpotId || pageId} />
                 ) : (
                   <>{category.description} Powered by Soka King's state-of-the-art sporting index systems, Poisson probability modeling, and real-time team statistics.</>
                 )}
@@ -552,7 +552,7 @@ export default function CategoryPredictionsPage({
       {/* Middle Markdown Section (Renders immediately after the major prediction table) */}
       {pageMd && pageMd.middle && (
         <div className="p-4 md:p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] text-left text-xs leading-relaxed text-[var(--text-muted)]">
-          <MarkdownRenderer content={pageMd.middle} />
+          <MarkdownRenderer content={pageMd.middle} jackpotId={pageMd.jackpotId || pageId} />
         </div>
       )}
 
@@ -726,7 +726,10 @@ export default function CategoryPredictionsPage({
       {/* SEO Markdown Meat Section */}
       {(pageMd.meat || (!pageMd.middle && pageMd.fullContent)) && (
         <div className="p-6 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] text-left space-y-4">
-          <MarkdownRenderer content={pageMd.meat || pageMd.fullContent} />
+          <MarkdownRenderer 
+            content={pageMd.meat || pageMd.fullContent} 
+            jackpotId={pageMd.jackpotId || pageId} 
+          />
         </div>
       )}
 

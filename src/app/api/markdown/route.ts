@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import { expandTopFixturesParameters, expandTopFixturesParametersAsync } from '../../../utils/topJackpotFixtures';
+import { expandTopFixturesParameters, expandTopFixturesParametersAsync, resolveJackpotId } from '../../../utils/topJackpotFixtures';
+import { PAGE_METADATA_MAP } from '../../../content/pageMetadata';
 
 export async function GET(req: NextRequest) {
   try {
@@ -55,7 +56,9 @@ export async function GET(req: NextRequest) {
 
     if (fs.existsSync(filePath)) {
       const rawContent = fs.readFileSync(filePath, 'utf-8');
-      const expandedContent = await expandTopFixturesParametersAsync(rawContent, normKey.includes('mega') ? 'sportpesa-mega' : 'sportpesa-mega');
+      const metaJackpotId = PAGE_METADATA_MAP[normKey]?.jackpotId;
+      const resolvedJackpotId = resolveJackpotId(metaJackpotId || normKey, 'sportpesa-mega');
+      const expandedContent = await expandTopFixturesParametersAsync(rawContent, resolvedJackpotId);
       return new NextResponse(expandedContent, {
         status: 200,
         headers: {

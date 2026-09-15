@@ -6,7 +6,8 @@ import { createServer as createViteServer } from 'vite';
 import { generateSitemapXml, getAllSitemapRoutes, BASE_URL } from './src/utils/sitemapGenerator.js';
 import { injectSeoAndStructuredData, renderErrorPageHtml } from './src/utils/htmlInjector.js';
 import { classifyRoute } from './src/utils/urlClassifier.js';
-import { expandTopFixturesParameters, expandTopFixturesParametersAsync } from './src/utils/topJackpotFixtures.js';
+import { expandTopFixturesParameters, expandTopFixturesParametersAsync, resolveJackpotId } from './src/utils/topJackpotFixtures.js';
+import { PAGE_METADATA_MAP } from './src/content/pageMetadata.js';
 
 async function startServer() {
   const app = express();
@@ -240,7 +241,9 @@ Sitemap: https://sokaking.com/sitemap.xml
       if (fs.existsSync(filePath)) {
         const stat = fs.statSync(filePath);
         const rawContent = fs.readFileSync(filePath, 'utf-8');
-        const content = await expandTopFixturesParametersAsync(rawContent, normKey.includes('mega') ? 'sportpesa-mega' : 'sportpesa-mega');
+        const metaJackpotId = PAGE_METADATA_MAP[normKey]?.jackpotId;
+        const resolvedJackpotId = resolveJackpotId(metaJackpotId || normKey, 'sportpesa-mega');
+        const content = await expandTopFixturesParametersAsync(rawContent, resolvedJackpotId);
         res.setHeader('Content-Type', 'text/plain; charset=utf-8');
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
         res.setHeader('Last-Modified', stat.mtime.toUTCString());

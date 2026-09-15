@@ -1187,7 +1187,10 @@ export default function StaticPages({ pageId, onBackToHome }: StaticPagesProps) 
       {/* SEO Markdown File Content Integration */}
       {pageMd && pageMd.fullContent && (
         <div className="p-6 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] text-left space-y-4 mt-8">
-          <MarkdownRenderer content={pageMd.meat || pageMd.fullContent} />
+          <MarkdownRenderer 
+            content={pageMd.meat || pageMd.fullContent} 
+            jackpotId={pageMd.jackpotId || pageId}
+          />
         </div>
       )}
 

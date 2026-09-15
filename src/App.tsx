@@ -331,9 +331,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
       if (Array.isArray(jackpotsRes) && jackpotsRes.length > 0) {
         setDbJackpots(jackpotsRes);
-        const mega = jackpotsRes.find((j: any) => j.id === 'sportpesa-mega' || j.slug === 'sportpesa-mega' || j.name?.toLowerCase().includes('mega'));
-        if (mega && Array.isArray(mega.fixtures) && mega.fixtures.length > 0) {
-          setLiveJackpotFixturesCache(mega.fixtures);
+        for (const j of jackpotsRes) {
+          if (j && Array.isArray(j.fixtures) && j.fixtures.length > 0) {
+            setLiveJackpotFixturesCache(j.fixtures, j.id || j.slug);
+          }
         }
       }
       if (Array.isArray(vipRes) && vipRes.length > 0) {

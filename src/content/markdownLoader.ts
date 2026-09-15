@@ -19,7 +19,7 @@ export interface ParsedMarkdownPage extends PageMetadata {
  */
 export function buildCanonicalUrl(linkOrPath?: string, fallbackId?: string): string {
   const BASE_DOMAIN = 'https://sokaking.com';
-  let raw = (linkOrPath || (fallbackId ? `/${fallbackId}` : '/')).trim();
+  let raw = (linkOrPath || (fallbackId ? `/${fallbackId}` : '/')).trim().replace(/^["']+|["']+$/g, '').trim();
 
   if (raw.startsWith('http://') || raw.startsWith('https://')) {
     try {
@@ -259,7 +259,7 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
   const liveFront = parseFrontmatter(rawMd);
   const meta: PageMetadata = { ...baseMeta, ...liveFront, pageKey: keyName || baseMeta.pageKey };
   if (meta.link) {
-    let l = meta.link.trim();
+    let l = meta.link.trim().replace(/^["']+|["']+$/g, '').trim();
     if (!l.startsWith('/')) l = '/' + l;
     if (l.endsWith('/') && l !== '/') l = l.slice(0, -1);
     meta.link = l;
@@ -542,9 +542,9 @@ export function getDynamicUrlMaps(
           if (file.endsWith('.md')) {
             const pageKey = file.replace(/\.md$/, '').toLowerCase();
             const rawContent = fs.readFileSync(path.join(pagesDir, file), 'utf-8');
-            const linkMatch = rawContent.match(/^(?:link|Link):\s*"?(.*?)"?$/m);
+            const linkMatch = rawContent.match(/^(?:link|Link):\s*(.+)$/m);
             if (linkMatch && linkMatch[1]) {
-              let normLink = linkMatch[1].trim().toLowerCase();
+              let normLink = linkMatch[1].trim().replace(/^["']+|["']+$/g, '').trim().toLowerCase();
               if (!normLink.startsWith('/')) normLink = '/' + normLink;
               if (normLink.endsWith('/') && normLink !== '/') normLink = normLink.slice(0, -1);
               urlToPageMap[normLink] = pageKey;
