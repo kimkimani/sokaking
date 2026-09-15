@@ -1256,6 +1256,106 @@ if ($path === '/partners') {
     }
 }
 
+// 15b. External Links & Footer Links GET & POST /api/external-links
+if ($path === '/external-links' || $path === '/footer-links') {
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `external_links` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `anchor_text` varchar(255) NOT NULL,
+            `url` varchar(500) NOT NULL,
+            `rel` varchar(50) NOT NULL DEFAULT 'dofollow',
+            `is_dofollow` tinyint(1) NOT NULL DEFAULT 1,
+            `tag` varchar(100) DEFAULT 'Football Predictions',
+            `target` varchar(20) NOT NULL DEFAULT '_blank',
+            `description` text DEFAULT NULL,
+            `order_index` int(11) NOT NULL DEFAULT 0,
+            `is_active` tinyint(1) NOT NULL DEFAULT 1,
+            `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+            `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+            PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
+
+        $cntStmt = $pdo->query("SELECT COUNT(*) FROM external_links");
+        if ($cntStmt && (int)$cntStmt->fetchColumn() === 0) {
+            $seeds = [
+                ['Sokapedia Football Predictions', 'https://sokapedia.com/', 'dofollow', 1, 'Football Predictions', '_blank', 'Expert match previews, team form metrics, and daily football predictions.', 1],
+                ['Betwinner360 Predictions & Jackpot Tips', 'https://betwinner360.com/', 'dofollow', 1, 'Jackpot Tips', '_blank', 'Accurate SportPesa, Betika Midweek and weekend mega jackpot selections.', 2],
+                ['Forebet Mathematical Football Predictions', 'https://www.forebet.com/', 'dofollow', 1, 'AI Predictions', '_blank', 'Mathematical football predictions and statistical analysis algorithms.', 3],
+                ['Cheerplex Soccer Predictions Today', 'https://cheerplex.co.ke/', 'dofollow', 1, 'Daily Tips', '_blank', 'East Africa premier soccer tips, 254 sure predictions, and 1X2 slips.', 4],
+                ['Sunpel Soccer Predictions & Tips', 'https://sunpel.com/', 'dofollow', 1, 'Daily Tips', '_blank', 'Free daily betting tips, over/under goal guides, and European fixtures.', 5],
+                ['Victorspredict Football Betting Tips', 'https://victorspredict.com/', 'dofollow', 1, 'Football Predictions', '_blank', 'Free banker bets, double chance, and accumulator combination tips.', 6],
+                ['Windrawwin Football Predictions & Stats', 'https://www.windrawwin.com/', 'dofollow', 1, 'Stats & Analysis', '_blank', 'Free football predictions, betting statistics, football results and league tables.', 7],
+                ['Statarea Soccer Facts & Predictions', 'https://www.statarea.com/', 'dofollow', 1, 'Stats & Analysis', '_blank', 'In-depth league trends, head-to-head records, and historical comparisons.', 8],
+                ['Vitibet Free Football Tips & Tables', 'https://www.vitibet.com/', 'dofollow', 1, 'Football Predictions', '_blank', 'Daily football betting tips, index-based mathematical predictions and tables.', 9],
+                ['Flashscore Live Football Scores', 'https://www.flashscore.com/', 'nofollow', 0, 'Live Scores', '_blank', 'Real-time live soccer scores, goal notifications, and match stats.', 10],
+                ['LiveScore Real-time Sports Results', 'https://www.livescore.com/', 'nofollow', 0, 'Live Scores', '_blank', 'Instant scores and sports updates covering football competitions worldwide.', 11],
+                ['SportPesa Kenya Official Portal', 'https://www.sportpesa.co.ke/', 'nofollow', 0, 'Bookmakers', '_blank', 'SportPesa Kenya licensed betting company and mega jackpot host.', 12],
+                ['Betika Kenya Sports Betting', 'https://www.betika.com/', 'nofollow', 0, 'Bookmakers', '_blank', 'Betika Kenya licensed sports wagering and midweek jackpot provider.', 13],
+                ['MozzartBet Kenya Grand Jackpot', 'https://www.mozzartbet.co.ke/', 'nofollow', 0, 'Bookmakers', '_blank', 'Mozzart Bet Kenya daily super jackpot and grand jackpot gaming platform.', 14]
+            ];
+            $ins = $pdo->prepare("INSERT INTO external_links (anchor_text, url, rel, is_dofollow, tag, target, description, order_index, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)");
+            foreach ($seeds as $s) {
+                $ins->execute($s);
+            }
+        }
+    } catch (Throwable $e) {}
+
+    if ($method === 'GET') {
+        try {
+            $stmt = $pdo->query("SELECT * FROM external_links WHERE is_active = 1 ORDER BY order_index ASC, id ASC");
+            $rows = $stmt->fetchAll();
+
+            $formatted = array_map(function($r) {
+                return [
+                    'id' => (int)$r['id'],
+                    'anchorText' => $r['anchor_text'],
+                    'url' => $r['url'],
+                    'rel' => $r['rel'] ?: ($r['is_dofollow'] ? 'dofollow' : 'nofollow'),
+                    'isDofollow' => (bool)$r['is_dofollow'],
+                    'tag' => $r['tag'] ?: 'Football Predictions',
+                    'target' => $r['target'] ?: '_blank',
+                    'description' => $r['description'] ?: '',
+                    'orderIndex' => (int)($r['order_index'] ?? 0),
+                    'isActive' => (bool)($r['is_active'] ?? 1)
+                ];
+            }, $rows);
+
+            jsonResponse($formatted);
+        } catch (Throwable $e) {
+            jsonResponse([]);
+        }
+    }
+
+    if ($method === 'POST') {
+        $b = getJsonInput();
+        $anchorText = trim($b['anchorText'] ?? ($b['anchor_text'] ?? ($b['name'] ?? '')));
+        $url = trim($b['url'] ?? '');
+        $rel = trim($b['rel'] ?? 'dofollow');
+        $tag = trim($b['tag'] ?? 'Football Predictions');
+        $target = trim($b['target'] ?? '_blank');
+        $description = trim($b['description'] ?? '');
+        $orderIndex = isset($b['orderIndex']) ? (int)$b['orderIndex'] : 0;
+        $isDofollow = isset($b['isDofollow']) ? ($b['isDofollow'] ? 1 : 0) : ($rel === 'dofollow' ? 1 : 0);
+
+        if (!$anchorText || !$url) {
+            jsonResponse(['error' => 'anchorText and url are required'], 400);
+        }
+
+        try {
+            $stmt = $pdo->prepare("INSERT INTO external_links (anchor_text, url, rel, is_dofollow, tag, target, description, order_index, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)");
+            $stmt->execute([$anchorText, $url, $rel, $isDofollow, $tag, $target, $description, $orderIndex]);
+
+            jsonResponse([
+                'success' => true,
+                'message' => 'External link added successfully',
+                'id' => $pdo->lastInsertId()
+            ]);
+        } catch (Throwable $e) {
+            jsonResponse(['error' => $e->getMessage()], 500);
+        }
+    }
+}
+
 // 16. Dynamic Sitemap Route GET /api/sitemap.xml or /api/sitemap
 if ($path === '/sitemap.xml' || $path === '/sitemap') {
     header('Content-Type: application/xml; charset=utf-8');

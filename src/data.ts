@@ -1,4 +1,4 @@
-import { Fixture, VipPackage, OddsPack, DesignIteration } from './types';
+import { Fixture, VipPackage, OddsPack, DesignIteration, ExternalLink } from './types';
 
 export const designIterations: DesignIteration[] = [
   {
@@ -382,5 +382,176 @@ export const contactSocialTable: ContactSocialConfig[] = [
     actionUrl: 'https://maps.google.com/?q=Galana+Plaza+Kilimani+Nairobi',
     description: 'Data analytics hub and operational headquarters',
     status: 'Active'
+  }
+];
+
+export const defaultExternalLinks: ExternalLink[] = [
+  {
+    id: 1,
+    anchorText: 'Sokapedia Football Predictions',
+    url: 'https://sokapedia.com/',
+    rel: 'dofollow',
+    isDofollow: true,
+    tag: 'Football Predictions',
+    target: '_blank',
+    description: 'Expert match previews, team form metrics, and daily football predictions.',
+    orderIndex: 1,
+    isActive: true
+  },
+  {
+    id: 2,
+    anchorText: 'Betwinner360 Predictions & Jackpot Tips',
+    url: 'https://betwinner360.com/',
+    rel: 'dofollow',
+    isDofollow: true,
+    tag: 'Jackpot Tips',
+    target: '_blank',
+    description: 'Accurate SportPesa, Betika Midweek and weekend mega jackpot selections.',
+    orderIndex: 2,
+    isActive: true
+  },
+  {
+    id: 3,
+    anchorText: 'Forebet Mathematical Football Predictions',
+    url: 'https://www.forebet.com/',
+    rel: 'dofollow',
+    isDofollow: true,
+    tag: 'AI Predictions',
+    target: '_blank',
+    description: 'Mathematical football predictions and statistical analysis algorithms.',
+    orderIndex: 3,
+    isActive: true
+  },
+  {
+    id: 4,
+    anchorText: 'Cheerplex Soccer Predictions Today',
+    url: 'https://cheerplex.co.ke/',
+    rel: 'dofollow',
+    isDofollow: true,
+    tag: 'Daily Tips',
+    target: '_blank',
+    description: 'East Africa premier soccer tips, 254 sure predictions, and 1X2 slips.',
+    orderIndex: 4,
+    isActive: true
+  },
+  {
+    id: 5,
+    anchorText: 'Sunpel Soccer Predictions & Tips',
+    url: 'https://sunpel.com/',
+    rel: 'dofollow',
+    isDofollow: true,
+    tag: 'Daily Tips',
+    target: '_blank',
+    description: 'Free daily betting tips, over/under goal guides, and European fixtures.',
+    orderIndex: 5,
+    isActive: true
+  },
+  {
+    id: 6,
+    anchorText: 'Victorspredict Football Betting Tips',
+    url: 'https://victorspredict.com/',
+    rel: 'dofollow',
+    isDofollow: true,
+    tag: 'Football Predictions',
+    target: '_blank',
+    description: 'Free banker bets, double chance, and accumulator combination tips.',
+    orderIndex: 6,
+    isActive: true
+  },
+  {
+    id: 7,
+    anchorText: 'Windrawwin Football Predictions & Stats',
+    url: 'https://www.windrawwin.com/',
+    rel: 'dofollow',
+    isDofollow: true,
+    tag: 'Stats & Analysis',
+    target: '_blank',
+    description: 'Free football predictions, betting statistics, football results and league tables.',
+    orderIndex: 7,
+    isActive: true
+  },
+  {
+    id: 8,
+    anchorText: 'Statarea Soccer Facts & Predictions',
+    url: 'https://www.statarea.com/',
+    rel: 'dofollow',
+    isDofollow: true,
+    tag: 'Stats & Analysis',
+    target: '_blank',
+    description: 'In-depth league trends, head-to-head records, and historical comparisons.',
+    orderIndex: 8,
+    isActive: true
+  },
+  {
+    id: 9,
+    anchorText: 'Vitibet Free Football Tips & Tables',
+    url: 'https://www.vitibet.com/',
+    rel: 'dofollow',
+    isDofollow: true,
+    tag: 'Football Predictions',
+    target: '_blank',
+    description: 'Daily football betting tips, index-based mathematical predictions and tables.',
+    orderIndex: 9,
+    isActive: true
+  },
+  {
+    id: 10,
+    anchorText: 'Flashscore Live Football Scores',
+    url: 'https://www.flashscore.com/',
+    rel: 'nofollow',
+    isDofollow: false,
+    tag: 'Live Scores',
+    target: '_blank',
+    description: 'Real-time live soccer scores, goal notifications, and match stats.',
+    orderIndex: 10,
+    isActive: true
+  },
+  {
+    id: 11,
+    anchorText: 'LiveScore Real-time Sports Results',
+    url: 'https://www.livescore.com/',
+    rel: 'nofollow',
+    isDofollow: false,
+    tag: 'Live Scores',
+    target: '_blank',
+    description: 'Instant scores and sports updates covering football competitions worldwide.',
+    orderIndex: 11,
+    isActive: true
+  },
+  {
+    id: 12,
+    anchorText: 'SportPesa Kenya Official Portal',
+    url: 'https://www.sportpesa.co.ke/',
+    rel: 'nofollow',
+    isDofollow: false,
+    tag: 'Bookmakers',
+    target: '_blank',
+    description: 'SportPesa Kenya licensed betting company and mega jackpot host.',
+    orderIndex: 12,
+    isActive: true
+  },
+  {
+    id: 13,
+    anchorText: 'Betika Kenya Sports Betting',
+    url: 'https://www.betika.com/',
+    rel: 'nofollow',
+    isDofollow: false,
+    tag: 'Bookmakers',
+    target: '_blank',
+    description: 'Betika Kenya licensed sports wagering and midweek jackpot provider.',
+    orderIndex: 13,
+    isActive: true
+  },
+  {
+    id: 14,
+    anchorText: 'MozzartBet Kenya Grand Jackpot',
+    url: 'https://www.mozzartbet.co.ke/',
+    rel: 'nofollow',
+    isDofollow: false,
+    tag: 'Bookmakers',
+    target: '_blank',
+    description: 'Mozzart Bet Kenya daily super jackpot and grand jackpot gaming platform.',
+    orderIndex: 14,
+    isActive: true
   }
 ];

@@ -27,14 +27,15 @@ import {
   Youtube
 } from 'lucide-react';
 
-import { designIterations, vipPackages, oddsPacks, fixturesData } from './data';
+import { designIterations, vipPackages, oddsPacks, fixturesData, defaultExternalLinks } from './data';
 import { jackpotsData } from './jackpotsData';
-import { DesignIteration, Fixture, VipPackage, OddsPack } from './types';
+import { DesignIteration, Fixture, VipPackage, OddsPack, ExternalLink } from './types';
 import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl, hasMarkdownFile } from './content/markdownLoader';
 import { getRefinedConfidence } from './utils/probability';
 
 import { apiFetch } from './utils/api.ts';
 import { getApiBaseUrl } from './lib/getApiBaseUrl';
+import { fetchExternalLinks } from './lib/dataStore';
 import { PredictionCategory, getCategoryCountText, PREDICTION_CATEGORIES, getCategoryFixtures, isSameDay } from './utils/predictionGenerator';
 
 // Import essential initial UI components
@@ -103,6 +104,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   const [dbJackpots, setDbJackpots] = useState<any[]>(() => (Array.isArray(initialJackpots) && initialJackpots.length > 0 ? initialJackpots : jackpotsData));
   const [dbVipPackages, setDbVipPackages] = useState<VipPackage[]>(() => vipPackages);
   const [dbOddsPacks, setDbOddsPacks] = useState<OddsPack[]>(() => oddsPacks);
+  const [dbExternalLinks, setDbExternalLinks] = useState<ExternalLink[]>(() => defaultExternalLinks);
   const [dbPredictions, setDbPredictions] = useState<Record<string, Fixture[]>>(() => {
     const hasInitial = Array.isArray(initialPredictions) && initialPredictions.length > 0;
     const defaultSeedPool = [
@@ -307,13 +309,18 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     try {
       setLoadingDb(true);
       const baseUrl = getApiBaseUrl();
-      const [jackpotsRes, vipRes, oddsRes, allPredictionsRes, settingsRes] = await Promise.all([
+      const [jackpotsRes, vipRes, oddsRes, allPredictionsRes, settingsRes, externalLinksRes] = await Promise.all([
         fetch(`${baseUrl}/api/jackpots`).then(r => r.ok ? r.json() : []).catch(() => []),
         fetch(`${baseUrl}/api/vip-packages`).then(r => r.ok ? r.json() : []).catch(() => []),
         fetch(`${baseUrl}/api/odds-packs`).then(r => r.ok ? r.json() : []).catch(() => []),
         fetch(`${baseUrl}/api/predictions`).then(r => r.ok ? r.json() : []).catch(() => []),
         fetch(`${baseUrl}/api/site-settings`).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch(`${baseUrl}/api/external-links`).then(r => r.ok ? r.json() : []).catch(() => []),
       ]);
+
+      if (Array.isArray(externalLinksRes) && externalLinksRes.length > 0) {
+        setDbExternalLinks(externalLinksRes);
+      }
 
       if (settingsRes) {
         setSiteContacts(prev => ({
@@ -1554,6 +1561,32 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
             </div>
           </div>
 
+        </div>
+
+        {/* External Links - Anchor Texts Only */}
+        <div id="footer-external-links" className="max-w-7xl mx-auto px-4 mt-8 pt-6 border-t border-[var(--border)]">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3.5 gap-y-2 text-xs">
+            {dbExternalLinks.map((item, idx) => {
+              const isDofollow = item.isDofollow || item.rel === 'dofollow';
+              const relAttr = isDofollow ? 'noopener' : 'nofollow noopener noreferrer';
+              return (
+                <span key={`footer-link-${item.id}`} className="inline-flex items-center gap-3.5">
+                  <a
+                    id={`footer-link-${item.id}`}
+                    href={item.url}
+                    target={item.target || '_blank'}
+                    rel={relAttr}
+                    className="font-medium text-slate-600 dark:text-slate-400 hover:text-[var(--primary)] transition-colors no-underline hover:underline"
+                  >
+                    {item.anchorText}
+                  </a>
+                  {idx < dbExternalLinks.length - 1 && (
+                    <span className="text-slate-300 dark:text-slate-700 select-none">•</span>
+                  )}
+                </span>
+              );
+            })}
+          </div>
         </div>
 
         {/* Lower row */}

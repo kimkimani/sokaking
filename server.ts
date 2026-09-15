@@ -204,6 +204,236 @@ Sitemap: https://sokaking.com/sitemap.xml
 `);
   });
 
+  // In-Memory Fallback & Fast Cache for External Links & Footer Partners
+  const initialExternalLinks = [
+    {
+      id: 1,
+      anchorText: 'Sokapedia Football Predictions',
+      url: 'https://sokapedia.com/',
+      rel: 'dofollow',
+      isDofollow: true,
+      tag: 'Football Predictions',
+      target: '_blank',
+      description: 'Expert match previews, team form metrics, and daily football predictions.',
+      orderIndex: 1,
+      isActive: true
+    },
+    {
+      id: 2,
+      anchorText: 'Betwinner360 Predictions & Jackpot Tips',
+      url: 'https://betwinner360.com/',
+      rel: 'dofollow',
+      isDofollow: true,
+      tag: 'Jackpot Tips',
+      target: '_blank',
+      description: 'Accurate SportPesa, Betika Midweek and weekend mega jackpot selections.',
+      orderIndex: 2,
+      isActive: true
+    },
+    {
+      id: 3,
+      anchorText: 'Forebet Mathematical Football Predictions',
+      url: 'https://www.forebet.com/',
+      rel: 'dofollow',
+      isDofollow: true,
+      tag: 'AI Predictions',
+      target: '_blank',
+      description: 'Mathematical football predictions and statistical analysis algorithms.',
+      orderIndex: 3,
+      isActive: true
+    },
+    {
+      id: 4,
+      anchorText: 'Cheerplex Soccer Predictions Today',
+      url: 'https://cheerplex.co.ke/',
+      rel: 'dofollow',
+      isDofollow: true,
+      tag: 'Daily Tips',
+      target: '_blank',
+      description: 'East Africa premier soccer tips, 254 sure predictions, and 1X2 slips.',
+      orderIndex: 4,
+      isActive: true
+    },
+    {
+      id: 5,
+      anchorText: 'Sunpel Soccer Predictions & Tips',
+      url: 'https://sunpel.com/',
+      rel: 'dofollow',
+      isDofollow: true,
+      tag: 'Daily Tips',
+      target: '_blank',
+      description: 'Free daily betting tips, over/under goal guides, and European fixtures.',
+      orderIndex: 5,
+      isActive: true
+    },
+    {
+      id: 6,
+      anchorText: 'Victorspredict Football Betting Tips',
+      url: 'https://victorspredict.com/',
+      rel: 'dofollow',
+      isDofollow: true,
+      tag: 'Football Predictions',
+      target: '_blank',
+      description: 'Free banker bets, double chance, and accumulator combination tips.',
+      orderIndex: 6,
+      isActive: true
+    },
+    {
+      id: 7,
+      anchorText: 'Windrawwin Football Predictions & Stats',
+      url: 'https://www.windrawwin.com/',
+      rel: 'dofollow',
+      isDofollow: true,
+      tag: 'Stats & Analysis',
+      target: '_blank',
+      description: 'Free football predictions, betting statistics, football results and league tables.',
+      orderIndex: 7,
+      isActive: true
+    },
+    {
+      id: 8,
+      anchorText: 'Statarea Soccer Facts & Predictions',
+      url: 'https://www.statarea.com/',
+      rel: 'dofollow',
+      isDofollow: true,
+      tag: 'Stats & Analysis',
+      target: '_blank',
+      description: 'In-depth league trends, head-to-head records, and historical comparisons.',
+      orderIndex: 8,
+      isActive: true
+    },
+    {
+      id: 9,
+      anchorText: 'Vitibet Free Football Tips & Tables',
+      url: 'https://www.vitibet.com/',
+      rel: 'dofollow',
+      isDofollow: true,
+      tag: 'Football Predictions',
+      target: '_blank',
+      description: 'Daily football betting tips, index-based mathematical predictions and tables.',
+      orderIndex: 9,
+      isActive: true
+    },
+    {
+      id: 10,
+      anchorText: 'Flashscore Live Football Scores',
+      url: 'https://www.flashscore.com/',
+      rel: 'nofollow',
+      isDofollow: false,
+      tag: 'Live Scores',
+      target: '_blank',
+      description: 'Real-time live soccer scores, goal notifications, and match stats.',
+      orderIndex: 10,
+      isActive: true
+    },
+    {
+      id: 11,
+      anchorText: 'LiveScore Real-time Sports Results',
+      url: 'https://www.livescore.com/',
+      rel: 'nofollow',
+      isDofollow: false,
+      tag: 'Live Scores',
+      target: '_blank',
+      description: 'Instant scores and sports updates covering football competitions worldwide.',
+      orderIndex: 11,
+      isActive: true
+    },
+    {
+      id: 12,
+      anchorText: 'SportPesa Kenya Official Portal',
+      url: 'https://www.sportpesa.co.ke/',
+      rel: 'nofollow',
+      isDofollow: false,
+      tag: 'Bookmakers',
+      target: '_blank',
+      description: 'SportPesa Kenya licensed betting company and mega jackpot host.',
+      orderIndex: 12,
+      isActive: true
+    },
+    {
+      id: 13,
+      anchorText: 'Betika Kenya Sports Betting',
+      url: 'https://www.betika.com/',
+      rel: 'nofollow',
+      isDofollow: false,
+      tag: 'Bookmakers',
+      target: '_blank',
+      description: 'Betika Kenya licensed sports wagering and midweek jackpot provider.',
+      orderIndex: 13,
+      isActive: true
+    },
+    {
+      id: 14,
+      anchorText: 'MozzartBet Kenya Grand Jackpot',
+      url: 'https://www.mozzartbet.co.ke/',
+      rel: 'nofollow',
+      isDofollow: false,
+      tag: 'Bookmakers',
+      target: '_blank',
+      description: 'Mozzart Bet Kenya daily super jackpot and grand jackpot gaming platform.',
+      orderIndex: 14,
+      isActive: true
+    }
+  ];
+
+  let memoryExternalLinks = [...initialExternalLinks];
+
+  // API endpoint for external links & footer partners
+  app.get(['/api/external-links', '/api/footer-links'], async (_req, res) => {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 2000);
+      const phpRes = await fetch(`${PHP_BACKEND_URL}/api/external-links`, {
+        headers: { 'Accept': 'application/json' },
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+      if (phpRes.ok) {
+        const data = await phpRes.json();
+        if (Array.isArray(data) && data.length > 0) {
+          res.setHeader('Content-Type', 'application/json');
+          return res.json(data);
+        }
+      }
+    } catch (e) {
+      // Remote backend offline or not yet updated: use memoryExternalLinks
+    }
+    res.setHeader('Content-Type', 'application/json');
+    return res.json(memoryExternalLinks);
+  });
+
+  app.post(['/api/external-links', '/api/footer-links'], async (req, res) => {
+    try {
+      const body = req.body || {};
+      const newLink = {
+        id: memoryExternalLinks.length + 1,
+        anchorText: body.anchorText || body.name || 'Football Site',
+        url: body.url || '#',
+        rel: body.rel || (body.isDofollow === false ? 'nofollow' : 'dofollow'),
+        isDofollow: body.rel === 'nofollow' || body.isDofollow === false ? false : true,
+        tag: body.tag || 'Football Predictions',
+        target: body.target || '_blank',
+        description: body.description || '',
+        orderIndex: Number(body.orderIndex) || (memoryExternalLinks.length + 1),
+        isActive: body.isActive !== false
+      };
+      memoryExternalLinks.push(newLink);
+
+      // Attempt async write to PHP backend if reachable
+      try {
+        fetch(`${PHP_BACKEND_URL}/api/external-links`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        }).catch(() => {});
+      } catch (e) {}
+
+      return res.status(200).json({ success: true, link: newLink });
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message });
+    }
+  });
+
   // Serve dynamic live Markdown directly from src/content/pages/
   app.get('/api/markdown', async (req, res) => {
     try {

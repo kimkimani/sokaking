@@ -1,5 +1,7 @@
 import { getApiBaseUrl } from './getApiBaseUrl';
 import { getRefinedConfidence } from '../utils/probability';
+import { ExternalLink } from '../types';
+import { defaultExternalLinks } from '../data';
 
 /**
  * Decoupled Frontend & Next.js API Client Store
@@ -268,6 +270,41 @@ export async function addPartner(partnerData: any) {
   } catch (error) {
     console.error('[dataStore] API addPartner failed:', error);
     return { success: false, error: 'Failed to add partner' };
+  }
+}
+
+export async function fetchExternalLinks(): Promise<ExternalLink[]> {
+  const baseUrl = getApiBaseUrl();
+  try {
+    const res = await fetch(`${baseUrl}/api/external-links`, { 
+      method: 'GET', 
+      headers: { 'Accept': 'application/json' } 
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) {
+      return data;
+    }
+    return defaultExternalLinks;
+  } catch (error) {
+    console.warn('[dataStore] API fetchExternalLinks fallback to defaults:', error);
+    return defaultExternalLinks;
+  }
+}
+
+export async function addExternalLink(linkData: Partial<ExternalLink>): Promise<{ success: boolean; id?: number | string; error?: string }> {
+  const baseUrl = getApiBaseUrl();
+  try {
+    const res = await fetch(`${baseUrl}/api/external-links`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(linkData),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    return await res.json();
+  } catch (error: any) {
+    console.error('[dataStore] API addExternalLink failed:', error);
+    return { success: false, error: error?.message || 'Failed to add external link' };
   }
 }
 

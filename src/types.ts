@@ -66,3 +66,16 @@ export interface DesignIteration {
   notes: string[];
   themeClass: string;
 }
+
+export interface ExternalLink {
+  id: number | string;
+  anchorText: string;
+  url: string;
+  rel: 'dofollow' | 'nofollow' | string;
+  isDofollow: boolean;
+  tag?: string;
+  target?: string;
+  description?: string;
+  orderIndex?: number;
+  isActive?: boolean;
+}

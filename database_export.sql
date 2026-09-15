@@ -692,4 +692,40 @@ INSERT INTO `sportybet_jackpot` (`id`, `jackpot_name`, `fixture_ref`, `jackpot_p
 INSERT INTO `sportybet_jackpot` (`id`, `jackpot_name`, `fixture_ref`, `jackpot_position`, `jackpot_tip`, `status_short`, `status_long`, `full_time_home`, `full_time_away`, `home_team_id`, `away_team_id`, `home_team_name`, `away_team_name`, `home_team_logo`, `away_team_logo`, `league_name`, `country_name`, `country_flag`, `date`, `ai_analysis`, `created_at`, `updated_at`) VALUES (12, 'SportybetJackpot', '1377896', 12, '1', 'NS', 'Not Started', NULL, NULL, 502, 895, 'Fiorentina', 'Como', 'https://media.api-sports.io/football/teams/502.png', 'https://media.api-sports.io/football/teams/895.png', 'Serie A', 'Italy', 'https://media.api-sports.io/flags/it.svg', '2026-08-09 00:00:00', 'Upcoming jackpot fixture. AI model projects solid defensive positioning with strategic counter-attack opportunities.', '2026-08-03 09:05:40.536', '2026-08-03 09:05:40.536');
 
 
+--
+-- Table structure for table `external_links`
+--
+
+CREATE TABLE IF NOT EXISTS `external_links` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `anchor_text` varchar(255) NOT NULL,
+  `url` varchar(500) NOT NULL,
+  `rel` varchar(50) NOT NULL DEFAULT 'dofollow',
+  `is_dofollow` tinyint(1) NOT NULL DEFAULT 1,
+  `tag` varchar(100) DEFAULT 'Football Predictions',
+  `target` varchar(20) NOT NULL DEFAULT '_blank',
+  `description` text DEFAULT NULL,
+  `order_index` int(11) NOT NULL DEFAULT 0,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `external_links` (`id`, `anchor_text`, `url`, `rel`, `is_dofollow`, `tag`, `target`, `description`, `order_index`, `is_active`) VALUES
+(1, 'Sokapedia Football Predictions', 'https://sokapedia.com/', 'dofollow', 1, 'Football Predictions', '_blank', 'Expert match previews, team form metrics, and daily football predictions.', 1, 1),
+(2, 'Betwinner360 Predictions & Jackpot Tips', 'https://betwinner360.com/', 'dofollow', 1, 'Jackpot Tips', '_blank', 'Accurate SportPesa, Betika Midweek and weekend mega jackpot selections.', 2, 1),
+(3, 'Forebet Mathematical Football Predictions', 'https://www.forebet.com/', 'dofollow', 1, 'AI Predictions', '_blank', 'Mathematical football predictions and statistical analysis algorithms.', 3, 1),
+(4, 'Cheerplex Soccer Predictions Today', 'https://cheerplex.co.ke/', 'dofollow', 1, 'Daily Tips', '_blank', 'East Africa premier soccer tips, 254 sure predictions, and 1X2 slips.', 4, 1),
+(5, 'Sunpel Soccer Predictions & Tips', 'https://sunpel.com/', 'dofollow', 1, 'Daily Tips', '_blank', 'Free daily betting tips, over/under goal guides, and European fixtures.', 5, 1),
+(6, 'Victorspredict Football Betting Tips', 'https://victorspredict.com/', 'dofollow', 1, 'Football Predictions', '_blank', 'Free banker bets, double chance, and accumulator combination tips.', 6, 1),
+(7, 'Windrawwin Football Predictions & Stats', 'https://www.windrawwin.com/', 'dofollow', 1, 'Stats & Analysis', '_blank', 'Free football predictions, betting statistics, football results and league tables.', 7, 1),
+(8, 'Statarea Soccer Facts & Predictions', 'https://www.statarea.com/', 'dofollow', 1, 'Stats & Analysis', '_blank', 'In-depth league trends, head-to-head records, and historical comparisons.', 8, 1),
+(9, 'Vitibet Free Football Tips & Tables', 'https://www.vitibet.com/', 'dofollow', 1, 'Football Predictions', '_blank', 'Daily football betting tips, index-based mathematical predictions and tables.', 9, 1),
+(10, 'Flashscore Live Football Scores', 'https://www.flashscore.com/', 'nofollow', 0, 'Live Scores', '_blank', 'Real-time live soccer scores, goal notifications, and match stats.', 10, 1),
+(11, 'LiveScore Real-time Sports Results', 'https://www.livescore.com/', 'nofollow', 0, 'Live Scores', '_blank', 'Instant scores and sports updates covering football competitions worldwide.', 11, 1),
+(12, 'SportPesa Kenya Official Portal', 'https://www.sportpesa.co.ke/', 'nofollow', 0, 'Bookmakers', '_blank', 'SportPesa Kenya licensed betting company and mega jackpot host.', 12, 1),
+(13, 'Betika Kenya Sports Betting', 'https://www.betika.com/', 'nofollow', 0, 'Bookmakers', '_blank', 'Betika Kenya licensed sports wagering and midweek jackpot provider.', 13, 1),
+(14, 'MozzartBet Kenya Grand Jackpot', 'https://www.mozzartbet.co.ke/', 'nofollow', 0, 'Bookmakers', '_blank', 'Mozzart Bet Kenya daily super jackpot and grand jackpot gaming platform.', 14, 1);
+
 SET FOREIGN_KEY_CHECKS = 1;

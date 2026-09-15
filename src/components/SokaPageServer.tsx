@@ -1,6 +1,7 @@
 import App from '../App';
 import { getMarkdownContent, buildCanonicalUrl } from '../content/markdownLoader';
 import { jackpotsData } from '../jackpotsData';
+import { defaultExternalLinks } from '../data';
 import { generatePageJsonLd } from '../utils/schemaGenerator';
 import { getInboundLinks } from '../utils/inboundLinks';
 
@@ -46,6 +47,20 @@ export default async function SokaPageServer({ pageId, customCanonical }: SokaPa
             ))}
           </ul>
         </nav>
+        <nav aria-label="External Football Links">
+          <ul>
+            {defaultExternalLinks.map((link) => (
+              <li key={`seo-ext-${link.id}`}>
+                <a 
+                  href={link.url} 
+                  rel={link.isDofollow || link.rel === 'dofollow' ? 'noopener' : 'nofollow noopener noreferrer'}
+                >
+                  {link.anchorText}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
 
       {/* Interactive Hydrated React Application */}
@@ -58,3 +73,4 @@ export default async function SokaPageServer({ pageId, customCanonical }: SokaPa
     </>
   );
 }
+
