@@ -676,17 +676,10 @@ export function getJackpotLeagueNames(
 
   if (Array.isArray(source) && source.length > 0) {
     fixtures = source;
-  } else if (typeof source === 'string' && source) {
-    jackpotId = resolveJackpotId(source, 'sportpesa-mega');
-    const jackpot = jackpotsData.find(j => j.id === jackpotId || j.slug === jackpotId);
-    if (jackpot && Array.isArray(jackpot.fixtures)) {
-      fixtures = jackpot.fixtures;
-    }
   } else {
-    const defaultJackpot = jackpotsData.find(j => j.id === 'sportpesa-mega');
-    if (defaultJackpot && Array.isArray(defaultJackpot.fixtures)) {
-      fixtures = defaultJackpot.fixtures;
-    }
+    const resolved = getFixturesForJackpot(typeof source === 'string' ? source : undefined);
+    jackpotId = resolved.jackpotId;
+    fixtures = resolved.fixtures;
   }
 
   // Curated SportPesa Mega leagues
@@ -711,6 +704,27 @@ export function getJackpotLeagueNames(
       }
     }
 
+    if (formatted.length > 0) {
+      return formatted;
+    }
+  }
+
+  // If this specific jackpot has a fallback in static data with fixtures, attempt to extract from there
+  const fallbackJackpot = jackpotsData.find(j => j.id === jackpotId || j.slug === jackpotId);
+  if (fallbackJackpot && Array.isArray(fallbackJackpot.fixtures) && fallbackJackpot.fixtures.length > 0) {
+    const rawLeagues = fallbackJackpot.fixtures
+      .map(f => f.leagueName || (f as any).league_name || (f as any).league || '')
+      .filter(l => l && l.trim().length > 1);
+    const seen = new Set<string>();
+    const formatted: string[] = [];
+    for (const raw of rawLeagues) {
+      const clean = formatLeagueName(raw);
+      const key = clean.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        formatted.push(clean);
+      }
+    }
     if (formatted.length > 0) {
       return formatted;
     }
