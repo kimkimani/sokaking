@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { expandTopFixturesParameters, fetchLiveJackpotFixtures, fetchLiveMegaJackpotFixtures, getCachedLiveJackpotFixtures, isDoubleChanceTip } from '../utils/topJackpotFixtures';
 import { Fixture } from '../types';
 import { getLinkRel } from '../utils/linkUtils';
-import { Crown, Users, Star, ArrowRight } from 'lucide-react';
+import { Crown, Users, Star, ArrowRight, ExternalLink } from 'lucide-react';
+import PaymentModal from './PaymentModal';
 
 interface MarkdownRendererProps {
   content: string;
@@ -240,6 +241,77 @@ interface CompactAllJackpotFixturesSectionProps {
   jackpotId?: string;
 }
 
+function parseAllFixtureLine(line: string): {
+  gameNumber: number;
+  matchTeams: string;
+  prediction: string;
+  isVipLocked: boolean;
+  confidence: number | string;
+  mostVoted: string;
+} | null {
+  const trimmed = line.trim();
+  if (!trimmed) return null;
+
+  // Must have ' vs ' and an em-dash/hyphen separator
+  if (!/\s+vs\s+/i.test(trimmed) || !/[—–-]/.test(trimmed)) return null;
+
+  // Check for presence of jackpot clues or metadata
+  const hasJackpotClues =
+    /^(?:###\s+|\*\*)?(?:Game|Match|\d+\.)/i.test(trimmed) ||
+    /confidence:/i.test(trimmed) ||
+    /database\s*tip:/i.test(trimmed) ||
+    /user\s*votes/i.test(trimmed) ||
+    /user\s*tip/i.test(trimmed) ||
+    /most\s*voted/i.test(trimmed);
+
+  if (!hasJackpotClues) return null;
+
+  // Look for metadata part e.g. (Confidence: 85% | User Votes/Tip: 2 - 60%)
+  const metaIndex = trimmed.lastIndexOf('(Confidence:');
+  let mainPart = trimmed;
+  let metaPart = '';
+  if (metaIndex !== -1) {
+    mainPart = trimmed.substring(0, metaIndex).trim();
+    metaPart = trimmed.substring(metaIndex).trim().replace(/^\(|\)$/g, '');
+  }
+
+  const headerMatch = mainPart.match(
+    /^(?:###\s+|\*\*)?(?:(?:Game|Match)\s*(\d+)?:?|(\d+)\.)?\s*(.+?\s+vs\s+.+?)\s*[—–-]\s*(.+?)(?:\*\*)?$/i
+  );
+  if (!headerMatch) return null;
+
+  const gameNumber = parseInt(headerMatch[1] || headerMatch[2] || '0', 10) || 1;
+  const matchTeams = headerMatch[3].trim();
+  let rawTip = headerMatch[4].trim();
+
+  // Strip leading "Database Tip:" if present
+  rawTip = rawTip.replace(/^Database\s*Tip:\s*/i, '').trim();
+
+  const isVipLocked = /vip/i.test(rawTip) || /join vip/i.test(rawTip);
+  const prediction = isVipLocked ? 'Join VIP' : rawTip.replace(/[\[\]]/g, '').trim();
+
+  let confidence = '75%';
+  const confMatch = metaPart.match(/Confidence:\s*(\d+%?)/i);
+  if (confMatch) confidence = confMatch[1].includes('%') ? confMatch[1] : `${confMatch[1]}%`;
+
+  let mostVoted = '';
+  const voteMatch = metaPart.match(/(?:User\s*(?:Votes\/Tip|Votes|Tip)|Most\s*Voted):\s*([^|)]+)/i);
+  if (voteMatch) {
+    mostVoted = voteMatch[1].trim();
+  } else {
+    mostVoted = !isVipLocked ? `${prediction} (55%)` : '1 (55%)';
+  }
+
+  return {
+    gameNumber,
+    matchTeams,
+    prediction,
+    isVipLocked,
+    confidence,
+    mostVoted
+  };
+}
+
 function CompactAllJackpotFixturesSection({
   items,
   postSlug,
@@ -247,6 +319,7 @@ function CompactAllJackpotFixturesSection({
 }: CompactAllJackpotFixturesSectionProps) {
   const [filter, setFilter] = useState<'all' | 'free' | 'vip'>('all');
   const [sortBy, setSortBy] = useState<'game' | 'confidence'>('game');
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
 
   const freeItems = useMemo(() => items.filter(i => !i.isVipLocked), [items]);
   const vipItems = useMemo(() => items.filter(i => i.isVipLocked), [items]);
@@ -270,6 +343,24 @@ function CompactAllJackpotFixturesSection({
     : jackpotId.toLowerCase().includes('mozzart')
     ? 'Mozzart Grand Jackpot'
     : 'Jackpot';
+
+  const handleOpenMegaJackpotPayment = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('soka-open-payment', {
+          detail: {
+            packageName: `${titleName} VIP Slip`,
+            price: 250,
+            packageId: `${jackpotId}-vip`,
+            packageSlug: jackpotId,
+            packageType: 'jackpot'
+          }
+        })
+      );
+    }
+    setPaymentModalOpen(true);
+  };
 
   return (
     <div className="my-3 rounded-xl border border-[var(--border)] bg-[var(--card)]/95 overflow-hidden shadow-xs">
@@ -365,76 +456,84 @@ function CompactAllJackpotFixturesSection({
                 <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
                   {/* Left: Game Number + Teams */}
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="inline-flex items-center justify-center w-6 h-5 rounded text-[10px] font-mono font-black bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 shrink-0">
-                      #{item.gameNumber}
+                    <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-mono font-black bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 shrink-0">
+                      Game #{item.gameNumber}
                     </span>
                     <span className="font-bold text-xs sm:text-[13px] text-[var(--text)] truncate">
                       {item.matchTeams}
                     </span>
                   </div>
 
-                  {/* Right: Badges + Tip / VIP Button */}
-                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto sm:ml-0">
+                  {/* Right: Badges with explicit labels for Confidence, User Votes/Tip, and Database Tip */}
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto sm:ml-0 flex-wrap justify-end">
                     {/* Confidence score */}
-                    <span
-                      className={`inline-flex items-center px-1.5 py-0.5 rounded font-mono font-black text-[9.5px] sm:text-[10px] border ${confClass}`}
-                      title={`Confidence score: ${item.confidence}`}
+                    <div
+                      className={`inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded font-mono text-[9.5px] sm:text-[10px] border ${confClass}`}
+                      title={`Confidence Score: ${item.confidence}`}
                     >
-                      {item.confidence.toString().includes('%') ? item.confidence : `${item.confidence}%`} Conf
-                    </span>
+                      <span className="text-[8.5px] sm:text-[9px] uppercase tracking-wider font-semibold opacity-75">Confidence:</span>
+                      <strong className="font-black">{item.confidence.toString().includes('%') ? item.confidence : `${item.confidence}%`}</strong>
+                    </div>
 
-                    {/* Most selected prediction from community votes */}
+                    {/* User votes consensus prediction */}
                     {item.mostVoted && (
-                      <span
-                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-mono text-[9.5px] sm:text-[10px] bg-sky-500/10 text-sky-800 dark:text-sky-300 border border-sky-500/20"
-                        title="Most selected prediction by community votes"
+                      <div
+                        className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded font-mono text-[9.5px] sm:text-[10px] bg-sky-500/10 text-sky-850 dark:text-sky-300 border border-sky-500/25"
+                        title="User votes consensus prediction"
                       >
-                        <Users className="w-2.5 h-2.5 opacity-75" />
-                        <span className="hidden xs:inline">Vote:</span>
+                        <Users className="w-2.5 h-2.5 text-sky-600 dark:text-sky-400 opacity-80 shrink-0" />
+                        <span className="text-[8.5px] sm:text-[9px] uppercase tracking-wider text-sky-700 dark:text-sky-400 font-semibold">User Votes/Tip:</span>
                         <strong className="font-black">{item.mostVoted}</strong>
-                      </span>
+                      </div>
                     )}
 
-                    {/* Prediction value (2/3 disclosed) or Join VIP button (remaining 1/3) */}
+                    {/* Database Tip (2/3 disclosed) or Join VIP button (remaining 1/3) */}
                     {item.isVipLocked ? (
-                      <a
-                        href="/vip-packages"
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 font-black text-[11px] shadow-2xs no-underline cursor-pointer transition-all transform hover:scale-[1.03] shrink-0"
+                      <button
+                        type="button"
+                        onClick={handleOpenMegaJackpotPayment}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 font-black text-[11px] shadow-2xs cursor-pointer transition-all transform hover:scale-[1.03] shrink-0 border-0"
+                        title="Unlock Database Tip with Mega Jackpot VIP Slip"
                       >
+                        <span className="text-[8.5px] uppercase tracking-wider font-black opacity-90">Database Tip:</span>
                         <Star className="w-3 h-3 fill-slate-950" />
                         <span>Join VIP</span>
-                      </a>
+                      </button>
                     ) : (
-                      <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded font-mono font-black text-[11px] sm:text-xs shrink-0 ${
+                      <div
+                        className={`inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 rounded font-mono text-[11px] sm:text-xs shrink-0 border ${
                           isDoubleChanceTip(item.prediction)
-                            ? 'bg-amber-500/20 text-amber-950 dark:text-amber-200 border border-amber-500/40'
-                            : 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30'
+                            ? 'bg-amber-500/20 text-amber-950 dark:text-amber-200 border-amber-500/40'
+                            : 'bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border border-emerald-500/30'
                         }`}
+                        title="Official Database Tip"
                       >
-                        {item.prediction}
-                      </span>
+                        <span className="text-[8.5px] sm:text-[9px] uppercase tracking-wider font-semibold opacity-75">Database Tip:</span>
+                        <strong className="font-black text-xs sm:text-sm">{item.prediction}</strong>
+                      </div>
                     )}
                   </div>
                 </div>
 
-                {/* Explanation text or VIP Lock notice */}
+                {/* Explanation text matching top confidence format, or VIP Lock notice */}
                 {item.isVipLocked ? (
-                  <div className="flex items-center justify-between gap-2 mt-1 pt-1 text-[10.5px] sm:text-[11px] text-amber-800/90 dark:text-amber-300/90 font-medium">
+                  <div className="flex items-center justify-between gap-2 mt-1.5 pt-1 text-[10.5px] sm:text-[11px] text-amber-800/90 dark:text-amber-300/90 font-medium flex-wrap sm:flex-nowrap">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="shrink-0 text-amber-500 font-bold">🔒 VIP Tip:</span>
-                      <span className="truncate">Confidential prediction reserved for Soka King VIP members.</span>
+                      <span className="shrink-0 text-amber-600 dark:text-amber-400 font-bold">🔒 VIP Tip:</span>
+                      <span className="truncate">Confidential database prediction and double-chance slips reserved for Soka King VIP members.</span>
                     </div>
                     <a
-                      href="/vip-packages"
-                      className="underline font-bold text-amber-600 dark:text-amber-400 hover:text-amber-700 shrink-0 text-[10.5px]"
+                      href="https://sokaking.com/sportpesa-mjp-prediction"
+                      className="underline font-bold text-amber-600 dark:text-amber-400 hover:text-amber-700 shrink-0 text-[10.5px] inline-flex items-center gap-1"
+                      title="Unlock full SportPesa MJP Prediction analysis"
                     >
-                      Unlock Now →
+                      <span>Unlock Now</span>
+                      <ExternalLink className="w-3 h-3 inline" />
                     </a>
                   </div>
                 ) : (
                   item.explanation && (
-                    <p className="text-[10.5px] sm:text-[11px] text-[var(--text-muted)] leading-tight mt-1 font-normal">
+                    <p className="text-[11px] sm:text-[11.5px] text-[var(--text-muted)] leading-relaxed mt-1 font-normal">
                       {parseInline(item.explanation, postSlug)}
                     </p>
                   )
@@ -460,14 +559,39 @@ function CompactAllJackpotFixturesSection({
             </div>
           </div>
         </div>
-        <a
-          href="/vip-packages"
-          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-black text-xs shrink-0 no-underline transition-all shadow-sm"
-        >
-          <span>Unlock Full Slip</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </a>
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
+          <button
+            type="button"
+            onClick={handleOpenMegaJackpotPayment}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-black text-xs shrink-0 cursor-pointer transition-all shadow-sm border-0"
+            title="Open Mega Jackpot VIP payment modal"
+          >
+            <Star className="w-3.5 h-3.5 fill-slate-950" />
+            <span>Join VIP (KES 250)</span>
+          </button>
+          <a
+            href="https://sokaking.com/sportpesa-mjp-prediction"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs shrink-0 no-underline transition-all border border-slate-700 hover:border-slate-600"
+            title="View full SportPesa MJP Prediction analysis"
+          >
+            <span>Unlock MJP Analysis</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </a>
+        </div>
       </div>
+
+      {/* Mega Jackpot Payment Modal */}
+      {paymentModalOpen && (
+        <PaymentModal
+          isOpen={paymentModalOpen}
+          onClose={() => setPaymentModalOpen(false)}
+          packageName={`${titleName} VIP Slip`}
+          price={250}
+          packageId={`${jackpotId}-vip`}
+          packageSlug={jackpotId}
+          packageType="jackpot"
+        />
+      )}
     </div>
   );
 }
@@ -525,16 +649,11 @@ export default function MarkdownRenderer({
     }
 
     // 0a. All Jackpot Fixtures Line (Full jackpot list with confidence, votes, and 2/3 partial disclosure + VIP lock)
-    // e.g. "Game 1: Rayo Vallecano vs Racing Santander — DCX2 (Confidence: 85% | Most Voted: 2 - 58%)"
-    // e.g. "Game 12: Genoa vs Bologna — [⭐ Join VIP](/vip-packages) (Confidence: 74% | Most Voted: X - 52%)"
-    const allFixtureInitialMatch = trimmed.match(/^(?:###\s+|\*\*)?(?:Game|Match|\d+\.)\s*(\d+)?[:.]?\s*(.+?\s+vs\s+.+?)\s*[—–-]\s*(.+?)(?:\s*\((?:Confidence:\s*(\d+%)?\s*\|?\s*(?:Most Voted:\s*([^)]+))?|([^)]+))\))?(?:\*\*)?$/i);
-    const isAllFixtureTagLine = allFixtureInitialMatch && (
-      trimmed.toLowerCase().includes('confidence:') ||
-      trimmed.toLowerCase().includes('most voted:') ||
-      /^(?:###\s+|\*\*)?(?:Game|Match)\s+\d+/i.test(trimmed)
-    );
+    // e.g. "Game 1: Rayo Vallecano vs Racing Santander — Database Tip: DCX2 (Confidence: 85% | User Votes/Tip: 2 - 60%)"
+    // e.g. "Game 12: Genoa vs Bologna — Database Tip: [⭐ Join VIP](/vip-packages) (Confidence: 74% | User Votes/Tip: X - 52%)"
+    const initialParsedAllFixture = parseAllFixtureLine(trimmed);
 
-    if (isAllFixtureTagLine) {
+    if (initialParsedAllFixture) {
       const allFixtureItems: Array<{
         gameNumber: number;
         matchTeams: string;
@@ -553,30 +672,9 @@ export default function MarkdownRenderer({
           continue;
         }
 
-        const match = curLine.match(
-          /^(?:###\s+|\*\*)?(?:Game|Match|\d+\.)\s*(\d+)?[:.]?\s*(.+?\s+vs\s+.+?)\s*[—–-]\s*(.+?)(?:\s*\((?:Confidence:\s*(\d+%)?\s*\|?\s*(?:Most Voted:\s*([^)]+))?|([^)]+))\))?(?:\*\*)?$/i
-        );
-        if (!match) {
+        const parsed = parseAllFixtureLine(curLine);
+        if (!parsed) {
           break;
-        }
-
-        const gameNumber = match[1] ? parseInt(match[1], 10) : allFixtureItems.length + 1;
-        const matchTeams = match[2].trim();
-        let prediction = match[3].trim();
-        const isVipLocked = /vip/i.test(prediction) || /join vip/i.test(prediction);
-        if (isVipLocked) {
-          prediction = 'Join VIP';
-        }
-
-        const confidence = match[4] ? match[4].trim() : '75%';
-        let mostVoted = match[5] ? match[5].trim() : '';
-        if (!mostVoted && match[6]) {
-          const inner = match[6];
-          const vM = inner.match(/most voted:?\s*([^|)]+)/i);
-          if (vM) mostVoted = vM[1].trim();
-        }
-        if (!mostVoted) {
-          mostVoted = prediction !== 'Join VIP' ? `${prediction} (55%)` : '1 (55%)';
         }
 
         // Check if next non-empty line is explanation
@@ -589,7 +687,7 @@ export default function MarkdownRenderer({
           const candidateLine = lines[nextIdx].trim();
           if (
             !candidateLine.startsWith('#') &&
-            !candidateLine.match(/^(?:###\s+|\*\*)?(?:Game|Match|\d+\.)\s*\d*[:.]?\s*.+?\s+vs\s+.+?\s*[—–-]/i) &&
+            !parseAllFixtureLine(candidateLine) &&
             !candidateLine.match(/^(?:###\s+|\*\*)?.+?\s+vs\s+.+?\s*[—–-]/i)
           ) {
             explanation = candidateLine;
@@ -598,12 +696,7 @@ export default function MarkdownRenderer({
         }
 
         allFixtureItems.push({
-          gameNumber,
-          matchTeams,
-          prediction,
-          isVipLocked,
-          confidence,
-          mostVoted,
+          ...parsed,
           explanation
         });
 

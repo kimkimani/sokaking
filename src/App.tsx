@@ -505,6 +505,37 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     }
   };
 
+  // Intercept internal and https://sokaking.com links for smooth client-side SPA routing
+  useEffect(() => {
+    const handleDocumentClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement)?.closest('a');
+      if (!target) return;
+      const href = target.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:') || target.getAttribute('target') === '_blank') return;
+
+      let targetPath = '';
+      if (href.startsWith('/') && !href.startsWith('//')) {
+        targetPath = href;
+      } else if (href.startsWith('https://sokaking.com') || href.startsWith('http://sokaking.com')) {
+        try {
+          const urlObj = new URL(href);
+          targetPath = urlObj.pathname;
+        } catch {}
+      }
+
+      if (targetPath) {
+        const pageId = getPageIdFromUrl(targetPath);
+        if (pageId && pageId !== '404') {
+          e.preventDefault();
+          handleSelectPage(pageId);
+        }
+      }
+    };
+
+    document.addEventListener('click', handleDocumentClick);
+    return () => document.removeEventListener('click', handleDocumentClick);
+  }, []);
+
   // Payment states
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [payPackageName, setPayPackageName] = useState('');
@@ -527,6 +558,24 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     setPayType(type);
     setPaymentOpen(true);
   };
+
+  // Allow any nested Markdown or dynamic components to trigger the payment modal seamlessly
+  useEffect(() => {
+    const handleGlobalOpenPayment = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const detail = customEvent.detail || {};
+      handleOpenPayment(
+        detail.packageName || 'SportPesa Mega Jackpot VIP Slip',
+        detail.price || 250,
+        detail.packageId || 'sportpesa-mega-vip',
+        detail.packageSlug || 'sportpesa-mega',
+        detail.packageType || 'jackpot'
+      );
+    };
+
+    window.addEventListener('soka-open-payment', handleGlobalOpenPayment);
+    return () => window.removeEventListener('soka-open-payment', handleGlobalOpenPayment);
+  }, []);
 
   const handlePaymentSuccess = async () => {
     try {

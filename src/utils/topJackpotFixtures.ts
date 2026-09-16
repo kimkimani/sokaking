@@ -552,11 +552,13 @@ export function getAllJackpotFixtures(
     const tipSymbol = isDisclosed ? rawTip : 'VIP';
     const tipDisplay = isDisclosed ? rawTip : '[⭐ Join VIP](/vip-packages)';
 
-    const matchHeader = `Game ${gameNumber}: ${homeTeam} vs ${awayTeam} — ${tipDisplay} (Confidence: ${confidence}% | Most Voted: ${voteConsensus.mostSelectedTip} - ${voteConsensus.mostSelectedPercent}%)`;
+    // Clearly mark and label Database Tip, Confidence, and User Votes / Tip
+    const matchHeader = `Game ${gameNumber}: ${homeTeam} vs ${awayTeam} — Database Tip: ${tipDisplay} (Confidence: ${confidence}% | User Votes/Tip: ${voteConsensus.mostSelectedTip} - ${voteConsensus.mostSelectedPercent}%)`;
 
+    // Strictly adhere to top confidence fixtures text format (no AI analysis)
     const description = isDisclosed
-      ? (fixture.aiAnalysis || getPredictionExplanation({ ...fixture, homeTeam, awayTeam }, rawTip, false))
-      : 'Unlock this confidential fixture prediction, full analysis, and 3 double-chance combo slips by joining Soka King VIP.';
+      ? getPredictionExplanation({ ...fixture, homeTeam, awayTeam }, rawTip, false)
+      : 'Unlock this confidential fixture prediction, VIP analysis, and 3 double-chance combo slips on [SportPesa MJP Prediction](https://sokaking.com/sportpesa-mjp-prediction).';
 
     return {
       fixture: { ...fixture, homeTeam, awayTeam },
