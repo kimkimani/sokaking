@@ -547,14 +547,14 @@ function CompactAllJackpotFixturesSection({
                       <span className="shrink-0 text-amber-600 dark:text-amber-400 font-bold">🔒 VIP Tip:</span>
                       <span className="truncate">Confidential database prediction and double-chance slips reserved for Soka King VIP members.</span>
                     </div>
-                    <a
+                    {/* <a
                       href="https://sokaking.com/sportpesa-mjp-prediction"
                       className="underline font-bold text-amber-600 dark:text-amber-400 hover:text-amber-700 shrink-0 text-[10.5px] inline-flex items-center gap-1"
                       title="Unlock full SportPesa MJP Prediction analysis"
                     >
                       <span>Unlock Now</span>
                       <ExternalLink className="w-3 h-3 inline" />
-                    </a>
+                    </a> */}
                   </div>
                 ) : (
                   item.explanation && (
