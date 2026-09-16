@@ -660,16 +660,16 @@ By combining Poisson goal probability with team shot efficiency, our Over 2.5 go
 `,
 
   'category-today': `---
-title: "Today's Football Predictions and Free Betting Tips - Soka King"
-description: "Get today's free football predictions, high accuracy betting tips, 1X2, Over/Under, and BTTS predictions on Soka King."
-keywords: "football predictions today, soccer tips today, free betting tips Kenya, 1X2 predictions, BTTS today"
+title: "Today's Free Football Predictions - SokaKing Sonko Tips"
+description: "Get today's free football predictions, sonko tips for today, with high accuracy, 1X2, Over/Under, and BTTS predictions on Soka King."
+keywords: "football predictions today, sonko tips for today, sonko football tips, sonko bet tips,sonko tips, sonko tips today, soccer tips today, free betting tips Kenya, 1X2 predictions, BTTS today"
 link: "/football-predictions-today"
 authorId: "john-mwangi"
-displayTitle: "Today's Football Predictions and Sure Betting Tips"
+displayTitle: "Today's Football Predictions and sonko tips for today"
 responsibleGambling: "Always gamble responsibly and set strict bankroll limits. Helpline: 0800-720-000."
-listTitle: "Today's Free Football Predictions"
+listTitle: "Today's Free Sonko Tips Football Predictions"
 listSubtitle: "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes."
-unlockHeading: "Unlock Today's VIP Daily 2+ and 5+ Odds Packs"
+unlockHeading: "Unlock Today's Sonko Tips VIP Daily 2+ and 5+ Odds Packs"
 unlockDescription: "Receive today's mathematically validated multi-bets directly on screen and via instant SMS."
 type: "category"
 fixturesCategory: "today"
@@ -679,12 +679,12 @@ fixturesCategory: "today"
 Welcome to Soka King's daily football predictions hub. Our sports intelligence system processes today's full match card, delivering high-confidence 1X2, Over/Under, and BTTS selections.
 
 <!-- MIDDLE -->
-Every day, over 500 football matches are analyzed using our Poisson distribution model. From the English Premier League and UEFA Champions League to regional African tournaments, Soka King delivers data-driven picks.
+Every day, over 500 football matches are analyzed using our Poisson distribution model. From the English Premier League and UEFA Champions League to regional African tournaments, Soka King delivers data-driven picks for sonko football tips.
 
 <!-- MEAT -->
-## Today's Football Betting Tips and Mathematical Strategy
+## Today's Football Betting Tips and Sonko Tips
 
-Our daily tips combine Poisson goal expectancy calculations with team form, head-to-head history, and tactical line-up news.
+Our daily sonko tips combine Poisson goal expectancy calculations with team form, head-to-head history, and tactical line-up news.
 
 ### Core Prediction Categories
 - **1X2 Home/Draw/Away**: Match outcome predictions derived from goal distribution matrices.
@@ -695,13 +695,13 @@ Our daily tips combine Poisson goal expectancy calculations with team form, head
 <!-- FAQ -->
 ## Frequently Asked Questions - Today's Predictions
 
-### How early are today's football predictions updated?
+### How early are today's Sonko football predictions updated?
 Today's prediction card is updated every morning by 06:00 EAT with continuous adjustments for late team news and line-up changes.
 
 ### Are today's football predictions 100% free on Soka King?
 Yes! All tips and match analyses listed on Today's Predictions page are completely free to access.
 
-### How does Soka King calculate today's prediction probabilities?
+### How does Soka King calculate Sonko today's tips probabilities?
 We utilize Poisson distribution models, goal conversion rates, head-to-head metrics, and team motivation indicators to compute outcome probabilities.
 
 <!-- RESPONSIBLE_GAMBLING_START -->
@@ -1015,6 +1015,75 @@ Directly copying automated predictions without checking team news and tactical c
 
 Sokaking provides updated analysis, probability rankings, and expert picks for the [SportPesa Mega Jackpot](/sportpesa-mega-jackpot-prediction) every week, complete with double-chance strategies and bonus optimization.`,
 
+  'goal-goal-mega-jackpot-prediction': `---
+title: "Goal Goal Mega Jackpot Prediction"
+description: "Get free Goal Goal Mega Jackpot prediction tips for today and this week, with 17 match SportPesa Mega Jackpot selections"
+keywords: "goal goal mega jackpot prediction"
+link: "/goal-goal-mega-jackpot-prediction"
+authorId: "david-ochieng"
+displayTitle: "Goal Goal Mega Jackpot Prediction"
+unlockHeading: "Unlock This Week's Goal Goal Mega Jackpot Predictions"
+unlockDescription: "Soka King has the latest Mega Jackpot selections ready for you. We give you premium tips and get you a higher chance to win the Mega JP bonus tier "
+type: "jackpot"
+jackpotId: "sportpesa-mega"
+topConfidenceFixtures: true
+topConfidenceCount: 7
+---
+
+<!-- INTRO -->
+
+Get our ready-made free expert Goal Goal Mega Jackpot prediction for the current Mega JP draw. SokaKing's big deal is to give our funbase well anlyzed Goal Goal 17 Mega games draw to hit a bonus. All our published tips are free, with no payment and no sign-up needed.
+
+<!-- MIDDLE -->
+
+Get free Goal Goal Mega Jackpot prediction tips for today and this week, with 17-match SportPesa Mega Jackpot selections.
+
+<!-- MEAT -->
+
+## Goal Goal Mega Jackpot Prediction for All 17 Games
+
+The Goal Goal Mega Jackpot prediction brings a 17-game list selected from leagues {{MEGA_JACKPOT_LEAGUES}}
+
+The Goal Goal Mega updates each fixture with a suggested outcome, supporting analysis, and community suggestions to help you compare available tip options.
+
+For this Goal Goal Mega Jackpot, the first match kicks off on {{START_DATE}} at {{START_TIME}}, and the last match concludes on {{END_DATE}} at {{END_TIME}}.
+
+You need to get all the tips and coupons placed on SportPesa before {{START_DATE}} at {{START_TIME}}, the first game kickoff. Otherwise, once the kickoff, you won't be able to do so until the next new mega list.
+
+## Goal Goal Mega Jackpot Prediction This Week
+
+Sokaking **Goal Goal Mega Jackpot prediction for this week** sem to be a little taugh. We, however, analyzed and came up with the following fixtures as this week's  highest-confidence selections coupon:
+
+{{TOP_CONFIDENCE_FIXTURES:4}}
+
+However, be watchful and keep on a surprise result for {{MEGA_JACKPOT_UPSET_ALERT}}. The three coupons, and expect some surprise results from the two fixtures.
+
+Do not forget to leave a vote for your best predicted selections for any fixture. Help other mega fun by sharing your best selections and leave votes for the result you believe best matches the fixture.
+
+<!-- FAQ -->
+
+## Frequently  Goal Goal Mega Jackpot Asked Questions
+
+### Is the Goal Goal Mega Jackpot the same as the SportPesa Mega Jackpot?
+
+Yes, on this page, the predictions you will get are those of the latest current SportPesa Mega Jackpot fixtures.
+
+### Can I use double chance for difficult matches?
+
+Yes. 1X  covers a home win or draw,  X2 covers a draw or away win, and 12 covers any win, home or away.
+{{MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES}}
+
+### Can I vote on the Mega Jackpot predictions?
+
+Yes. Where community voting is available, you vote for the result you think is most likely for each fixture. Community votes provide an additional view alongside our Goal Goal published predictions.
+
+<!-- RESPONSIBLE_GAMBLING_START -->
+
+> **Responsible Gambling Notice:** Gambling involves financial risk. Predictions are not guarantees of winnings. Only stake money you can afford to lose and use football analysis as information rather than certainty. Read our [Responsible Gambling Policy](/responsible-gambling).
+
+<!-- RESPONSIBLE_GAMBLING_END -->
+`,
+
   'home': `---
 title: "SokaKing Football Predictions and Free Tips"
 displayTitle: "Soka King Football Prediction and Free Jackpot Tips"
@@ -1320,7 +1389,7 @@ Soka King publishes free Scometix Midweek Jackpot predictions, match analysis, c
 
 The SportPesa Midweek Jackpot is a popular midweek football betting competition featuring 13 matches selected by SportPesa. Unlike the weekend Mega Jackpot, the Midweek Jackpot often features a strong selection of European club competition fixtures.
 
-The current Midweek jackpot stretched from the following leagues: {{JACKPOT_LEAGUES}}.
+The current Midweek jackpot stretched from the following leagues: {{SPORTPESA_MIDWEEK_LEAGUES}}.
 
 Soka King provides free Scometix Midweek Jackpot predictions for all 13 fixtures; the match schedule is as follows: {{JACKPOT_SCHEDULE}}
 
@@ -1545,6 +1614,14 @@ Check other Jackpots like:
 - [Betnumbers SportPesa Jackpot Prediction](https://sokaking.com/betnumbers-sportpesa-mega-jackpot-prediction)
 - [Mozzart Super Daily Jackpot Selections](https://sokaking.com/free-mozzart-super-daily-jackpot-predictions-and-analysis)
 - [SportPesa Midweek Jackpot Selections](https://sokaking.com/today-sportpesa-midweek-jackpot-prediction-and-tips)
+
+
+
+{{UI_TIMER}}
+
+{{ALL_MEGA_JACKPOT_FIXTURES}}
+
+
 
 <!-- FAQ -->
 

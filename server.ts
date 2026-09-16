@@ -122,7 +122,6 @@ async function startServer() {
 
   // Sitemap & Robots.txt Routes
   app.get([
-    '/sportpesa-mega-jackpot-prediction',
     '/sportpesa-mega-jackpot-2026',
     '/sportpesa-mega'
   ], (_req, res) => {

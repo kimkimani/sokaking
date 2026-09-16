@@ -70,7 +70,9 @@ Check other Jackpots like:
 
 
 
- {{ALL_MEGA_JACKPOT_FIXTURES}}
+{{UI_TIMER}}
+
+{{ALL_MEGA_JACKPOT_FIXTURES}}
 
 
 

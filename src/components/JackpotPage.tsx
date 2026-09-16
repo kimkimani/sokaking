@@ -32,6 +32,7 @@ import { AuthorCard } from './AuthorCard';
 import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
 import { formatTime, formatMatchDateTime, formatJackpotStartTimeString } from '../utils/timeUtils';
 import InboundLinksBlock from './InboundLinksBlock';
+import JackpotCountdownTimer from './JackpotCountdownTimer';
 
 interface JackpotPageProps {
   jackpot: JackpotConfig;
@@ -81,93 +82,6 @@ export function JackpotShimmerLoader({ count = 10 }: { count?: number }) {
     </div>
   );
 }
-
-// Isolated countdown timer component to prevent full page/card re-renders every second
-const JackpotCountdownTimer = memo(function JackpotCountdownTimer({ 
-  earliestTime, 
-  hasStarted, 
-  hasEnded 
-}: { 
-  earliestTime: number | null; 
-  hasStarted: boolean; 
-  hasEnded: boolean; 
-}) {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
-  useEffect(() => {
-    if (!earliestTime) return;
-    const targetDate = new Date(earliestTime);
-
-    const updateTimer = () => {
-      const now = new Date();
-      const diff = targetDate.getTime() - now.getTime();
-
-      if (diff <= 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-      } else {
-        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((diff % (1000 * 60)) / 1000);
-        setTimeLeft({ days: d, hours: h, minutes: m, seconds: s });
-      }
-    };
-
-    updateTimer();
-    const timer = setInterval(updateTimer, 1000);
-    return () => clearInterval(timer);
-  }, [earliestTime]);
-
-  return (
-    <div className="flex items-center justify-center gap-1.5 sm:gap-2 z-10 self-center md:self-auto font-mono shrink-0 select-none py-1">
-      {/* Days */}
-      <div className="flex flex-col items-center">
-        <div className="w-11 sm:w-12 h-11 bg-slate-900/90 border border-slate-750 rounded-xl flex items-center justify-center font-black text-base sm:text-lg text-white shadow-sm">
-          {String(timeLeft.days).padStart(2, '0')}
-        </div>
-        <span className="text-[9px] font-bold text-slate-200 mt-1 uppercase tracking-wider">Days</span>
-      </div>
-
-      <span className={`${hasEnded ? 'text-rose-400' : hasStarted ? 'text-amber-400' : 'text-emerald-400'} font-black text-sm mb-4 shrink-0`}>:</span>
-
-      {/* Hours */}
-      <div className="flex flex-col items-center">
-        <div className="w-11 sm:w-12 h-11 bg-slate-900/90 border border-slate-750 rounded-xl flex items-center justify-center font-black text-base sm:text-lg text-white shadow-sm">
-          {String(timeLeft.hours).padStart(2, '0')}
-        </div>
-        <span className="text-[9px] font-bold text-slate-200 mt-1 uppercase tracking-wider">Hours</span>
-      </div>
-
-      <span className={`${hasEnded ? 'text-rose-400' : hasStarted ? 'text-amber-400' : 'text-emerald-400'} font-black text-sm mb-4 shrink-0`}>:</span>
-
-      {/* Minutes */}
-      <div className="flex flex-col items-center">
-        <div className="w-11 sm:w-12 h-11 bg-slate-900/90 border border-slate-750 rounded-xl flex items-center justify-center font-black text-base sm:text-lg text-white shadow-sm">
-          {String(timeLeft.minutes).padStart(2, '0')}
-        </div>
-        <span className="text-[9px] font-bold text-slate-200 mt-1 uppercase tracking-wider">Mins</span>
-      </div>
-
-      <span className={`${hasEnded ? 'text-rose-400' : hasStarted ? 'text-amber-400' : 'text-emerald-400'} font-black text-sm mb-4 shrink-0`}>:</span>
-
-      {/* Seconds */}
-      <div className="flex flex-col items-center">
-        <div className={`w-11 sm:w-12 h-11 bg-slate-900 border rounded-xl flex items-center justify-center font-black text-base sm:text-lg ${
-          hasEnded 
-            ? 'border-rose-500 text-rose-300 shadow-[0_0_8px_rgba(239,68,68,0.3)]' 
-            : hasStarted 
-              ? 'border-amber-500 text-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.3)]' 
-              : 'border-emerald-500 text-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.3)]'
-        }`}>
-          {String(timeLeft.seconds).padStart(2, '0')}
-        </div>
-        <span className={`text-[9px] font-bold mt-1 uppercase tracking-wider ${
-          hasEnded ? 'text-rose-300' : hasStarted ? 'text-amber-300' : 'text-emerald-300'
-        }`}>Secs</span>
-      </div>
-    </div>
-  );
-});
 
 export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToList, onSelectPage, pageId, isLoading = false }: JackpotPageProps) {
   const [expandedFixture, setExpandedFixture] = useState<number | null>(null);

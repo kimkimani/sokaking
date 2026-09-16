@@ -4,6 +4,7 @@ import { Fixture } from '../types';
 import { getLinkRel } from '../utils/linkUtils';
 import { Crown, Users, Star, ArrowRight, ExternalLink } from 'lucide-react';
 import PaymentModal from './PaymentModal';
+import JackpotCountdownTimer from './JackpotCountdownTimer';
 
 interface MarkdownRendererProps {
   content: string;
@@ -613,7 +614,7 @@ export default function MarkdownRenderer({
       return;
     }
     // If not supplied and content contains jackpot fixtures shortcode, fetch directly from DB
-    if (/TOP_.*FIXTURES|SPORTPESA.*TOP|DOUBLE_CHANCE|LEAGUES|LEAGUE_NAMES|.*SCHEDULE|.*DATES|.*SELECTIONS|.*OUTCOMES|UPSET_ALERT|.*COMBOS|.*JACKPOT/i.test(content)) {
+    if (/TOP_.*FIXTURES|SPORTPESA.*TOP|DOUBLE_CHANCE|LEAGUES|LEAGUE_NAMES|.*SCHEDULE|.*DATES|.*SELECTIONS|.*OUTCOMES|UPSET_ALERT|.*COMBOS|.*JACKPOT|UI_TIMER|TIMER|COUNTDOWN/i.test(content)) {
       fetchLiveJackpotFixtures(jackpotId).then(fetched => {
         if (fetched && fetched.length > 0) {
           setLiveDbFixtures(fetched);
@@ -644,6 +645,23 @@ export default function MarkdownRenderer({
     const trimmed = rawLine.trim();
 
     if (!trimmed) {
+      i++;
+      continue;
+    }
+
+    // 00. UI Countdown Timer Tag
+    // Matches [[UI_TIMER:sportpesa-mega]], {{UI_TIMER}}, {{JACKPOT_TIMER}}, {{COUNTDOWN_TIMER}}, {{TIMER}}, {{COUNTDOWN}}, etc.
+    const timerMatch = trimmed.match(/^(?:\[\[|\[|\{\{|\{\{\s*)?(UI_TIMER|JACKPOT_TIMER|COUNTDOWN_TIMER|TIMER|COUNTDOWN|MEGA_JACKPOT_TIMER|SPORTPESA_MEGA_TIMER|BETIKA_MIDWEEK_TIMER|TIMER_ONLY)(?::([a-zA-Z0-9_-]+))?(?:\]\]|\]|\}\}|\s*\}\})?$/i);
+    if (timerMatch) {
+      const targetJackpotId = timerMatch[2] || jackpotId || 'sportpesa-mega';
+      elements.push(
+        <div key={`ui-timer-${i}`} className="my-5 flex items-center justify-center">
+          <JackpotCountdownTimer
+            jackpotId={targetJackpotId}
+            fixtures={activeFixtures}
+          />
+        </div>
+      );
       i++;
       continue;
     }
