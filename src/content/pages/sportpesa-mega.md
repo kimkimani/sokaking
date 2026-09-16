@@ -68,6 +68,15 @@ Check other Jackpots like:
 - [Mozzart Super Daily Jackpot Selections](https://sokaking.com/free-mozzart-super-daily-jackpot-predictions-and-analysis)
 - [SportPesa Midweek Jackpot Selections](https://sokaking.com/today-sportpesa-midweek-jackpot-prediction-and-tips)
 
+
+
+ {{ALL_MEGA_JACKPOT_FIXTURES}}
+
+
+ {{MEGA_JACKPOT_ALL_FIXTURES}},
+ {{ALL_FIXTURES}},
+
+
 <!-- FAQ -->
 
 ## Frequently Asked Mega Jackpot Questions
