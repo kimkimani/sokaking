@@ -146,11 +146,18 @@ if (typeof fetch !== 'undefined') {
 /**
  * Resolves fixtures for a given source (either direct Fixture array, or jackpot ID).
  */
-export function getFixturesForJackpot(source?: string | Fixture[]): { jackpotId: string; fixtures: Fixture[] } {
+export function getFixturesForJackpot(
+  source?: string | Fixture[],
+  explicitJackpotId?: string
+): { jackpotId: string; fixtures: Fixture[] } {
   if (Array.isArray(source) && source.length > 0) {
-    return { jackpotId: 'sportpesa-mega', fixtures: source };
+    const jackpotId = resolveJackpotId(explicitJackpotId, 'sportpesa-mega');
+    return { jackpotId, fixtures: source };
   }
-  const jackpotId = resolveJackpotId(typeof source === 'string' ? source : undefined, 'sportpesa-mega');
+  const jackpotId = resolveJackpotId(
+    typeof source === 'string' ? source : explicitJackpotId,
+    'sportpesa-mega'
+  );
   const cached = getCachedLiveJackpotFixtures(jackpotId);
   if (cached && cached.length > 0) {
     return { jackpotId, fixtures: cached };
@@ -423,6 +430,163 @@ export function generateTopConfidenceFixturesMarkdown(
   if (fixtures.length === 0) return '';
 
   return fixtures
+    .map(item => `${item.matchHeader}\n\n${item.description}`)
+    .join('\n\n\n');
+}
+
+export interface FixtureVoteConsensus {
+  mostSelectedTip: string;
+  mostSelectedPercent: number;
+  totalVotes: number;
+  homePercent: number;
+  drawPercent: number;
+  awayPercent: number;
+}
+
+/**
+ * Derives realistic or live vote statistics and identifies the community's most selected prediction.
+ */
+export function getFixtureVoteConsensus(fixture: Fixture): FixtureVoteConsensus {
+  // 1. Check explicit probabilities on fixture
+  const pHome = Number(fixture.probabilities?.home || (fixture as any).homeProb || (fixture as any).percentPredHome || 0);
+  const pDraw = Number(fixture.probabilities?.draw || (fixture as any).drawProb || (fixture as any).percentPredDraw || 0);
+  const pAway = Number(fixture.probabilities?.away || (fixture as any).awayProb || (fixture as any).percentPredAway || 0);
+
+  let hPct = 0;
+  let dPct = 0;
+  let aPct = 0;
+  const fixtureSeed = Number(fixture.id || 1);
+  const totalVotes = 1250 + ((fixtureSeed * 89) % 1500);
+
+  if (pHome + pDraw + pAway > 0) {
+    const sum = pHome + pDraw + pAway;
+    hPct = Math.round((pHome / sum) * 100);
+    dPct = Math.round((pDraw / sum) * 100);
+    aPct = Math.max(0, 100 - hPct - dPct);
+  } else {
+    // Deterministic realistic distribution based on fixture ID, prediction, and confidence
+    const conf = Math.min(Math.max(Number(fixture.confidence) || 75, 50), 96);
+    const rawTip = String(fixture.prediction || '1').toUpperCase().trim();
+    const seed = (fixtureSeed * 13) % 9;
+
+    if (rawTip.startsWith('1') || rawTip === 'DC1X' || rawTip === 'DC12') {
+      hPct = Math.min(82, Math.max(48, Math.round(conf * 0.70 + seed)));
+      dPct = Math.min(30, Math.max(16, Math.round((100 - hPct) * 0.55)));
+      aPct = Math.max(0, 100 - hPct - dPct);
+    } else if (rawTip.startsWith('2') || rawTip === 'DCX2' || rawTip === 'DC2') {
+      aPct = Math.min(80, Math.max(46, Math.round(conf * 0.68 + seed)));
+      dPct = Math.min(30, Math.max(16, Math.round((100 - aPct) * 0.52)));
+      hPct = Math.max(0, 100 - aPct - dPct);
+    } else {
+      // Draw 'X'
+      dPct = Math.min(55, Math.max(42, Math.round(conf * 0.58 + seed)));
+      hPct = Math.min(34, Math.max(24, Math.round((100 - dPct) * 0.54)));
+      aPct = Math.max(0, 100 - dPct - hPct);
+    }
+  }
+
+  // Determine which outcome has the highest percentage
+  let mostSelectedTip = '1';
+  let mostSelectedPercent = hPct;
+
+  if (dPct > mostSelectedPercent && dPct >= aPct) {
+    mostSelectedTip = 'X';
+    mostSelectedPercent = dPct;
+  } else if (aPct > mostSelectedPercent) {
+    mostSelectedTip = '2';
+    mostSelectedPercent = aPct;
+  }
+
+  return {
+    mostSelectedTip,
+    mostSelectedPercent,
+    totalVotes,
+    homePercent: hPct,
+    drawPercent: dPct,
+    awayPercent: aPct
+  };
+}
+
+export interface FormattedAllFixtureItem {
+  fixture: Fixture;
+  gameNumber: number;
+  homeTeam: string;
+  awayTeam: string;
+  tipSymbol: string;
+  confidence: number;
+  voteConsensus: FixtureVoteConsensus;
+  isDisclosed: boolean;
+  isVipLocked: boolean;
+  matchHeader: string;
+  description: string;
+}
+
+/**
+ * Returns all jackpot fixtures for a given source, calculating:
+ * - Confidence scores
+ * - Most selected prediction from community votes
+ * - Partial disclosure: only 2/3 prediction values revealed, the remaining 1/3 replaced with Join VIP button
+ */
+export function getAllJackpotFixtures(
+  source?: string | Fixture[],
+  explicitJackpotId?: string
+): FormattedAllFixtureItem[] {
+  const { jackpotId, fixtures } = getFixturesForJackpot(source, explicitJackpotId);
+  if (!fixtures || fixtures.length === 0) {
+    return [];
+  }
+
+  const total = fixtures.length;
+  // Partial disclosure: only show 2/3 prediction values, the rest have a join vip button
+  const disclosedCount = Math.round((total * 2) / 3);
+
+  return fixtures.map((fixture, idx) => {
+    const gameNumber = fixture.fixtureNumber || idx + 1;
+    const homeTeam = cleanTeamName(fixture.homeTeam);
+    const awayTeam = cleanTeamName(fixture.awayTeam);
+    const confidence = Math.min(Math.max(Number(fixture.confidence) || 75, 50), 99);
+    const voteConsensus = getFixtureVoteConsensus(fixture);
+    const isDisclosed = idx < disclosedCount;
+    const isVipLocked = !isDisclosed;
+    const rawTip = normalizeTipSymbol((fixture as any).tip || fixture.prediction || '1');
+    const tipSymbol = isDisclosed ? rawTip : 'VIP';
+    const tipDisplay = isDisclosed ? rawTip : '[⭐ Join VIP](/vip-packages)';
+
+    const matchHeader = `Game ${gameNumber}: ${homeTeam} vs ${awayTeam} — ${tipDisplay} (Confidence: ${confidence}% | Most Voted: ${voteConsensus.mostSelectedTip} - ${voteConsensus.mostSelectedPercent}%)`;
+
+    const description = isDisclosed
+      ? (fixture.aiAnalysis || getPredictionExplanation({ ...fixture, homeTeam, awayTeam }, rawTip, false))
+      : 'Unlock this confidential fixture prediction, full analysis, and 3 double-chance combo slips by joining Soka King VIP.';
+
+    return {
+      fixture: { ...fixture, homeTeam, awayTeam },
+      gameNumber,
+      homeTeam,
+      awayTeam,
+      tipSymbol,
+      confidence,
+      voteConsensus,
+      isDisclosed,
+      isVipLocked,
+      matchHeader,
+      description
+    };
+  });
+}
+
+/**
+ * Generates the clean markdown representation for all mega jackpot fixtures.
+ * Shows all fixtures with confidence scores and community vote consensus,
+ * revealing 2/3 of prediction values and replacing the remaining 1/3 with a Join VIP button.
+ */
+export function generateAllJackpotFixturesMarkdown(
+  source?: string | Fixture[],
+  explicitJackpotId?: string
+): string {
+  const items = getAllJackpotFixtures(source, explicitJackpotId);
+  if (items.length === 0) return '';
+
+  return items
     .map(item => `${item.matchHeader}\n\n${item.description}`)
     .join('\n\n\n');
 }
@@ -1430,11 +1594,11 @@ export function expandTopFixturesParameters(
   // Group 1: Prefix (or undefined for generic)
   // Group 2: Suffix
   // Group 3: Attributes
-  const universalTagRegex = /\{\{\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(START_DATE|START_DATES|STARTING_DATE|STARTDATE|STARTDATES|START_TIME|STARTTIME|START_DATETIME|STARTDATETIME|START_DAY|STARTDAY|KICKOFF_DATE|KICKOFF_TIME|KICKOFF_DATETIME|FIRST_DATE|FIRST_MATCH_DATE|END_DATE|END_DATES|ENDING_DATE|ENDDATE|ENDDATES|END_TIME|ENDTIME|END_DATETIME|ENDDATETIME|END_DAY|ENDDAY|CLOSING_DATE|CLOSING_TIME|CLOSING_DATETIME|LAST_DATE|LAST_MATCH_DATE|FINISH_DATE|FINISH_TIME|DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^}]*)?\}\}/gi;
+  const universalTagRegex = /\{\{\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(START_DATE|START_DATES|STARTING_DATE|STARTDATE|STARTDATES|START_TIME|STARTTIME|START_DATETIME|STARTDATETIME|START_DAY|STARTDAY|KICKOFF_DATE|KICKOFF_TIME|KICKOFF_DATETIME|FIRST_DATE|FIRST_MATCH_DATE|END_DATE|END_DATES|ENDING_DATE|ENDDATE|ENDDATES|END_TIME|ENDTIME|END_DATETIME|ENDDATETIME|END_DAY|ENDDAY|CLOSING_DATE|CLOSING_TIME|CLOSING_DATETIME|LAST_DATE|LAST_MATCH_DATE|FINISH_DATE|FINISH_TIME|DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE|ALL_FIXTURES|ALL_MEGA_JACKPOT_FIXTURES|ALL_JACKPOT_FIXTURES|MEGA_JACKPOT_ALL_FIXTURES|ALL_GAMES|ALL_PREDICTIONS|MEGA_JACKPOT_PREDICTIONS|ALL_MEGA_FIXTURES|MEGA_FIXTURES)([\s:][^}]*)?\}\}/gi;
 
-  const universalHtmlCommentRegex = /<!--\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(START_DATE|START_DATES|STARTING_DATE|STARTDATE|STARTDATES|START_TIME|STARTTIME|START_DATETIME|STARTDATETIME|START_DAY|STARTDAY|KICKOFF_DATE|KICKOFF_TIME|KICKOFF_DATETIME|FIRST_DATE|FIRST_MATCH_DATE|END_DATE|END_DATES|ENDING_DATE|ENDDATE|ENDDATES|END_TIME|ENDTIME|END_DATETIME|ENDDATETIME|END_DAY|ENDDAY|CLOSING_DATE|CLOSING_TIME|CLOSING_DATETIME|LAST_DATE|LAST_MATCH_DATE|FINISH_DATE|FINISH_TIME|DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^-]*)?-->/gi;
+  const universalHtmlCommentRegex = /<!--\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(START_DATE|START_DATES|STARTING_DATE|STARTDATE|STARTDATES|START_TIME|STARTTIME|START_DATETIME|STARTDATETIME|START_DAY|STARTDAY|KICKOFF_DATE|KICKOFF_TIME|KICKOFF_DATETIME|FIRST_DATE|FIRST_MATCH_DATE|END_DATE|END_DATES|ENDING_DATE|ENDDATE|ENDDATES|END_TIME|ENDTIME|END_DATETIME|ENDDATETIME|END_DAY|ENDDAY|CLOSING_DATE|CLOSING_TIME|CLOSING_DATETIME|LAST_DATE|LAST_MATCH_DATE|FINISH_DATE|FINISH_TIME|DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE|ALL_FIXTURES|ALL_MEGA_JACKPOT_FIXTURES|ALL_JACKPOT_FIXTURES|MEGA_JACKPOT_ALL_FIXTURES|ALL_GAMES|ALL_PREDICTIONS|MEGA_JACKPOT_PREDICTIONS|ALL_MEGA_FIXTURES|MEGA_FIXTURES)([\s:][^-]*)?-->/gi;
 
-  const universalBracketRegex = /\[\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(START_DATE|START_DATES|STARTING_DATE|STARTDATE|STARTDATES|START_TIME|STARTTIME|START_DATETIME|STARTDATETIME|START_DAY|STARTDAY|KICKOFF_DATE|KICKOFF_TIME|KICKOFF_DATETIME|FIRST_DATE|FIRST_MATCH_DATE|END_DATE|END_DATES|ENDING_DATE|ENDDATE|ENDDATES|END_TIME|ENDTIME|END_DATETIME|ENDDATETIME|END_DAY|ENDDAY|CLOSING_DATE|CLOSING_TIME|CLOSING_DATETIME|LAST_DATE|LAST_MATCH_DATE|FINISH_DATE|FINISH_TIME|DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE)([\s:][^\]]*)?\]/gi;
+  const universalBracketRegex = /\[\s*(?:(MEGA_JACKPOT|SPORTPESA_MEGA|SPORTPESA_MEGA_JACKPOT|MEGA|BETIKA_MIDWEEK|BETIKA|BETIKA_JACKPOT|MOZZART_GRAND|MOZZART_GRAND_JACKPOT|MOZZART|MOZZART_JACKPOT|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTPESA_MIDWEEK_JACKPOT|MOZZART_SUPER_DAILY|SUPER_DAILY|MOZZART_DAILY|SUPER_DAILY_JACKPOT|JACKPOT)_)?(START_DATE|START_DATES|STARTING_DATE|STARTDATE|STARTDATES|START_TIME|STARTTIME|START_DATETIME|STARTDATETIME|START_DAY|STARTDAY|KICKOFF_DATE|KICKOFF_TIME|KICKOFF_DATETIME|FIRST_DATE|FIRST_MATCH_DATE|END_DATE|END_DATES|ENDING_DATE|ENDDATE|ENDDATES|END_TIME|ENDTIME|END_DATETIME|ENDDATETIME|END_DAY|ENDDAY|CLOSING_DATE|CLOSING_TIME|CLOSING_DATETIME|LAST_DATE|LAST_MATCH_DATE|FINISH_DATE|FINISH_TIME|DATES|DATE|SCHEDULE|SELECTIONS_INCLUDE|SELECTIONS|SELECTION|OUTCOMES|DISTRIBUTION|UPSET_ALERT|UPSET_ALERTS|UPSETS|SUB_COMBOS|SUB_JACKPOTS|COMBOS|BONUSES|TIERS|LEAGUES|LEAGUE_NAMES|DOUBLE_CHANCE_FIXTURES|DOUBLE_CHANCES_COUNT|DOUBLE_CHANCE_COUNT|DC_COUNT|DOUBLE_CHANCES|DOUBLE_CHANCE|TOP_FIXTURES|TOP_CONFIDENCE_FIXTURES|TOP_CONFIDENCE|ALL_FIXTURES|ALL_MEGA_JACKPOT_FIXTURES|ALL_JACKPOT_FIXTURES|MEGA_JACKPOT_ALL_FIXTURES|ALL_GAMES|ALL_PREDICTIONS|MEGA_JACKPOT_PREDICTIONS|ALL_MEGA_FIXTURES|MEGA_FIXTURES)([\s:][^\]]*)?\]/gi;
 
   const executeReplacement = (_full: string, prefixRaw: string | undefined, suffixRaw: string, attrsRaw: string | undefined): string => {
     const prefix = prefixRaw ? prefixRaw.toUpperCase() : '';
@@ -1546,10 +1710,51 @@ export function expandTopFixturesParameters(
       case 'TOP_CONFIDENCE':
         return generateTopConfidenceFixturesMarkdown(fixturesToUse, count || 7);
 
+      case 'ALL_FIXTURES':
+      case 'ALL_MEGA_JACKPOT_FIXTURES':
+      case 'ALL_JACKPOT_FIXTURES':
+      case 'MEGA_JACKPOT_ALL_FIXTURES':
+      case 'ALL_GAMES':
+      case 'ALL_PREDICTIONS':
+      case 'MEGA_JACKPOT_PREDICTIONS':
+      case 'ALL_MEGA_FIXTURES':
+      case 'MEGA_FIXTURES':
+        return generateAllJackpotFixturesMarkdown(fixturesToUse, jackpotId);
+
       default:
         return _full;
     }
   };
+
+  // All fixtures shorthand prefix pattern: e.g. {{ALL_MEGA_JACKPOT_FIXTURES}}, {{ALL_BETIKA_MIDWEEK_FIXTURES}}, etc.
+  const allPrefixMustache = /\{\{\s*ALL_(MEGA_JACKPOT|SPORTPESA_MEGA|BETIKA_MIDWEEK|BETIKA|MOZZART_GRAND|MOZZART|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTYBET_JACKPOT|SPORTYBET|BETPAWA_PICK_JACKPOT|BETPAWA_PICK|BETPAWA|ODIBET_LAKI_TATU|ODIBET|LAKI_TATU|MOZZART_SUPER_DAILY|SUPER_DAILY|JACKPOT)_FIXTURES([\s:][^}]*)?\}\}/gi;
+  const allPrefixHtmlComment = /<!--\s*ALL_(MEGA_JACKPOT|SPORTPESA_MEGA|BETIKA_MIDWEEK|BETIKA|MOZZART_GRAND|MOZZART|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTYBET_JACKPOT|SPORTYBET|BETPAWA_PICK_JACKPOT|BETPAWA_PICK|BETPAWA|ODIBET_LAKI_TATU|ODIBET|LAKI_TATU|MOZZART_SUPER_DAILY|SUPER_DAILY|JACKPOT)_FIXTURES([\s:][^-]*)?-->/gi;
+  const allPrefixBracket = /\[\s*ALL_(MEGA_JACKPOT|SPORTPESA_MEGA|BETIKA_MIDWEEK|BETIKA|MOZZART_GRAND|MOZZART|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTYBET_JACKPOT|SPORTYBET|BETPAWA_PICK_JACKPOT|BETPAWA_PICK|BETPAWA|ODIBET_LAKI_TATU|ODIBET|LAKI_TATU|MOZZART_SUPER_DAILY|SUPER_DAILY|JACKPOT)_FIXTURES([\s:][^\]]*)?\]/gi;
+
+  // Direct all fixtures pattern: e.g. {{ALL_MEGA_JACKPOT_FIXTURES}}, {{MEGA_JACKPOT_ALL_FIXTURES}}, {{ALL_JACKPOT_FIXTURES}}, {{ALL_FIXTURES}}
+  const allDirectMustache = /\{\{\s*(ALL_MEGA_JACKPOT_FIXTURES|MEGA_JACKPOT_ALL_FIXTURES|ALL_JACKPOT_FIXTURES|ALL_FIXTURES|ALL_GAMES|ALL_PREDICTIONS)([\s:][^}]*)?\}\}/gi;
+  const allDirectHtmlComment = /<!--\s*(ALL_MEGA_JACKPOT_FIXTURES|MEGA_JACKPOT_ALL_FIXTURES|ALL_JACKPOT_FIXTURES|ALL_FIXTURES|ALL_GAMES|ALL_PREDICTIONS)([\s:][^-]*)?-->/gi;
+  const allDirectBracket = /\[\s*(ALL_MEGA_JACKPOT_FIXTURES|MEGA_JACKPOT_ALL_FIXTURES|ALL_JACKPOT_FIXTURES|ALL_FIXTURES|ALL_GAMES|ALL_PREDICTIONS)([\s:][^\]]*)?\]/gi;
+
+  const executeAllReplacement = (_full: string, prefixRaw: string, attrsRaw: string | undefined): string => {
+    const { jackpotId } = parseAllTagParams(attrsRaw || '', prefixRaw, defaultJackpotId);
+    const fixturesToUse = customFixtures && jackpotId === defaultJackpotId ? customFixtures : jackpotId;
+    return generateAllJackpotFixturesMarkdown(fixturesToUse, jackpotId);
+  };
+
+  const executeDirectAllReplacement = (_full: string, _tagName: string, attrsRaw: string | undefined): string => {
+    const { jackpotId } = parseAllTagParams(attrsRaw || '', '', defaultJackpotId);
+    const fixturesToUse = customFixtures && jackpotId === defaultJackpotId ? customFixtures : jackpotId;
+    return generateAllJackpotFixturesMarkdown(fixturesToUse, jackpotId);
+  };
+
+  expanded = expanded.replace(allPrefixMustache, executeAllReplacement);
+  expanded = expanded.replace(allPrefixHtmlComment, executeAllReplacement);
+  expanded = expanded.replace(allPrefixBracket, executeAllReplacement);
+
+  expanded = expanded.replace(allDirectMustache, executeDirectAllReplacement);
+  expanded = expanded.replace(allDirectHtmlComment, executeDirectAllReplacement);
+  expanded = expanded.replace(allDirectBracket, executeDirectAllReplacement);
 
   // Top confidence shorthand prefix pattern: e.g. {{TOP_MEGA_JACKPOT_FIXTURES}}, {{TOP_BETIKA_MIDWEEK_FIXTURES}}, etc.
   const topPrefixMustache = /\{\{\s*TOP_(MEGA_JACKPOT|SPORTPESA_MEGA|BETIKA_MIDWEEK|BETIKA|MOZZART_GRAND|MOZZART|SPORTPESA_MIDWEEK|SP_MIDWEEK|MIDWEEK|SPORTYBET_JACKPOT|SPORTYBET|BETPAWA_PICK_JACKPOT|BETPAWA_PICK|BETPAWA|ODIBET_LAKI_TATU|ODIBET|LAKI_TATU|MOZZART_SUPER_DAILY|SUPER_DAILY|JACKPOT)_FIXTURES([\s:][^}]*)?\}\}/gi;

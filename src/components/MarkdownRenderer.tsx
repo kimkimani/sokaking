@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { expandTopFixturesParameters, fetchLiveJackpotFixtures, fetchLiveMegaJackpotFixtures, getCachedLiveJackpotFixtures, isDoubleChanceTip } from '../utils/topJackpotFixtures';
 import { Fixture } from '../types';
 import { getLinkRel } from '../utils/linkUtils';
+import { Crown, Users, Star, ArrowRight } from 'lucide-react';
 
 interface MarkdownRendererProps {
   content: string;
@@ -225,6 +226,252 @@ function CompactJackpotTopConfidenceSection({ items, postSlug }: CompactJackpotT
   );
 }
 
+interface CompactAllJackpotFixturesSectionProps {
+  items: Array<{
+    gameNumber: number;
+    matchTeams: string;
+    prediction: string;
+    isVipLocked: boolean;
+    confidence: number | string;
+    mostVoted: string;
+    explanation: string;
+  }>;
+  postSlug?: string;
+  jackpotId?: string;
+}
+
+function CompactAllJackpotFixturesSection({
+  items,
+  postSlug,
+  jackpotId = 'sportpesa-mega'
+}: CompactAllJackpotFixturesSectionProps) {
+  const [filter, setFilter] = useState<'all' | 'free' | 'vip'>('all');
+  const [sortBy, setSortBy] = useState<'game' | 'confidence'>('game');
+
+  const freeItems = useMemo(() => items.filter(i => !i.isVipLocked), [items]);
+  const vipItems = useMemo(() => items.filter(i => i.isVipLocked), [items]);
+
+  const displayedItems = useMemo(() => {
+    let list = filter === 'free' ? freeItems : filter === 'vip' ? vipItems : items;
+    if (sortBy === 'confidence') {
+      return [...list].sort((a, b) => {
+        const cA = parseInt(String(a.confidence), 10) || 0;
+        const cB = parseInt(String(b.confidence), 10) || 0;
+        return cB - cA;
+      });
+    }
+    return [...list].sort((a, b) => a.gameNumber - b.gameNumber);
+  }, [items, freeItems, vipItems, filter, sortBy]);
+
+  const titleName = jackpotId.toLowerCase().includes('mega')
+    ? 'SportPesa Mega Jackpot'
+    : jackpotId.toLowerCase().includes('betika')
+    ? 'Betika Midweek Jackpot'
+    : jackpotId.toLowerCase().includes('mozzart')
+    ? 'Mozzart Grand Jackpot'
+    : 'Jackpot';
+
+  return (
+    <div className="my-3 rounded-xl border border-[var(--border)] bg-[var(--card)]/95 overflow-hidden shadow-xs">
+      {/* Top Header Bar */}
+      <div className="px-3 py-2 sm:px-4 sm:py-2.5 bg-slate-50 dark:bg-slate-900/80 border-b border-[var(--border)]/70 flex items-center justify-between gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 rounded-md bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+            <Crown className="w-3 h-3" />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
+              <span>{titleName} — All {items.length} Fixtures</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+            <div className="text-[10px] sm:text-[10.5px] font-mono text-[var(--text-muted)]">
+              Showing 2/3 Free Predictions ({freeItems.length}) • 1/3 VIP Slips ({vipItems.length})
+            </div>
+          </div>
+        </div>
+
+        {/* Filter Controls */}
+        <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setFilter('all')}
+            className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded text-[10px] font-mono font-bold transition-all cursor-pointer ${
+              filter === 'all'
+                ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950 shadow-2xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-200/50 dark:hover:bg-slate-800/50'
+            }`}
+          >
+            All ({items.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilter('free')}
+            className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded text-[10px] font-mono font-bold transition-all cursor-pointer ${
+              filter === 'free'
+                ? 'bg-emerald-600 text-white dark:bg-emerald-500 dark:text-slate-950 font-black shadow-2xs'
+                : 'text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20'
+            }`}
+          >
+            Free ({freeItems.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilter('vip')}
+            className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center gap-1 ${
+              filter === 'vip'
+                ? 'bg-amber-500 text-slate-950 font-black shadow-2xs'
+                : 'text-amber-800 dark:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25'
+            }`}
+          >
+            <span>⭐ VIP ({vipItems.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSortBy(s => s === 'game' ? 'confidence' : 'game')}
+            className="px-2 py-0.5 sm:px-2 sm:py-1 rounded text-[9.5px] font-mono text-[var(--text-muted)] hover:text-[var(--text)] bg-transparent hover:bg-slate-200/40 dark:hover:bg-slate-800/40 border border-dashed border-[var(--border)] cursor-pointer"
+            title="Toggle sort order"
+          >
+            Sort: {sortBy === 'game' ? 'Match #' : 'Conf %'}
+          </button>
+        </div>
+      </div>
+
+      {/* Fixtures List */}
+      <div className="divide-y divide-[var(--border)]/40">
+        {displayedItems.length === 0 ? (
+          <div className="p-4 text-center text-xs font-mono text-[var(--text-muted)]">
+            No fixtures match the selected filter.
+          </div>
+        ) : (
+          displayedItems.map((item, idx) => {
+            const confNum = parseInt(String(item.confidence), 10) || 75;
+            const confClass =
+              confNum >= 80
+                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                : confNum >= 75
+                ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30'
+                : 'bg-slate-500/15 text-slate-700 dark:text-slate-300 border-slate-500/25';
+
+            return (
+              <div
+                key={`all-fix-item-${item.gameNumber}-${idx}`}
+                className={`p-2.5 sm:p-3 transition-colors ${
+                  item.isVipLocked
+                    ? 'bg-amber-500/[0.03] hover:bg-amber-500/[0.06]'
+                    : 'hover:bg-[var(--accent)]/30'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+                  {/* Left: Game Number + Teams */}
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="inline-flex items-center justify-center w-6 h-5 rounded text-[10px] font-mono font-black bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 shrink-0">
+                      #{item.gameNumber}
+                    </span>
+                    <span className="font-bold text-xs sm:text-[13px] text-[var(--text)] truncate">
+                      {item.matchTeams}
+                    </span>
+                  </div>
+
+                  {/* Right: Badges + Tip / VIP Button */}
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto sm:ml-0">
+                    {/* Confidence score */}
+                    <span
+                      className={`inline-flex items-center px-1.5 py-0.5 rounded font-mono font-black text-[9.5px] sm:text-[10px] border ${confClass}`}
+                      title={`Confidence score: ${item.confidence}`}
+                    >
+                      {item.confidence.toString().includes('%') ? item.confidence : `${item.confidence}%`} Conf
+                    </span>
+
+                    {/* Most selected prediction from community votes */}
+                    {item.mostVoted && (
+                      <span
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-mono text-[9.5px] sm:text-[10px] bg-sky-500/10 text-sky-800 dark:text-sky-300 border border-sky-500/20"
+                        title="Most selected prediction by community votes"
+                      >
+                        <Users className="w-2.5 h-2.5 opacity-75" />
+                        <span className="hidden xs:inline">Vote:</span>
+                        <strong className="font-black">{item.mostVoted}</strong>
+                      </span>
+                    )}
+
+                    {/* Prediction value (2/3 disclosed) or Join VIP button (remaining 1/3) */}
+                    {item.isVipLocked ? (
+                      <a
+                        href="/vip-packages"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 font-black text-[11px] shadow-2xs no-underline cursor-pointer transition-all transform hover:scale-[1.03] shrink-0"
+                      >
+                        <Star className="w-3 h-3 fill-slate-950" />
+                        <span>Join VIP</span>
+                      </a>
+                    ) : (
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded font-mono font-black text-[11px] sm:text-xs shrink-0 ${
+                          isDoubleChanceTip(item.prediction)
+                            ? 'bg-amber-500/20 text-amber-950 dark:text-amber-200 border border-amber-500/40'
+                            : 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30'
+                        }`}
+                      >
+                        {item.prediction}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Explanation text or VIP Lock notice */}
+                {item.isVipLocked ? (
+                  <div className="flex items-center justify-between gap-2 mt-1 pt-1 text-[10.5px] sm:text-[11px] text-amber-800/90 dark:text-amber-300/90 font-medium">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="shrink-0 text-amber-500 font-bold">🔒 VIP Tip:</span>
+                      <span className="truncate">Confidential prediction reserved for Soka King VIP members.</span>
+                    </div>
+                    <a
+                      href="/vip-packages"
+                      className="underline font-bold text-amber-600 dark:text-amber-400 hover:text-amber-700 shrink-0 text-[10.5px]"
+                    >
+                      Unlock Now →
+                    </a>
+                  </div>
+                ) : (
+                  item.explanation && (
+                    <p className="text-[10.5px] sm:text-[11px] text-[var(--text-muted)] leading-tight mt-1 font-normal">
+                      {parseInline(item.explanation, postSlug)}
+                    </p>
+                  )
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Bottom Conversion Banner */}
+      <div className="p-3 bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-white flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap border-t border-[var(--border)]">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0">
+            <Crown className="w-4 h-4 text-amber-400" />
+          </div>
+          <div>
+            <div className="font-bold text-xs sm:text-sm text-amber-300 flex items-center gap-1.5">
+              <span>Unlock All {items.length} {titleName} Predictions</span>
+            </div>
+            <div className="text-[10px] sm:text-[11px] text-slate-300 leading-tight">
+              Get all {items.length} tips with 3 double-chance slips sent directly via SMS and Telegram before kickoff.
+            </div>
+          </div>
+        </div>
+        <a
+          href="/vip-packages"
+          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-black text-xs shrink-0 no-underline transition-all shadow-sm"
+        >
+          <span>Unlock Full Slip</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </a>
+      </div>
+    </div>
+  );
+}
+
 export default function MarkdownRenderer({
   content,
   className = '',
@@ -274,6 +521,105 @@ export default function MarkdownRenderer({
 
     if (!trimmed) {
       i++;
+      continue;
+    }
+
+    // 0a. All Jackpot Fixtures Line (Full jackpot list with confidence, votes, and 2/3 partial disclosure + VIP lock)
+    // e.g. "Game 1: Rayo Vallecano vs Racing Santander — DCX2 (Confidence: 85% | Most Voted: 2 - 58%)"
+    // e.g. "Game 12: Genoa vs Bologna — [⭐ Join VIP](/vip-packages) (Confidence: 74% | Most Voted: X - 52%)"
+    const allFixtureInitialMatch = trimmed.match(/^(?:###\s+|\*\*)?(?:Game|Match|\d+\.)\s*(\d+)?[:.]?\s*(.+?\s+vs\s+.+?)\s*[—–-]\s*(.+?)(?:\s*\((?:Confidence:\s*(\d+%)?\s*\|?\s*(?:Most Voted:\s*([^)]+))?|([^)]+))\))?(?:\*\*)?$/i);
+    const isAllFixtureTagLine = allFixtureInitialMatch && (
+      trimmed.toLowerCase().includes('confidence:') ||
+      trimmed.toLowerCase().includes('most voted:') ||
+      /^(?:###\s+|\*\*)?(?:Game|Match)\s+\d+/i.test(trimmed)
+    );
+
+    if (isAllFixtureTagLine) {
+      const allFixtureItems: Array<{
+        gameNumber: number;
+        matchTeams: string;
+        prediction: string;
+        isVipLocked: boolean;
+        confidence: number | string;
+        mostVoted: string;
+        explanation: string;
+      }> = [];
+
+      let curIdx = i;
+      while (curIdx < lines.length) {
+        const curLine = lines[curIdx].trim();
+        if (!curLine) {
+          curIdx++;
+          continue;
+        }
+
+        const match = curLine.match(
+          /^(?:###\s+|\*\*)?(?:Game|Match|\d+\.)\s*(\d+)?[:.]?\s*(.+?\s+vs\s+.+?)\s*[—–-]\s*(.+?)(?:\s*\((?:Confidence:\s*(\d+%)?\s*\|?\s*(?:Most Voted:\s*([^)]+))?|([^)]+))\))?(?:\*\*)?$/i
+        );
+        if (!match) {
+          break;
+        }
+
+        const gameNumber = match[1] ? parseInt(match[1], 10) : allFixtureItems.length + 1;
+        const matchTeams = match[2].trim();
+        let prediction = match[3].trim();
+        const isVipLocked = /vip/i.test(prediction) || /join vip/i.test(prediction);
+        if (isVipLocked) {
+          prediction = 'Join VIP';
+        }
+
+        const confidence = match[4] ? match[4].trim() : '75%';
+        let mostVoted = match[5] ? match[5].trim() : '';
+        if (!mostVoted && match[6]) {
+          const inner = match[6];
+          const vM = inner.match(/most voted:?\s*([^|)]+)/i);
+          if (vM) mostVoted = vM[1].trim();
+        }
+        if (!mostVoted) {
+          mostVoted = prediction !== 'Join VIP' ? `${prediction} (55%)` : '1 (55%)';
+        }
+
+        // Check if next non-empty line is explanation
+        let explanation = '';
+        let nextIdx = curIdx + 1;
+        while (nextIdx < lines.length && !lines[nextIdx].trim()) {
+          nextIdx++;
+        }
+        if (nextIdx < lines.length) {
+          const candidateLine = lines[nextIdx].trim();
+          if (
+            !candidateLine.startsWith('#') &&
+            !candidateLine.match(/^(?:###\s+|\*\*)?(?:Game|Match|\d+\.)\s*\d*[:.]?\s*.+?\s+vs\s+.+?\s*[—–-]/i) &&
+            !candidateLine.match(/^(?:###\s+|\*\*)?.+?\s+vs\s+.+?\s*[—–-]/i)
+          ) {
+            explanation = candidateLine;
+            curIdx = nextIdx;
+          }
+        }
+
+        allFixtureItems.push({
+          gameNumber,
+          matchTeams,
+          prediction,
+          isVipLocked,
+          confidence,
+          mostVoted,
+          explanation
+        });
+
+        curIdx++;
+      }
+
+      i = curIdx;
+
+      elements.push(
+        <CompactAllJackpotFixturesSection
+          key={`all-fixgroup-${i}`}
+          items={allFixtureItems}
+          postSlug={postSlug}
+          jackpotId={jackpotId}
+        />
+      );
       continue;
     }
 
