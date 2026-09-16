@@ -679,7 +679,7 @@ export default function MarkdownRenderer({
     if (timerMatch) {
       const targetJackpotId = timerMatch[2] || jackpotId || 'sportpesa-mega';
       elements.push(
-        <div key={`ui-timer-${i}`} className="my-5 flex items-center justify-center">
+        <div key={`ui-timer-${i}`} className="my-5 w-full">
           <JackpotCountdownTimer
             jackpotId={targetJackpotId}
             fixtures={activeFixtures}

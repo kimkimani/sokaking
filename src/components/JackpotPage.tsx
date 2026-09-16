@@ -389,89 +389,17 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
       </div>
 
       {/* 2. COMPACT DYNAMIC LIVE TIMER BAR */}
-      <div className={`p-2.5 sm:p-3.5 rounded-[var(--radius)] bg-slate-950 text-white flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3.5 relative overflow-hidden shadow-[0_0_15px_rgba(16,185,129,0.06)] border ${
-        hasEnded 
-          ? 'border-rose-500/20 shadow-[0_0_15px_rgba(239,68,68,0.06)]' 
-          : hasStarted 
-            ? 'border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.06)]' 
-            : 'border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.06)]'
-      }`}>
-        <div className={`absolute -top-16 -left-16 w-24 h-24 rounded-full blur-2xl pointer-events-none ${
-          hasEnded ? 'bg-rose-500/5' : hasStarted ? 'bg-amber-500/5' : 'bg-emerald-500/5'
-        }`} />
-        <div className={`absolute -bottom-16 -right-16 w-24 h-24 rounded-full blur-2xl pointer-events-none ${
-          hasEnded ? 'bg-rose-500/5' : hasStarted ? 'bg-amber-500/5' : 'bg-emerald-500/5'
-        }`} />
-
-        {/* Left Column */}
-        <div className="flex items-center gap-3 z-10 flex-1">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
-            hasEnded 
-              ? 'bg-rose-500/10 border-rose-500/30' 
-              : hasStarted 
-                ? 'bg-amber-500/10 border-amber-500/30' 
-                : 'bg-emerald-500/10 border-emerald-500/30'
-          }`}>
-            <Clock className={`w-5 h-5 ${
-              hasEnded ? 'text-rose-400' : hasStarted ? 'text-amber-400' : 'text-emerald-400'
-            }`} />
-          </div>
-          <div className="space-y-1 min-w-0 text-left">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className={`inline-flex items-center gap-1 text-[9.5px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider font-mono ${
-                hasEnded 
-                  ? 'bg-rose-600 text-white' 
-                  : hasStarted 
-                    ? 'bg-amber-400 text-slate-950 font-black' 
-                    : 'bg-emerald-400 text-slate-950 font-black'
-              }`}>
-                <Sparkles className="w-2.5 h-2.5" /> {hasEnded ? 'COMPLETED & CLOSED' : hasStarted ? 'LIVE IN PROGRESS' : 'OPEN • NOT STARTED'}
-              </span>
-              <span className="text-xs font-black font-mono text-slate-100">
-                {hasEnded ? 'Completed and closed' : hasStarted ? 'Jackpot In Progress' : 'Open / Not started'}
-              </span>
-            </div>
-            <p className="text-[10px] sm:text-[11px] font-mono font-bold text-slate-200 tracking-tight leading-none truncate">
-              {hasEnded 
-                ? `Completed & closed: ${latestTime ? formatMatchDateTime(new Date(latestTime)) : 'Recently'}` 
-                : hasStarted 
-                  ? `Live Matches (${earliestTime ? formatTime(new Date(earliestTime)) : ''})` 
-                  : `Starts: ${earliestTime ? formatJackpotStartTimeString(new Date(earliestTime), jackpot.nextGameStartTime) : jackpot.nextGameStartTime}`
-              }
-            </p>
-          </div>
-        </div>
-
-        {/* Middle Column: Compact Timer Card */}
-        <JackpotCountdownTimer 
-          earliestTime={earliestTime}
-          hasStarted={hasStarted}
-          hasEnded={hasEnded}
-        />
-
-        {/* Right Column: Submissions Progress Meter */}
-        <div className="w-full md:w-52 flex flex-col justify-center border-t md:border-t-0 md:border-l border-slate-800 pt-3 md:pt-0 md:pl-4 z-10 shrink-0">
-          <div className="flex items-center justify-between text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wider">
-            <div className="flex items-center gap-1 text-slate-100">
-              <Users className={`w-3.5 h-3.5 ${hasEnded ? 'text-rose-400' : hasStarted ? 'text-amber-400' : 'text-emerald-400'}`} />
-              <span>Submissions</span>
-            </div>
-            <span className={`${hasEnded ? 'text-rose-300' : hasStarted ? 'text-amber-300' : 'text-emerald-300'} font-black font-mono`}>{jackpot.submissionsFill} Fill</span>
-          </div>
-          <div className="w-full h-1.5 bg-slate-900 border border-slate-800 rounded-full overflow-hidden mt-1">
-            <div className={`h-full rounded-full transition-all duration-1000 ${
-              hasEnded 
-                ? 'bg-rose-500 shadow-[0_0_4px_rgba(239,68,68,0.5)]' 
-                : hasStarted 
-                  ? 'bg-amber-500 shadow-[0_0_4px_rgba(245,158,11,0.5)]' 
-                  : 'bg-emerald-500 shadow-[0_0_4px_rgba(16,185,129,0.5)]'
-            }`} style={{ width: jackpot.submissionsFill }} />
-          </div>
-          <p className="text-[10.5px] font-bold text-slate-100 tracking-wide uppercase mt-1.5 text-left font-sans leading-tight">
-            {jackpot.premiumCount} active premium slates locked.
-          </p>
-        </div>
-      </div>
+      <JackpotCountdownTimer 
+        jackpotId={jackpot.id}
+        fixtures={jackpot.fixtures}
+        earliestTime={earliestTime}
+        latestTime={latestTime}
+        hasStarted={hasStarted}
+        hasEnded={hasEnded}
+        nextGameStartTime={jackpot.nextGameStartTime}
+        submissionsFill={jackpot.submissionsFill}
+        premiumCount={jackpot.premiumCount}
+      />
 
       {/* 3. SLIP SUMMARY QUICK STATS PANEL (If Unlocked) */}
       {hasPaid && (
