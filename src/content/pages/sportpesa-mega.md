@@ -73,9 +73,6 @@ Check other Jackpots like:
  {{ALL_MEGA_JACKPOT_FIXTURES}}
 
 
- {{MEGA_JACKPOT_ALL_FIXTURES}},
- {{ALL_FIXTURES}},
-
 
 <!-- FAQ -->
 
