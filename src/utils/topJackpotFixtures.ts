@@ -507,6 +507,20 @@ export function getFixtureVoteConsensus(fixture: Fixture): FixtureVoteConsensus 
   };
 }
 
+/**
+ * Returns the human-readable outcome label for a tip symbol (e.g. '1' -> 'Home', '2' -> 'Away', 'X' -> 'Draw').
+ */
+export function getVoteOutcomeLabel(tip: string): string {
+  const clean = String(tip || '1').toUpperCase().trim();
+  if (clean === '1') return 'Home';
+  if (clean === 'X') return 'Draw';
+  if (clean === '2') return 'Away';
+  if (clean === '1X' || clean === 'DC1X') return 'Home/Draw';
+  if (clean === 'X2' || clean === 'DCX2') return 'Draw/Away';
+  if (clean === '12' || clean === 'DC12') return 'Home/Away';
+  return clean;
+}
+
 export interface FormattedAllFixtureItem {
   fixture: Fixture;
   gameNumber: number;
@@ -544,6 +558,8 @@ export function getAllJackpotFixtures(
     const gameNumber = fixture.fixtureNumber || idx + 1;
     const homeTeam = cleanTeamName(fixture.homeTeam);
     const awayTeam = cleanTeamName(fixture.awayTeam);
+    const leagueName = fixture.leagueName || (fixture as any).league || (fixture as any).competition || '';
+    const leagueSuffix = leagueName ? ` (${leagueName})` : '';
     const confidence = Math.min(Math.max(Number(fixture.confidence) || 75, 50), 99);
     const voteConsensus = getFixtureVoteConsensus(fixture);
     const isDisclosed = idx < disclosedCount;
@@ -551,9 +567,12 @@ export function getAllJackpotFixtures(
     const rawTip = normalizeTipSymbol((fixture as any).tip || fixture.prediction || '1');
     const tipSymbol = isDisclosed ? rawTip : 'VIP';
     const tipDisplay = isDisclosed ? rawTip : '[⭐ Join VIP](/vip-packages)';
+    const userVoteTip = voteConsensus.mostSelectedTip;
+    const userVoteLabel = getVoteOutcomeLabel(userVoteTip);
+    const userVotesFormatted = `${userVoteTip} (${userVoteLabel})`;
 
-    // Clearly mark and label Database Tip, Confidence, and User Votes / Tip
-    const matchHeader = `Game ${gameNumber}: ${homeTeam} vs ${awayTeam} — Database Tip: ${tipDisplay} (Confidence: ${confidence}% | User Votes/Tip: ${voteConsensus.mostSelectedTip} - ${voteConsensus.mostSelectedPercent}%)`;
+    // Clearly mark and label SokaKing Tip, Confidence, and User Votes
+    const matchHeader = `Game ${gameNumber}: ${homeTeam} vs ${awayTeam}${leagueSuffix} — SokaKing Tip: ${tipDisplay} (Confidence: ${confidence}% | User Votes: ${userVotesFormatted})`;
 
     // Strictly adhere to top confidence fixtures text format (no AI analysis)
     const description = isDisclosed

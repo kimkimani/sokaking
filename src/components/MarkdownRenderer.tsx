@@ -242,7 +242,7 @@ interface CompactAllJackpotFixturesSectionProps {
   jackpotId?: string;
 }
 
-function parseAllFixtureLine(line: string): {
+export function parseAllFixtureLine(line: string): {
   gameNumber: number;
   matchTeams: string;
   prediction: string;
@@ -260,6 +260,7 @@ function parseAllFixtureLine(line: string): {
   const hasJackpotClues =
     /^(?:###\s+|\*\*)?(?:Game|Match|\d+\.)/i.test(trimmed) ||
     /confidence:/i.test(trimmed) ||
+    /sokaking\s*tip:/i.test(trimmed) ||
     /database\s*tip:/i.test(trimmed) ||
     /user\s*votes/i.test(trimmed) ||
     /user\s*tip/i.test(trimmed) ||
@@ -267,7 +268,7 @@ function parseAllFixtureLine(line: string): {
 
   if (!hasJackpotClues) return null;
 
-  // Look for metadata part e.g. (Confidence: 85% | User Votes/Tip: 2 - 60%)
+  // Look for metadata part e.g. (Confidence: 85% | User Votes: 2 (Away)) or legacy (Confidence: 85% | User Votes/Tip: 2 - 60%)
   const metaIndex = trimmed.lastIndexOf('(Confidence:');
   let mainPart = trimmed;
   let metaPart = '';
@@ -285,8 +286,8 @@ function parseAllFixtureLine(line: string): {
   const matchTeams = headerMatch[3].trim();
   let rawTip = headerMatch[4].trim();
 
-  // Strip leading "Database Tip:" if present
-  rawTip = rawTip.replace(/^Database\s*Tip:\s*/i, '').trim();
+  // Strip leading "Database Tip:" or "SokaKing Tip:" if present
+  rawTip = rawTip.replace(/^(?:Database|SokaKing|DB)\s*Tip:\s*/i, '').trim();
 
   const isVipLocked = /vip/i.test(rawTip) || /join vip/i.test(rawTip);
   const prediction = isVipLocked ? 'Join VIP' : rawTip.replace(/[\[\]]/g, '').trim();
@@ -296,11 +297,24 @@ function parseAllFixtureLine(line: string): {
   if (confMatch) confidence = confMatch[1].includes('%') ? confMatch[1] : `${confMatch[1]}%`;
 
   let mostVoted = '';
-  const voteMatch = metaPart.match(/(?:User\s*(?:Votes\/Tip|Votes|Tip)|Most\s*Voted):\s*([^|)]+)/i);
+  const voteMatch = metaPart.match(/(?:User\s*(?:Votes\/Tip|Votes|Tip)|Most\s*Voted):\s*([^|]+)/i);
   if (voteMatch) {
-    mostVoted = voteMatch[1].trim();
+    let rawVote = voteMatch[1].trim();
+    // Normalize legacy formats like "2 - 53%" into "2 (Away)"
+    const legacyDashMatch = rawVote.match(/^([1X2]|DC[1X2]+)\s*-\s*\d+%/i);
+    if (legacyDashMatch) {
+      const voteTip = legacyDashMatch[1].toUpperCase();
+      let label = 'Home';
+      if (voteTip === '2') label = 'Away';
+      else if (voteTip === 'X') label = 'Draw';
+      else if (voteTip === '1X' || voteTip === 'DC1X') label = 'Home/Draw';
+      else if (voteTip === 'X2' || voteTip === 'DCX2') label = 'Draw/Away';
+      else if (voteTip === '12' || voteTip === 'DC12') label = 'Home/Away';
+      rawVote = `${voteTip} (${label})`;
+    }
+    mostVoted = rawVote;
   } else {
-    mostVoted = !isVipLocked ? `${prediction} (55%)` : '1 (55%)';
+    mostVoted = !isVipLocked ? `${prediction} (Away)` : '2 (Away)';
   }
 
   return {
@@ -445,72 +459,82 @@ function CompactAllJackpotFixturesSection({
                 ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30'
                 : 'bg-slate-500/15 text-slate-700 dark:text-slate-300 border-slate-500/25';
 
+            const matchLeagueRegex = /^(.+?\s+vs\s+.+?)(?:\s*\(([^)]+)\))?$/i;
+            const matchLeagueResult = item.matchTeams.match(matchLeagueRegex);
+            const teamsTitle = matchLeagueResult ? matchLeagueResult[1].trim() : item.matchTeams;
+            const leagueTitle = matchLeagueResult && matchLeagueResult[2] ? matchLeagueResult[2].trim() : '';
+
             return (
               <div
                 key={`all-fix-item-${item.gameNumber}-${idx}`}
-                className={`p-2.5 sm:p-3 transition-colors ${
+                className={`p-3 sm:p-3.5 transition-colors ${
                   item.isVipLocked
                     ? 'bg-amber-500/[0.03] hover:bg-amber-500/[0.06]'
                     : 'hover:bg-[var(--accent)]/30'
                 }`}
               >
-                <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
-                  {/* Left: Game Number + Teams */}
-                  <div className="flex items-center gap-2 min-w-0">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                  {/* Left: Game Number + Teams + League Name */}
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
                     <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-mono font-black bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 shrink-0">
                       Game #{item.gameNumber}
                     </span>
-                    <span className="font-bold text-xs sm:text-[13px] text-[var(--text)] truncate">
-                      {item.matchTeams}
+                    <span className="font-bold text-[13px] sm:text-[13.5px] text-[var(--text)]">
+                      {teamsTitle}
                     </span>
+                    {leagueTitle && (
+                      <span className="text-[10px] sm:text-[10.5px] font-medium text-[var(--text-muted)] bg-slate-100 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700/70 px-1.5 py-0.5 rounded shrink-0">
+                        {leagueTitle}
+                      </span>
+                    )}
                   </div>
 
-                  {/* Right: Badges with explicit labels for Confidence, User Votes/Tip, and Database Tip */}
-                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto sm:ml-0 flex-wrap justify-end">
+                  {/* Right: Badges with uniform typography and mobile wrapping */}
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap sm:flex-nowrap">
                     {/* Confidence score */}
                     <div
-                      className={`inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded font-mono text-[9.5px] sm:text-[10px] border ${confClass}`}
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 min-h-[24px] rounded font-mono border ${confClass}`}
                       title={`Confidence Score: ${item.confidence}`}
                     >
-                      <span className="text-[8.5px] sm:text-[9px] uppercase tracking-wider font-semibold opacity-75">Confidence:</span>
-                      <strong className="font-black">{item.confidence.toString().includes('%') ? item.confidence : `${item.confidence}%`}</strong>
+                      <span className="text-[9px] uppercase tracking-wider font-semibold opacity-75">Confidence:</span>
+                      <strong className="font-black text-[10.5px] sm:text-[11px]">{item.confidence.toString().includes('%') ? item.confidence : `${item.confidence}%`}</strong>
                     </div>
 
                     {/* User votes consensus prediction */}
                     {item.mostVoted && (
                       <div
-                        className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded font-mono text-[9.5px] sm:text-[10px] bg-sky-500/10 text-sky-850 dark:text-sky-300 border border-sky-500/25"
-                        title="User votes consensus prediction"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 min-h-[24px] rounded font-mono bg-sky-500/10 text-sky-900 dark:text-sky-300 border border-sky-500/25"
+                        title="User votes consensus"
                       >
                         <Users className="w-2.5 h-2.5 text-sky-600 dark:text-sky-400 opacity-80 shrink-0" />
-                        <span className="text-[8.5px] sm:text-[9px] uppercase tracking-wider text-sky-700 dark:text-sky-400 font-semibold">User Votes/Tip:</span>
-                        <strong className="font-black">{item.mostVoted}</strong>
+                        <span className="text-[9px] uppercase tracking-wider text-sky-700 dark:text-sky-400 font-semibold">User Votes:</span>
+                        <strong className="font-black text-[10.5px] sm:text-[11px]">{item.mostVoted}</strong>
                       </div>
                     )}
 
-                    {/* Database Tip (2/3 disclosed) or Join VIP button (remaining 1/3) */}
+                    {/* SokaKing Tip (2/3 disclosed) or Join VIP button (remaining 1/3) */}
                     {item.isVipLocked ? (
                       <button
                         type="button"
                         onClick={handleOpenMegaJackpotPayment}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 font-black text-[11px] shadow-2xs cursor-pointer transition-all transform hover:scale-[1.03] shrink-0 border-0"
-                        title="Unlock Database Tip with Mega Jackpot VIP Slip"
+                        className="inline-flex items-center gap-1 px-2.5 py-0.5 min-h-[24px] rounded bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 font-black text-[10.5px] sm:text-[11px] shadow-2xs cursor-pointer transition-all transform hover:scale-[1.02] shrink-0 border-0"
+                        title="Unlock SokaKing Tip with Mega Jackpot VIP Slip"
                       >
-                        <span className="text-[8.5px] uppercase tracking-wider font-black opacity-90">Database Tip:</span>
-                        <Star className="w-3 h-3 fill-slate-950" />
+                        <span className="text-[9px] uppercase tracking-wider font-black opacity-90">SokaKing Tip:</span>
+                        <Star className="w-3 h-3 fill-slate-950 shrink-0" />
                         <span>Join VIP</span>
                       </button>
                     ) : (
                       <div
-                        className={`inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 rounded font-mono text-[11px] sm:text-xs shrink-0 border ${
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 min-h-[24px] rounded font-mono shrink-0 border ${
                           isDoubleChanceTip(item.prediction)
                             ? 'bg-amber-500/20 text-amber-950 dark:text-amber-200 border-amber-500/40'
                             : 'bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border border-emerald-500/30'
                         }`}
-                        title="Official Database Tip"
+                        title="Official SokaKing Tip"
                       >
-                        <span className="text-[8.5px] sm:text-[9px] uppercase tracking-wider font-semibold opacity-75">Database Tip:</span>
-                        <strong className="font-black text-xs sm:text-sm">{item.prediction}</strong>
+                        <span className="text-[9px] uppercase tracking-wider font-semibold opacity-75">SokaKing Tip:</span>
+                        <strong className="font-black text-[10.5px] sm:text-[11px]">{item.prediction}</strong>
                       </div>
                     )}
                   </div>
@@ -518,7 +542,7 @@ function CompactAllJackpotFixturesSection({
 
                 {/* Explanation text matching top confidence format, or VIP Lock notice */}
                 {item.isVipLocked ? (
-                  <div className="flex items-center justify-between gap-2 mt-1.5 pt-1 text-[10.5px] sm:text-[11px] text-amber-800/90 dark:text-amber-300/90 font-medium flex-wrap sm:flex-nowrap">
+                  <div className="flex items-center justify-between gap-2 mt-2 pt-1.5 border-t border-dashed border-amber-500/20 text-[10.5px] sm:text-[11px] text-amber-800/90 dark:text-amber-300/90 font-medium flex-wrap sm:flex-nowrap">
                     <div className="flex items-center gap-1.5 min-w-0">
                       <span className="shrink-0 text-amber-600 dark:text-amber-400 font-bold">🔒 VIP Tip:</span>
                       <span className="truncate">Confidential database prediction and double-chance slips reserved for Soka King VIP members.</span>
@@ -667,8 +691,8 @@ export default function MarkdownRenderer({
     }
 
     // 0a. All Jackpot Fixtures Line (Full jackpot list with confidence, votes, and 2/3 partial disclosure + VIP lock)
-    // e.g. "Game 1: Rayo Vallecano vs Racing Santander — Database Tip: DCX2 (Confidence: 85% | User Votes/Tip: 2 - 60%)"
-    // e.g. "Game 12: Genoa vs Bologna — Database Tip: [⭐ Join VIP](/vip-packages) (Confidence: 74% | User Votes/Tip: X - 52%)"
+    // e.g. "Game 1: Rayo Vallecano vs Racing Santander (La Liga) — SokaKing Tip: DCX2 (Confidence: 85% | User Votes: 2 (Away))"
+    // e.g. "Game 12: Genoa vs Bologna (Serie A) — SokaKing Tip: [⭐ Join VIP](/vip-packages) (Confidence: 74% | User Votes: 1 (Home))"
     const initialParsedAllFixture = parseAllFixtureLine(trimmed);
 
     if (initialParsedAllFixture) {
