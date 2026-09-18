@@ -178,25 +178,38 @@ Generates ranked tables of the fixtures with the highest statistical model confi
 ---
 
 ### 4.9 Today's Fixtures & Prediction Highlights Tags
-Generates dynamic tags for today's live daily fixtures, top marquee matches, league roundups, and market prediction distributions.
+Generates dynamic tags for today's live daily fixtures, top marquee matches, league roundups, and market prediction distributions. These tags dynamically synchronize with the live today predictions database API (`/api/predictions?category=today`).
 
-- **Top Two Marquee Fixtures (`TODAY_TOP_FIXTURES` / `TODAY_TOP_TWO_FIXTURES` / `TOP_TWO_TODAY_FIXTURES`):**
+- **Top Two Marquee Fixtures (`TODAY_TOP_FIXTURES` / `TODAY_TOP_TWO_FIXTURES` / `TOP_TWO_TODAY_FIXTURES` / `TOP_TODAY_FIXTURES`):**
   - **Tags:** `{{TODAY_TOP_FIXTURES}}`, `{{TODAY_TOP_TWO_FIXTURES}}`, `{{TOP_TWO_TODAY_FIXTURES}}`, `{{TOP_TODAY_FIXTURES}}`
   - **Syntax:** `fixture (tip) and fixture (tip)`
+  - **Behavior:** Selects the top 2 highest-confidence matches scheduled for today. Normalizes prediction text to extract the concise tip notation (e.g. `1X`, `1`, `OV 2.5`) and attaches the league name with natural prepositions (`in English Premier League`).
   - **Example Output:**
     > `Arsenal vs Chelsea (1X) in English Premier League and Real Madrid vs Barcelona (1) in Spanish La Liga`
 
 - **Today's Leagues Roundup (`TODAY_LEAGUES` / `TODAY_LEAGUE_NAMES` / `TODAY_FIXTURES_LEAGUES`):**
   - **Tags:** `{{TODAY_LEAGUES}}`, `{{TODAY_LEAGUE_NAMES}}`, `{{TODAY_FIXTURES_LEAGUES}}`
   - **Syntax:** `league, league, league and league`
+  - **Behavior:** Collects unique leagues across all today fixtures and formats them using natural English list punctuation (Oxford comma omitted with final `and`).
   - **Example Output:**
     > `English Premier League, Spanish La Liga, Italian Serie A, German Bundesliga and UEFA Champions League`
 
 - **Today's Market Predictions Distribution (`TODAY_PREDICTIONS` / `TODAY_PREDICTIONS_SUMMARY`):**
-  - **Tags:** `{{TODAY_PREDICTIONS}}`, `{{TODAY_PREDICTIONS_SUMMARY}}`, `{{TODAY_PREDICTIONS_COUNT}}`
-  - **Syntax:** Detailed counts of today's predicted markets (Over/Under, Double Chance, 1X2, etc.)
+  - **Tags:** `{{TODAY_PREDICTIONS}}`, `{{TODAY_PREDICTIONS_SUMMARY}}`, `{{TODAY_PREDICTION_SUMMARY}}`
+  - **Syntax:** `count category, count category and count category`
+  - **Behavior:** Aggregates market counts using standard database market values (`ov 2.5`, `double chance`, `home win`, `ov 1.5`, `away win`, `draw`, `BTTS`).
   - **Example Output:**
-    > `24 verified predictions for today including 5 Over 2.5, 4 Double Chance, 8 Home Win (1), 4 Over 1.5 and 3 Away Win (2)`
+    > `3 ov 2.5, 1 double chance and 1 home win`
+
+- **Today's Predictions Total Count (`TODAY_PREDICTIONS_COUNT`):**
+  - **Tags:** `{{TODAY_PREDICTIONS_COUNT}}`, `{{TODAY_COUNT}}`, `{{TODAY_FIXTURES_COUNT}}`
+  - **Syntax:** Pure integer count string of today's available match predictions.
+  - **Example Output:**
+    > `5`
+
+- **Data Consistency & Prediction Display Standards:**
+  - **Calculated Prediction vs. Fixture Badges**: In the predictions list feed, the actual calculated tip reflects the raw database value (e.g. `OV 2.5`, `OV 1.5`, `1X`), while the visual badge pills display human-friendly category tags (e.g. `3+ Goals`, `2+ Goals`, `Double Chance`).
+  - **Live Synchronization**: Module-level caching (`todayFixturesTags.ts`) caches API results with automatic fallback to client-side state and instant reactive re-renders across `MarkdownRenderer` and SSR HTML injection.
 
 ---
 
@@ -249,6 +262,10 @@ dateModified: "2026-03-18T10:30:00+03:00"
 - **`authorId`**: Matches the author markdown file in `src/content/authors/<authorId>.md`.
 - **`readingTime`**: Read duration override (auto-calculated if omitted).
 - **`responsibleGambling`**: Custom advisory text for compliance.
+
+---
+
+## 5. Inline Modifiers & Parameters
 
 You can customize the behavior of any tag with inline attributes:
 
