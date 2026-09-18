@@ -40,8 +40,8 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
   },
   {
     id: 'category-over15',
-    name: "2+ Goals (Over 1.5) Tips",
-    label: "2+ Goals",
+    name: "Over 1.5 Goals Tips",
+    label: "Over 1.5 Goals",
     countText: "48 Tips",
     description: "Highly stable selections where 2 or more goals are highly predicted based on offensive/defensive coefficients.",
     icon: "⚽",
@@ -67,8 +67,8 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
   },
   {
     id: 'category-over25',
-    name: "3+ Goals (Over 2.5) Tips",
-    label: "3+ Goals",
+    name: "Over 2.5 Goals Tips",
+    label: "Over 2.5 Goals",
     countText: "30 Tips",
     description: "High-scoring matches featuring open play tactics, defensive injuries, and strong conversion indices.",
     icon: "🎯",
@@ -285,10 +285,10 @@ export function generateUnifiedPredictionsPool(): Fixture[] {
 
       // Varied prediction strings including DB shortcodes
       const predictionsList = [
-        '3+ Goals',
-        '3+ Goals',
-        '2+ Goals',
-        '2+ Goals',
+        'Over 2.5 Goals',
+        'ov 2.5',
+        'Over 1.5 Goals',
+        'ov 1.5',
         'Both Teams to Score (GG)',
         'BTTS',
         'GG',
