@@ -36,8 +36,8 @@ export const BLOG_METADATA_LIST: BlogMetaItem[] = [
     "readTime": "7 min read",
     "featured": true,
     "coverImage": "/blog-assets/best-mega-jackpot-prediction-site/cover.svg",
-    "mtime": "2026-09-18T11:48:45.049Z",
-    "dateModified": "2026-09-18T14:48:45+03:00"
+    "mtime": "2026-09-18T12:25:57.140Z",
+    "dateModified": "2026-09-18T15:25:57+03:00"
   }
 ];
 
