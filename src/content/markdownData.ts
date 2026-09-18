@@ -613,12 +613,12 @@ The Over 1.5 Goals market requires at least 2 goals scored by either or both tea
 `,
 
   'category-over25': `---
-title: "King of Over 2.5 predictions - Soka King"
+title: "Over 2.5 Goals Predictions and High-Scoring Tips - Soka King"
 description: "High-conversion Over 2.5 Goals football predictions. Advanced goal expectancy models identifying high-tempo attacking fixtures."
-keywords: "king of over 2.5 prediction, Over 2.5 predictions, Over 2.5 goals tips today, high scoring matches"
+keywords: "Over 2.5 predictions, Over 2.5 goals tips today, high scoring matches"
 link: "/football-predictions-over-2-5-goals"
 authorId: "john-mwangi"
-displayTitle: "King of Over 2.5 predictions - Soka King Today"
+displayTitle: "Over 2.5 Goals Football Predictions Today"
 responsibleGambling: "Gambling carries financial risk. Play responsibly. Helpline: 0800-720-000."
 unlockHeading: "Unlock High-Scoring Over 2.5 Goals Slips"
 unlockDescription: "Get daily high-tempo match picks with total expected goal lines exceeding 3 goals."
@@ -788,9 +788,9 @@ Evaluating past match results allows us to continually refine our Poisson algori
 `,
 
   'cheza254-predictions-and-tips': `---
-title: "Cheza 254 Prediction and Free Tips - Cheza254 Today"
-displayTitle: "Cheza 254 Prediction and Free Tips - Cheza254 Today"
-description: "Looking for Cheza254 prediction and free tips today? We have 1X2, BTTS, Over/Under, Double Chance and jackpot predictions Cheza 254 football prediction"
+title: "Cheza 254 Prediction and Free Tips Today"
+displayTitle: "Cheza 254 Prediction and Free Tips Today"
+description: "Looking for Cheza254 prediction and free tips today? We have 1X2, BTTS, Over/Under, Double Chance and jackpot predictions Cheza254 football prediction"
 keywords: "cheza 254, cheza254 prediction, cheza254, cheza254 tips, www cheza254 prediction com, www cheza254 com, www cheza254, www cheza 254 com, cheza254 today, cheza254 prediction today, cheza254 prediction tips, cheza254 prediction for today's games, cheza254 football prediction, cheza254 com, cheza 254 com"
 link: "/cheza-254-prediction"
 type: "competitor"
@@ -835,7 +835,7 @@ Each match is assessed through:
 
 The final prediction is chosen according to the market that best fits the available evidence.
 
-## Cheza 254 Free Tips
+## Cheza254 Free Tips
 
 Cheza254 free tips provide daily selections without requiring premium access.
 
@@ -1198,6 +1198,10 @@ Jackpot slates are uploaded as soon as bookmakers release official fixture lists
 <!-- RESPONSIBLE_GAMBLING_END -->
 `,
 
+  'kadenge-sportpesa-mega-jackpot-prediction': ``,
+
+  'mjomba-sportpesa-jackpot-prediction': ``,
+
   'mozzart-grand': `---
 title: "Mozzart Grand Jackpot Predictions and Analysis (16 Games)"
 description: "Mozzart Grand Jackpot 16-game predictions. Fixed KES 200 Million jackpot analysis, Poisson goal modeling, and bonus tips."
@@ -1428,6 +1432,8 @@ No. Football outcomes are unpredictable, and no prediction system can guarantee 
 > **Responsible Gambling Notice:** Gambling involves financial risk. Please bet responsibly and only risk money you can afford to lose. If you need help or support, contact the national helpline at **0800-720-000** or visit our [Responsible Gambling Policy](/responsible-gambling).
 <!-- RESPONSIBLE_GAMBLING_END -->
 `,
+
+  'shinda-sportpesa-mega-jackpot-prediction-and-tips': ``,
 
   'sokamastas-predictions-and-tips': `---
 title: "Sokamastas Predictions and Today Tips"
@@ -1760,6 +1766,8 @@ Yes. For community voting, you submit your preferred prediction for individual f
 > **Responsible Gambling Notice:** Gambling involves financial risk. Predictions are not guarantees of winnings. Only stake money you can afford to lose and use football analysis as information rather than certainty. Read our [Responsible Gambling Policy](/responsible-gambling).
 
 <!-- RESPONSIBLE_GAMBLING_END -->`,
+
+  'stakegains-sportpesa-mega-jackpot-prediction': ``,
 
   'sunpel-free-football-betting-tips': `---
 title: "Sunpelpredict | Sunpel Free Football Betting Tips and Predictions Today"
