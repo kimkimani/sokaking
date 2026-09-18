@@ -30,7 +30,7 @@ import {
 import { designIterations, vipPackages, oddsPacks, fixturesData, defaultExternalLinks } from './data';
 import { jackpotsData } from './jackpotsData';
 import { DesignIteration, Fixture, VipPackage, OddsPack, ExternalLink } from './types';
-import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl, hasMarkdownFile } from './content/markdownLoader';
+import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl, hasMarkdownFile, convertPageMdToBlogPost } from './content/markdownLoader';
 import { getRefinedConfidence } from './utils/probability';
 
 import { apiFetch } from './utils/api.ts';
@@ -62,6 +62,7 @@ const StaticPages = lazy(() => import('./components/StaticPages'));
 const PaymentModal = lazy(() => import('./components/PaymentModal'));
 const BlogPage = lazy(() => import('./components/BlogPage'));
 const BlogPostPage = lazy(() => import('./components/BlogPostPage'));
+const BlogSidebar = lazy(() => import('./components/BlogSidebar'));
 import { getBlogPostBySlug } from './content/blogLoader';
 
 import { 
@@ -172,6 +173,14 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   const [activePage, setActivePage] = useState<string>(defaultPage);
   const [blogAuthorFilter, setBlogAuthorFilter] = useState<string | null>(null);
   const [unlockedJackpots, setUnlockedJackpots] = useState<string[]>([]);
+
+  // Blog detection helper
+  const isBlogPage = 
+    activePage === 'blog' || 
+    activePage === 'blog-list' || 
+    activePage.startsWith('blog-') ||
+    !!getBlogPostBySlug(activePage.replace(/^blog-/, '')) ||
+    (hasMarkdownFile(activePage) && getMarkdownContent(activePage).type === 'blog');
 
   // Keep unlocked jackpots in sync with purchases
   useEffect(() => {
@@ -738,7 +747,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   handleSelectPage('blog');
                 }
               }}
-              className={`px-3.5 py-1.5 text-xs font-bold transition-all no-underline cursor-pointer rounded-full ${activePage === 'blog' || activePage.startsWith('blog-') ? 'bg-[var(--primary)] text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--primary)]'}`}
+              className={`px-3.5 py-1.5 text-xs font-bold transition-all no-underline cursor-pointer rounded-full ${isBlogPage ? 'bg-[var(--primary)] text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--primary)]'}`}
             >
               Blog
             </a>
@@ -812,6 +821,72 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                       pageId={activePage}
                     />
                   );
+                }
+
+                // 1. DEDICATED BLOG ARCHIVE & BLOG POSTS (Pure Blog UI)
+                if (activePage === 'blog' || activePage === 'blog-list') {
+                  return (
+                    <BlogPage 
+                      onSelectPost={(slug) => handleSelectPage(`blog-${slug}`)}
+                      onBackToHome={() => handleSelectPage('home')}
+                      initialAuthorFilter={blogAuthorFilter || undefined}
+                    />
+                  );
+                }
+
+                if (activePage.startsWith('blog-')) {
+                  const blogSlug = activePage.replace(/^blog-/, '');
+                  const blogPost = getBlogPostBySlug(blogSlug);
+                  if (blogPost) {
+                    return (
+                      <BlogPostPage 
+                        post={blogPost}
+                        onBackToBlog={() => handleSelectPage('blog')}
+                        onBackToHome={() => handleSelectPage('home')}
+                        onSelectPost={(slug) => handleSelectPage(`blog-${slug}`)}
+                        onFilterByAuthor={(authorId) => {
+                          setBlogAuthorFilter(authorId);
+                          handleSelectPage('blog');
+                        }}
+                      />
+                    );
+                  }
+                }
+
+                // Check direct blog post slug match (e.g. /best-mega-jackpot-prediction-site)
+                const directBlogPost = getBlogPostBySlug(activePage);
+                if (directBlogPost) {
+                  return (
+                    <BlogPostPage 
+                      post={directBlogPost}
+                      onBackToBlog={() => handleSelectPage('blog')}
+                      onBackToHome={() => handleSelectPage('home')}
+                      onSelectPost={(slug) => handleSelectPage(`blog-${slug}`)}
+                      onFilterByAuthor={(authorId) => {
+                        setBlogAuthorFilter(authorId);
+                        handleSelectPage('blog');
+                      }}
+                    />
+                  );
+                }
+
+                if (hasMarkdownFile(activePage)) {
+                  const pageMd = getMarkdownContent(activePage);
+                  if (pageMd.type === 'blog') {
+                    const blogPost = convertPageMdToBlogPost(activePage, pageMd);
+                    return (
+                      <BlogPostPage 
+                        post={blogPost}
+                        onBackToBlog={() => handleSelectPage('blog')}
+                        onBackToHome={() => handleSelectPage('home')}
+                        onSelectPost={(slug) => handleSelectPage(`blog-${slug}`)}
+                        onFilterByAuthor={(authorId) => {
+                          setBlogAuthorFilter(authorId);
+                          handleSelectPage('blog');
+                        }}
+                      />
+                    );
+                  }
                 }
 
                 if (activePage === 'jackpot-list') {
@@ -906,39 +981,11 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   );
                 }
 
-                if (activePage === 'blog' || activePage === 'blog-list') {
-                  return (
-                    <BlogPage 
-                      onSelectPost={(slug) => handleSelectPage(`blog-${slug}`)}
-                      onBackToHome={() => handleSelectPage('home')}
-                      initialAuthorFilter={blogAuthorFilter || undefined}
-                    />
-                  );
-                }
-
-                if (activePage.startsWith('blog-')) {
-                  const blogSlug = activePage.replace(/^blog-/, '');
-                  const blogPost = getBlogPostBySlug(blogSlug);
-                  if (blogPost) {
-                    return (
-                      <BlogPostPage 
-                        post={blogPost}
-                        onBackToBlog={() => handleSelectPage('blog')}
-                        onSelectPost={(slug) => handleSelectPage(`blog-${slug}`)}
-                        onFilterByAuthor={(authorId) => {
-                          setBlogAuthorFilter(authorId);
-                          handleSelectPage('blog');
-                        }}
-                      />
-                    );
-                  }
-                }
-
-                // DYNAMIC MARKDOWN PAGE (For newly created or existing .md files: Competitors, custom SEO Jackpot pages, etc.)
+                // DYNAMIC MARKDOWN PAGE (Competitor, custom SEO Jackpot pages, categories, etc.)
                 if (activePage !== 'home' && hasMarkdownFile(activePage)) {
                   const pageMd = getMarkdownContent(activePage);
 
-                  // 1. Is it a jackpot page (has jackpotId or type === 'jackpot')?
+                  // 2. Is it a jackpot page (has jackpotId or type === 'jackpot')?
                   if (pageMd.jackpotId || pageMd.type === 'jackpot') {
                     const targetJackpotId = pageMd.jackpotId || activePage;
                     const activeJackpot = dbJackpots.find(j => j.id === targetJackpotId || j.slug === targetJackpotId) || dbJackpots[0];
@@ -1200,7 +1247,19 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
             {/* RIGHT SIDEBAR PANEL */}
             <aside className="w-full lg:w-[320px] flex-shrink-0 space-y-6">
-              {['jackpot-list', ...ALL_JACKPOT_IDS].includes(activePage) ? (
+              {isBlogPage ? (
+                <BlogSidebar 
+                  currentPostSlug={activePage.startsWith('blog-') ? activePage.replace(/^blog-/, '') : activePage}
+                  onSelectPost={(slug) => handleSelectPage(`blog-${slug}`)}
+                  onFilterByCategory={(cat) => {
+                    handleSelectPage('blog');
+                  }}
+                  onFilterByAuthor={(authorId) => {
+                    setBlogAuthorFilter(authorId);
+                    handleSelectPage('blog');
+                  }}
+                />
+              ) : ['jackpot-list', ...ALL_JACKPOT_IDS].includes(activePage) ? (
                 <JackpotSidebar 
                   jackpotId={activePage} 
                   jackpotName={dbJackpots.find(j => j.id === activePage || j.slug === activePage)?.name}

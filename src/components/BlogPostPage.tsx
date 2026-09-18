@@ -25,6 +25,7 @@ import { generateBlogPostJsonLd, calculateArticleWordCount } from '../utils/sche
 interface BlogPostPageProps {
   post: BlogPost;
   onBackToBlog: () => void;
+  onBackToHome?: () => void;
   onSelectPost: (slug: string) => void;
   onFilterByAuthor: (authorId: string) => void;
 }
@@ -32,6 +33,7 @@ interface BlogPostPageProps {
 export const BlogPostPage: React.FC<BlogPostPageProps> = ({
   post,
   onBackToBlog,
+  onBackToHome,
   onSelectPost,
   onFilterByAuthor
 }) => {
@@ -99,6 +101,18 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
       {/* Top Breadcrumb and Back Navigation */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] font-mono overflow-x-auto scrollbar-none">
+          <a 
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              if (onBackToHome) onBackToHome();
+              else onBackToBlog();
+            }}
+            className="hover:text-[var(--primary)] transition-colors cursor-pointer bg-transparent border-none p-0 text-[var(--text-muted)] font-mono no-underline"
+          >
+            Home
+          </a>
+          <ChevronRight className="w-3.5 h-3.5 shrink-0" />
           <a 
             href="/blog"
             onClick={(e) => {
@@ -232,7 +246,12 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
 
       {/* Main Markdown Body Content */}
       <section className="p-6 md:p-10 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow)] space-y-6">
-        <MarkdownRenderer content={post.content} postSlug={post.slug} className="text-sm md:text-base leading-relaxed" />
+        <MarkdownRenderer 
+          content={post.content} 
+          postSlug={post.slug} 
+          jackpotId={(post as any).jackpotId || 'sportpesa-mega'}
+          className="text-sm md:text-base leading-relaxed" 
+        />
 
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (
