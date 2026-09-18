@@ -751,23 +751,19 @@ export function generateDoubleChanceFixturesMarkdown(
 
 /**
  * Standard curated league names arrangement for SportPesa Mega Jackpot matches.
- * Enriched pool of authentic top-tier competitions.
+ * Exactly: "Serie A, Ligue 1, Serie B, La Liga, the Premier League, Jupiler Pro League, Primeira Liga, Süper Lig, Superliga and Eliteserien"
  */
 export const DEFAULT_SPORTPESA_MEGA_LEAGUES: string[] = [
-  'La Liga',
   'Serie A',
   'Ligue 1',
+  'Serie B',
+  'La Liga',
   'the Premier League',
-  'the Championship',
-  'the Scottish Premiership',
-  'the Bundesliga',
-  'the Eredivisie',
-  'Primeira Liga',
   'Jupiler Pro League',
+  'Primeira Liga',
   'Süper Lig',
   'Superliga',
-  'Eliteserien',
-  'Allsvenskan'
+  'Eliteserien'
 ];
 
 /**
@@ -855,26 +851,15 @@ export function shuffleArray<T>(items: T[]): T[] {
 
 /**
  * Joins an array of league names with commas and natural connectors,
- * supporting randomized arrangement and subset selection for uniqueness across multiple pages.
+ * supporting randomized arrangement for uniqueness across multiple pages.
  * Example: ["Serie A", "Ligue 1", ..., "Eliteserien"] -> "Serie A, Ligue 1, ..., Superliga and Eliteserien"
  */
-export function joinLeagueNames(leagues: string[], randomize = true, allowSubset = true): string {
+export function joinLeagueNames(leagues: string[], randomize = true): string {
   if (!leagues || leagues.length === 0) return '';
-  let working = randomize ? shuffleArray(leagues) : [...leagues];
-
-  // If randomize & allowSubset are enabled and we have at least 6 leagues,
-  // choose a varied slice (5, 6, 7, 8 or all) so different pages display distinct combinations
-  if (randomize && allowSubset && working.length > 5) {
-    const subsetChoices = [5, 6, 7, 8, working.length];
-    const chosenSize = subsetChoices[Math.floor(Math.random() * subsetChoices.length)];
-    if (chosenSize < working.length) {
-      working = working.slice(0, chosenSize);
-    }
-  }
-
+  const working = randomize ? shuffleArray(leagues) : [...leagues];
   if (working.length === 1) return working[0];
 
-  const conjunctions = ['and', 'as well as', 'alongside', 'together with', 'in addition to'];
+  const conjunctions = ['and', 'as well as', 'alongside', 'and', 'together with'];
   const conjunction = randomize 
     ? conjunctions[Math.floor(Math.random() * conjunctions.length)]
     : 'and';
@@ -904,7 +889,12 @@ export function getJackpotLeagueNames(
     fixtures = resolved.fixtures;
   }
 
-  // Extract directly from the current live jackpot fixtures
+  // Curated SportPesa Mega leagues
+  if (mode === 'curated' && jackpotId === 'sportpesa-mega') {
+    return [...DEFAULT_SPORTPESA_MEGA_LEAGUES];
+  }
+
+  // If fixtures are available, extract directly
   if (fixtures.length > 0) {
     const rawLeagues = fixtures
       .map(f => f.leagueName || (f as any).league_name || (f as any).league || '')
@@ -1146,19 +1136,7 @@ export const CURATED_UPSET_CANDIDATES: Array<{ homeTeam: string; awayTeam: strin
   { homeTeam: 'Heerenveen', awayTeam: 'Groningen', leagueName: 'Dutch Eredivisie' },
   { homeTeam: 'Charleroi', awayTeam: 'Kortrijk', leagueName: 'Belgian Pro League' },
   { homeTeam: 'Alaves', awayTeam: 'Real Valladolid', leagueName: 'Spanish La Liga' },
-  { homeTeam: 'Brest', awayTeam: 'Strasbourg', leagueName: 'French Ligue 1' },
-  { homeTeam: 'Udinese', awayTeam: 'Genoa', leagueName: 'Italian Serie A' },
-  { homeTeam: 'Osasuna', awayTeam: 'Las Palmas', leagueName: 'Spanish La Liga' },
-  { homeTeam: 'Nantes', awayTeam: 'Angers', leagueName: 'French Ligue 1' },
-  { homeTeam: 'Millwall', awayTeam: 'Sheffield Wednesday', leagueName: 'English Championship' },
-  { homeTeam: 'Bochum', awayTeam: 'Augsburg', leagueName: 'German Bundesliga' },
-  { homeTeam: 'Twente', awayTeam: 'Utrecht', leagueName: 'Dutch Eredivisie' },
-  { homeTeam: 'Famalicao', awayTeam: 'Rio Ave', leagueName: 'Portuguese Primeira Liga' },
-  { homeTeam: 'Aberdeen', awayTeam: 'Hearts', leagueName: 'Scottish Premiership' },
-  { homeTeam: 'Verona', awayTeam: 'Como', leagueName: 'Italian Serie A' },
-  { homeTeam: 'Rayo Vallecano', awayTeam: 'Mallorca', leagueName: 'Spanish La Liga' },
-  { homeTeam: 'Toulouse', awayTeam: 'Le Havre', leagueName: 'French Ligue 1' },
-  { homeTeam: 'Coventry City', awayTeam: 'Swansea City', leagueName: 'English Championship' }
+  { homeTeam: 'Brest', awayTeam: 'Strasbourg', leagueName: 'French Ligue 1' }
 ];
 
 /**
@@ -1176,8 +1154,8 @@ export function generateJackpotUpsetAlertText(
   let match1 = '';
   let match2 = '';
 
-  // Dynamic analysis directly from the current live coupon fixtures
-  if (fixtures && fixtures.length >= 2) {
+  // Dynamic analysis from coupon fixtures
+  if (fixtures && fixtures.length >= 2 && mode !== 'curated') {
     const candidateFixtures = [...fixtures].sort((a, b) => {
       const confA = typeof a.confidence === 'number' ? a.confidence : 75;
       const confB = typeof b.confidence === 'number' ? b.confidence : 75;
@@ -1187,8 +1165,8 @@ export function generateJackpotUpsetAlertText(
       return confA - confB;
     });
 
-    // Pick 2 random fixtures from the top 6 upset candidates for variance
-    const pool = candidateFixtures.slice(0, Math.min(6, candidateFixtures.length));
+    // Pick 2 random fixtures from the top 5 upset candidates for variance
+    const pool = candidateFixtures.slice(0, Math.min(5, candidateFixtures.length));
     const shuffledPool = shuffleArray(pool);
     const f1 = shuffledPool[0];
     const f2 = shuffledPool[1] || candidateFixtures[1];
@@ -1221,9 +1199,7 @@ export function generateJackpotUpsetAlertText(
       `${m2} and ${m1}`,
       `${m1} alongside ${m2}`,
       `${m2} as well as ${m1}`,
-      `${m1} together with ${m2}`,
-      `${m2} in addition to ${m1}`,
-      `${m1} plus ${m2}`
+      `${m1} together with ${m2}`
     ];
     return inlineArrangements[Math.floor(Math.random() * inlineArrangements.length)];
   }
@@ -1234,12 +1210,8 @@ export function generateJackpotUpsetAlertText(
     `Key upset alerts for this coupon include ${m2} as well as ${m1}—both clashes present volatile head-to-head trends where backing double chances provides essential insurance.`,
     `Watch out for potential surprise results in ${m1} alongside ${m2}, where tight defensive records and underdog counter-attacking threats suggest looking beyond standard 1X2 outcomes.`,
     `This week's most precarious fixtures feature ${m2} and ${m1}, where community voting patterns strongly diverge from statistical probabilities and double-chance hedging is recommended.`,
-    `Bettors should be particularly cautious with ${m1} together with ${m2}, as competitive parity and fluctuating home-advantage margins elevate the risk of unexpected scorelines.`,
-    `Notable upset candidates on this ticket center around ${m2} alongside ${m1}—both matches exhibit classic trap-game dynamics where double-chance safety (1X or X2) is strongly favored.`,
-    `Tactical indicators flag ${m1} and ${m2} as encounters vulnerable to stalemate or upset breaks, especially given heavy schedule congestion and recent cup fatigue.`,
-    `Poisson model deviations point to ${m2} in addition to ${m1} as high-risk fixtures where public betting consensus conflicts with underlying expected-goals (xG) metrics.`,
-    `Underdog counter-attack potential is elevated in ${m1} as well as ${m2}, where disciplined low-block systems threaten to disrupt favored home sides.`,
-    `Risk analysis highlights ${m2} alongside ${m1} as games where backing straight outcomes carries disproportionate exposure, making protective split coverage a must.`
+    `Bettors should be particularly cautious with ${m1} and ${m2}, as competitive parity and fluctuating home-advantage margins elevate the risk of unexpected scorelines.`,
+    `Notable upset candidates on this ticket center around ${m2} together with ${m1}—both matches exhibit classic trap-game dynamics where double-chance safety (1X or X2) is strongly favored.`
   ];
 
   return sentenceArrangements[Math.floor(Math.random() * sentenceArrangements.length)];
@@ -1802,15 +1774,8 @@ export function expandTopFixturesParameters(
       case 'UPSETS': {
         let isInline = false;
         if (typeof offset === 'number' && typeof fullStr === 'string' && offset > 0) {
-          const preceding = fullStr.slice(Math.max(0, offset - 35), offset).trim();
-          isInline = /(?:for|out|in|on|between|of|regarding|about|watch|see|check|observe|monitor|keep|spot|identify|note|include|including|across)\s*$/i.test(preceding);
-          // Also check if following text continues with lowercase connector words
-          if (!isInline && fullStr.length > offset) {
-            const nextSlice = fullStr.slice(offset).replace(/^\{\{[^}]+\}\}/, '').trim();
-            if (/^(?:for|to|where|in|which|as)\b/i.test(nextSlice)) {
-              isInline = true;
-            }
-          }
+          const preceding = fullStr.slice(Math.max(0, offset - 25), offset).trim();
+          isInline = /(?:for|out|in|on|between|of|regarding|about)\s*$/i.test(preceding);
         }
         return generateJackpotUpsetAlertText(fixturesToUse, mode, format, isInline ? 'inline' : 'standalone');
       }

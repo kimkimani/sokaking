@@ -32,7 +32,7 @@ import { AuthorCard } from './AuthorCard';
 import { ResponsibleGamblingNotice } from './ResponsibleGamblingNotice';
 import { formatTime, formatMatchDateTime, formatJackpotStartTimeString } from '../utils/timeUtils';
 import InboundLinksBlock from './InboundLinksBlock';
-import JackpotCountdownTimer, { getNextUpcomingKickoff } from './JackpotCountdownTimer';
+import JackpotCountdownTimer from './JackpotCountdownTimer';
 
 interface JackpotPageProps {
   jackpot: JackpotConfig;
@@ -92,28 +92,16 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
     const fixtureTimes = (jackpot.fixtures || [])
       .map(f => {
         const val = f.kickoffTime || f.date || f.time;
-        const d = val ? new Date(val.includes('T') ? val : val.replace(' ', 'T')) : null;
+        const d = val ? new Date(val) : null;
         return d && !isNaN(d.getTime()) ? d.getTime() : null;
       })
       .filter((t): t is number => t !== null && !isNaN(t));
 
-    if (fixtureTimes.length > 0) {
-      const minTime = Math.min(...fixtureTimes);
-      const maxTime = Math.max(...fixtureTimes);
-      const now = Date.now();
-      // If the fixture kickoff is in the future or within the last 48 hours, use it
-      if (minTime > now - 48 * 3600 * 1000) {
-        return { earliestTime: minTime, latestTime: maxTime };
-      }
-    }
-
-    // Fallback to upcoming scheduled cycle date to ensure synchronization with UI timer
-    const fallbackKickoff = getNextUpcomingKickoff(jackpot.id);
     return {
-      earliestTime: fallbackKickoff,
-      latestTime: fallbackKickoff + 24 * 3600 * 1000
+      earliestTime: fixtureTimes.length > 0 ? Math.min(...fixtureTimes) : null,
+      latestTime: fixtureTimes.length > 0 ? Math.max(...fixtureTimes) : null,
     };
-  }, [jackpot.fixtures, jackpot.id]);
+  }, [jackpot.fixtures]);
   
   const [nowTime, setNowTime] = useState(() => Date.now());
 

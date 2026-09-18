@@ -100,10 +100,22 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
     description: "Sunpelpredict and Sunpel free football betting tips, daily banker picks, and accumulator selections.",
     icon: "☀️",
     badgeColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+  },
+  {
+    id: 'category-blog',
+    name: "Football Strategy & Analytics Blog",
+    label: "Strategy Blog",
+    countText: "Blog",
+    description: "In-depth tactical breakdowns, Poisson distribution guides, and jackpot combination strategies.",
+    icon: "📰",
+    badgeColor: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20"
   }
 ];
 
 export function getCategoryCountText(categoryId: string, rawPool?: any): string {
+  if (categoryId === 'category-blog') {
+    return 'Articles';
+  }
   const count = getCategoryFixtures(categoryId, rawPool).length;
   if (categoryId === '254-sure-tips') {
     return `${count} Banker Tips`;

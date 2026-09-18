@@ -23,7 +23,7 @@ export interface JackpotCountdownTimerProps {
  * Calculates the next upcoming kickoff timestamp (in ms) for a given jackpot ID
  * if static database fixtures are absent or in the distant past.
  */
-export function getNextUpcomingKickoff(jackpotId: string): number {
+function getNextUpcomingKickoff(jackpotId: string): number {
   const resolved = resolveJackpotId(jackpotId, 'sportpesa-mega');
   const now = new Date();
 

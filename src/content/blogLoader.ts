@@ -1,8 +1,8 @@
 import { RAW_BLOG_MAP, BLOG_METADATA_LIST, BlogMetaItem } from './blogData';
 import { getAuthor, ParsedAuthor, normalizeAuthorKey } from './authorLoader';
 import { expandTopFixturesParameters } from '../utils/topJackpotFixtures';
+import { getMarkdownContent, hasMarkdownFile, ParsedMarkdownPage } from './markdownLoader';
 import { PAGE_METADATA_MAP } from './pageMetadata';
-import { RAW_MARKDOWN_MAP } from './markdownData';
 
 export interface BlogPost {
   slug: string;
@@ -33,6 +33,52 @@ export interface BlogPost {
   datePublished?: string;
   dateModified?: string;
   lastModified?: string;
+}
+
+/**
+ * Converts a parsed markdown page (e.g. from src/content/pages/*.md) into a standard BlogPost object
+ */
+export function convertPageMdToBlogPost(pageKey: string, pageMd: ParsedMarkdownPage): BlogPost {
+  const author = pageMd.author || getAuthor(pageMd.authorId || 'john-mwangi');
+  const pubDate = pageMd.datePublished 
+    ? pageMd.datePublished.split('T')[0] 
+    : (pageMd.date || pageMd.dateModified?.split('T')[0] || new Date().toISOString().split('T')[0]);
+  const cleanSlug = pageKey.replace(/^blog-/, '').replace(/\.md$/, '');
+
+  return {
+    slug: cleanSlug,
+    title: pageMd.displayTitle || pageMd.title || cleanSlug,
+    description: pageMd.description || '',
+    date: pubDate,
+    formattedDate: formatBlogDate(pubDate),
+    authorId: pageMd.authorId || 'john-mwangi',
+    author,
+    category: pageMd.category && pageMd.category.toLowerCase() !== 'blog' 
+      ? pageMd.category 
+      : 'Football Strategy & Analytics',
+    tags: Array.isArray(pageMd.tags) && pageMd.tags.length > 0 
+      ? pageMd.tags 
+      : ['Football Strategy', 'Tactical Analysis', 'Predictions'],
+    readTime: pageMd.readTime || '5 min read',
+    featured: pageMd.featured || false,
+    coverImage: pageMd.coverImage,
+    content: pageMd.fullContent || pageMd.meat || '',
+    raw: (pageMd as any).raw || pageMd.fullContent || '',
+    displayTitle: pageMd.displayTitle,
+    keywords: pageMd.keywords,
+    link: pageMd.link || `/${cleanSlug}`,
+    type: 'blog',
+    jackpotId: pageMd.jackpotId,
+    responsibleGambling: pageMd.responsibleGambling,
+    unlockHeading: pageMd.unlockHeading,
+    unlockDescription: pageMd.unlockDescription,
+    listTitle: pageMd.listTitle,
+    listSubtitle: pageMd.listSubtitle,
+    faqTitle: pageMd.faqTitle,
+    datePublished: pageMd.datePublished,
+    dateModified: pageMd.dateModified,
+    lastModified: pageMd.lastModified,
+  };
 }
 
 /**
@@ -133,28 +179,15 @@ export function parseBlogPostMarkdown(raw: string, fallbackSlug: string = ''): B
   const existingMeta = BLOG_METADATA_LIST.find(m => m.slug === fallbackSlug);
 
   let title = existingMeta?.title || fallbackSlug;
-  let displayTitle = '';
   let slug = fallbackSlug || existingMeta?.slug || 'article';
   let description = existingMeta?.description || '';
-  let keywords = '';
-  let link = '';
-  let type = '';
-  let jackpotId = '';
   let date = existingMeta?.date || new Date().toISOString().split('T')[0];
-  let datePublished = '';
-  let dateModified = '';
   let authorId = existingMeta?.author || 'john-mwangi';
   let category = existingMeta?.category || 'Analysis';
   let tags: string[] = existingMeta?.tags || [];
   let readTime = existingMeta?.readTime || '5 min read';
   let featured = existingMeta?.featured || false;
   let coverImage = existingMeta?.coverImage || '';
-  let responsibleGambling = '';
-  let unlockHeading = '';
-  let unlockDescription = '';
-  let listTitle = '';
-  let listSubtitle = '';
-  let faqTitle = '';
 
   if (frontmatterBlock) {
     const lines = frontmatterBlock.split('\n');
@@ -165,33 +198,18 @@ export function parseBlogPostMarkdown(raw: string, fallbackSlug: string = ''): B
       const val = line.substring(colonIdx + 1).trim().replace(/^["']|["']$/g, '');
 
       if (key === 'title') title = val;
-      if (key === 'displayTitle' || key === 'pageTitle') displayTitle = val;
       if (key === 'slug') slug = val.toLowerCase();
       if (key === 'description') description = val;
-      if (key === 'keywords') keywords = val;
-      if (key === 'link') link = val;
-      if (key === 'type') type = val;
-      if (key === 'jackpotId' || key === 'jackpot_id') jackpotId = val;
       if (key === 'date') date = val;
-      if (key === 'datePublished' || key === 'publishDate') datePublished = val;
-      if (key === 'dateModified' || key === 'lastModified') dateModified = val;
       if (key === 'author' || key === 'authorId') authorId = val;
       if (key === 'category') category = val;
       if (key === 'readTime') readTime = val;
       if (key === 'featured') featured = val === 'true';
-      if (key === 'coverImage' || key === 'cover' || key === 'image') coverImage = val;
-      if (key === 'responsibleGambling') responsibleGambling = val;
-      if (key === 'unlockHeading') unlockHeading = val;
-      if (key === 'unlockDescription') unlockDescription = val;
-      if (key === 'listTitle') listTitle = val;
-      if (key === 'listSubtitle') listSubtitle = val;
-      if (key === 'faqTitle' || key === 'faqHeading') faqTitle = val;
+      if (key === 'coverImage') coverImage = val;
       if (key === 'tags') {
         const tagMatch = line.match(/tags:\s*\[(.*?)\]/);
         if (tagMatch) {
           tags = tagMatch[1].split(',').map(t => t.trim().replace(/^["']|["']$/g, ''));
-        } else if (val) {
-          tags = val.split(',').map(t => t.trim().replace(/^["']|["']$/g, ''));
         }
       }
     }
@@ -211,15 +229,8 @@ export function parseBlogPostMarkdown(raw: string, fallbackSlug: string = ''): B
   return {
     slug,
     title,
-    displayTitle: displayTitle || undefined,
     description,
-    keywords: keywords || undefined,
-    link: link || undefined,
-    type: type || undefined,
-    jackpotId: jackpotId || undefined,
     date,
-    datePublished: datePublished || undefined,
-    dateModified: dateModified || undefined,
     formattedDate: formatBlogDate(date),
     authorId,
     author,
@@ -228,13 +239,7 @@ export function parseBlogPostMarkdown(raw: string, fallbackSlug: string = ''): B
     readTime,
     featured,
     coverImage: coverImage || undefined,
-    responsibleGambling: responsibleGambling || undefined,
-    unlockHeading: unlockHeading || undefined,
-    unlockDescription: unlockDescription || undefined,
-    listTitle: listTitle || undefined,
-    listSubtitle: listSubtitle || undefined,
-    faqTitle: faqTitle || undefined,
-    content: expandTopFixturesParameters(bodyContent, jackpotId || 'sportpesa-mega'),
+    content: expandTopFixturesParameters(bodyContent),
     raw
   };
 }
@@ -243,8 +248,6 @@ export function parseBlogPostMarkdown(raw: string, fallbackSlug: string = ''): B
  * Returns all blog posts, sorted chronologically (newest first).
  */
 export function getAllBlogPosts(): BlogPost[] {
-  const posts: BlogPost[] = [];
-
   // 1. Try server filesystem if in Node.js
   if (typeof window === 'undefined') {
     try {
@@ -253,6 +256,7 @@ export function getAllBlogPosts(): BlogPost[] {
       const blogDir = path.join(process.cwd(), 'src', 'content', 'blog');
       if (fs.existsSync(blogDir)) {
         const entries = fs.readdirSync(blogDir, { withFileTypes: true });
+        const posts: BlogPost[] = [];
         for (const entry of entries) {
           if (entry.isFile() && entry.name.endsWith('.md')) {
             const slug = entry.name.replace(/\.md$/, '').toLowerCase();
@@ -270,80 +274,42 @@ export function getAllBlogPosts(): BlogPost[] {
             }
           }
         }
+        return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       }
     } catch {
       // Fallback to bundled data
     }
   }
 
-  // 2. Client fallback via RAW_BLOG_MAP and BLOG_METADATA_LIST (if no fs posts found)
-  if (posts.length === 0) {
-    for (const meta of BLOG_METADATA_LIST) {
-      const raw = RAW_BLOG_MAP[meta.slug] || '';
-      if (raw) {
-        posts.push(parseBlogPostMarkdown(raw, meta.slug));
-      } else {
-        posts.push({
-          ...meta,
-          formattedDate: formatBlogDate(meta.date),
-          authorId: meta.author,
-          author: getAuthor(meta.author),
-          content: meta.description,
-          raw: ''
-        });
-      }
+  // 2. Client fallback via RAW_BLOG_MAP and BLOG_METADATA_LIST
+  const posts: BlogPost[] = [];
+  for (const meta of BLOG_METADATA_LIST) {
+    const raw = RAW_BLOG_MAP[meta.slug] || '';
+    if (raw) {
+      posts.push(parseBlogPostMarkdown(raw, meta.slug));
+    } else {
+      posts.push({
+        ...meta,
+        formattedDate: formatBlogDate(meta.date),
+        authorId: meta.author,
+        author: getAuthor(meta.author),
+        content: meta.description,
+        raw: ''
+      });
     }
   }
 
-  // 3. Dynamically discover markdown pages with type: "blog"
-  const existingSlugs = new Set(posts.map(p => p.slug.toLowerCase()));
-  if (PAGE_METADATA_MAP) {
-    for (const [pageKey, meta] of Object.entries(PAGE_METADATA_MAP)) {
-      if (meta.type === 'blog') {
-        const slug = pageKey.toLowerCase();
-        if (!existingSlugs.has(slug)) {
-          existingSlugs.add(slug);
-          let raw = '';
-          if (typeof window === 'undefined') {
-            try {
-              const fs = require('fs');
-              const path = require('path');
-              const pPath = path.join(process.cwd(), 'src', 'content', 'pages', `${pageKey}.md`);
-              if (fs.existsSync(pPath)) {
-                raw = fs.readFileSync(pPath, 'utf-8');
-              }
-            } catch {}
-          }
-          if (!raw && RAW_MARKDOWN_MAP && RAW_MARKDOWN_MAP[pageKey]) {
-            raw = RAW_MARKDOWN_MAP[pageKey];
-          }
-          if (raw) {
-            posts.push(parseBlogPostMarkdown(raw, slug));
-          } else {
-            posts.push({
-              slug,
-              title: meta.displayTitle || meta.title || pageKey,
-              displayTitle: meta.displayTitle,
-              description: meta.description || '',
-              date: meta.date || meta.datePublished || '2026-09-03',
-              formattedDate: formatBlogDate(meta.date || meta.datePublished || '2026-09-03'),
-              authorId: meta.authorId || 'john-mwangi',
-              author: getAuthor(meta.authorId || 'john-mwangi'),
-              category: meta.category || 'Analysis',
-              tags: meta.tags || (meta.keywords ? meta.keywords.split(',').map(s => s.trim()) : []),
-              readTime: meta.readTime || '5 min read',
-              featured: meta.featured || false,
-              coverImage: meta.coverImage || meta.cover,
-              content: meta.description || '',
-              raw: '',
-              keywords: meta.keywords,
-              link: meta.link || `/${slug}`,
-              type: 'blog',
-              responsibleGambling: meta.responsibleGambling,
-              unlockHeading: meta.unlockHeading,
-              unlockDescription: meta.unlockDescription,
-            });
-          }
+  // 3. Include markdown pages configured as blog posts (e.g. from src/content/pages/ with type: 'blog')
+  for (const [pageKey, meta] of Object.entries(PAGE_METADATA_MAP)) {
+    const isBlogPage = meta.type === 'blog' || meta.category?.toLowerCase() === 'blog' || pageKey === 'category-blog';
+    if (isBlogPage) {
+      const cleanSlug = pageKey.replace(/^blog-/, '');
+      if (!posts.some(p => p.slug === cleanSlug)) {
+        try {
+          const pageMd = getMarkdownContent(pageKey);
+          posts.push(convertPageMdToBlogPost(pageKey, pageMd));
+        } catch {
+          // Skip if corrupted
         }
       }
     }
@@ -385,57 +351,17 @@ export function getBlogPostBySlug(slug: string): BlogPost | null {
     };
   }
 
-  // 4. Check if page exists in PAGE_METADATA_MAP with type: 'blog'
-  const pageMeta = PAGE_METADATA_MAP[cleanSlug] || Object.values(PAGE_METADATA_MAP).find(
-    m => m.type === 'blog' && (
-      m.pageKey === cleanSlug || 
-      m.link?.toLowerCase().replace(/^\//, '') === cleanSlug ||
-      m.link?.toLowerCase().replace(/^\/blog\//, '') === cleanSlug
-    )
-  );
-
-  if (pageMeta && (pageMeta.type === 'blog' || cleanSlug.startsWith('blog-'))) {
-    const key = pageMeta.pageKey || cleanSlug;
-    let raw = '';
-    if (typeof window === 'undefined') {
-      try {
-        const fs = require('fs');
-        const path = require('path');
-        const pPath = path.join(process.cwd(), 'src', 'content', 'pages', `${key}.md`);
-        if (fs.existsSync(pPath)) {
-          raw = fs.readFileSync(pPath, 'utf-8');
-        }
-      } catch {}
+  // 4. Check if this is a markdown page with type: 'blog' or category: 'blog' (e.g. from src/content/pages/)
+  const pageCandidateKey = cleanSlug.startsWith('category-') ? cleanSlug : (PAGE_METADATA_MAP[cleanSlug] ? cleanSlug : (PAGE_METADATA_MAP[`category-${cleanSlug}`] ? `category-${cleanSlug}` : cleanSlug));
+  if (hasMarkdownFile(pageCandidateKey) || PAGE_METADATA_MAP[pageCandidateKey]) {
+    try {
+      const pageMd = getMarkdownContent(pageCandidateKey);
+      if (pageMd.type === 'blog' || pageMd.category?.toLowerCase() === 'blog' || pageCandidateKey === 'category-blog') {
+        return convertPageMdToBlogPost(pageCandidateKey, pageMd);
+      }
+    } catch {
+      // Ignore
     }
-    if (!raw && RAW_MARKDOWN_MAP && RAW_MARKDOWN_MAP[key]) {
-      raw = RAW_MARKDOWN_MAP[key];
-    }
-    if (raw) {
-      return parseBlogPostMarkdown(raw, key);
-    }
-    return {
-      slug: key,
-      title: pageMeta.displayTitle || pageMeta.title || key,
-      displayTitle: pageMeta.displayTitle,
-      description: pageMeta.description || '',
-      date: pageMeta.date || pageMeta.datePublished || '2026-09-03',
-      formattedDate: formatBlogDate(pageMeta.date || pageMeta.datePublished || '2026-09-03'),
-      authorId: pageMeta.authorId || 'john-mwangi',
-      author: getAuthor(pageMeta.authorId || 'john-mwangi'),
-      category: pageMeta.category || 'Analysis',
-      tags: pageMeta.tags || (pageMeta.keywords ? pageMeta.keywords.split(',').map(s => s.trim()) : []),
-      readTime: pageMeta.readTime || '5 min read',
-      featured: pageMeta.featured || false,
-      coverImage: pageMeta.coverImage || pageMeta.cover,
-      content: pageMeta.description || '',
-      raw: '',
-      keywords: pageMeta.keywords,
-      link: pageMeta.link || `/${key}`,
-      type: 'blog',
-      responsibleGambling: pageMeta.responsibleGambling,
-      unlockHeading: pageMeta.unlockHeading,
-      unlockDescription: pageMeta.unlockDescription,
-    };
   }
 
   return null;

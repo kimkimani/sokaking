@@ -26,6 +26,7 @@ interface AuthorCardProps {
   badges?: AuthorBadge[];
   lastUpdatedText?: string;
   compact?: boolean;
+  onViewMoreByAuthor?: () => void;
 }
 
 export const AuthorCard: React.FC<AuthorCardProps> = ({
@@ -39,7 +40,8 @@ export const AuthorCard: React.FC<AuthorCardProps> = ({
   reviewerTitle,
   badges: customBadges,
   lastUpdatedText,
-  compact = false
+  compact = false,
+  onViewMoreByAuthor
 }) => {
   // Resolve full author object from author markdown file
   const resolvedAuthor: ParsedAuthor = providedAuthor || getAuthor(authorId || name || 'john-mwangi');
@@ -118,24 +120,36 @@ export const AuthorCard: React.FC<AuthorCardProps> = ({
         )}
 
         <div className="space-y-1.5 min-w-0 flex-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-sm md:text-base font-extrabold text-[var(--text)] tracking-tight font-display m-0">
-              {displayName}
-            </h3>
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-sm md:text-base font-extrabold text-[var(--text)] tracking-tight font-display m-0">
+                {displayName}
+              </h3>
 
-            {/* Dynamic Badges from Markdown */}
-            {displayBadges && displayBadges.map((badge, idx) => {
-              const style = getBadgeStyle(badge.type);
-              return (
-                <span 
-                  key={idx}
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black font-mono uppercase tracking-wider border ${style.bg}`}
-                >
-                  {style.icon}
-                  <span>{badge.text}</span>
-                </span>
-              );
-            })}
+              {/* Dynamic Badges from Markdown */}
+              {displayBadges && displayBadges.map((badge, idx) => {
+                const style = getBadgeStyle(badge.type);
+                return (
+                  <span 
+                    key={idx}
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black font-mono uppercase tracking-wider border ${style.bg}`}
+                  >
+                    {style.icon}
+                    <span>{badge.text}</span>
+                  </span>
+                );
+              })}
+            </div>
+
+            {onViewMoreByAuthor && (
+              <button
+                onClick={onViewMoreByAuthor}
+                className="text-xs font-mono font-bold text-[var(--primary)] hover:underline cursor-pointer bg-transparent border-none p-0 inline-flex items-center gap-1 shrink-0"
+              >
+                <span>More articles by {displayName}</span>
+                <ExternalLink className="w-3 h-3" />
+              </button>
+            )}
           </div>
 
           {displayTitle && (

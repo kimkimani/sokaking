@@ -2,7 +2,10 @@ import { RAW_MARKDOWN_MAP } from './markdownData';
 import { PAGE_METADATA_MAP, PageMetadata } from './pageMetadata';
 import { getAuthor, ParsedAuthor } from './authorLoader';
 import { expandTopFixturesParameters, generateTopConfidenceFixturesMarkdown } from '../utils/topJackpotFixtures';
-import { BlogPost, formatBlogDate } from './blogLoader';
+
+const GLOBBED_PAGES: Record<string, string> = typeof (import.meta as any)?.glob === 'function'
+  ? (import.meta as any).glob('/src/content/pages/*.md', { query: '?raw', import: 'default', eager: true })
+  : {};
 
 export interface ParsedMarkdownPage extends PageMetadata {
   author?: ParsedAuthor;
@@ -125,6 +128,7 @@ export function normalizePageKey(pageKey: string): string {
   if (key === 'terms') key = 'terms-of-use';
   if (key === 'vip' || key === 'vip-tips' || key === 'odds') key = 'vip-packages';
   if (key === 'jackpot-tips') key = 'jackpot-list';
+  if (key === 'blog-category' || key === 'category-blog') key = 'category-blog';
   return key;
 }
 
@@ -134,6 +138,10 @@ export function hasMarkdownFile(pageKey: string): boolean {
   if (key === 'home') return true;
   if (PAGE_METADATA_MAP[key]) return true;
   if (RAW_MARKDOWN_MAP[key]) return true;
+  for (const filePath of Object.keys(GLOBBED_PAGES)) {
+    const fn = filePath.split('/').pop()?.replace(/\.md$/, '').toLowerCase();
+    if (fn === key) return true;
+  }
   if (typeof window === 'undefined') {
     const serverContent = readServerPageFile(key);
     if (serverContent) return true;
@@ -203,30 +211,29 @@ export function parseFrontmatter(rawMd: string): Partial<PageMetadata> {
   const tccY = yamlStr.match(/^topConfidenceCount:\s*(\d+)/m);
   if (tccY) result.topConfidenceCount = parseInt(tccY[1], 10);
 
-  const catY = yamlStr.match(/^(?:category|blogCategory):\s*"?(.*?)"?$/m);
+  const catY = yamlStr.match(/^(?:category|fixturesCategory):\s*"?(.*?)"?$/m);
   if (catY) result.category = catY[1].trim();
 
   const tagsMatch = yamlStr.match(/^tags:\s*\[(.*?)\]/m);
   if (tagsMatch) {
-    result.tags = tagsMatch[1].split(',').map(t => t.trim().replace(/^["']|["']$/g, ''));
-  } else {
-    const tagsStr = yamlStr.match(/^tags:\s*"?(.*?)"?$/m);
-    if (tagsStr && tagsStr[1].trim()) {
-      result.tags = tagsStr[1].split(',').map(t => t.trim().replace(/^["']|["']$/g, ''));
-    }
+    result.tags = tagsMatch[1].split(',').map(t => t.trim().replace(/^["']+|["']+$/g, '')).filter(Boolean);
   }
 
-  const rtY = yamlStr.match(/^(?:readTime|read_time|readingTime):\s*"?(.*?)"?$/m);
+  const rtY = yamlStr.match(/^(?:readTime|read_time):\s*"?(.*?)"?$/m);
   if (rtY) result.readTime = rtY[1].trim();
-
-  const dateValMatch = yamlStr.match(/^(?:date|publishDate|datePublished):\s*"?(.*?)"?$/m);
-  if (dateValMatch) result.date = dateValMatch[1].trim();
 
   const featY = yamlStr.match(/^featured:\s*(true|false)/m);
   if (featY) result.featured = featY[1] === 'true';
 
-  const covY = yamlStr.match(/^(?:coverImage|cover|image):\s*"?(.*?)"?$/m);
+  const covY = yamlStr.match(/^(?:coverImage|cover_image|image):\s*"?(.*?)"?$/m);
   if (covY) result.coverImage = covY[1].trim();
+
+  const dateY = yamlStr.match(/^date:\s*"?(.*?)"?$/m);
+  if (dateY) result.date = dateY[1].trim();
+
+  if (result.category?.toLowerCase() === 'blog' || result.type === 'blog') {
+    result.type = 'blog';
+  }
 
   return result;
 }
@@ -275,6 +282,14 @@ function loadRawMarkdown(pageKey: string): string {
   // 1. Fallback to RAW_MARKDOWN_MAP
   if (RAW_MARKDOWN_MAP[key]) {
     return RAW_MARKDOWN_MAP[key];
+  }
+
+  // 2. Client-side Vite eager glob lookup
+  for (const [filePath, content] of Object.entries(GLOBBED_PAGES)) {
+    const fn = filePath.split('/').pop()?.replace(/\.md$/, '').toLowerCase();
+    if (fn === key) {
+      return content;
+    }
   }
 
   return '# Page Not Found\n\nThis page does not exist or has been removed.';
@@ -486,7 +501,6 @@ export function getDynamicUrlMaps(
   const pageToUrlMap: Record<string, string> = {};
   const dynamicCategoryPages: Record<string, any> = {};
   const dynamicJackpotPages: Record<string, { pageKey: string; jackpotId: string; name: string; link: string; page?: any }> = {};
-  const dynamicBlogPages: Record<string, { pageKey: string; slug: string; title: string; link: string; category?: string; tags?: string[]; readTime?: string; date?: string; featured?: boolean; coverImage?: string }> = {};
 
   // Process ONLY active pages in PAGE_METADATA_MAP
   for (const [pageKey, meta] of Object.entries(PAGE_METADATA_MAP)) {
@@ -516,7 +530,15 @@ export function getDynamicUrlMaps(
       pageKey.includes('sure-') ||
       pageKey.startsWith('category-');
 
-    if (isCompetitorOrCategory && meta.type !== 'jackpot' && meta.type !== 'static' && meta.type !== 'blog' && pageKey !== 'home') {
+    if (
+      isCompetitorOrCategory && 
+      meta.type !== 'jackpot' && 
+      meta.type !== 'static' && 
+      meta.type !== 'blog' && 
+      meta.category?.toLowerCase() !== 'blog' && 
+      pageKey !== 'category-blog' && 
+      pageKey !== 'home'
+    ) {
       dynamicCategoryPages[pageKey] = {
         id: pageKey,
         name: meta.displayTitle || meta.title || pageKey,
@@ -530,29 +552,13 @@ export function getDynamicUrlMaps(
     }
 
     // 2. Dynamic Jackpot Discovery
-    if ((meta.type === 'jackpot' || (meta.jackpotId && meta.type !== 'competitor' && meta.type !== 'category')) && meta.type !== 'blog') {
+    if (meta.type === 'jackpot' || meta.jackpotId) {
       const resolvedJackpotId = meta.jackpotId || pageKey;
       dynamicJackpotPages[pageKey] = {
         pageKey,
         jackpotId: resolvedJackpotId,
         name: meta.displayTitle || meta.title || pageKey,
         link: meta.link || `/${pageKey}`,
-      };
-    }
-
-    // 3. Dynamic Blog Discovery
-    if (meta.type === 'blog') {
-      dynamicBlogPages[pageKey] = {
-        pageKey,
-        slug: pageKey,
-        title: meta.displayTitle || meta.title || pageKey,
-        link: meta.link || `/${pageKey}`,
-        category: meta.category || 'Analysis',
-        tags: meta.tags || [],
-        readTime: meta.readTime || '5 min read',
-        date: meta.date || meta.datePublished || '2026-09-03',
-        featured: meta.featured || false,
-        coverImage: meta.coverImage || meta.cover,
       };
     }
   }
@@ -606,65 +612,8 @@ export function getDynamicUrlMaps(
     pageToUrlMap, 
     dynamicCategoryPages, 
     dynamicJackpotPages,
-    dynamicBlogPages,
     dynamicCategoryIds: Object.keys(dynamicCategoryPages),
-    dynamicJackpotIds: Object.keys(dynamicJackpotPages),
-    dynamicBlogIds: Object.keys(dynamicBlogPages)
-  };
-}
-
-/**
- * Converts a ParsedMarkdownPage (with type: "blog") into a complete BlogPost object.
- */
-export function convertPageMdToBlogPost(pageKey: string, pageMd: ParsedMarkdownPage): BlogPost {
-  const authorId = pageMd.authorId || 'john-mwangi';
-  const author = pageMd.author || getAuthor(authorId);
-  const wordCount = pageMd.fullContent ? pageMd.fullContent.trim().split(/\s+/).length : 0;
-  const autoReadTime = `${Math.max(1, Math.ceil(wordCount / 200))} min read`;
-  const postDate = pageMd.date || (pageMd.datePublished ? pageMd.datePublished.split('T')[0] : '2026-09-03');
-
-  let coverImage = pageMd.coverImage || pageMd.cover;
-  if (coverImage && !coverImage.startsWith('http') && !coverImage.startsWith('/')) {
-    const cleanImg = coverImage.replace(/^\.\//, '');
-    coverImage = `/blog-assets/${pageKey}/${cleanImg}`;
-  }
-
-  const tags = Array.isArray(pageMd.tags) 
-    ? pageMd.tags 
-    : typeof pageMd.tags === 'string' 
-      ? (pageMd.tags as string).split(',').map((t: string) => t.trim())
-      : pageMd.keywords 
-        ? pageMd.keywords.split(',').slice(0, 5).map(k => k.trim())
-        : [];
-
-  return {
-    slug: pageKey,
-    title: pageMd.displayTitle || pageMd.title || pageKey,
-    displayTitle: pageMd.displayTitle,
-    description: pageMd.description || '',
-    date: postDate,
-    datePublished: pageMd.datePublished,
-    dateModified: pageMd.dateModified,
-    formattedDate: formatBlogDate(postDate),
-    authorId,
-    author,
-    category: pageMd.category || 'Football Betting & Tactical Analysis',
-    tags,
-    readTime: pageMd.readTime || autoReadTime,
-    featured: pageMd.featured ?? false,
-    coverImage,
-    content: pageMd.fullContent,
-    raw: pageMd.fullContent,
-    keywords: pageMd.keywords,
-    link: pageMd.link || `/${pageKey}`,
-    type: 'blog',
-    jackpotId: pageMd.jackpotId || 'sportpesa-mega',
-    responsibleGambling: pageMd.responsibleGambling,
-    unlockHeading: pageMd.unlockHeading,
-    unlockDescription: pageMd.unlockDescription,
-    listTitle: pageMd.listTitle,
-    listSubtitle: pageMd.listSubtitle,
-    faqTitle: pageMd.faqTitle,
+    dynamicJackpotIds: Object.keys(dynamicJackpotPages)
   };
 }
 

@@ -41,9 +41,8 @@ interface PageMeta {
   tags?: string[];
   readTime?: string;
   date?: string;
-  coverImage?: string;
-  cover?: string;
   featured?: boolean;
+  coverImage?: string;
 }
 
 function formatEatIso(d: Date): string {
@@ -89,12 +88,12 @@ function parseFrontmatterFromRaw(rawMd: string, keyName: string): PageMeta {
   let datePublished = '';
   let topConfidenceFixtures = false;
   let topConfidenceCount = 5;
-  let blogCategory = '';
-  let parsedTags: string[] = [];
-  let readTimeVal = '';
-  let dateVal = '';
-  let featuredVal = false;
-  let coverVal = '';
+  let category: string | undefined = undefined;
+  let tags: string[] = [];
+  let readTime = '';
+  let date = '';
+  let featured = false;
+  let coverImage = '';
 
   const yamlMatch = rawMd.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
   if (yamlMatch) {
@@ -180,33 +179,29 @@ function parseFrontmatterFromRaw(rawMd: string, keyName: string): PageMeta {
     const tccY = yamlStr.match(/^topConfidenceCount:\s*(\d+)/m);
     if (tccY) topConfidenceCount = parseInt(tccY[1], 10);
 
-    const catY = yamlStr.match(/^(?:category|blogCategory):\s*"?(.*?)"?$/m);
-    if (catY) {
-      blogCategory = catY[1].trim();
-      fixturesCategory = blogCategory;
-    }
+    const catY = yamlStr.match(/^(?:category|fixturesCategory):\s*"?(.*?)"?$/m);
+    if (catY) category = catY[1].trim();
 
     const tagsMatch = yamlStr.match(/^tags:\s*\[(.*?)\]/m);
     if (tagsMatch) {
-      parsedTags = tagsMatch[1].split(',').map(t => t.trim().replace(/^["']|["']$/g, ''));
-    } else {
-      const tagsStr = yamlStr.match(/^tags:\s*"?(.*?)"?$/m);
-      if (tagsStr && tagsStr[1].trim()) {
-        parsedTags = tagsStr[1].split(',').map(t => t.trim().replace(/^["']|["']$/g, ''));
-      }
+      tags = tagsMatch[1].split(',').map(t => t.trim().replace(/^["']+|["']+$/g, '')).filter(Boolean);
     }
 
-    const rtY = yamlStr.match(/^(?:readTime|read_time|readingTime):\s*"?(.*?)"?$/m);
-    if (rtY) readTimeVal = rtY[1].trim();
-
-    const dateValMatch = yamlStr.match(/^(?:date|publishDate|datePublished):\s*"?(.*?)"?$/m);
-    if (dateValMatch) dateVal = dateValMatch[1].trim();
+    const rtY = yamlStr.match(/^(?:readTime|read_time):\s*"?(.*?)"?$/m);
+    if (rtY) readTime = rtY[1].trim();
 
     const featY = yamlStr.match(/^featured:\s*(true|false)/m);
-    if (featY) featuredVal = featY[1] === 'true';
+    if (featY) featured = featY[1] === 'true';
 
-    const covY = yamlStr.match(/^(?:coverImage|cover|image):\s*"?(.*?)"?$/m);
-    if (covY) coverVal = covY[1].trim();
+    const covY = yamlStr.match(/^(?:coverImage|cover_image|image):\s*"?(.*?)"?$/m);
+    if (covY) coverImage = covY[1].trim();
+
+    const dateY = yamlStr.match(/^date:\s*"?(.*?)"?$/m);
+    if (dateY) date = dateY[1].trim();
+
+    if (keyName === 'category-blog' || category?.toLowerCase() === 'blog' || type === 'blog') {
+      type = 'blog';
+    }
   }
 
   // Extract HTML comments fallback
@@ -306,12 +301,12 @@ function parseFrontmatterFromRaw(rawMd: string, keyName: string): PageMeta {
     datePublished: datePublished || undefined,
     topConfidenceFixtures: topConfidenceFixtures || undefined,
     topConfidenceCount: topConfidenceCount || undefined,
-    category: blogCategory || undefined,
-    tags: parsedTags.length > 0 ? parsedTags : undefined,
-    readTime: readTimeVal || undefined,
-    date: dateVal || undefined,
-    coverImage: coverVal || undefined,
-    featured: featuredVal || undefined,
+    category: category || undefined,
+    tags: tags.length > 0 ? tags : undefined,
+    readTime: readTime || undefined,
+    date: date || undefined,
+    featured: featured || undefined,
+    coverImage: coverImage || undefined,
   };
 }
 
@@ -409,9 +404,8 @@ export interface PageMetadata {
   tags?: string[];
   readTime?: string;
   date?: string;
-  coverImage?: string;
-  cover?: string;
   featured?: boolean;
+  coverImage?: string;
 }
 
 export const PAGE_METADATA_MAP: Record<string, PageMetadata> = ${JSON.stringify(metaMap, null, 2)};

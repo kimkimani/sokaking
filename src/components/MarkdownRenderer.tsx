@@ -649,9 +649,7 @@ export default function MarkdownRenderer({
 
   // Expand top jackpot / confidence fixtures parameters using live database fixtures
   const activeFixtures = (fixtures && fixtures.length > 0) ? fixtures : (liveDbFixtures || undefined);
-  const expandedContent = useMemo(() => {
-    return expandTopFixturesParameters(content, jackpotId, activeFixtures);
-  }, [content, jackpotId, activeFixtures]);
+  const expandedContent = expandTopFixturesParameters(content, jackpotId, activeFixtures);
 
   // 1. Clean out raw markdown marker headings and HTML comments
   const cleanContent = expandedContent
