@@ -1,10 +1,10 @@
 ---
-title: "Over 2.5 Goals Predictions and High-Scoring Tips - Soka King"
+title: "King of Over 2.5 predictions - Soka King"
 description: "High-conversion Over 2.5 Goals football predictions. Advanced goal expectancy models identifying high-tempo attacking fixtures."
-keywords: "Over 2.5 predictions, Over 2.5 goals tips today, high scoring matches"
+keywords: "king of over 2.5 prediction, Over 2.5 predictions, Over 2.5 goals tips today, high scoring matches"
 link: "/football-predictions-over-2-5-goals"
 authorId: "john-mwangi"
-displayTitle: "Over 2.5 Goals Football Predictions Today"
+displayTitle: "King of Over 2.5 predictions - Soka King Today"
 responsibleGambling: "Gambling carries financial risk. Play responsibly. Helpline: 0800-720-000."
 unlockHeading: "Unlock High-Scoring Over 2.5 Goals Slips"
 unlockDescription: "Get daily high-tempo match picks with total expected goal lines exceeding 3 goals."
