@@ -1,5 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { expandTopFixturesParameters, fetchLiveJackpotFixtures, fetchLiveMegaJackpotFixtures, getCachedLiveJackpotFixtures, isDoubleChanceTip } from '../utils/topJackpotFixtures';
+import { 
+  expandTopFixturesParameters, 
+  fetchLiveJackpotFixtures, 
+  fetchLiveMegaJackpotFixtures, 
+  getCachedLiveJackpotFixtures, 
+  isDoubleChanceTip 
+} from '../utils/topJackpotFixtures';
+import { 
+  getCachedLiveTodayFixtures, 
+  fetchLiveTodayFixtures 
+} from '../utils/todayFixturesTags';
 import { Fixture } from '../types';
 import { getLinkRel } from '../utils/linkUtils';
 import { Crown, Users, Star, ArrowRight, ExternalLink, ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react';
@@ -806,6 +816,7 @@ export default function MarkdownRenderer({
   if (!content) return null;
 
   const [liveDbFixtures, setLiveDbFixtures] = useState<Fixture[] | null>(() => fixtures || getCachedLiveJackpotFixtures(jackpotId));
+  const [, setLiveTodayFixtures] = useState<Fixture[] | null>(() => getCachedLiveTodayFixtures());
 
   useEffect(() => {
     if (fixtures && fixtures.length > 0) {
@@ -821,6 +832,22 @@ export default function MarkdownRenderer({
       }).catch(() => {});
     }
   }, [fixtures, jackpotId, content]);
+
+  // If content contains TODAY_ tags, ensure live today fixtures are loaded and re-render
+  useEffect(() => {
+    if (/TODAY_/i.test(content)) {
+      const cached = getCachedLiveTodayFixtures();
+      if (cached && cached.length > 0) {
+        setLiveTodayFixtures(cached);
+      } else {
+        fetchLiveTodayFixtures().then(todayData => {
+          if (todayData && todayData.length > 0) {
+            setLiveTodayFixtures(todayData);
+          }
+        }).catch(() => {});
+      }
+    }
+  }, [content]);
 
   // Expand top jackpot / confidence fixtures parameters using live database fixtures
   const activeFixtures = (fixtures && fixtures.length > 0) ? fixtures : (liveDbFixtures || undefined);

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { 
   ArrowLeft, 
   Search, 
@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { Fixture } from '../types';
 import { PredictionCategory, getCategoryCountText } from '../utils/predictionGenerator';
-import { formatTipLabel } from '../utils/todayFixturesTags';
+import { formatTipLabel, setLiveTodayFixturesCache } from '../utils/todayFixturesTags';
 import PredictionsList from './PredictionsList';
 import { jackpotsData } from '../jackpotsData';
 import { vipPackages, oddsPacks } from '../data';
@@ -64,6 +64,13 @@ export default function CategoryPredictionsPage({
   const [searchTerm, setSearchTerm] = useState('');
   const [copied, setCopied] = useState(false);
   const [yesterdayFilter, setYesterdayFilter] = useState<'won' | 'lost' | 'all'>('won');
+
+  // Synchronize today's fixtures cache with current live category data
+  useEffect(() => {
+    if ((category.id === 'category-today' || category.id === 'today') && fixtures && fixtures.length > 0) {
+      setLiveTodayFixturesCache(fixtures);
+    }
+  }, [category.id, fixtures]);
 
   const listJackpots = sortJackpotsByStatusAndTime(jackpots && jackpots.length > 0 ? jackpots : jackpotsData);
 
@@ -479,7 +486,7 @@ export default function CategoryPredictionsPage({
               
               <div className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed">
                 {pageMd.intro ? (
-                  <MarkdownRenderer content={pageMd.intro} jackpotId={pageMd.jackpotId || pageId} />
+                  <MarkdownRenderer content={pageMd.intro} jackpotId={pageMd.jackpotId || pageId} fixtures={fixtures} />
                 ) : (
                   <>{category.description} Powered by Soka King's state-of-the-art sporting index systems, Poisson probability modeling, and real-time team statistics.</>
                 )}
@@ -730,6 +737,7 @@ export default function CategoryPredictionsPage({
           <MarkdownRenderer 
             content={pageMd.meat || pageMd.fullContent} 
             jackpotId={pageMd.jackpotId || pageId} 
+            fixtures={fixtures}
           />
         </div>
       )}

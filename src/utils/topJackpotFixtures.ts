@@ -2,17 +2,23 @@ import { jackpotsData, JackpotConfig } from '../jackpotsData';
 import { Fixture } from '../types';
 import { 
   expandTodayFixturesTags, 
+  expandTodayFixturesTagsAsync,
+  fetchLiveTodayFixtures,
   getTopTwoTodayFixturesText, 
   getTodayLeaguesText, 
   getTodayPredictionsSummaryText, 
+  getTodayPredictionsCountText,
   getTodayTags 
 } from './todayFixturesTags';
 
 export {
   expandTodayFixturesTags,
+  expandTodayFixturesTagsAsync,
+  fetchLiveTodayFixtures,
   getTopTwoTodayFixturesText,
   getTodayLeaguesText,
   getTodayPredictionsSummaryText,
+  getTodayPredictionsCountText,
   getTodayTags
 };
 
@@ -1691,7 +1697,8 @@ export function expandTopFixturesParameters(
 ): string {
   if (!content) return content;
 
-  let expanded = expandTodayFixturesTags(content, customFixtures);
+  // Expand today's category fixture tags dynamically
+  let expanded = expandTodayFixturesTags(content);
 
   // Regular expression capturing tag components:
   // Group 1: Prefix (or undefined for generic)
@@ -1916,13 +1923,19 @@ export function expandTopFixturesParameters(
 }
 
 /**
- * Asynchronously expands markdown by fetching current fixtures directly from the live database for any specified jackpot.
+ * Asynchronously expands markdown by fetching current fixtures directly from the live database for any specified jackpot and today fixtures.
  */
 export async function expandTopFixturesParametersAsync(
   content: string,
   defaultJackpotId: string = 'sportpesa-mega'
 ): Promise<string> {
   const resolved = resolveJackpotId(defaultJackpotId, 'sportpesa-mega');
-  const liveFixtures = await fetchLiveJackpotFixtures(resolved);
+  
+  const tasks: Promise<any>[] = [fetchLiveJackpotFixtures(resolved)];
+  if (/TODAY_/i.test(content)) {
+    tasks.push(fetchLiveTodayFixtures());
+  }
+
+  const [liveFixtures] = await Promise.all(tasks);
   return expandTopFixturesParameters(content, resolved, liveFixtures);
 }

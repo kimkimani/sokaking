@@ -2,6 +2,7 @@ import { getMarkdownContent, buildCanonicalUrl } from '../content/markdownLoader
 import { getPageIdFromUrl, getPageUrl } from './navigation.js';
 import { generatePageJsonLd } from './schemaGenerator.js';
 import { getBlogPostBySlug } from '../content/blogLoader.js';
+import { expandTopFixturesParameters } from './topJackpotFixtures.js';
 
 function escapeHtml(str: string): string {
   return str
@@ -94,6 +95,14 @@ export function injectSeoAndStructuredData(rawHtml: string, requestUrl: string):
       crawlerTitle = pageMd.displayTitle || pageMd.title;
       crawlerDesc = pageMd.description;
       crawlerBody = pageMd.intro || pageMd.meat || (pageMd.fullContent ? pageMd.fullContent.slice(0, 1500) : '');
+    }
+
+    title = expandTopFixturesParameters(title);
+    description = expandTopFixturesParameters(description);
+    crawlerTitle = expandTopFixturesParameters(crawlerTitle);
+    crawlerDesc = expandTopFixturesParameters(crawlerDesc);
+    if (crawlerBody) {
+      crawlerBody = expandTopFixturesParameters(crawlerBody);
     }
 
     let html = rawHtml;

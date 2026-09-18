@@ -37,6 +37,7 @@ import { apiFetch } from './utils/api.ts';
 import { getApiBaseUrl } from './lib/getApiBaseUrl';
 import { fetchExternalLinks } from './lib/dataStore';
 import { PredictionCategory, getCategoryCountText, PREDICTION_CATEGORIES, getCategoryFixtures, isSameDay } from './utils/predictionGenerator';
+import { setLiveTodayFixturesCache } from './utils/todayFixturesTags';
 
 // Import essential initial UI components
 import Sidebar from './components/Sidebar';
@@ -387,6 +388,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
       const yesterdayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientYesterday));
       const todayPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientToday));
       const tomorrowPreds = predictionsList.filter((f: any) => isSameDay(f.kickoffTime, clientTomorrow));
+
+      if (todayPreds.length > 0) {
+        setLiveTodayFixturesCache(todayPreds);
+      }
 
       setDbPredictions(prev => ({
         ...prev,

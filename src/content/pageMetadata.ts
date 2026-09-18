@@ -371,9 +371,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Receive today's mathematically validated multi-bets directly on screen and via instant SMS.",
     "listTitle": "Today's Free Sonko Tips Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-18T15:25:57+03:00",
+    "dateModified": "2026-09-18T15:33:36+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-18T12:25:57.146Z"
+    "mtime": "2026-09-18T12:33:36.027Z"
   },
   "category-tomorrow": {
     "pageKey": "category-tomorrow",
