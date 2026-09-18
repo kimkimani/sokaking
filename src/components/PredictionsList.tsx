@@ -19,12 +19,14 @@ import VotePoll from './VotePoll';
 import VoteNudgeSnippet from './VoteNudgeSnippet';
 import { FlagImage } from '../utils/flagUtils';
 import { formatTime } from '../utils/timeUtils';
+import { classifyPredictionCategory, formatTipLabel } from '../utils/todayFixturesTags';
 
 interface PredictionsListProps {
   fixtures: Fixture[];
   title: string;
   subtitle: string;
   isLoading?: boolean;
+  showTodayTags?: boolean;
 }
 
 export function MinimalShimmerLoader({ count = 5 }: { count?: number }) {
@@ -74,7 +76,8 @@ export default function PredictionsList({
   fixtures,
   title,
   subtitle,
-  isLoading = false
+  isLoading = false,
+  showTodayTags
 }: PredictionsListProps) {
   const [expandedFixture, setExpandedFixture] = useState<number | null>(null);
   const [dateFilter, setDateFilter] = useState<'all' | 'yesterday' | 'today' | 'tomorrow'>('all');
@@ -286,7 +289,14 @@ export default function PredictionsList({
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-1.5 text-[9px] text-[var(--text-muted)] font-bold uppercase font-mono tracking-wider leading-none">
                         <FlagImage countryFlag={fixture.countryFlag || (fixture as any).country_flag} flag={fixture.leagueFlag} countryName={fixture.countryName || fixture.leagueCountry || (fixture as any).country_name} />
-                        <span className="truncate">{fixture.leagueName || (fixture as any).league_name}</span>
+                        <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-700 truncate font-semibold">
+                          {fixture.leagueName || (fixture as any).league_name}
+                        </span>
+                        {classifyPredictionCategory(fixture.prediction) && (
+                          <span className="px-1.5 py-0.5 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 rounded text-[7.5px] font-mono uppercase font-bold shrink-0">
+                            {classifyPredictionCategory(fixture.prediction)}
+                          </span>
+                        )}
                         {(fixture.countryName || fixture.leagueCountry || (fixture as any).country_name) && (
                           <>
                             <span>•</span>
@@ -318,7 +328,7 @@ export default function PredictionsList({
                           : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-750 line-through opacity-70'
                         : 'bg-sky-50 dark:bg-sky-950/30 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-800/60'
                     }`}>
-                      <span className="font-bold tracking-tight">{fixture.prediction}</span>
+                      <span className="font-bold tracking-tight">{formatTipLabel(fixture.prediction)}</span>
                       {(isWon || (isCompleted && fixture.result === 'won')) && (
                         <span className="inline-flex items-center justify-center bg-emerald-500 text-white font-black rounded-full w-3.5 h-3.5 text-[9px] ml-0.5 shadow-2xs">✓</span>
                       )}
@@ -372,10 +382,10 @@ export default function PredictionsList({
                   
                   {/* Top line: Country Flag, League, Time, Status and Outcome */}
                   <div className="flex items-center justify-between gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-1.5">
-                    <div className="flex items-center gap-1.5 min-w-0">
+                    <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
                       <FlagImage countryFlag={fixture.countryFlag || (fixture as any).country_flag} flag={fixture.leagueFlag} countryName={fixture.countryName || fixture.leagueCountry || (fixture as any).country_name} />
-                      <span className="font-mono text-[9.5px] font-black text-slate-750 dark:text-slate-200 uppercase tracking-wider truncate">
-                        {(fixture.countryName || fixture.leagueCountry || (fixture as any).country_name) ? `${fixture.countryName || fixture.leagueCountry || (fixture as any).country_name} • ` : ''}{fixture.leagueName || (fixture as any).league_name}
+                      <span className="font-mono text-[9px] font-bold text-slate-750 dark:text-slate-200 uppercase tracking-wider truncate px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                        {fixture.leagueName || (fixture as any).league_name}
                       </span>
                     </div>
 
@@ -458,7 +468,7 @@ export default function PredictionsList({
                   <div className="pt-0.5">
                     <VoteNudgeSnippet 
                       fixtureId={fixture.id} 
-                      prediction={fixture.prediction} 
+                      prediction={formatTipLabel(fixture.prediction)} 
                       homeTeam={fixture.homeTeam}
                       awayTeam={fixture.awayTeam}
                       status={fixture.status} 
@@ -482,11 +492,16 @@ export default function PredictionsList({
                           ? 'bg-slate-200/60 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 border-slate-300/60 dark:border-slate-700'
                           : 'bg-indigo-600/10 dark:bg-indigo-500/20 text-indigo-950 dark:text-indigo-100 border-indigo-500/30'
                       }`}>
-                        <span className="font-bold tracking-tight">{fixture.prediction}</span>
+                        <span className="font-bold tracking-tight">{formatTipLabel(fixture.prediction)}</span>
                         {(isWon || (isCompleted && fixture.result === 'won')) && (
                           <span className="inline-flex items-center justify-center bg-emerald-600 text-white font-black rounded-full w-3.5 h-3.5 text-[8px] ml-0.5 shrink-0">✓</span>
                         )}
                       </span>
+                      {classifyPredictionCategory(fixture.prediction) && (
+                        <span className="px-1.5 py-0.5 bg-indigo-500/10 text-indigo-800 dark:text-indigo-200 border border-indigo-500/20 rounded text-[8px] font-mono uppercase font-bold shrink-0">
+                          {classifyPredictionCategory(fixture.prediction)}
+                        </span>
+                      )}
                     </div>
 
                     <button 
@@ -551,7 +566,7 @@ export default function PredictionsList({
                             isEnded={isCompleted} 
                             status={fixture.status} 
                             result={fixture.result} 
-                            prediction={fixture.prediction}
+                            prediction={formatTipLabel(fixture.prediction)}
                           />
                         </div>
                       </div>

@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { Fixture } from '../types';
 import { PredictionCategory, getCategoryCountText } from '../utils/predictionGenerator';
+import { formatTipLabel } from '../utils/todayFixturesTags';
 import PredictionsList from './PredictionsList';
 import { jackpotsData } from '../jackpotsData';
 import { vipPackages, oddsPacks } from '../data';
@@ -119,7 +120,7 @@ export default function CategoryPredictionsPage({
     if (filteredFixtures.length === 0) return;
     
     const textToCopy = filteredFixtures.map((fixture, idx) => 
-      `${idx + 1}. ${fixture.homeTeam} vs ${fixture.awayTeam} - Tip: ${fixture.prediction}`
+      `${idx + 1}. ${fixture.homeTeam} vs ${fixture.awayTeam} - Tip: ${formatTipLabel(fixture.prediction)}`
     ).join('\n');
 
     navigator.clipboard.writeText(textToCopy);

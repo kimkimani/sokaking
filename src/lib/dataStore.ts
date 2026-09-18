@@ -57,11 +57,11 @@ export function calculateFixtureResult(
 
     const tipLower = tip.toLowerCase();
 
-    if (tipLower.includes('over 2.5') || tipLower.includes('ov 2.5') || tipLower.includes('over25') || tipLower.includes('o2.5') || tipLower.includes('ov 25')) {
+    if (tipLower.includes('over 2.5') || tipLower.includes('ov 2.5') || tipLower.includes('over25') || tipLower.includes('o2.5') || tipLower.includes('ov 25') || tipLower.includes('3+')) {
       result = totalGoals > 2 ? 'won' : 'lost';
     } else if (tipLower.includes('under 2.5') || tipLower.includes('un 2.5') || tipLower.includes('un25') || tipLower.includes('u2.5')) {
       result = totalGoals < 3 ? 'won' : 'lost';
-    } else if (tipLower.includes('over 1.5') || tipLower.includes('ov 1.5') || tipLower.includes('over15') || tipLower.includes('o1.5') || tipLower.includes('ov 15')) {
+    } else if (tipLower.includes('over 1.5') || tipLower.includes('ov 1.5') || tipLower.includes('over15') || tipLower.includes('o1.5') || tipLower.includes('ov 15') || tipLower.includes('2+')) {
       result = totalGoals > 1 ? 'won' : 'lost';
     } else if (tipLower.includes('under 1.5') || tipLower.includes('un 1.5') || tipLower.includes('un15') || tipLower.includes('u1.5')) {
       result = totalGoals < 2 ? 'won' : 'lost';
@@ -86,8 +86,39 @@ export function calculateFixtureResult(
     }
   }
 
+  // Format prediction label for over 2.5 and over 1.5 to 3+ Goals and 2+ Goals
+  let formattedTip = tip;
+  const p = tip.toLowerCase().trim();
+  if (
+    p.includes('over 2.5') || 
+    p.includes('ov 2.5') || 
+    p.includes('o2.5') || 
+    p.includes('over25') || 
+    p.includes('ov 25') || 
+    p.includes('> 2.5') || 
+    p.includes('>2.5') ||
+    p === '2.5 goals' ||
+    p === '3+ goals' ||
+    p === '3+'
+  ) {
+    formattedTip = '3+ Goals';
+  } else if (
+    p.includes('over 1.5') || 
+    p.includes('ov 1.5') || 
+    p.includes('o1.5') || 
+    p.includes('over15') || 
+    p.includes('ov 15') || 
+    p.includes('> 1.5') || 
+    p.includes('>1.5') ||
+    p === '1.5 goals' ||
+    p === '2+ goals' ||
+    p === '2+'
+  ) {
+    formattedTip = '2+ Goals';
+  }
+
   return {
-    prediction: tip,
+    prediction: formattedTip,
     confidence,
     result,
   };

@@ -179,6 +179,15 @@ export function parseFrontmatter(rawMd: string): Partial<PageMetadata> {
   const aidY = yamlStr.match(/^(?:authorId|author_id|author):\s*"?(.*?)"?$/m);
   if (aidY) result.authorId = aidY[1].trim();
 
+  const anY = yamlStr.match(/^(?:authorName|author_name):\s*"?(.*?)"?$/m);
+  if (anY) result.authorName = anY[1].trim();
+
+  const atY = yamlStr.match(/^(?:authorTitle|author_title|authorRole|author_role):\s*"?(.*?)"?$/m);
+  if (atY) result.authorTitle = atY[1].trim();
+
+  const adY = yamlStr.match(/^(?:authorDescription|author_description|authorBio|author_bio):\s*"?(.*?)"?$/m);
+  if (adY) result.authorDescription = adY[1].trim();
+
   const uhY = yamlStr.match(/^(?:unlockHeading|unlock_heading):\s*"?(.*?)"?$/m);
   if (uhY) result.unlockHeading = uhY[1].trim();
 
@@ -194,8 +203,7 @@ export function parseFrontmatter(rawMd: string): Partial<PageMetadata> {
   const ftY = yamlStr.match(/^(?:faqTitle|faqHeading|faq_title):\s*"?(.*?)"?$/m);
   if (ftY) result.faqTitle = ftY[1].trim();
 
-  const dmY = yamlStr.match(/^(?:dateModified|date_modified|modifiedDate|modified_date|lastModified|last_modified|updatedAt|updated_at):\s*"?(.*?)"?$/m);
-  if (dmY) result.dateModified = dmY[1].trim();
+  // Note: dateModified is strictly derived from physical file content change detection (mtime), never from frontmatter
 
   const dpY = yamlStr.match(/^(?:datePublished|date_published|publishedDate|published_date|date):\s*"?(.*?)"?$/m);
   if (dpY) result.datePublished = dpY[1].trim();
@@ -241,15 +249,13 @@ export function getPageMetadata(pageKey: string): PageMetadata {
     const fileMtime = getServerFileMtime(normKey);
     if (fileMtime) {
       base.mtime = fileMtime.toISOString();
-      if (!base.dateModified) {
-        base.dateModified = fileMtime.toISOString();
-      }
+      base.dateModified = fileMtime.toISOString();
     }
 
     const raw = readServerPageFile(normKey);
     if (raw) {
       const liveFront = parseFrontmatter(raw);
-      base = { ...base, ...liveFront, pageKey: normKey };
+      base = { ...base, ...liveFront, pageKey: normKey, dateModified: base.dateModified || base.mtime };
     }
   }
 
@@ -402,7 +408,8 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
     if (!meat && !middle && firstContent) meat = firstContent;
   }
 
-  const resolvedAuthor = getAuthor(meta.authorId || meta.authorName || 'john-mwangi');
+  const authorIdOrName = meta.authorId || meta.authorName;
+  const resolvedAuthor = authorIdOrName ? getAuthor(authorIdOrName) : undefined;
 
   let fileMtime: string | undefined = meta.mtime;
   if (!fileMtime && typeof window === 'undefined') {
@@ -421,7 +428,7 @@ export function parseMarkdownPage(rawMd: string, keyName: string = ''): ParsedMa
     faqTitle: faqTitle || undefined,
     fullContent: cleanedContent,
     mtime: fileMtime,
-    dateModified: meta.dateModified || fileMtime,
+    dateModified: fileMtime || meta.mtime || meta.dateModified,
     datePublished: meta.datePublished || '2026-08-17T06:00:00+03:00',
   };
 }
@@ -446,9 +453,7 @@ export async function fetchLiveMarkdownContent(pageKey: string): Promise<ParsedM
           const parsed = parseMarkdownPage(rawMd, pageKey);
           if (mtimeHeader) {
             parsed.mtime = mtimeHeader;
-            if (!parsed.dateModified) {
-              parsed.dateModified = mtimeHeader;
-            }
+            parsed.dateModified = mtimeHeader;
           }
           return parsed;
         }

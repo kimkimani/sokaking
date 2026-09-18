@@ -1,5 +1,20 @@
 import { jackpotsData, JackpotConfig } from '../jackpotsData';
 import { Fixture } from '../types';
+import { 
+  expandTodayFixturesTags, 
+  getTopTwoTodayFixturesText, 
+  getTodayLeaguesText, 
+  getTodayPredictionsSummaryText, 
+  getTodayTags 
+} from './todayFixturesTags';
+
+export {
+  expandTodayFixturesTags,
+  getTopTwoTodayFixturesText,
+  getTodayLeaguesText,
+  getTodayPredictionsSummaryText,
+  getTodayTags
+};
 
 export interface FormattedConfidenceFixture {
   fixture: Fixture;
@@ -1676,7 +1691,7 @@ export function expandTopFixturesParameters(
 ): string {
   if (!content) return content;
 
-  let expanded = content;
+  let expanded = expandTodayFixturesTags(content, customFixtures);
 
   // Regular expression capturing tag components:
   // Group 1: Prefix (or undefined for generic)

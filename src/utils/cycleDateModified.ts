@@ -206,12 +206,14 @@ export function getPageDateModified(
   const now = options?.referenceDate || new Date();
   const candidates: number[] = [];
 
-  // Minimum safe anchor: 2026-08-17T06:00:00+03:00
+  // Minimum safe anchor: 2026-08-17T06:00:00+03:00 or page's datePublished (dateModified must be >= datePublished)
   const siteAnchor = new Date('2026-08-17T06:00:00+03:00').getTime();
+  const pubDateMs = pageMd?.datePublished ? new Date(pageMd.datePublished).getTime() : 0;
+  const effectiveAnchor = (!isNaN(pubDateMs) && pubDateMs > 0) ? Math.max(siteAnchor, pubDateMs) : siteAnchor;
   const nowMs = now.getTime();
 
-  // 1. Explicit option or frontmatter date override
-  const explicit = options?.dateModified || pageMd?.dateModified || pageMd?.lastModified || pageMd?.updatedAt;
+  // 1. Explicit option passed directly by caller (NEVER from markdown file frontmatter)
+  const explicit = options?.dateModified;
   if (explicit && typeof explicit === 'string') {
     const parsed = new Date(explicit).getTime();
     if (!isNaN(parsed) && parsed > 0 && parsed <= nowMs) {
@@ -220,6 +222,7 @@ export function getPageDateModified(
   }
 
   // 2. Physical page file modification time on disk (Server / Node.js environment)
+  // Detects changes on the actual file content on disk
   if (typeof window === 'undefined') {
     try {
       const fs = require('fs');
@@ -227,19 +230,34 @@ export function getPageDateModified(
       const cleanKey = (pageId || '').toLowerCase().trim().replace(/^\//, '').replace(/\.md$/, '');
       if (cleanKey) {
         const pagesDir = path.join(process.cwd(), 'src', 'content', 'pages');
+        const blogDir = path.join(process.cwd(), 'src', 'content', 'blog');
         let filePath = path.join(pagesDir, `${cleanKey}.md`);
+
         if (!fs.existsSync(filePath) && fs.existsSync(pagesDir)) {
           const files = fs.readdirSync(pagesDir);
           const match = files.find((f: string) => f.toLowerCase() === `${cleanKey}.md` || f.toLowerCase() === cleanKey);
           if (match) filePath = path.join(pagesDir, match);
         }
 
+        // Also check src/content/blog directory
+        if (!fs.existsSync(filePath) && fs.existsSync(blogDir)) {
+          const blogSlug = cleanKey.replace(/^blog-/, '');
+          const directBlog = path.join(blogDir, `${blogSlug}.md`);
+          if (fs.existsSync(directBlog)) {
+            filePath = directBlog;
+          } else {
+            const blogFiles = fs.readdirSync(blogDir);
+            const bMatch = blogFiles.find((f: string) => f.toLowerCase() === `${blogSlug}.md` || f.toLowerCase() === blogSlug);
+            if (bMatch) filePath = path.join(blogDir, bMatch);
+          }
+        }
+
         if (fs.existsSync(filePath)) {
           const stat = fs.statSync(filePath);
           if (stat && stat.mtime) {
             const mtimeMs = stat.mtime.getTime();
-            if (mtimeMs <= nowMs && mtimeMs >= siteAnchor) {
-              candidates.push(mtimeMs);
+            if (mtimeMs <= nowMs) {
+              candidates.push(Math.max(mtimeMs, effectiveAnchor));
             }
           }
         }
@@ -249,11 +267,11 @@ export function getPageDateModified(
     }
   }
 
-  // 3. Client-side mtime passed via pageMd
+  // 3. Client-side mtime passed via pageMd (from build-time sync or live fetch header)
   if (pageMd?.mtime) {
     const parsedMtime = new Date(pageMd.mtime).getTime();
-    if (!isNaN(parsedMtime) && parsedMtime <= nowMs && parsedMtime >= siteAnchor) {
-      candidates.push(parsedMtime);
+    if (!isNaN(parsedMtime) && parsedMtime <= nowMs) {
+      candidates.push(Math.max(parsedMtime, effectiveAnchor));
     }
   }
 

@@ -42,17 +42,17 @@ export const AuthorCard: React.FC<AuthorCardProps> = ({
   compact = false
 }) => {
   // Resolve full author object from author markdown file
-  const resolvedAuthor: ParsedAuthor = providedAuthor || getAuthor(authorId || name || 'john-mwangi');
+  const resolvedAuthor: ParsedAuthor | undefined = providedAuthor || (authorId || name ? getAuthor(authorId || name) : undefined);
 
-  const displayName = name || resolvedAuthor.name;
+  const displayName = name || resolvedAuthor?.name;
   if (!displayName) return null;
 
-  const displayTitle = title || resolvedAuthor.role;
-  const displayDescription = description || resolvedAuthor.shortBio;
-  const displayAvatar = avatar || resolvedAuthor.avatar;
-  const displayReviewerName = reviewerName || resolvedAuthor.reviewerName || "David Ochieng";
-  const displayReviewerTitle = reviewerTitle || resolvedAuthor.reviewerTitle || "Senior Tactical and Statistical Verifier";
-  const displayBadges = customBadges && customBadges.length > 0 ? customBadges : resolvedAuthor.badges;
+  const displayTitle = title || resolvedAuthor?.role;
+  const displayDescription = description || resolvedAuthor?.shortBio;
+  const displayAvatar = avatar || resolvedAuthor?.avatar;
+  const displayReviewerName = reviewerName || resolvedAuthor?.reviewerName;
+  const displayReviewerTitle = reviewerTitle || resolvedAuthor?.reviewerTitle;
+  const displayBadges = customBadges && customBadges.length > 0 ? customBadges : (resolvedAuthor?.badges || []);
 
   const getBadgeStyle = (type?: string) => {
     switch (type) {
@@ -117,9 +117,9 @@ export const AuthorCard: React.FC<AuthorCardProps> = ({
           </div>
         )}
 
-        <div className="space-y-1.5 min-w-0 flex-1">
+        <div className="space-y-2 min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-sm md:text-base font-extrabold text-[var(--text)] tracking-tight font-display m-0">
+            <h3 className="text-base md:text-lg font-black text-[var(--text)] tracking-tight font-display m-0">
               {displayName}
             </h3>
 
@@ -129,7 +129,7 @@ export const AuthorCard: React.FC<AuthorCardProps> = ({
               return (
                 <span 
                   key={idx}
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black font-mono uppercase tracking-wider border ${style.bg}`}
+                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black font-mono uppercase tracking-wider border ${style.bg}`}
                 >
                   {style.icon}
                   <span>{badge.text}</span>
@@ -139,49 +139,74 @@ export const AuthorCard: React.FC<AuthorCardProps> = ({
           </div>
 
           {displayTitle && (
-            <p className="text-[11px] font-mono font-bold text-[var(--primary)] uppercase tracking-wide">
+            <p className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide m-0">
               {displayTitle}
             </p>
           )}
 
-          {resolvedAuthor.credentials && (
-            <p className="text-[10px] text-[var(--text-muted)] font-medium flex items-center gap-1">
-              <GraduationCap className="w-3 h-3 text-indigo-500 shrink-0" />
+          {resolvedAuthor?.credentials && (
+            <p className="text-[11px] text-[var(--text-muted)] font-medium flex items-center gap-1.5 m-0 pt-0.5">
+              <GraduationCap className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
               <span>{resolvedAuthor.credentials}</span>
             </p>
           )}
 
+          {resolvedAuthor?.specialization && (
+            <p className="text-[11px] text-[var(--text-muted)] font-mono flex items-center gap-1.5 m-0">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              <span><strong className="text-[var(--text)] font-semibold">Specialization:</strong> {resolvedAuthor.specialization}</span>
+            </p>
+          )}
+
           {displayDescription && (
-            <p className="text-xs text-[var(--text-muted)] leading-relaxed pt-0.5">
+            <p className="text-xs sm:text-sm text-[var(--text-muted)] leading-relaxed pt-1 m-0">
               {displayDescription}
             </p>
+          )}
+
+          {resolvedAuthor?.knowsAbout && resolvedAuthor.knowsAbout.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
+              <span className="text-[10px] font-mono font-bold uppercase text-[var(--text-muted)] mr-1">
+                Focus:
+              </span>
+              {resolvedAuthor.knowsAbout.map((item, idx) => (
+                <span
+                  key={idx}
+                  className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-[10px] font-mono text-[var(--text)] font-semibold"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
           )}
         </div>
       </div>
 
-      {/* E-E-A-T Reviewer and Transparency Bar */}
-      <div className="pt-3 border-t border-[var(--border)]/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[11px] text-[var(--text-muted)]">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-          <span className="font-semibold text-[var(--text)]">Fact-Checked and Reviewed by:</span>
-          <span className="text-[var(--primary)] font-bold">{displayReviewerName}</span>
-          <span className="text-[10px] text-[var(--text-muted)] hidden md:inline">({displayReviewerTitle})</span>
-        </div>
+      {/* E-E-A-T Reviewer and Transparency Bar - only shown if reviewer is defined */}
+      {(displayReviewerName || lastUpdatedText) && (
+        <div className="pt-3.5 border-t border-[var(--border)]/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[var(--text-muted)]">
+          {displayReviewerName && (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+              <span className="font-semibold text-[var(--text)]">Fact-Checked & Verified by:</span>
+              <span className="text-emerald-700 dark:text-emerald-300 font-bold">{displayReviewerName}</span>
+              {displayReviewerTitle && (
+                <span className="text-[11px] text-[var(--text-muted)]">({displayReviewerTitle})</span>
+              )}
+            </div>
+          )}
 
-        <div className="flex items-center gap-3 font-mono text-[10px] text-[var(--text-muted)]">
-          <span className="inline-flex items-center gap-1">
-            <Scale className="w-3 h-3 text-amber-500" />
-            <span>Poisson Distribution and xG Verified</span>
-          </span>
-          <a 
-            href="/about-us#editorial-policy" 
-            className="inline-flex items-center gap-1 text-[var(--primary)] hover:underline font-bold"
-          >
-            <FileText className="w-3 h-3" />
-            <span>Editorial Standards</span>
-          </a>
+          <div className="flex items-center gap-3 font-mono text-[11px] text-[var(--text-muted)]">
+            <a 
+              href="/about-us#editorial-policy" 
+              className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:underline font-bold"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>Editorial Standards</span>
+            </a>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

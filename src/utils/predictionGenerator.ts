@@ -40,8 +40,8 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
   },
   {
     id: 'category-over15',
-    name: "Over 1.5 Goals Tips",
-    label: "Over 1.5 Goals",
+    name: "2+ Goals (Over 1.5) Tips",
+    label: "2+ Goals",
     countText: "48 Tips",
     description: "Highly stable selections where 2 or more goals are highly predicted based on offensive/defensive coefficients.",
     icon: "⚽",
@@ -67,8 +67,8 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
   },
   {
     id: 'category-over25',
-    name: "Over 2.5 Goals Tips",
-    label: "Over 2.5 Goals",
+    name: "3+ Goals (Over 2.5) Tips",
+    label: "3+ Goals",
     countText: "30 Tips",
     description: "High-scoring matches featuring open play tactics, defensive injuries, and strong conversion indices.",
     icon: "🎯",
@@ -193,6 +193,9 @@ export function matchPredictionCategory(prediction: string, categoryId: string):
       p.includes('o2.5') ||
       p.includes('o 2.5') ||
       p.includes('2.5 goals') ||
+      p.includes('3+ goals') ||
+      p.includes('3+goals') ||
+      p.includes('3+') ||
       p === 'over 2.5' ||
       p === 'o25'
     );
@@ -207,6 +210,9 @@ export function matchPredictionCategory(prediction: string, categoryId: string):
       p.includes('o1.5') ||
       p.includes('o 1.5') ||
       p.includes('1.5 goals') ||
+      p.includes('2+ goals') ||
+      p.includes('2+goals') ||
+      p.includes('2+') ||
       p === 'over 1.5' ||
       p === 'o15'
     );
@@ -279,10 +285,10 @@ export function generateUnifiedPredictionsPool(): Fixture[] {
 
       // Varied prediction strings including DB shortcodes
       const predictionsList = [
-        'Over 2.5 Goals',
-        'ov 2.5',
-        'Over 1.5 Goals',
-        'ov 1.5',
+        '3+ Goals',
+        '3+ Goals',
+        '2+ Goals',
+        '2+ Goals',
         'Both Teams to Score (GG)',
         'BTTS',
         'GG',
@@ -292,9 +298,7 @@ export function generateUnifiedPredictionsPool(): Fixture[] {
         'Home Win (1)',
         'Draw (X)',
         'Away Win (2)',
-        '1',
-        'over25',
-        'o1.5'
+        '1'
       ];
 
       const currentPred = predictionsList[(i + Math.abs(dayOffset)) % predictionsList.length];

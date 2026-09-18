@@ -35,19 +35,18 @@ export const DEFAULT_AUTHOR: ParsedAuthor = {
   name: 'John K. Mwangi',
   role: 'Lead Football Analyst and Poisson Model Expert',
   avatar: '',
-  experience: '10+ Years',
+  experience: '7 Years',
   credentials: 'B.Sc. Actuarial Science and Applied Statistics (University of Nairobi)',
   specialization: 'Bivariate Poisson Distribution, xG Calibration and Jackpot Permutations',
   reviewerName: 'David Ochieng',
   reviewerTitle: 'Senior Tactical and Statistical Verifier',
   badges: [
     { text: 'Verified Sports Analyst', type: 'verified' },
-    { text: 'Poisson and xG Modeler', type: 'modeler' },
-    { text: '10+ Yrs Experience', type: 'experience' }
+    { text: '7 Yrs Experience', type: 'experience' }
   ],
   social: {
-    twitter: 'https://x.com/sokapredictions',
-    email: 'john.mwangi@sokapredictions.co.ke'
+    twitter: 'https://x.com/sokaking',
+    email: 'john.mwangi@sokaking.com'
   },
   knowsAbout: [
     'Bivariate Poisson Goal Distribution',
@@ -55,7 +54,7 @@ export const DEFAULT_AUTHOR: ParsedAuthor = {
     'Jackpot Permutation and Cover Strategy',
     'Kenyan and European Football Tactics'
   ],
-  shortBio: '10+ years experience in statistical sports modeling and actuarial probability. Leads Poisson goal distribution algorithms and mathematical jackpot line optimization at Soka King.',
+  shortBio: '7 years experience in statistical sports modeling and actuarial probability and leads such at Soka King.',
   fullContent: ''
 };
 
@@ -182,33 +181,23 @@ export function parseAuthorMarkdown(raw: string, fallbackId: string = 'author'):
   } else if (fm.badges && typeof fm.badges === 'string') {
     parsedBadges = [{ text: fm.badges, type: 'verified' }];
   } else {
-    parsedBadges = [
-      { text: 'Verified Sports Analyst', type: 'verified' },
-      { text: 'Poisson and xG Modeler', type: 'modeler' }
-    ];
+    parsedBadges = [];
   }
 
   return {
     id: fm.id || fallbackId,
-    name: fm.name || fm.title || 'John K. Mwangi',
-    role: fm.role || fm.authorTitle || fm.title || 'Lead Football Analyst and Poisson Model Expert',
-    avatar: fm.avatar || '',
-    experience: fm.experience || '10+ Years',
-    credentials: fm.credentials || 'B.Sc. Actuarial Science and Quantitative Sports Analytics',
-    specialization: fm.specialization || 'Bivariate Poisson Goal Modeling and Jackpot Line Analysis',
-    reviewerName: fm.reviewerName || 'David Ochieng',
-    reviewerTitle: fm.reviewerTitle || 'Senior Tactical and Statistical Verifier',
+    name: fm.name || fm.authorName || fm.title || '',
+    role: fm.role || fm.authorTitle || fm.title || '',
+    avatar: fm.avatar || fm.authorAvatar || '',
+    experience: fm.experience || '',
+    credentials: fm.credentials || '',
+    specialization: fm.specialization || '',
+    reviewerName: fm.reviewerName || '',
+    reviewerTitle: fm.reviewerTitle || '',
     badges: parsedBadges,
-    social: typeof fm.social === 'object' ? fm.social : {
-      twitter: fm.twitter || 'https://x.com/sokapredictions',
-      email: fm.email || 'support@sokapredictions.co.ke'
-    },
-    knowsAbout: Array.isArray(fm.knowsAbout) ? fm.knowsAbout : [
-      'Bivariate Poisson Goal Distribution',
-      'Expected Goals (xG) Forecasting',
-      'Jackpot Permutation and Cover Strategy'
-    ],
-    shortBio: fm.shortBio || fm.description || fm.authorDescription || 'Experienced sports statistician and professional betting strategist.',
+    social: typeof fm.social === 'object' ? fm.social : (fm.twitter || fm.email ? { twitter: fm.twitter, email: fm.email } : undefined),
+    knowsAbout: Array.isArray(fm.knowsAbout) ? fm.knowsAbout : [],
+    shortBio: fm.shortBio || fm.description || fm.authorDescription || '',
     fullContent: bodyContent
   };
 }

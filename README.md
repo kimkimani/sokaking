@@ -177,7 +177,78 @@ Generates ranked tables of the fixtures with the highest statistical model confi
 
 ---
 
-## 5. Tag Modifiers & Parameters
+### 4.9 Today's Fixtures & Prediction Highlights Tags
+Generates dynamic tags for today's live daily fixtures, top marquee matches, league roundups, and market prediction distributions.
+
+- **Top Two Marquee Fixtures (`TODAY_TOP_FIXTURES` / `TODAY_TOP_TWO_FIXTURES` / `TOP_TWO_TODAY_FIXTURES`):**
+  - **Tags:** `{{TODAY_TOP_FIXTURES}}`, `{{TODAY_TOP_TWO_FIXTURES}}`, `{{TOP_TWO_TODAY_FIXTURES}}`, `{{TOP_TODAY_FIXTURES}}`
+  - **Syntax:** `fixture (tip) and fixture (tip)`
+  - **Example Output:**
+    > `Arsenal vs Chelsea (1X) in English Premier League and Real Madrid vs Barcelona (1) in Spanish La Liga`
+
+- **Today's Leagues Roundup (`TODAY_LEAGUES` / `TODAY_LEAGUE_NAMES` / `TODAY_FIXTURES_LEAGUES`):**
+  - **Tags:** `{{TODAY_LEAGUES}}`, `{{TODAY_LEAGUE_NAMES}}`, `{{TODAY_FIXTURES_LEAGUES}}`
+  - **Syntax:** `league, league, league and league`
+  - **Example Output:**
+    > `English Premier League, Spanish La Liga, Italian Serie A, German Bundesliga and UEFA Champions League`
+
+- **Today's Market Predictions Distribution (`TODAY_PREDICTIONS` / `TODAY_PREDICTIONS_SUMMARY`):**
+  - **Tags:** `{{TODAY_PREDICTIONS}}`, `{{TODAY_PREDICTIONS_SUMMARY}}`, `{{TODAY_PREDICTIONS_COUNT}}`
+  - **Syntax:** Detailed counts of today's predicted markets (Over/Under, Double Chance, 1X2, etc.)
+  - **Example Output:**
+    > `24 verified predictions for today including 5 Over 2.5, 4 Double Chance, 8 Home Win (1), 4 Over 1.5 and 3 Away Win (2)`
+
+---
+
+### 4.10 Granular Jackpot Date & Time Tags
+In addition to the full schedule sentence, you can output precise kickoff and closing timestamps:
+
+- **Kickoff Start Date & Time:**
+  - `{{START_DATE}}`, `{{KICKOFF_DATE}}` *(e.g. Saturday, 18 September)*
+  - `{{START_TIME}}`, `{{KICKOFF_TIME}}` *(e.g. 16:00 EAT)*
+  - `{{START_DATETIME}}` *(e.g. Saturday, 18 September at 16:00 EAT)*
+- **Jackpot Closing / Final Fixture Date & Time:**
+  - `{{END_DATE}}`, `{{CLOSING_DATE}}` *(e.g. Sunday, 19 September)*
+  - `{{END_TIME}}` *(e.g. 22:45 EAT)*
+  - `{{END_DATETIME}}` *(e.g. Sunday, 19 September at 22:45 EAT)*
+
+---
+
+### 4.11 Full Fixtures Grid & Interactive Widgets
+- **Complete Coupon Predictions Table (`ALL_JACKPOT_FIXTURES`):**
+  - **Tags:** `{{ALL_MEGA_JACKPOT_FIXTURES}}`, `{{ALL_JACKPOT_FIXTURES}}`, `{{MEGA_JACKPOT_ALL_FIXTURES}}`, `{{ALL_PREDICTIONS}}`
+  - **Renders:** Full 17/15/20 match table complete with kickoff times, teams, probabilities, model tips, and odds.
+- **Live Countdown Timer Widget (`UI_TIMER`):**
+  - **Tags:** `{{UI_TIMER}}`, `{{JACKPOT_TIMER}}`, `{{COUNTDOWN_TIMER}}`, `{{COUNTDOWN}}`
+  - **Renders:** Interactive live countdown clock ticking down to the first match kickoff.
+
+---
+
+### 4.12 Markdown Article Frontmatter Tags
+Every article and markdown page supports structured metadata in YAML frontmatter:
+
+```yaml
+---
+title: "How to Win the SportPesa Mega Jackpot: 7 Proven Mathematical Strategies"
+displayTitle: "How to Win the SportPesa Mega Jackpot: 7 Proven Mathematical Strategies"
+description: "Master the mathematics of the 17-game SportPesa Mega Jackpot with Poisson distribution models, double chance optimization, and bankroll discipline."
+keywords: "how to win sportpesa mega jackpot, sportpesa jackpot strategy, sportpesa 17 games prediction, jackpot mathematical model, mega jackpot bonus tips"
+link: "/how-to-win-sportpesa-mega-jackpot"
+type: "blog"
+category: "Jackpot Strategy & Mathematical Modeling"
+readingTime: "8 min read"
+authorId: "john-mwangi"
+tags: ["SportPesa", "Mega Jackpot", "Poisson Distribution", "Expected Value", "Kenyan Betting"]
+datePublished: "2026-03-15T08:00:00+03:00"
+dateModified: "2026-03-18T10:30:00+03:00"
+---
+```
+
+- **`tags`**: Array of topic keywords rendered as `#Tag` badges at the article footer.
+- **`category`**: Editorial topic category for navigation and badge styling.
+- **`authorId`**: Matches the author markdown file in `src/content/authors/<authorId>.md`.
+- **`readingTime`**: Read duration override (auto-calculated if omitted).
+- **`responsibleGambling`**: Custom advisory text for compliance.
 
 You can customize the behavior of any tag with inline attributes:
 

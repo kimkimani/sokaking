@@ -37,6 +37,10 @@ interface PageMeta {
   mtime?: string;
   topConfidenceFixtures?: boolean;
   topConfidenceCount?: number;
+  category?: string;
+  readingTime?: string;
+  coverImage?: string;
+  tags?: string[];
 }
 
 function formatEatIso(d: Date): string {
@@ -82,6 +86,10 @@ function parseFrontmatterFromRaw(rawMd: string, keyName: string): PageMeta {
   let datePublished = '';
   let topConfidenceFixtures = false;
   let topConfidenceCount = 5;
+  let category = '';
+  let readingTime = '';
+  let coverImage = '';
+  let tags: string[] = [];
 
   const yamlMatch = rawMd.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
   if (yamlMatch) {
@@ -155,8 +163,7 @@ function parseFrontmatterFromRaw(rawMd: string, keyName: string): PageMeta {
     const lsY = yamlStr.match(/^listSubtitle:\s*"?(.*?)"?$/m);
     if (lsY) listSubtitle = lsY[1].trim();
 
-    const dmY = yamlStr.match(/^(?:dateModified|date_modified|modifiedDate|modified_date|lastModified|last_modified|updatedAt|updated_at):\s*"?(.*?)"?$/m);
-    if (dmY) dateModified = dmY[1].trim();
+    // Note: dateModified is strictly determined by file change detection (stat.mtime), never from markdown frontmatter
 
     const dpY = yamlStr.match(/^(?:datePublished|date_published|publishedDate|published_date|date):\s*"?(.*?)"?$/m);
     if (dpY) datePublished = dpY[1].trim();
@@ -166,6 +173,23 @@ function parseFrontmatterFromRaw(rawMd: string, keyName: string): PageMeta {
 
     const tccY = yamlStr.match(/^topConfidenceCount:\s*(\d+)/m);
     if (tccY) topConfidenceCount = parseInt(tccY[1], 10);
+
+    const catY = yamlStr.match(/^(?:category|section):\s*"?(.*?)"?$/m);
+    if (catY) category = catY[1].trim();
+
+    const rtY = yamlStr.match(/^(?:readingTime|readTime|reading_time):\s*"?(.*?)"?$/m);
+    if (rtY) readingTime = rtY[1].trim();
+
+    const imgY = yamlStr.match(/^(?:coverImage|heroImage|image):\s*"?(.*?)"?$/m);
+    if (imgY) coverImage = imgY[1].trim();
+
+    const tagsY = yamlStr.match(/^tags:\s*(?:\[(.*?)\]|([^\r\n]+))/m);
+    if (tagsY) {
+      const rawTags = tagsY[1] || tagsY[2];
+      if (rawTags) {
+        tags = rawTags.split(',').map(t => t.replace(/["'\[\]]/g, '').trim()).filter(Boolean);
+      }
+    }
   }
 
   // Extract HTML comments fallback
@@ -265,6 +289,10 @@ function parseFrontmatterFromRaw(rawMd: string, keyName: string): PageMeta {
     datePublished: datePublished || undefined,
     topConfidenceFixtures: topConfidenceFixtures || undefined,
     topConfidenceCount: topConfidenceCount || undefined,
+    category: category || undefined,
+    readingTime: readingTime || undefined,
+    coverImage: coverImage || undefined,
+    tags: (tags && tags.length > 0) ? tags : undefined,
   };
 }
 
@@ -293,9 +321,8 @@ function syncPages() {
         const pageMeta = parseFrontmatterFromRaw(content, key);
         if (stat && stat.mtime) {
           pageMeta.mtime = stat.mtime.toISOString();
-          if (!pageMeta.dateModified) {
-            pageMeta.dateModified = formatEatIso(stat.mtime);
-          }
+          // dateModified is strictly determined by file change detection (stat.mtime)
+          pageMeta.dateModified = formatEatIso(stat.mtime);
         }
         metaMap[key] = pageMeta;
 
@@ -358,6 +385,10 @@ export interface PageMetadata {
   mtime?: string;
   topConfidenceFixtures?: boolean;
   topConfidenceCount?: number;
+  category?: string;
+  readingTime?: string;
+  coverImage?: string;
+  tags?: string[];
 }
 
 export const PAGE_METADATA_MAP: Record<string, PageMetadata> = ${JSON.stringify(metaMap, null, 2)};
@@ -537,6 +568,11 @@ function syncBlog() {
         coverImage = `/blog-assets/${item.folderName}/${cleanCover}`;
       }
 
+      // Detect physical file change timestamp
+      const fileStat = fs.statSync(item.filePath);
+      const fileMtime = fileStat.mtime ? fileStat.mtime.toISOString() : undefined;
+      const fileDateModified = fileStat.mtime ? formatEatIso(fileStat.mtime) : undefined;
+
       metaList.push({
         slug,
         title,
@@ -548,6 +584,8 @@ function syncBlog() {
         readTime,
         featured,
         coverImage,
+        mtime: fileMtime,
+        dateModified: fileDateModified,
       });
 
       const escapedContent = content.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\${/g, '\\${');
@@ -573,6 +611,8 @@ export interface BlogMetaItem {
   readTime: string;
   featured: boolean;
   coverImage?: string;
+  mtime?: string;
+  dateModified?: string;
 }
 
 export const BLOG_METADATA_LIST: BlogMetaItem[] = ${JSON.stringify(metaList, null, 2)};

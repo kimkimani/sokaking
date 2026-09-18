@@ -1,19 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { 
   ArrowLeft, 
-  Calendar, 
   Clock, 
-  Share2, 
-  Check, 
   BookOpen, 
   ChevronRight, 
   Tag, 
   ShieldCheck, 
   ExternalLink,
-  MessageCircle,
-  Twitter,
-  User,
-  Sparkles,
+  User, 
+  Sparkles, 
   FileText
 } from 'lucide-react';
 import { BlogPost, getAllBlogPosts } from '../content/blogLoader';
@@ -35,8 +30,6 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
   onSelectPost,
   onFilterByAuthor
 }) => {
-  const [copied, setCopied] = useState(false);
-
   // Calculate article word count
   const wordCount = calculateArticleWordCount(post.content || post.raw);
 
@@ -62,31 +55,6 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
 
   // All blog posts for dynamic related articles computation
   const allPosts = getAllBlogPosts();
-
-  const handleCopyLink = () => {
-    if (typeof window !== 'undefined') {
-      const url = window.location.href;
-      navigator.clipboard.writeText(url).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 3000);
-      });
-    }
-  };
-
-  const handleShareTwitter = () => {
-    if (typeof window !== 'undefined') {
-      const text = encodeURIComponent(`Read "${post.title}" on Soka King Football Analytics:`);
-      const url = encodeURIComponent(window.location.href);
-      window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'noopener,noreferrer');
-    }
-  };
-
-  const handleShareWhatsApp = () => {
-    if (typeof window !== 'undefined') {
-      const text = encodeURIComponent(`Check out this football analysis: "${post.title}" - ${window.location.href}`);
-      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank', 'noopener,noreferrer');
-    }
-  };
 
   const getInitials = (n: string) => {
     const parts = n.trim().split(' ');
@@ -137,9 +105,6 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
             {post.category}
           </span>
           <span className="text-[var(--text-muted)] flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5" /> {post.formattedDate}
-          </span>
-          <span className="text-[var(--text-muted)] flex items-center gap-1">
             <Clock className="w-3.5 h-3.5" /> {post.readTime}
           </span>
           <span className="text-[var(--text-muted)] flex items-center gap-1">
@@ -153,69 +118,14 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
         </div>
 
         <h1 
-          className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--text)] leading-tight m-0 font-display"
+          className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-[var(--text)] leading-snug m-0"
         >
           {post.title}
         </h1>
 
-        <p className="text-sm md:text-base text-[var(--text-muted)] leading-relaxed m-0 border-l-3 border-[var(--primary)] pl-3.5 italic bg-[var(--background)]/50 py-2 rounded-r">
+        <p className="text-sm sm:text-base text-[var(--text-muted)] leading-relaxed m-0 font-normal">
           {post.description}
         </p>
-
-        {/* Author Byline & Social Share Bar */}
-        <div className="pt-4 border-t border-[var(--border)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          {/* Author info pill */}
-          <div 
-            onClick={() => onFilterByAuthor(post.authorId)}
-            title={`View all articles by ${post.author.name}`}
-            className="flex items-center gap-3 cursor-pointer group hover:opacity-85 transition-opacity"
-          >
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--primary)] to-indigo-600 text-white font-mono font-black text-xs flex items-center justify-center border-2 border-[var(--primary)]/30 shrink-0 shadow-xs">
-              {getInitials(post.author.name)}
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">
-                  {post.author.name}
-                </span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold">
-                  Verified
-                </span>
-              </div>
-              <p className="text-[11px] font-mono text-[var(--text-muted)] m-0">
-                {post.author.role}
-              </p>
-            </div>
-          </div>
-
-          {/* Social share actions */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleCopyLink}
-              title="Copy link to article"
-              className="p-2 rounded-lg border border-[var(--border)] bg-[var(--background)] hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text)] transition-colors cursor-pointer flex items-center gap-1 text-xs font-bold"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Share2 className="w-3.5 h-3.5" />}
-              <span>{copied ? 'Copied' : 'Share'}</span>
-            </button>
-            <button
-              onClick={handleShareTwitter}
-              title="Share on X / Twitter"
-              className="p-2 rounded-lg border border-[var(--border)] bg-[var(--background)] hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text)] transition-colors cursor-pointer"
-              aria-label="Share on X / Twitter"
-            >
-              <Twitter className="w-3.5 h-3.5 text-sky-500" />
-            </button>
-            <button
-              onClick={handleShareWhatsApp}
-              title="Share on WhatsApp"
-              className="p-2 rounded-lg border border-[var(--border)] bg-[var(--background)] hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text)] transition-colors cursor-pointer"
-              aria-label="Share on WhatsApp"
-            >
-              <MessageCircle className="w-3.5 h-3.5 text-emerald-500" />
-            </button>
-          </div>
-        </div>
       </header>
 
       {/* Cover Image */}

@@ -15,7 +15,7 @@ fixturesCategory: "today"
 ---
 
 <!-- INTRO -->
-Welcome to Soka King's daily football predictions hub. Our sports intelligence system processes today's full match card, delivering high-confidence 1X2, Over/Under, and BTTS selections.
+Welcome to Soka King's daily football predictions hub. Our sports intelligence system processes today's full match card, delivering high-confidence 1X2, Over/Under, and BTTS selections. Today's featured marquee fixtures are **{{TODAY_TOP_FIXTURES}}**, spanning top competitions from **{{TODAY_LEAGUES}}**. Today's mathematical coverage features **{{TODAY_PREDICTIONS}}**.
 
 <!-- MIDDLE -->
 Every day, over 500 football matches are analyzed using our Poisson distribution model. From the English Premier League and UEFA Champions League to regional African tournaments, Soka King delivers data-driven picks for sonko football tips.

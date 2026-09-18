@@ -487,7 +487,14 @@ export function generateBlogPostJsonLd(post: BlogPost): SchemaGraphResult {
 
   // ISO timestamps with Kenya timezone (+03:00)
   const publishedDate = post.date.includes('T') ? post.date : `${post.date}T08:00:00+03:00`;
-  const modifiedDate = new Date().toISOString();
+  const modifiedDate = getPageDateModified(
+    `blog-${post.slug}`,
+    {
+      mtime: (post as any).mtime,
+      datePublished: publishedDate,
+    },
+    { referenceDate: new Date() }
+  );
 
   const publisherObj = SOKAKING_PUBLISHER_SCHEMA;
   const author = post.author || getAuthor(post.authorId || 'john-mwangi');

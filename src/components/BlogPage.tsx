@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { 
   BookOpen, 
-  Calendar, 
   Clock, 
   Search, 
   Tag, 
@@ -300,9 +299,6 @@ export const BlogPage: React.FC<BlogPageProps> = ({
                     {featuredPost.category}
                   </span>
                   <span className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3" /> {featuredPost.formattedDate}
-                  </span>
-                  <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3" /> {featuredPost.readTime}
                   </span>
                 </div>
@@ -431,9 +427,6 @@ export const BlogPage: React.FC<BlogPageProps> = ({
                     )}
 
                     <div className="flex items-center gap-3 text-[10px] text-[var(--text-muted)] font-mono">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" /> {post.formattedDate}
-                      </span>
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" /> {post.readTime}
                       </span>

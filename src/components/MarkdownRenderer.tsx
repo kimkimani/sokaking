@@ -30,7 +30,26 @@ function resolveRelativeImageUrl(url: string, postSlug?: string): string {
   return url;
 }
 
-// Parses inline markdown formatting (images: ![alt](url), links: [text](url), bold: **text** or __text__, italic: *text* or _text_, code: `text`)
+function formatMathLatex(expr: string): string {
+  return expr
+    .replace(/\\times/g, '×')
+    .replace(/\\lambda/g, 'λ')
+    .replace(/\\text\{([^}]+)\}/g, '$1')
+    .replace(/\\cdot/g, '·')
+    .replace(/\\approx/g, '≈')
+    .replace(/\\ge(q)?/g, '≥')
+    .replace(/\\le(q)?/g, '≤')
+    .replace(/\\pm/g, '±')
+    .replace(/\^\{17\}/g, '¹⁷')
+    .replace(/\^\{(\d+)\}/g, (_, p) => p.split('').map((c: string) => '⁰¹²³⁴⁵⁶⁷⁸⁹'[parseInt(c, 10)] || c).join(''))
+    .replace(/\^N/g, 'ᴺ')
+    .replace(/\^2/g, '²')
+    .replace(/\^3/g, '³')
+    .replace(/\{|\}/g, '')
+    .trim();
+}
+
+// Parses inline markdown formatting (images: ![alt](url), links: [text](url), bold: **text** or __text__, math: $formula$, italic: *text* or _text_, code: `text`)
 function parseInline(text: string, postSlug?: string): React.ReactNode[] {
   if (!text) return [];
 
@@ -39,8 +58,9 @@ function parseInline(text: string, postSlug?: string): React.ReactNode[] {
   // 2: [text](url) -> match[5] = text, match[6] = url
   // 3: **text** or __text__ -> match[7] or match[8]
   // 4: `code` -> match[9]
-  // 5: *text* or _text_ -> match[10] or match[11]
-  const regex = /(!\[([^\]]*)\]\(([^)]+)\)|\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|__([^_]+)__|`([^`]+)`|\*([^*]+)\*|_([^_]+)_)/g;
+  // 5: $math$ -> match[10]
+  // 6: *text* or _text_ -> match[11] or match[12]
+  const regex = /(!\[([^\]]*)\]\(([^)]+)\)|\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|__([^_]+)__|`([^`]+)`|\$([^$]+)\$|\*([^*]+)\*|_([^_]+)_)/g;
   const nodes: React.ReactNode[] = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -77,7 +97,7 @@ function parseInline(text: string, postSlug?: string): React.ReactNode[] {
           href={linkUrl}
           target={isExternal ? '_blank' : undefined}
           rel={getLinkRel(linkUrl)}
-          className="text-indigo-500 hover:text-indigo-600 underline font-semibold transition-colors"
+          className="text-emerald-600 dark:text-emerald-400 hover:underline font-semibold transition-colors"
         >
           {linkText}
         </a>
@@ -85,22 +105,29 @@ function parseInline(text: string, postSlug?: string): React.ReactNode[] {
     } else if (match[6] || match[7]) {
       // Bold **text** or __text__
       nodes.push(
-        <strong key={`bold-${matchStart}`} className="font-black text-[var(--text)]">
+        <strong key={`bold-${matchStart}`} className="font-bold text-[var(--text)]">
           {match[6] || match[7]}
         </strong>
       );
     } else if (match[8]) {
       // Inline code `text`
       nodes.push(
-        <code key={`code-${matchStart}`} className="px-1.5 py-0.5 rounded bg-[var(--card)] border border-[var(--border)] font-mono text-[11px] text-[var(--text)]">
+        <code key={`code-${matchStart}`} className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[11px] text-[var(--text)]">
           {match[8]}
         </code>
       );
-    } else if (match[9] || match[10]) {
+    } else if (match[9]) {
+      // Math formula $formula$
+      nodes.push(
+        <span key={`math-${matchStart}`} className="inline-flex items-center px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-mono text-[12px] font-bold border border-emerald-500/25 mx-1 tracking-tight align-baseline shadow-3xs">
+          {formatMathLatex(match[9])}
+        </span>
+      );
+    } else if (match[10] || match[11]) {
       // Italic *text* or _text_
       nodes.push(
         <em key={`italic-${matchStart}`} className="italic text-[var(--text)]">
-          {match[9] || match[10]}
+          {match[10] || match[11]}
         </em>
       );
     }
@@ -975,12 +1002,15 @@ export default function MarkdownRenderer({
 
     // 1. Headings
     if (trimmed.startsWith('# ')) {
+      const h1Text = trimmed.substring(2).trim();
+      const h1Slug = h1Text.replace(/\*\*|__|#|`/g, '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       elements.push(
         <h2
+          id={h1Slug}
           key={`h1-${i}`}
-          className="text-xl sm:text-2xl font-black text-[var(--text)] tracking-tight mb-2 mt-4 uppercase font-display"
+          className="text-2xl sm:text-3xl font-black text-[var(--text)] tracking-tight mb-4 mt-8 font-display scroll-mt-24 border-b border-[var(--border)]/60 pb-2"
         >
-          {parseInline(trimmed.substring(2), postSlug)}
+          {parseInline(h1Text, postSlug)}
         </h2>
       );
       i++;
@@ -988,13 +1018,15 @@ export default function MarkdownRenderer({
     }
 
     if (trimmed.startsWith('## ')) {
+      const h2Text = trimmed.substring(3).trim();
+      const h2Slug = h2Text.replace(/\*\*|__|#|`/g, '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       elements.push(
         <h2
+          id={h2Slug}
           key={`h2-${i}`}
-          className="text-base sm:text-lg font-extrabold text-[var(--text)] tracking-tight mt-6 mb-2 uppercase font-mono text-[var(--primary)] flex items-center gap-2"
+          className="text-lg sm:text-xl md:text-2xl font-bold text-[var(--text)] tracking-tight mt-8 mb-3.5 scroll-mt-24 pb-2 border-b border-[var(--border)]/50"
         >
-          <span className="w-2 h-2 rounded-full bg-[var(--primary)] inline-block shrink-0" />
-          {parseInline(trimmed.substring(3), postSlug)}
+          {parseInline(h2Text, postSlug)}
         </h2>
       );
       i++;
@@ -1002,12 +1034,15 @@ export default function MarkdownRenderer({
     }
 
     if (trimmed.startsWith('### ')) {
+      const h3Text = trimmed.substring(4).trim();
+      const h3Slug = h3Text.replace(/\*\*|__|#|`/g, '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       elements.push(
         <h3
+          id={h3Slug}
           key={`h3-${i}`}
-          className="text-sm sm:text-base font-bold text-[var(--text)] mt-4 mb-2"
+          className="text-base sm:text-lg font-extrabold text-[var(--text)] mt-7 mb-2.5 scroll-mt-24"
         >
-          {parseInline(trimmed.substring(4), postSlug)}
+          {parseInline(h3Text, postSlug)}
         </h3>
       );
       i++;
@@ -1018,7 +1053,7 @@ export default function MarkdownRenderer({
       elements.push(
         <h4
           key={`h4-${i}`}
-          className="text-xs sm:text-sm font-extrabold text-[var(--text)] mt-3 mb-1 uppercase font-mono tracking-wider"
+          className="text-xs sm:text-sm font-extrabold text-[var(--text)] mt-4 mb-1.5 uppercase font-mono tracking-wider text-emerald-700 dark:text-emerald-400"
         >
           {parseInline(trimmed.substring(5), postSlug)}
         </h4>

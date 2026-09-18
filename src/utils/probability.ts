@@ -178,9 +178,9 @@ export function getRefinedConfidence(fixture: any): number {
     }
   }
   // 3. Goal Markets (Over 1.5, Over 2.5, Under 2.5, GG/BTTS)
-  else if (prediction.includes('ov 1.5') || prediction.includes('over 1.5')) {
+  else if (prediction.includes('ov 1.5') || prediction.includes('over 1.5') || prediction.includes('2+ goals') || prediction.includes('2+')) {
     calculatedConf = 80 + (absSeed % 14); // 80 - 93%
-  } else if (prediction.includes('ov 2.5') || prediction.includes('over 2.5') || prediction.includes('ov')) {
+  } else if (prediction.includes('ov 2.5') || prediction.includes('over 2.5') || prediction.includes('ov') || prediction.includes('3+ goals') || prediction.includes('3+')) {
     calculatedConf = 72 + (absSeed % 17); // 72 - 88%
   } else if (prediction.includes('un 2.5') || prediction.includes('under 2.5') || prediction.includes('un')) {
     calculatedConf = 69 + (absSeed % 16); // 69 - 84%
