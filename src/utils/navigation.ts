@@ -1,4 +1,4 @@
-import { getDynamicUrlMaps, hasMarkdownFile } from '../content/markdownLoader';
+import { getDynamicUrlMaps } from '../content/markdownLoader';
 
 export const BASE_URL_TO_PAGE_MAP: Record<string, string> = {
   '/': 'home',
@@ -10,7 +10,6 @@ export const BASE_URL_TO_PAGE_MAP: Record<string, string> = {
   '/football-predictions-1x2-home-win': 'category-homewin',
   '/football-predictions-over-2-5-goals': 'category-over25',
   '/football-predictions-double-chance': 'category-doublechance',
-  '/category-blog': 'category-blog',
   '/254-sure-tips': '254-sure-tips',
   '/sunpel-free-football-betting-tips-and-soccer-predictions': 'sunpel-free-football-betting-tips',
   '/4soka-tips': '4soka-tips-prediction',
@@ -47,7 +46,6 @@ export const BASE_PAGE_TO_URL_MAP: Record<string, string> = {
   'category-homewin': '/football-predictions-1x2-home-win',
   'category-over25': '/football-predictions-over-2-5-goals',
   'category-doublechance': '/football-predictions-double-chance',
-  'category-blog': '/category-blog',
   '254-sure-tips': '/254-sure-tips',
   'sunpel-free-football-betting-tips': '/sunpel-free-football-betting-tips-and-soccer-predictions',
   '4soka-tips-prediction': '/4soka-tips',
@@ -98,7 +96,6 @@ export function getNormalizedPath(path: string): string {
 export function getPageUrl(pageId: string): string {
   if (!pageId || pageId === 'home' || pageId === 'not-found' || pageId === '404') return '/';
   if (pageId === 'today') return '/football-predictions-today';
-  if (pageId === 'category-blog') return '/category-blog';
   if (pageId === 'blog' || pageId === 'blog-list') return '/blog';
   if (pageId.startsWith('blog-')) return `/blog/${pageId.replace(/^blog-/, '')}`;
   if (PAGE_TO_URL_MAP[pageId]) return PAGE_TO_URL_MAP[pageId];
@@ -109,7 +106,6 @@ export function getPageUrl(pageId: string): string {
 export function getPageIdFromUrl(pathname: string): string {
   const norm = getNormalizedPath(pathname);
   if (norm === '/' || norm === '' || norm === '/404' || norm === '/not-found') return 'home';
-  if (norm === '/category-blog') return 'category-blog';
   if (norm === '/blog') return 'blog';
   if (norm.startsWith('/blog/')) {
     const blogSlug = norm.replace(/^\/blog\//, '');
@@ -120,7 +116,6 @@ export function getPageIdFromUrl(pathname: string): string {
   const rawSlug = norm.replace(/^\//, '');
   if (URL_TO_PAGE_MAP[`/${rawSlug}`]) return URL_TO_PAGE_MAP[`/${rawSlug}`];
   if (PAGE_TO_URL_MAP[rawSlug]) return rawSlug;
-  if (hasMarkdownFile(rawSlug)) return rawSlug;
 
   return 'home';
 }

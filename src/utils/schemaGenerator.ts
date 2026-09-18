@@ -683,6 +683,12 @@ export function generatePageJsonLd(
   }
 
   const pageMd = getMarkdownContent(pageId);
+  if (pageMd.type === 'blog') {
+    const post = getBlogPostBySlug(pageId);
+    if (post) {
+      return generateBlogPostJsonLd(post);
+    }
+  }
   const rawUrl = getPageUrl(pageId);
   const canonicalUrl = buildCanonicalUrl(pageMd.link || rawUrl, pageId);
   // Safe Kenya local time publication anchor (2026-08-17)

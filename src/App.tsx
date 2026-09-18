@@ -30,7 +30,7 @@ import {
 import { designIterations, vipPackages, oddsPacks, fixturesData, defaultExternalLinks } from './data';
 import { jackpotsData } from './jackpotsData';
 import { DesignIteration, Fixture, VipPackage, OddsPack, ExternalLink } from './types';
-import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl, hasMarkdownFile } from './content/markdownLoader';
+import { getMarkdownContent, getDynamicUrlMaps, buildCanonicalUrl, hasMarkdownFile, convertPageMdToBlogPost } from './content/markdownLoader';
 import { getRefinedConfidence } from './utils/probability';
 
 import { apiFetch } from './utils/api.ts';
@@ -62,8 +62,8 @@ const StaticPages = lazy(() => import('./components/StaticPages'));
 const PaymentModal = lazy(() => import('./components/PaymentModal'));
 const BlogPage = lazy(() => import('./components/BlogPage'));
 const BlogPostPage = lazy(() => import('./components/BlogPostPage'));
-const CategoryBlogPage = lazy(() => import('./components/CategoryBlogPage'));
-import { getBlogPostBySlug, convertPageMdToBlogPost } from './content/blogLoader';
+const BlogSidebar = lazy(() => import('./components/BlogSidebar'));
+import { getBlogPostBySlug } from './content/blogLoader';
 
 import { 
   URL_TO_PAGE_MAP, 
@@ -174,6 +174,14 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
   const [blogAuthorFilter, setBlogAuthorFilter] = useState<string | null>(null);
   const [unlockedJackpots, setUnlockedJackpots] = useState<string[]>([]);
 
+  // Blog detection helper
+  const isBlogPage = 
+    activePage === 'blog' || 
+    activePage === 'blog-list' || 
+    activePage.startsWith('blog-') ||
+    !!getBlogPostBySlug(activePage.replace(/^blog-/, '')) ||
+    (hasMarkdownFile(activePage) && getMarkdownContent(activePage).type === 'blog');
+
   // Keep unlocked jackpots in sync with purchases
   useEffect(() => {
     const jackpots = userPurchasedItemIds.filter((id: string) => ALL_JACKPOT_IDS.includes(id));
@@ -206,13 +214,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     let pageOgType = 'website';
     let pageOgImage = 'https://sokaking.com/icon.png';
 
-    if (activePage === 'category-blog') {
-      canonicalPath = '/category-blog';
-      fullCanonicalUrl = 'https://sokaking.com/category-blog';
-      pageTitle = 'Football Betting Strategy & Analytics Hub | Soka King';
-      pageDesc = 'In-depth tactical breakdowns, Poisson distribution guides, SportPesa jackpot combination strategies, and quantitative bankroll models.';
-      pageKeywords = 'football betting strategy, analytics hub, poisson distribution, expected goals, sportpesa mega jackpot combinations';
-    } else if (activePage === 'blog' || activePage === 'blog-list') {
+    if (activePage === 'blog' || activePage === 'blog-list') {
       canonicalPath = '/blog';
       fullCanonicalUrl = 'https://sokaking.com/blog';
       pageTitle = 'Football Betting Analytics & Strategy Blog | Soka King';
@@ -745,7 +747,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   handleSelectPage('blog');
                 }
               }}
-              className={`px-3.5 py-1.5 text-xs font-bold transition-all no-underline cursor-pointer rounded-full ${activePage === 'blog' || activePage.startsWith('blog-') ? 'bg-[var(--primary)] text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--primary)]'}`}
+              className={`px-3.5 py-1.5 text-xs font-bold transition-all no-underline cursor-pointer rounded-full ${isBlogPage ? 'bg-[var(--primary)] text-white font-black shadow-3xs' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--primary)]'}`}
             >
               Blog
             </a>
@@ -795,11 +797,47 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 </div>
               }>
               {(() => {
-                // Check if activePage is a blog markdown page (e.g. category-blog or any pages/*.md with type: 'blog')
-                if (hasMarkdownFile(activePage)) {
+                const category = PREDICTION_CATEGORIES.find(c => 
+                  c.id === activePage || 
+                  (c.id === 'sunpel-free-football-betting-tips' && activePage.startsWith('sunpel-free-football-betting-tips'))
+                ) || DYNAMIC_CATEGORY_PAGES[activePage];
+
+                if (category) {
                   const pageMd = getMarkdownContent(activePage);
-                  if (pageMd.type === 'blog') {
-                    const blogPost = convertPageMdToBlogPost(activePage, pageMd);
+                  const categoryFixtures = getCategoryFixtures(
+                    category.id, 
+                    dbPredictions.all && dbPredictions.all.length > 0 ? dbPredictions.all : dbPredictions,
+                    pageMd.type
+                  );
+                  return (
+                    <CategoryPredictionsPage 
+                      category={category}
+                      fixtures={categoryFixtures}
+                      isLoading={loadingDb || loadingCategory}
+                      onBackToHome={() => handleSelectPage('home')}
+                      onSelectPage={handleSelectPage}
+                      onOpenPayment={handleOpenPayment}
+                      jackpots={dbJackpots}
+                      pageId={activePage}
+                    />
+                  );
+                }
+
+                // 1. DEDICATED BLOG ARCHIVE & BLOG POSTS (Pure Blog UI)
+                if (activePage === 'blog' || activePage === 'blog-list') {
+                  return (
+                    <BlogPage 
+                      onSelectPost={(slug) => handleSelectPage(`blog-${slug}`)}
+                      onBackToHome={() => handleSelectPage('home')}
+                      initialAuthorFilter={blogAuthorFilter || undefined}
+                    />
+                  );
+                }
+
+                if (activePage.startsWith('blog-')) {
+                  const blogSlug = activePage.replace(/^blog-/, '');
+                  const blogPost = getBlogPostBySlug(blogSlug);
+                  if (blogPost) {
                     return (
                       <BlogPostPage 
                         post={blogPost}
@@ -832,30 +870,23 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   );
                 }
 
-                const category = PREDICTION_CATEGORIES.find(c => 
-                  c.id === activePage || 
-                  (c.id === 'sunpel-free-football-betting-tips' && activePage.startsWith('sunpel-free-football-betting-tips'))
-                ) || DYNAMIC_CATEGORY_PAGES[activePage];
-
-                if (category) {
+                if (hasMarkdownFile(activePage)) {
                   const pageMd = getMarkdownContent(activePage);
-                  const categoryFixtures = getCategoryFixtures(
-                    category.id, 
-                    dbPredictions.all && dbPredictions.all.length > 0 ? dbPredictions.all : dbPredictions,
-                    pageMd.type
-                  );
-                  return (
-                    <CategoryPredictionsPage 
-                      category={category}
-                      fixtures={categoryFixtures}
-                      isLoading={loadingDb || loadingCategory}
-                      onBackToHome={() => handleSelectPage('home')}
-                      onSelectPage={handleSelectPage}
-                      onOpenPayment={handleOpenPayment}
-                      jackpots={dbJackpots}
-                      pageId={activePage}
-                    />
-                  );
+                  if (pageMd.type === 'blog') {
+                    const blogPost = convertPageMdToBlogPost(activePage, pageMd);
+                    return (
+                      <BlogPostPage 
+                        post={blogPost}
+                        onBackToBlog={() => handleSelectPage('blog')}
+                        onBackToHome={() => handleSelectPage('home')}
+                        onSelectPost={(slug) => handleSelectPage(`blog-${slug}`)}
+                        onFilterByAuthor={(authorId) => {
+                          setBlogAuthorFilter(authorId);
+                          handleSelectPage('blog');
+                        }}
+                      />
+                    );
+                  }
                 }
 
                 if (activePage === 'jackpot-list') {
@@ -950,49 +981,11 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   );
                 }
 
-                if (activePage === 'category-blog') {
-                  return (
-                    <CategoryBlogPage 
-                      onSelectPost={(slug) => handleSelectPage(`blog-${slug}`)}
-                      onBackToHome={() => handleSelectPage('home')}
-                      onSelectPage={handleSelectPage}
-                    />
-                  );
-                }
-
-                if (activePage === 'blog' || activePage === 'blog-list') {
-                  return (
-                    <BlogPage 
-                      onSelectPost={(slug) => handleSelectPage(`blog-${slug}`)}
-                      onBackToHome={() => handleSelectPage('home')}
-                      initialAuthorFilter={blogAuthorFilter || undefined}
-                    />
-                  );
-                }
-
-                if (activePage.startsWith('blog-')) {
-                  const blogSlug = activePage.replace(/^blog-/, '');
-                  const blogPost = getBlogPostBySlug(blogSlug);
-                  if (blogPost) {
-                    return (
-                      <BlogPostPage 
-                        post={blogPost}
-                        onBackToBlog={() => handleSelectPage('blog')}
-                        onSelectPost={(slug) => handleSelectPage(`blog-${slug}`)}
-                        onFilterByAuthor={(authorId) => {
-                          setBlogAuthorFilter(authorId);
-                          handleSelectPage('blog');
-                        }}
-                      />
-                    );
-                  }
-                }
-
-                // DYNAMIC MARKDOWN PAGE (For newly created or existing .md files: Competitors, custom SEO Jackpot pages, etc.)
+                // DYNAMIC MARKDOWN PAGE (Competitor, custom SEO Jackpot pages, categories, etc.)
                 if (activePage !== 'home' && hasMarkdownFile(activePage)) {
                   const pageMd = getMarkdownContent(activePage);
 
-                  // 1. Is it a jackpot page (has jackpotId or type === 'jackpot')?
+                  // 2. Is it a jackpot page (has jackpotId or type === 'jackpot')?
                   if (pageMd.jackpotId || pageMd.type === 'jackpot') {
                     const targetJackpotId = pageMd.jackpotId || activePage;
                     const activeJackpot = dbJackpots.find(j => j.id === targetJackpotId || j.slug === targetJackpotId) || dbJackpots[0];
@@ -1254,7 +1247,19 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
 
             {/* RIGHT SIDEBAR PANEL */}
             <aside className="w-full lg:w-[320px] flex-shrink-0 space-y-6">
-              {['jackpot-list', ...ALL_JACKPOT_IDS].includes(activePage) ? (
+              {isBlogPage ? (
+                <BlogSidebar 
+                  currentPostSlug={activePage.startsWith('blog-') ? activePage.replace(/^blog-/, '') : activePage}
+                  onSelectPost={(slug) => handleSelectPage(`blog-${slug}`)}
+                  onFilterByCategory={(cat) => {
+                    handleSelectPage('blog');
+                  }}
+                  onFilterByAuthor={(authorId) => {
+                    setBlogAuthorFilter(authorId);
+                    handleSelectPage('blog');
+                  }}
+                />
+              ) : ['jackpot-list', ...ALL_JACKPOT_IDS].includes(activePage) ? (
                 <JackpotSidebar 
                   jackpotId={activePage} 
                   jackpotName={dbJackpots.find(j => j.id === activePage || j.slug === activePage)?.name}
