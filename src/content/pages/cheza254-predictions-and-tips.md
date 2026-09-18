@@ -1,6 +1,6 @@
 ---
-title: "Cheza 254 Prediction and Free Tips - Cheza254 Today"
-displayTitle: "Cheza 254 Prediction and Free Tips - Cheza254 Today"
+title: "Cheza 254 Football Prediction and Tips - Cheza254 Today"
+displayTitle: "Cheza 254 Football Prediction and Free Tips - Cheza254 Today"
 description: "Looking for Cheza254 prediction and free tips today? We have 1X2, BTTS, Over/Under, Double Chance and jackpot predictions Cheza 254 football prediction"
 keywords: "cheza 254, cheza254 prediction, cheza254, cheza254 tips, www cheza254 prediction com, www cheza254 com, www cheza254, www cheza 254 com, cheza254 today, cheza254 prediction today, cheza254 prediction tips, cheza254 prediction for today's games, cheza254 football prediction, cheza254 com, cheza 254 com"
 link: "/cheza-254-prediction"
