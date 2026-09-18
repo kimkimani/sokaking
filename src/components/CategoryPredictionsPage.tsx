@@ -120,7 +120,7 @@ export default function CategoryPredictionsPage({
     if (filteredFixtures.length === 0) return;
     
     const textToCopy = filteredFixtures.map((fixture, idx) => 
-      `${idx + 1}. ${fixture.homeTeam} vs ${fixture.awayTeam} - Tip: ${formatTipLabel(fixture.prediction)}`
+      `${idx + 1}. ${fixture.homeTeam} vs ${fixture.awayTeam} - Tip: ${fixture.prediction}`
     ).join('\n');
 
     navigator.clipboard.writeText(textToCopy);

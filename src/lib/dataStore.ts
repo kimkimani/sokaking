@@ -86,39 +86,8 @@ export function calculateFixtureResult(
     }
   }
 
-  // Format prediction label for over 2.5 and over 1.5 to 3+ Goals and 2+ Goals
-  let formattedTip = tip;
-  const p = tip.toLowerCase().trim();
-  if (
-    p.includes('over 2.5') || 
-    p.includes('ov 2.5') || 
-    p.includes('o2.5') || 
-    p.includes('over25') || 
-    p.includes('ov 25') || 
-    p.includes('> 2.5') || 
-    p.includes('>2.5') ||
-    p === '2.5 goals' ||
-    p === '3+ goals' ||
-    p === '3+'
-  ) {
-    formattedTip = '3+ Goals';
-  } else if (
-    p.includes('over 1.5') || 
-    p.includes('ov 1.5') || 
-    p.includes('o1.5') || 
-    p.includes('over15') || 
-    p.includes('ov 15') || 
-    p.includes('> 1.5') || 
-    p.includes('>1.5') ||
-    p === '1.5 goals' ||
-    p === '2+ goals' ||
-    p === '2+'
-  ) {
-    formattedTip = '2+ Goals';
-  }
-
   return {
-    prediction: formattedTip,
+    prediction: tip,
     confidence,
     result,
   };
