@@ -75,12 +75,12 @@ export function injectSeoAndStructuredData(rawHtml: string, requestUrl: string):
         crawlerDesc = blogPost.description;
         crawlerBody = blogPost.content ? blogPost.content.slice(0, 1000) : '';
       }
-    } else if (mainSchema && mainSchema['@type'] === 'Article') {
+    } else if (pageMd.type === 'blog' || pageMd.type === 'blog-post' || (mainSchema && (mainSchema['@type'] === 'Article' || mainSchema['@type'] === 'BlogPosting'))) {
       ogType = 'article';
-      const pubDate = mainSchema.datePublished || '2026-08-17T06:00:00+03:00';
-      const modDate = mainSchema.dateModified || pubDate;
-      const authorName = mainSchema.author?.name || 'John K. Mwangi';
-      const section = mainSchema.articleSection || 'Jackpot Predictions & Tactical Analysis';
+      const pubDate = mainSchema.datePublished || pageMd.datePublished || '2026-08-17T06:00:00+03:00';
+      const modDate = mainSchema.dateModified || pageMd.dateModified || pubDate;
+      const authorName = pageMd.authorName || mainSchema.author?.name || 'John K. Mwangi';
+      const section = pageMd.category || mainSchema.articleSection || 'Football Strategy & Analysis';
       extraMetaTags = `
     <!-- Article & QDF Freshness Metadata -->
     <meta property="article:published_time" content="${pubDate}" />
@@ -88,6 +88,12 @@ export function injectSeoAndStructuredData(rawHtml: string, requestUrl: string):
     <meta property="og:updated_time" content="${modDate}" />
     <meta property="article:author" content="${escapeHtml(authorName)}" />
     <meta property="article:section" content="${escapeHtml(section)}" />`;
+      if (pageMd.coverImage) {
+        ogImage = pageMd.coverImage.startsWith('http') ? pageMd.coverImage : `https://sokaking.com${pageMd.coverImage.startsWith('/') ? '' : '/'}${pageMd.coverImage}`;
+      }
+      crawlerTitle = pageMd.displayTitle || pageMd.title;
+      crawlerDesc = pageMd.description;
+      crawlerBody = pageMd.intro || pageMd.meat || (pageMd.fullContent ? pageMd.fullContent.slice(0, 1500) : '');
     }
 
     let html = rawHtml;

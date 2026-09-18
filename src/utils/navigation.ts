@@ -107,11 +107,17 @@ export function getPageIdFromUrl(pathname: string): string {
   const norm = getNormalizedPath(pathname);
   if (norm === '/' || norm === '' || norm === '/404' || norm === '/not-found') return 'home';
   if (norm === '/blog') return 'blog';
+
+  // 1. Direct URL map match (checks any custom link: e.g. /path/blogurl or /blog/blogurl)
+  if (URL_TO_PAGE_MAP[norm]) return URL_TO_PAGE_MAP[norm];
+
+  // 2. Sub-path /blog/...
   if (norm.startsWith('/blog/')) {
     const blogSlug = norm.replace(/^\/blog\//, '');
+    if (URL_TO_PAGE_MAP[`/${blogSlug}`]) return URL_TO_PAGE_MAP[`/${blogSlug}`];
+    if (PAGE_TO_URL_MAP[blogSlug]) return blogSlug;
     if (blogSlug) return `blog-${blogSlug}`;
   }
-  if (URL_TO_PAGE_MAP[norm]) return URL_TO_PAGE_MAP[norm];
 
   const rawSlug = norm.replace(/^\//, '');
   if (URL_TO_PAGE_MAP[`/${rawSlug}`]) return URL_TO_PAGE_MAP[`/${rawSlug}`];

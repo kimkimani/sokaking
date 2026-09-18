@@ -5,13 +5,17 @@ import { expandTopFixturesParameters, generateTopConfidenceFixturesMarkdown } fr
 
 export interface ParsedMarkdownPage extends PageMetadata {
   author?: ParsedAuthor;
-  intro: string;
-  middle: string;
+  intro?: string;
+  middle?: string;
   meat: string;
-  faq: string;
+  faq?: string;
   faqTitle?: string;
   faqHeading?: string;
   fullContent: string;
+  category?: string;
+  readingTime?: string;
+  coverImage?: string;
+  tags?: string[];
 }
 
 /**
@@ -201,6 +205,23 @@ export function parseFrontmatter(rawMd: string): Partial<PageMetadata> {
 
   const tccY = yamlStr.match(/^topConfidenceCount:\s*(\d+)/m);
   if (tccY) result.topConfidenceCount = parseInt(tccY[1], 10);
+
+  const catY = yamlStr.match(/^(?:category|section):\s*"?(.*?)"?$/m);
+  if (catY) result.category = catY[1].trim();
+
+  const rtY = yamlStr.match(/^(?:readingTime|readTime|reading_time):\s*"?(.*?)"?$/m);
+  if (rtY) result.readingTime = rtY[1].trim();
+
+  const imgY = yamlStr.match(/^(?:coverImage|heroImage|image):\s*"?(.*?)"?$/m);
+  if (imgY) result.coverImage = imgY[1].trim();
+
+  const tagsY = yamlStr.match(/^tags:\s*(?:\[(.*?)\]|([^\r\n]+))/m);
+  if (tagsY) {
+    const rawTags = tagsY[1] || tagsY[2];
+    if (rawTags) {
+      result.tags = rawTags.split(',').map(t => t.replace(/["'\[\]]/g, '').trim()).filter(Boolean);
+    }
+  }
 
   return result;
 }
@@ -460,6 +481,7 @@ export function getDynamicUrlMaps(
   const pageToUrlMap: Record<string, string> = {};
   const dynamicCategoryPages: Record<string, any> = {};
   const dynamicJackpotPages: Record<string, { pageKey: string; jackpotId: string; name: string; link: string; page?: any }> = {};
+  const dynamicBlogPages: Record<string, { pageKey: string; title: string; description: string; link: string; datePublished?: string; dateModified?: string; category?: string; authorId?: string; coverImage?: string }> = {};
 
   // Process ONLY active pages in PAGE_METADATA_MAP
   for (const [pageKey, meta] of Object.entries(PAGE_METADATA_MAP)) {
@@ -489,7 +511,7 @@ export function getDynamicUrlMaps(
       pageKey.includes('sure-') ||
       pageKey.startsWith('category-');
 
-    if (isCompetitorOrCategory && meta.type !== 'jackpot' && meta.type !== 'static' && pageKey !== 'home') {
+    if (isCompetitorOrCategory && meta.type !== 'jackpot' && meta.type !== 'static' && meta.type !== 'blog' && meta.type !== 'blog-post' && pageKey !== 'home') {
       dynamicCategoryPages[pageKey] = {
         id: pageKey,
         name: meta.displayTitle || meta.title || pageKey,
@@ -510,6 +532,21 @@ export function getDynamicUrlMaps(
         jackpotId: resolvedJackpotId,
         name: meta.displayTitle || meta.title || pageKey,
         link: meta.link || `/${pageKey}`,
+      };
+    }
+
+    // 3. Dynamic Blog Page Discovery
+    if (meta.type === 'blog' || meta.type === 'blog-post') {
+      dynamicBlogPages[pageKey] = {
+        pageKey,
+        title: meta.displayTitle || meta.title || pageKey,
+        description: meta.description || '',
+        link: meta.link || `/${pageKey}`,
+        datePublished: meta.datePublished,
+        dateModified: meta.dateModified,
+        category: meta.category || 'Football Strategy & Analysis',
+        authorId: meta.authorId || 'john-mwangi',
+        coverImage: meta.coverImage
       };
     }
   }
@@ -563,8 +600,10 @@ export function getDynamicUrlMaps(
     pageToUrlMap, 
     dynamicCategoryPages, 
     dynamicJackpotPages,
+    dynamicBlogPages,
     dynamicCategoryIds: Object.keys(dynamicCategoryPages),
-    dynamicJackpotIds: Object.keys(dynamicJackpotPages)
+    dynamicJackpotIds: Object.keys(dynamicJackpotPages),
+    dynamicBlogIds: Object.keys(dynamicBlogPages)
   };
 }
 

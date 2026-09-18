@@ -276,6 +276,27 @@ export function buildBreadcrumbSchema(pageId: string, pageMd: ParsedMarkdownPage
   const rawTitle = pageMd.displayTitle || pageMd.title.split('|')[0].trim();
   const pageTitle = cleanSchemaText(rawTitle);
 
+  // 0. MARKDOWN BLOG PAGES
+  if (pageMd.type === 'blog' || pageMd.type === 'blog-post') {
+    items.push({
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Blog',
+      item: 'https://sokaking.com/blog'
+    });
+    items.push({
+      '@type': 'ListItem',
+      position: 3,
+      name: pageTitle,
+      item: canonicalUrl
+    });
+    return {
+      '@type': 'BreadcrumbList',
+      '@id': `${canonicalUrl}#breadcrumb`,
+      itemListElement: items
+    };
+  }
+
   // 1. ALL JACKPOT PAGES
   const isJackpotPage = 
     pageId === 'jackpot-list' || 
@@ -982,7 +1003,49 @@ export function generatePageJsonLd(
       dateModified: dateModified
     };
   }
-  // TYPE 5: Prediction Tips and Category Pages and Jackpot Analysis -> Article Schema
+  // TYPE 5: Markdown Blog Pages -> BlogPosting Schema
+  else if (pageMd.type === 'blog' || pageMd.type === 'blog-post') {
+    const rawBody = pageMd.fullContent || pageMd.meat || '';
+    const wordCount = calculateArticleWordCount(rawBody);
+    const readingTimeStr = pageMd.readingTime || `${Math.max(1, Math.ceil(wordCount / 200))} min read`;
+    const timeRequired = formatDurationIso(readingTimeStr, wordCount);
+    const cleanBody = cleanSchemaText(rawBody);
+
+    mainSchema = {
+      '@type': 'BlogPosting',
+      headline: cleanSchemaText(pageMd.displayTitle || pageMd.title),
+      name: cleanSchemaText(pageMd.displayTitle || pageMd.title),
+      description: cleanSchemaText(pageMd.description),
+      url: canonicalUrl,
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': canonicalUrl
+      },
+      image: [
+        pageMd.coverImage ? (pageMd.coverImage.startsWith('http') ? pageMd.coverImage : `https://sokaking.com${pageMd.coverImage.startsWith('/') ? '' : '/'}${pageMd.coverImage}`) : 'https://sokaking.com/icon.png',
+        'https://sokaking.com/icon.png',
+        'https://sokaking.com/apple-touch-icon.png'
+      ],
+      thumbnailUrl: pageMd.coverImage ? (pageMd.coverImage.startsWith('http') ? pageMd.coverImage : `https://sokaking.com${pageMd.coverImage.startsWith('/') ? '' : '/'}${pageMd.coverImage}`) : 'https://sokaking.com/icon.png',
+      datePublished: datePublished,
+      dateModified: dateModified,
+      author: authorObj,
+      publisher: publisherObj,
+      inLanguage: 'en-KE',
+      isAccessibleForFree: true,
+      wordCount: wordCount,
+      timeRequired: timeRequired,
+      articleSection: pageMd.category || 'Football Strategy & Betting Insights',
+      keywords: cleanSchemaText(pageMd.keywords),
+      articleBody: cleanBody.slice(0, 5000),
+      copyrightHolder: {
+        '@type': 'Organization',
+        name: 'Soka King'
+      },
+      copyrightYear: new Date(datePublished).getFullYear() || 2026
+    };
+  }
+  // TYPE 6: Prediction Tips and Category Pages and Jackpot Analysis -> Article Schema
   else {
     const isJackpotPage = ALL_JACKPOT_IDS.includes(pageId) || pageMd.type === 'jackpot' || !!pageMd.jackpotId || pageId.includes('jackpot');
     const categoryName = isJackpotPage 

@@ -2,9 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { expandTopFixturesParameters, fetchLiveJackpotFixtures, fetchLiveMegaJackpotFixtures, getCachedLiveJackpotFixtures, isDoubleChanceTip } from '../utils/topJackpotFixtures';
 import { Fixture } from '../types';
 import { getLinkRel } from '../utils/linkUtils';
-import { Crown, Users, Star, ArrowRight, ExternalLink } from 'lucide-react';
+import { Crown, Users, Star, ArrowRight, ExternalLink, ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react';
 import PaymentModal from './PaymentModal';
 import JackpotCountdownTimer from './JackpotCountdownTimer';
+import VotePoll from './VotePoll';
 
 interface MarkdownRendererProps {
   content: string;
@@ -240,6 +241,7 @@ interface CompactAllJackpotFixturesSectionProps {
   }>;
   postSlug?: string;
   jackpotId?: string;
+  fixtures?: Fixture[];
 }
 
 export function parseAllFixtureLine(line: string): {
@@ -262,13 +264,14 @@ export function parseAllFixtureLine(line: string): {
     /confidence:/i.test(trimmed) ||
     /sokaking\s*tip:/i.test(trimmed) ||
     /database\s*tip:/i.test(trimmed) ||
+    /community\s*votes/i.test(trimmed) ||
     /user\s*votes/i.test(trimmed) ||
     /user\s*tip/i.test(trimmed) ||
     /most\s*voted/i.test(trimmed);
 
   if (!hasJackpotClues) return null;
 
-  // Look for metadata part e.g. (Confidence: 85% | User Votes: 2 (Away)) or legacy (Confidence: 85% | User Votes/Tip: 2 - 60%)
+  // Look for metadata part e.g. (Confidence: 85% | Community Votes: 2 (Away)) or (Confidence: 85% | User Votes: 2 (Away))
   const metaIndex = trimmed.lastIndexOf('(Confidence:');
   let mainPart = trimmed;
   let metaPart = '';
@@ -297,7 +300,7 @@ export function parseAllFixtureLine(line: string): {
   if (confMatch) confidence = confMatch[1].includes('%') ? confMatch[1] : `${confMatch[1]}%`;
 
   let mostVoted = '';
-  const voteMatch = metaPart.match(/(?:User\s*(?:Votes\/Tip|Votes|Tip)|Most\s*Voted):\s*([^|]+)/i);
+  const voteMatch = metaPart.match(/(?:Community\s*Votes|User\s*(?:Votes\/Tip|Votes|Tip)|Most\s*Voted):\s*([^|]+)/i);
   if (voteMatch) {
     let rawVote = voteMatch[1].trim();
     // Normalize legacy formats like "2 - 53%" into "2 (Away)"
@@ -330,11 +333,21 @@ export function parseAllFixtureLine(line: string): {
 function CompactAllJackpotFixturesSection({
   items,
   postSlug,
-  jackpotId = 'sportpesa-mega'
+  jackpotId = 'sportpesa-mega',
+  fixtures
 }: CompactAllJackpotFixturesSectionProps) {
   const [filter, setFilter] = useState<'all' | 'free' | 'vip'>('all');
   const [sortBy, setSortBy] = useState<'game' | 'confidence'>('game');
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [showPolls, setShowPolls] = useState<boolean>(true);
+  const [hiddenPollGames, setHiddenPollGames] = useState<Record<number, boolean>>({});
+
+  const togglePollGame = (gameNumber: number) => {
+    setHiddenPollGames(prev => ({
+      ...prev,
+      [gameNumber]: !prev[gameNumber]
+    }));
+  };
 
   const freeItems = useMemo(() => items.filter(i => !i.isVipLocked), [items]);
   const vipItems = useMemo(() => items.filter(i => i.isVipLocked), [items]);
@@ -350,6 +363,20 @@ function CompactAllJackpotFixturesSection({
     }
     return [...list].sort((a, b) => a.gameNumber - b.gameNumber);
   }, [items, freeItems, vipItems, filter, sortBy]);
+
+  const allPollsVisible = useMemo(() => {
+    return showPolls && displayedItems.length > 0 && !displayedItems.some(item => hiddenPollGames[item.gameNumber]);
+  }, [displayedItems, showPolls, hiddenPollGames]);
+
+  const toggleAllPolls = () => {
+    if (allPollsVisible) {
+      setShowPolls(false);
+      setHiddenPollGames({});
+    } else {
+      setShowPolls(true);
+      setHiddenPollGames({});
+    }
+  };
 
   const titleName = jackpotId.toLowerCase().includes('mega')
     ? 'SportPesa Mega Jackpot'
@@ -396,7 +423,7 @@ function CompactAllJackpotFixturesSection({
           </div>
         </div>
 
-        {/* Filter Controls */}
+        {/* Filter & Voting Controls */}
         <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
           <button
             type="button"
@@ -440,6 +467,20 @@ function CompactAllJackpotFixturesSection({
           >
             Sort: {sortBy === 'game' ? 'Match #' : 'Conf %'}
           </button>
+
+          <button
+            type="button"
+            onClick={toggleAllPolls}
+            className={`px-2 py-0.5 sm:px-2 sm:py-1 rounded text-[9.5px] font-mono font-bold transition-all cursor-pointer flex items-center gap-1 border ${
+              allPollsVisible
+                ? 'bg-sky-500/15 text-sky-900 dark:text-sky-300 border-sky-500/35 font-black shadow-2xs'
+                : 'text-slate-600 dark:text-slate-400 bg-slate-200/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700'
+            }`}
+            title={allPollsVisible ? "Collapse community voting polls" : "Show community voting polls for all jackpot matches"}
+          >
+            <Users className="w-3 h-3 shrink-0" />
+            <span>{allPollsVisible ? 'Hide Polls' : 'Community Polls'}</span>
+          </button>
         </div>
       </div>
 
@@ -463,6 +504,26 @@ function CompactAllJackpotFixturesSection({
             const matchLeagueResult = item.matchTeams.match(matchLeagueRegex);
             const teamsTitle = matchLeagueResult ? matchLeagueResult[1].trim() : item.matchTeams;
             const leagueTitle = matchLeagueResult && matchLeagueResult[2] ? matchLeagueResult[2].trim() : '';
+
+            // Cleanly parse home and away team names
+            const cleanTeams = teamsTitle.replace(/\s*\([^)]*\)\s*$/, '').trim();
+            const teamParts = cleanTeams.split(/\s+vs\s+/i);
+            const extractedHome = teamParts[0]?.trim() || 'Home';
+            const extractedAway = teamParts[1]?.trim() || 'Away';
+
+            // Find matching live fixture if present
+            const matchedFixture = fixtures?.find(f => {
+              if (f.fixtureNumber && f.fixtureNumber === item.gameNumber) return true;
+              const h = (f.homeTeam || '').toLowerCase();
+              const a = (f.awayTeam || '').toLowerCase();
+              return teamsTitle.toLowerCase().includes(h) || teamsTitle.toLowerCase().includes(a);
+            });
+
+            const fId = (matchedFixture as any)?.fixtureId || matchedFixture?.id || `jackpot_${jackpotId}_game_${item.gameNumber}`;
+            const isPollVisible = showPolls && !hiddenPollGames[item.gameNumber];
+            const cleanExplanation = item.explanation
+              ? item.explanation.replace(/^\*{0,2}Fixture\s*Tip:\s*[^—–-]+[—–-]\s*\*{0,2}/i, '').trim() || item.explanation
+              : '';
 
             return (
               <div
@@ -500,16 +561,44 @@ function CompactAllJackpotFixturesSection({
                       <strong className="font-black text-[10.5px] sm:text-[11px]">{item.confidence.toString().includes('%') ? item.confidence : `${item.confidence}%`}</strong>
                     </div>
 
-                    {/* User votes consensus prediction */}
-                    {item.mostVoted && (
-                      <div
-                        className="inline-flex items-center gap-1 px-2 py-0.5 min-h-[24px] rounded font-mono bg-sky-500/10 text-sky-900 dark:text-sky-300 border border-sky-500/25"
-                        title="User votes consensus"
+                    {/* Community Votes consensus badge + Interactive toggle */}
+                    {item.mostVoted ? (
+                      <button
+                        type="button"
+                        onClick={() => togglePollGame(item.gameNumber)}
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 min-h-[24px] rounded font-mono border text-[10px] sm:text-[10.5px] cursor-pointer transition-all duration-150 select-none ${
+                          isPollVisible
+                            ? 'bg-sky-500/15 text-sky-950 dark:text-sky-200 font-black border-sky-500/40 shadow-2xs'
+                            : 'bg-slate-100 dark:bg-slate-800 hover:bg-sky-500/10 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700'
+                        }`}
+                        title={isPollVisible ? "Hide voting poll" : "Show voting poll"}
                       >
                         <Users className="w-2.5 h-2.5 text-sky-600 dark:text-sky-400 opacity-80 shrink-0" />
-                        <span className="text-[9px] uppercase tracking-wider text-sky-700 dark:text-sky-400 font-semibold">User Votes:</span>
-                        <strong className="font-black text-[10.5px] sm:text-[11px]">{item.mostVoted}</strong>
-                      </div>
+                        <span className="text-[9px] uppercase tracking-wider font-semibold text-sky-700 dark:text-sky-400">
+                          Community Votes:
+                        </span>
+                        <strong className="font-black">{item.mostVoted}</strong>
+                        {isPollVisible ? (
+                          <ChevronUp className="w-2.5 h-2.5 shrink-0 opacity-70 ml-0.5" />
+                        ) : (
+                          <ChevronDown className="w-2.5 h-2.5 shrink-0 opacity-70 ml-0.5" />
+                        )}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => togglePollGame(item.gameNumber)}
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 min-h-[24px] rounded font-mono border text-[10px] sm:text-[10.5px] cursor-pointer transition-all duration-150 select-none ${
+                          isPollVisible
+                            ? 'bg-sky-500/15 text-sky-950 dark:text-sky-200 font-black border-sky-500/40'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700'
+                        }`}
+                        title={isPollVisible ? "Hide voting poll" : "Show voting poll"}
+                      >
+                        <Users className="w-2.5 h-2.5 shrink-0 text-sky-600 dark:text-sky-400" />
+                        <span className="text-[9px] uppercase tracking-wider font-semibold">Community Votes</span>
+                        {isPollVisible ? <ChevronUp className="w-2.5 h-2.5 shrink-0 opacity-70" /> : <ChevronDown className="w-2.5 h-2.5 shrink-0 opacity-70" />}
+                      </button>
                     )}
 
                     {/* SokaKing Tip (2/3 disclosed) or Join VIP button (remaining 1/3) */}
@@ -540,28 +629,87 @@ function CompactAllJackpotFixturesSection({
                   </div>
                 </div>
 
-                {/* Explanation text matching top confidence format, or VIP Lock notice */}
-                {item.isVipLocked ? (
-                  <div className="flex items-center justify-between gap-2 mt-2 pt-1.5 border-t border-dashed border-amber-500/20 text-[10.5px] sm:text-[11px] text-amber-800/90 dark:text-amber-300/90 font-medium flex-wrap sm:flex-nowrap">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="shrink-0 text-amber-600 dark:text-amber-400 font-bold">🔒 VIP Tip:</span>
-                      <span className="truncate">Confidential database prediction and double-chance slips reserved for Soka King VIP members.</span>
+                {/* Community Votes - Directly visible under Community Votes */}
+                {isPollVisible && (
+                  <div className="mt-2.5 pt-2 border-t border-[var(--border)]/60">
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <div className="flex items-center gap-1.5 text-[10.5px] sm:text-[11px] font-mono font-bold text-slate-800 dark:text-slate-200">
+                        <Users className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
+                        <span className="uppercase tracking-wider">Community Votes</span>
+                      </div>
+                      {item.mostVoted && (
+                        <span className="text-[9.5px] sm:text-[10px] font-mono text-sky-800 dark:text-sky-300 bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/20 font-semibold">
+                          Consensus: <strong className="font-black text-sky-950 dark:text-sky-100">{item.mostVoted}</strong>
+                        </span>
+                      )}
                     </div>
-                    {/* <a
-                      href="https://sokaking.com/sportpesa-mjp-prediction"
-                      className="underline font-bold text-amber-600 dark:text-amber-400 hover:text-amber-700 shrink-0 text-[10.5px] inline-flex items-center gap-1"
-                      title="Unlock full SportPesa MJP Prediction analysis"
-                    >
-                      <span>Unlock Now</span>
-                      <ExternalLink className="w-3 h-3 inline" />
-                    </a> */}
+
+                    <VotePoll
+                      fixtureId={fId}
+                      homeTeam={extractedHome}
+                      awayTeam={extractedAway}
+                      prediction={item.prediction}
+                      isEnded={matchedFixture?.status === 'FT' || matchedFixture?.result === 'won' || matchedFixture?.result === 'lost'}
+                      status={matchedFixture?.status}
+                      result={matchedFixture?.result}
+                      variant="card"
+                    />
+                  </div>
+                )}
+
+                {/* The last part of a fixture: Highlighted Fixture Tips */}
+                {!item.isVipLocked ? (
+                  <div className="mt-2.5 pt-2 border-t border-dashed border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-gradient-to-r from-amber-500/15 via-amber-500/[0.08] to-emerald-500/[0.05] dark:from-amber-500/20 dark:via-amber-500/[0.1] dark:to-transparent rounded-lg p-2.5 border border-amber-500/40 shadow-xs">
+                    <div className="flex items-center gap-2 min-w-0 flex-wrap">
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider bg-amber-500 text-slate-950 shadow-xs">
+                          <Star className="w-2.5 h-2.5 fill-slate-950 shrink-0" />
+                          <span>Fixture Tip:</span>
+                        </span>
+                        <span className={`px-2.5 py-0.5 rounded font-mono font-black text-xs sm:text-[12.5px] shadow-xs ${
+                          isDoubleChanceTip(item.prediction)
+                            ? 'bg-amber-400 text-slate-950 border border-amber-500'
+                            : 'bg-emerald-600 text-white dark:bg-emerald-500 dark:text-slate-950 border border-emerald-500/50'
+                        }`}>
+                          {item.prediction}
+                        </span>
+                      </div>
+
+                      {cleanExplanation && (
+                        <span className="text-[11.5px] sm:text-[12px] font-bold text-slate-900 dark:text-slate-100 leading-snug">
+                          {parseInline(cleanExplanation, postSlug)}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0 text-[10.5px] font-mono text-amber-900 dark:text-amber-200 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/25">
+                      <span className="font-semibold text-slate-700 dark:text-slate-300">Confidence:</span>
+                      <strong className="font-black text-amber-950 dark:text-amber-100">
+                        {item.confidence.toString().includes('%') ? item.confidence : `${item.confidence}%`}
+                      </strong>
+                    </div>
                   </div>
                 ) : (
-                  item.explanation && (
-                    <p className="text-[11px] sm:text-[11.5px] text-[var(--text-muted)] leading-relaxed mt-1 font-normal">
-                      {parseInline(item.explanation, postSlug)}
-                    </p>
-                  )
+                  <div className="mt-2.5 pt-2 border-t border-dashed border-amber-500/30 flex items-center justify-between gap-2.5 bg-gradient-to-r from-amber-500/15 via-amber-500/[0.08] to-transparent rounded-lg p-2.5 border border-amber-500/40 flex-wrap sm:flex-nowrap shadow-xs">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider bg-amber-500 text-slate-950 shadow-xs shrink-0">
+                        <Crown className="w-2.5 h-2.5 shrink-0" />
+                        <span>Fixture Tip:</span>
+                      </span>
+                      <span className="text-[11px] sm:text-[11.5px] font-bold text-amber-950 dark:text-amber-200 truncate">
+                        🔒 VIP Slip Exclusive • High-accuracy prediction & 3 double-chance combo slips
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleOpenMegaJackpotPayment}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-black text-[11px] shadow-xs cursor-pointer transition-all shrink-0"
+                    >
+                      <Star className="w-3 h-3 fill-slate-950 shrink-0" />
+                      <span>Unlock Tip</span>
+                      <ArrowRight className="w-3 h-3 shrink-0" />
+                    </button>
+                  </div>
                 )}
               </div>
             );
@@ -753,6 +901,7 @@ export default function MarkdownRenderer({
           items={allFixtureItems}
           postSlug={postSlug}
           jackpotId={jackpotId}
+          fixtures={activeFixtures}
         />
       );
       continue;

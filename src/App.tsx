@@ -62,6 +62,7 @@ const StaticPages = lazy(() => import('./components/StaticPages'));
 const PaymentModal = lazy(() => import('./components/PaymentModal'));
 const BlogPage = lazy(() => import('./components/BlogPage'));
 const BlogPostPage = lazy(() => import('./components/BlogPostPage'));
+const MarkdownBlogPage = lazy(() => import('./components/MarkdownBlogPage'));
 import { getBlogPostBySlug } from './content/blogLoader';
 
 import { 
@@ -214,16 +215,38 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
     } else if (activePage.startsWith('blog-')) {
       const blogSlug = activePage.replace(/^blog-/, '');
       const blogPost = getBlogPostBySlug(blogSlug);
-      canonicalPath = `/blog/${blogPost ? blogPost.slug : blogSlug}`;
-      fullCanonicalUrl = `https://sokaking.com${canonicalPath}`;
-      pageTitle = blogPost ? `${blogPost.title} | Soka King Football Analytics Blog` : 'Football Analytics Blog | Soka King';
-      pageDesc = blogPost ? blogPost.description : 'Football betting analytics and predictive modeling.';
-      pageKeywords = blogPost ? (blogPost.tags || []).join(', ') + ', football analytics, soka king' : 'football betting analytics';
-      pageOgType = 'article';
-      if (blogPost?.coverImage) {
-        pageOgImage = blogPost.coverImage.startsWith('http')
-          ? blogPost.coverImage
-          : `https://sokaking.com${blogPost.coverImage.startsWith('/') ? '' : '/'}${blogPost.coverImage}`;
+      if (blogPost) {
+        canonicalPath = `/blog/${blogPost ? blogPost.slug : blogSlug}`;
+        fullCanonicalUrl = `https://sokaking.com${canonicalPath}`;
+        pageTitle = `${blogPost.title} | Soka King Football Analytics Blog`;
+        pageDesc = blogPost.description;
+        pageKeywords = (blogPost.tags || []).join(', ') + ', football analytics, soka king';
+        pageOgType = 'article';
+        if (blogPost?.coverImage) {
+          pageOgImage = blogPost.coverImage.startsWith('http')
+            ? blogPost.coverImage
+            : `https://sokaking.com${blogPost.coverImage.startsWith('/') ? '' : '/'}${blogPost.coverImage}`;
+        }
+      } else if (hasMarkdownFile(blogSlug)) {
+        const pageMd = getMarkdownContent(blogSlug);
+        canonicalPath = pageMd.link || `/blog/${blogSlug}`;
+        fullCanonicalUrl = buildCanonicalUrl(canonicalPath, blogSlug);
+        pageTitle = pageMd.title;
+        pageDesc = pageMd.description;
+        pageKeywords = pageMd.keywords;
+        pageOgType = 'article';
+        if (pageMd.coverImage) {
+          pageOgImage = pageMd.coverImage.startsWith('http')
+            ? pageMd.coverImage
+            : `https://sokaking.com${pageMd.coverImage.startsWith('/') ? '' : '/'}${pageMd.coverImage}`;
+        }
+      } else {
+        canonicalPath = `/blog/${blogSlug}`;
+        fullCanonicalUrl = `https://sokaking.com${canonicalPath}`;
+        pageTitle = 'Football Analytics Blog | Soka King';
+        pageDesc = 'Football betting analytics and predictive modeling.';
+        pageKeywords = 'football betting analytics';
+        pageOgType = 'article';
       }
     } else {
       const pageMd = getMarkdownContent(activePage);
@@ -233,7 +256,16 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
       pageTitle = pageMd.title;
       pageDesc = pageMd.description;
       pageKeywords = pageMd.keywords;
-      pageOgType = activePage === 'vip-packages' ? 'product' : 'website';
+      if (pageMd.type === 'blog' || pageMd.type === 'blog-post') {
+        pageOgType = 'article';
+        if (pageMd.coverImage) {
+          pageOgImage = pageMd.coverImage.startsWith('http')
+            ? pageMd.coverImage
+            : `https://sokaking.com${pageMd.coverImage.startsWith('/') ? '' : '/'}${pageMd.coverImage}`;
+        }
+      } else {
+        pageOgType = activePage === 'vip-packages' ? 'product' : 'website';
+      }
     }
     
     if (pageTitle) {
@@ -932,11 +964,43 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                       />
                     );
                   }
+
+                  if (hasMarkdownFile(blogSlug)) {
+                    const pageMd = getMarkdownContent(blogSlug);
+                    return (
+                      <MarkdownBlogPage 
+                        pageKey={blogSlug}
+                        pageMd={pageMd}
+                        onBackToHome={() => handleSelectPage('home')}
+                        onBackToBlog={() => handleSelectPage('blog')}
+                        onSelectPage={handleSelectPage}
+                        onOpenPayment={handleOpenPayment}
+                        fixtures={dbPredictions.all && dbPredictions.all.length > 0 ? dbPredictions.all : (Array.isArray(dbPredictions) ? dbPredictions : [])}
+                        jackpots={dbJackpots}
+                      />
+                    );
+                  }
                 }
 
-                // DYNAMIC MARKDOWN PAGE (For newly created or existing .md files: Competitors, custom SEO Jackpot pages, etc.)
+                // DYNAMIC MARKDOWN PAGE (For newly created or existing .md files: Competitors, custom SEO Jackpot pages, Blog pages, etc.)
                 if (activePage !== 'home' && hasMarkdownFile(activePage)) {
                   const pageMd = getMarkdownContent(activePage);
+
+                  // 0. Is it a dedicated blog page (type === 'blog' or type === 'blog-post')?
+                  if (pageMd.type === 'blog' || pageMd.type === 'blog-post') {
+                    return (
+                      <MarkdownBlogPage 
+                        pageKey={activePage}
+                        pageMd={pageMd}
+                        onBackToHome={() => handleSelectPage('home')}
+                        onBackToBlog={() => handleSelectPage('blog')}
+                        onSelectPage={handleSelectPage}
+                        onOpenPayment={handleOpenPayment}
+                        fixtures={dbPredictions.all && dbPredictions.all.length > 0 ? dbPredictions.all : (Array.isArray(dbPredictions) ? dbPredictions : [])}
+                        jackpots={dbJackpots}
+                      />
+                    );
+                  }
 
                   // 1. Is it a jackpot page (has jackpotId or type === 'jackpot')?
                   if (pageMd.jackpotId || pageMd.type === 'jackpot') {

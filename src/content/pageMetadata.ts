@@ -39,6 +39,10 @@ export interface PageMetadata {
   mtime?: string;
   topConfidenceFixtures?: boolean;
   topConfidenceCount?: number;
+  category?: string;
+  readingTime?: string;
+  coverImage?: string;
+  tags?: string[];
 }
 
 export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
@@ -56,9 +60,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Free football predictions, jackpot tips, and betting analysis.",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.269Z"
+    "mtime": "2026-09-18T06:03:58.165Z"
   },
   "254-golden-tips": {
     "pageKey": "254-golden-tips",
@@ -81,9 +85,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Get instant access to multi-bets with high winning probability.",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "Check Sokamasta daily double-chance options and standard single tips verified by Soka King punters.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.227Z"
+    "mtime": "2026-09-18T06:03:58.163Z"
   },
   "254-sure-tips": {
     "pageKey": "254-sure-tips",
@@ -105,9 +109,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Get instant M-Pesa access to daily 254 sure tips, high-odds accumulator legs, and multi-market combinations.",
     "listTitle": "254 Sure Tips Free Predictions Today",
     "listSubtitle": "Daily 254 sure tips and high-confidence predictions verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.302Z"
+    "mtime": "2026-09-18T06:03:58.163Z"
   },
   "4soka-tips-prediction": {
     "pageKey": "4soka-tips-prediction",
@@ -130,9 +134,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Get instant access to multi-tips with high winning rates.",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "Check 4Soka Tips daily BTTS, OVER/UNDER and double-chance options verified by Soka King punters.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.277Z"
+    "mtime": "2026-09-18T06:03:58.181Z"
   },
   "about": {
     "pageKey": "about",
@@ -149,9 +153,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Explore our predictive algorithms",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.228Z"
+    "mtime": "2026-09-18T06:03:58.139Z"
   },
   "betika-midweek": {
     "pageKey": "betika-midweek",
@@ -170,9 +174,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Subscribe to get instant access to full 1X2 selections, banker probability rankings, and low-variance double-chance covers for Betika Midweek Jackpot.",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.259Z"
+    "mtime": "2026-09-18T06:03:58.131Z"
   },
   "betnumbers-360-predictions": {
     "pageKey": "betnumbers-360-predictions",
@@ -195,9 +199,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Explore selected accumulator ideas, high-value markets and carefully reviewed football predictions.",
     "listTitle": "Betnumbers 360 Football Tips",
     "listSubtitle": "Daily Betnumbers 360 predictions, football tips and match analysis.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.297Z"
+    "mtime": "2026-09-18T06:03:58.139Z"
   },
   "betnumbers-sportpesa-jackpot-prediction": {
     "pageKey": "betnumbers-sportpesa-jackpot-prediction",
@@ -215,10 +219,10 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Get instant access to all 17 Betnumbers Mega Jackpot predictions, with 1X2 selections and all double-chance covers for this weekend's mega MJP.",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceFixtures": true,
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.301Z"
+    "mtime": "2026-09-18T06:03:58.161Z"
   },
   "category-btts": {
     "pageKey": "category-btts",
@@ -237,9 +241,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Access daily Goal-Goal selections with high offensive output indicators and leaky defensive trends.",
     "listTitle": "Both Teams To Score (BTTS / GG) Free Predictions",
     "listSubtitle": "High-probability Goal-Goal match selections and scoring tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.299Z"
+    "mtime": "2026-09-18T06:03:58.159Z"
   },
   "category-doublechance": {
     "pageKey": "category-doublechance",
@@ -258,9 +262,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Get safe 1X, X2, and 12 combinations calculated to protect your multi-bets against draw traps.",
     "listTitle": "Double Chance Free Predictions",
     "listSubtitle": "High-probability daily double-chance options and safety single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.293Z"
+    "mtime": "2026-09-18T06:03:58.156Z"
   },
   "category-homewin": {
     "pageKey": "category-homewin",
@@ -279,9 +283,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Get high-confidence 1X2 home win selections based on stadium crowd impact and home pitch dominance.",
     "listTitle": "1X2 Home Win Free Predictions",
     "listSubtitle": "High-probability home win selections and 1X2 banker tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.248Z"
+    "mtime": "2026-09-18T06:03:58.183Z"
   },
   "category-over15": {
     "pageKey": "category-over15",
@@ -300,16 +304,16 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Access reliable 2+ goal line picks with over 88% historical winning probability.",
     "listTitle": "Over 1.5 Goals Free Predictions",
     "listSubtitle": "High-probability 2+ goal match selections and goal-line tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.223Z"
+    "mtime": "2026-09-18T06:03:58.198Z"
   },
   "category-over25": {
     "pageKey": "category-over25",
-    "title": "Over 2.5 Goals Predictions and High-Scoring Tips - Soka King",
-    "displayTitle": "Over 2.5 Goals Football Predictions Today",
+    "title": "King of Over 2.5 predictions - Soka King",
+    "displayTitle": "King of Over 2.5 predictions - Soka King Today",
     "description": "High-conversion Over 2.5 Goals football predictions. Advanced goal expectancy models identifying high-tempo attacking fixtures.",
-    "keywords": "Over 2.5 predictions, Over 2.5 goals tips today, high scoring matches",
+    "keywords": "king of over 2.5 prediction, Over 2.5 predictions, Over 2.5 goals tips today, high scoring matches",
     "link": "/football-predictions-over-2-5-goals",
     "type": "category",
     "fixturesCategory": "over25",
@@ -321,9 +325,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Get daily high-tempo match picks with total expected goal lines exceeding 3 goals.",
     "listTitle": "Over 2.5 Goals Free Predictions",
     "listSubtitle": "High-probability 3+ goal match selections and high-scoring tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.222Z"
+    "mtime": "2026-09-18T06:03:58.131Z"
   },
   "category-today": {
     "pageKey": "category-today",
@@ -342,9 +346,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Receive today's mathematically validated multi-bets directly on screen and via instant SMS.",
     "listTitle": "Today's Free Sonko Tips Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.256Z"
+    "mtime": "2026-09-18T06:03:58.122Z"
   },
   "category-tomorrow": {
     "pageKey": "category-tomorrow",
@@ -363,9 +367,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Lock in high odds early before market lines adjust across major bookmakers.",
     "listTitle": "Tomorrow's Free Football Predictions",
     "listSubtitle": "High-probability early double-chance options and value single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.230Z"
+    "mtime": "2026-09-18T06:03:58.130Z"
   },
   "category-yesterday": {
     "pageKey": "category-yesterday",
@@ -384,15 +388,15 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Inspect past winning tickets, model accuracy benchmarks, and settled scoreline distributions.",
     "listTitle": "Yesterday's Free Football Predictions Results",
     "listSubtitle": "Verified historical match outcomes and settled predictions audited by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.265Z"
+    "mtime": "2026-09-18T06:03:58.132Z"
   },
   "cheza254-predictions-and-tips": {
     "pageKey": "cheza254-predictions-and-tips",
-    "title": "Cheza 254 Prediction and Free Tips Today",
-    "displayTitle": "Cheza 254 Prediction and Free Tips Today",
-    "description": "Looking for Cheza254 prediction and free tips today? We have 1X2, BTTS, Over/Under, Double Chance and jackpot predictions Cheza254 football prediction",
+    "title": "Cheza 254 Prediction and Free Tips - Cheza254 Today",
+    "displayTitle": "Cheza 254 Prediction and Free Tips - Cheza254 Today",
+    "description": "Looking for Cheza254 prediction and free tips today? We have 1X2, BTTS, Over/Under, Double Chance and jackpot predictions Cheza 254 football prediction",
     "keywords": "cheza 254, cheza254 prediction, cheza254, cheza254 tips, www cheza254 prediction com, www cheza254 com, www cheza254, www cheza 254 com, cheza254 today, cheza254 prediction today, cheza254 prediction tips, cheza254 prediction for today's games, cheza254 football prediction, cheza254 com, cheza 254 com",
     "link": "/cheza-254-prediction",
     "type": "competitor",
@@ -409,9 +413,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Access selected accumulator tickets, high-odds combinations and premium jackpot predictions.",
     "listTitle": "Cheza 254 Free Tips Today",
     "listSubtitle": "Today's Cheza254 prediction, football tips, odds and jackpot selections.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.284Z"
+    "mtime": "2026-09-18T06:03:58.152Z"
   },
   "contact": {
     "pageKey": "contact",
@@ -428,9 +432,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Reach our technical team via email, WhatsApp, or instant M-Pesa payment verification.",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.243Z"
+    "mtime": "2026-09-18T06:03:58.185Z"
   },
   "forebet-sportpesa-mega-jackpot-prediction": {
     "pageKey": "forebet-sportpesa-mega-jackpot-prediction",
@@ -448,10 +452,10 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Get ready for today sure forebet mega jackpot tips for this weekend for free 100%",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceFixtures": true,
     "topConfidenceCount": 7,
-    "mtime": "2026-09-16T10:15:12.283Z"
+    "mtime": "2026-09-18T06:03:58.135Z"
   },
   "goal-goal-mega-jackpot-prediction": {
     "pageKey": "goal-goal-mega-jackpot-prediction",
@@ -469,10 +473,10 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Soka King has the latest Mega Jackpot selections ready for you. We give you premium tips and get you a higher chance to win the Mega JP bonus tier",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceFixtures": true,
     "topConfidenceCount": 7,
-    "mtime": "2026-09-16T10:15:12.286Z"
+    "mtime": "2026-09-18T06:03:58.126Z"
   },
   "home": {
     "pageKey": "home",
@@ -489,9 +493,31 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Get instant access to 100% proven multi-bets with a guaranteed high winning probability.",
     "listTitle": "SokaKing Daily Free Football Predictions",
     "listSubtitle": "Daily free football predictions and jackpot with 1X2, BTTS, Over/Under and full jackpot coverage updated every day",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.269Z"
+    "mtime": "2026-09-18T06:03:58.180Z"
+  },
+  "how-to-win-sportpesa-mega-jackpot": {
+    "pageKey": "how-to-win-sportpesa-mega-jackpot",
+    "title": "How to Win the SportPesa Mega Jackpot: 7 Proven Statistical Strategies",
+    "displayTitle": "How to Win the SportPesa Mega Jackpot: 7 Proven Mathematical Strategies",
+    "description": "Master the mathematics of the 17-game SportPesa Mega Jackpot with Poisson distribution models, double chance optimization, and bankroll discipline.",
+    "keywords": "how to win sportpesa mega jackpot, sportpesa jackpot strategy, sportpesa 17 games prediction, jackpot mathematical model, mega jackpot bonus tips",
+    "link": "/how-to-win-sportpesa-mega-jackpot",
+    "type": "blog",
+    "fixturesCategory": "Jackpot Strategy & Mathematical Modeling",
+    "authorId": "john-mwangi",
+    "authorName": "John K. Mwangi",
+    "authorTitle": "Lead Football Analyst and Poisson Modeler",
+    "unlockHeading": "How to Win the SportPesa Mega Jackpot: 7 Proven Mathematical Strategies",
+    "unlockDescription": "Master the mathematics of the 17-game SportPesa Mega Jackpot with Poisson distribution models, double chance optimization, and bankroll discipline.",
+    "listTitle": "Today's Free Football Predictions",
+    "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
+    "dateModified": "2026-03-18T10:30:00+03:00",
+    "lastModified": "2026-03-18T10:30:00+03:00",
+    "datePublished": "2026-03-15T08:00:00+03:00",
+    "topConfidenceCount": 5,
+    "mtime": "2026-09-18T09:50:59.443Z"
   },
   "jackpot-list": {
     "pageKey": "jackpot-list",
@@ -510,45 +536,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Get complete predictions and double-chance covers for SportPesa, Betika, Mozzart, betPawa, SportyBet, and OdiBet jackpots.",
     "listTitle": "Major Kenyan Football Jackpot Pools",
     "listSubtitle": "Explore mathematically analyzed jackpot fixture slates and double-chance strategy combinations.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.268Z"
-  },
-  "kadenge-sportpesa-mega-jackpot-prediction": {
-    "pageKey": "kadenge-sportpesa-mega-jackpot-prediction",
-    "title": "Soka King | Free Football Predictions and Jackpot Tips",
-    "displayTitle": "Soka King | Free Football Predictions and Jackpot Tips",
-    "description": "Free football predictions, jackpot tips, and betting analysis.",
-    "keywords": "football predictions, jackpot tips, soccer predictions",
-    "link": "/kadenge-sportpesa-mega-jackpot-prediction",
-    "authorId": "john-mwangi",
-    "authorName": "John K. Mwangi",
-    "authorTitle": "Lead Football Analyst and Poisson Modeler",
-    "unlockHeading": "Soka King | Free Football Predictions and Jackpot Tips",
-    "unlockDescription": "Free football predictions, jackpot tips, and betting analysis.",
-    "listTitle": "Today's Free Football Predictions",
-    "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
-    "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.276Z"
-  },
-  "mjomba-sportpesa-jackpot-prediction": {
-    "pageKey": "mjomba-sportpesa-jackpot-prediction",
-    "title": "Soka King | Free Football Predictions and Jackpot Tips",
-    "displayTitle": "Soka King | Free Football Predictions and Jackpot Tips",
-    "description": "Free football predictions, jackpot tips, and betting analysis.",
-    "keywords": "football predictions, jackpot tips, soccer predictions",
-    "link": "/mjomba-sportpesa-jackpot-prediction",
-    "authorId": "john-mwangi",
-    "authorName": "John K. Mwangi",
-    "authorTitle": "Lead Football Analyst and Poisson Modeler",
-    "unlockHeading": "Soka King | Free Football Predictions and Jackpot Tips",
-    "unlockDescription": "Free football predictions, jackpot tips, and betting analysis.",
-    "listTitle": "Today's Free Football Predictions",
-    "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
-    "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.238Z"
+    "mtime": "2026-09-18T06:03:58.182Z"
   },
   "mozzart-grand": {
     "pageKey": "mozzart-grand",
@@ -567,9 +557,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Access expert 16-match selections and double-chance protection for Mozzart Grand Jackpot.",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.268Z"
+    "mtime": "2026-09-18T06:03:58.140Z"
   },
   "mozzart-super-daily": {
     "pageKey": "mozzart-super-daily",
@@ -587,9 +577,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Get daily computer-simulated 16-game prediction tickets for Mozzart Super Daily.",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.258Z"
+    "mtime": "2026-09-18T06:03:58.179Z"
   },
   "partners": {
     "pageKey": "partners",
@@ -606,9 +596,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Learn about our partners",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.218Z"
+    "mtime": "2026-09-18T06:03:58.168Z"
   },
   "privacy-policy": {
     "pageKey": "privacy-policy",
@@ -625,9 +615,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Review how we safeguard user data.",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.306Z"
+    "mtime": "2026-09-18T06:03:58.192Z"
   },
   "responsible-gambling": {
     "pageKey": "responsible-gambling",
@@ -645,9 +635,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Learn about bankroll allocation rules, loss control, and self-exclusion tools.",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.281Z"
+    "mtime": "2026-09-18T06:03:58.149Z"
   },
   "scometix-midweek-jackpot-predictions": {
     "pageKey": "scometix-midweek-jackpot-predictions",
@@ -665,27 +655,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Sokiang King has all the scometix midweek jackpot predictions ready for you. Unlock Pro level for SportPesa bonus wins",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.278Z"
-  },
-  "shinda-sportpesa-mega-jackpot-prediction-and-tips": {
-    "pageKey": "shinda-sportpesa-mega-jackpot-prediction-and-tips",
-    "title": "Soka King | Free Football Predictions and Jackpot Tips",
-    "displayTitle": "Soka King | Free Football Predictions and Jackpot Tips",
-    "description": "Free football predictions, jackpot tips, and betting analysis.",
-    "keywords": "football predictions, jackpot tips, soccer predictions",
-    "link": "/shinda-sportpesa-mega-jackpot-prediction-and-tips",
-    "authorId": "john-mwangi",
-    "authorName": "John K. Mwangi",
-    "authorTitle": "Lead Football Analyst and Poisson Modeler",
-    "unlockHeading": "Soka King | Free Football Predictions and Jackpot Tips",
-    "unlockDescription": "Free football predictions, jackpot tips, and betting analysis.",
-    "listTitle": "Today's Free Football Predictions",
-    "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
-    "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.238Z"
+    "mtime": "2026-09-18T06:03:58.170Z"
   },
   "sokamastas-predictions-and-tips": {
     "pageKey": "sokamastas-predictions-and-tips",
@@ -708,9 +680,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Activate VIP predictions and Get Premium Soka Masterd Tips.",
     "listTitle": "Today Sokamasta Free Football Tips",
     "listSubtitle": "Daily Sokamastas match selections verified by Soka King indexes and Analyst.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.228Z"
+    "mtime": "2026-09-18T06:03:58.134Z"
   },
   "sokamax-predictions": {
     "pageKey": "sokamax-predictions",
@@ -733,9 +705,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Get instant access to multi tips with high winning rates.",
     "listTitle": "Daily Sokamax Free Football Tips",
     "listSubtitle": "Sokamax Dailt and Todat Tips.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.226Z"
+    "mtime": "2026-09-18T06:03:58.176Z"
   },
   "sportpesa-mega": {
     "pageKey": "sportpesa-mega",
@@ -753,10 +725,10 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Get ready for sure mega jackpot predictions for this weekend to have instant access to full 1X2 selections, banker probability rankings, and low-variance double-chance covers for SportPesa Jackpots.",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:48:35+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceFixtures": true,
     "topConfidenceCount": 7,
-    "mtime": "2026-09-16T10:48:35.180Z"
+    "mtime": "2026-09-18T06:03:58.175Z"
   },
   "sportpesa-midweek": {
     "pageKey": "sportpesa-midweek",
@@ -774,9 +746,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Access 13-match selections, midweek fatigue matrix analysis, and double-chance covers for SportPesa Midweek Jackpot.",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.292Z"
+    "mtime": "2026-09-18T06:03:58.148Z"
   },
   "sportpesa-mjp-prediction": {
     "pageKey": "sportpesa-mjp-prediction",
@@ -794,28 +766,10 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Soka King has the latest MJP selections ready for you, with expert match analysis, football tips, and Pro-level insights.",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceFixtures": true,
     "topConfidenceCount": 7,
-    "mtime": "2026-09-16T10:15:12.296Z"
-  },
-  "stakegains-sportpesa-mega-jackpot-prediction": {
-    "pageKey": "stakegains-sportpesa-mega-jackpot-prediction",
-    "title": "Soka King | Free Football Predictions and Jackpot Tips",
-    "displayTitle": "Soka King | Free Football Predictions and Jackpot Tips",
-    "description": "Free football predictions, jackpot tips, and betting analysis.",
-    "keywords": "football predictions, jackpot tips, soccer predictions",
-    "link": "/stakegains-sportpesa-mega-jackpot-prediction",
-    "authorId": "john-mwangi",
-    "authorName": "John K. Mwangi",
-    "authorTitle": "Lead Football Analyst and Poisson Modeler",
-    "unlockHeading": "Soka King | Free Football Predictions and Jackpot Tips",
-    "unlockDescription": "Free football predictions, jackpot tips, and betting analysis.",
-    "listTitle": "Today's Free Football Predictions",
-    "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
-    "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.239Z"
+    "mtime": "2026-09-18T06:03:58.176Z"
   },
   "sunpel-free-football-betting-tips": {
     "pageKey": "sunpel-free-football-betting-tips",
@@ -836,9 +790,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Access daily Sunpelpredict banker selections, high-value goal-line tips, and weekend accumulator slips.",
     "listTitle": "Sunpelpredict Free Football Predictions Today",
     "listSubtitle": "Daily Sunpel banker selections, double chance picks, and mathematical soccer tips verified by Soka King.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.223Z"
+    "mtime": "2026-09-18T06:03:58.180Z"
   },
   "tabiri-soka-prediction-free-tips": {
     "pageKey": "tabiri-soka-prediction-free-tips",
@@ -861,9 +815,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Get selected accumulator tickets, high-odds combinations and jackpot predictions.",
     "listTitle": "Tabiri Soka Free Tips Today",
     "listSubtitle": "Today's Tabiri Soka predictions, football tips and jackpot selections.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.287Z"
+    "mtime": "2026-09-18T06:03:58.203Z"
   },
   "terms-of-use": {
     "pageKey": "terms-of-use",
@@ -880,9 +834,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Understand subscription rules, digital key delivery via M-Pesa, and usage guidelines.",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.245Z"
+    "mtime": "2026-09-18T06:03:58.185Z"
   },
   "vip-packages": {
     "pageKey": "vip-packages",
@@ -898,8 +852,8 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "Upgrade to receive 2+ odds, 5+ odds  and all jackpot",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-16T13:15:12+03:00",
+    "dateModified": "2026-09-18T09:03:58+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-16T10:15:12.233Z"
+    "mtime": "2026-09-18T06:03:58.169Z"
   }
 };

@@ -141,6 +141,16 @@ export function classifyRoute(rawUrl: string): RouteStatusResult {
       };
     }
 
+    // Check if a markdown page matches this /blog/ path or slug
+    const markdownPageId = getPageIdFromUrl(normalized);
+    if (markdownPageId && markdownPageId !== 'home') {
+      return {
+        status: 200,
+        isSpamPattern: false,
+        pageId: markdownPageId
+      };
+    }
+
     return {
       status: 404,
       isSpamPattern: false,
