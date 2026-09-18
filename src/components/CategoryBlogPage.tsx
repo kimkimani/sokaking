@@ -970,14 +970,9 @@ export const CategoryBlogPage: React.FC<CategoryBlogPageProps> = ({
                     aria-expanded={isOpen}
                     className="w-full p-4 flex items-center justify-between gap-3 text-left bg-transparent border-none cursor-pointer transition-colors"
                   >
-                    <div className="flex items-start gap-3 min-w-0">
-                      <span className="text-xs font-mono font-black text-[var(--primary)] shrink-0 mt-0.5">
-                        0{idx + 1}
-                      </span>
-                      <h3 className="text-xs md:text-sm font-bold text-[var(--text)] leading-snug m-0">
-                        {faq.question}
-                      </h3>
-                    </div>
+                    <h3 className="text-xs md:text-sm font-bold text-[var(--text)] leading-snug m-0">
+                      {faq.question}
+                    </h3>
                     <ChevronDown className={`w-4 h-4 text-[var(--text-muted)] shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-[var(--primary)]' : ''}`} />
                   </button>
 
