@@ -842,8 +842,9 @@ export default function MarkdownRenderer({
       elements.push(
         <h2
           key={`h2-${i}`}
-          className="text-base sm:text-lg font-extrabold text-[var(--text)] tracking-tight mt-6 mb-2 uppercase font-mono text-[var(--primary)]"
+          className="text-base sm:text-lg font-extrabold text-[var(--text)] tracking-tight mt-6 mb-2 uppercase font-mono text-[var(--primary)] flex items-center gap-2"
         >
+          <span className="w-2 h-2 rounded-full bg-[var(--primary)] inline-block shrink-0" />
           {parseInline(trimmed.substring(3), postSlug)}
         </h2>
       );

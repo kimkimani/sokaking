@@ -54,7 +54,21 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
   onFilterByAuthor
 }) => {
   const [copied, setCopied] = useState(false);
+  const [readingProgress, setReadingProgress] = useState(0);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+
+  // Track reading scroll progress
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        const currentProgress = Math.min(100, Math.max(0, (window.scrollY / totalHeight) * 100));
+        setReadingProgress(currentProgress);
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Calculate article word count
   const wordCount = calculateArticleWordCount(post.content || post.raw);
@@ -127,7 +141,17 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
 
   return (
     <article className="space-y-8 text-left max-w-4xl mx-auto relative pb-16">
-      {/* 1. Top Breadcrumb and Back Navigation */}
+      {/* 1. Subtle Fixed Reading Progress Bar */}
+      <div 
+        className="fixed top-0 left-0 h-1 bg-[var(--primary)] z-50 transition-all duration-150"
+        style={{ width: `${readingProgress}%` }}
+        role="progressbar"
+        aria-valuenow={Math.round(readingProgress)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+      />
+
+      {/* 2. Top Breadcrumb and Back Navigation */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] font-mono overflow-x-auto scrollbar-none">
           <a 
@@ -246,9 +270,14 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
                     aria-expanded={isOpen}
                     className="w-full p-4 flex items-center justify-between gap-3 text-left bg-transparent border-none cursor-pointer transition-colors"
                   >
-                    <h3 className="text-xs md:text-sm font-bold text-[var(--text)] leading-snug m-0">
-                      {item.question}
-                    </h3>
+                    <div className="flex items-start gap-3 min-w-0">
+                      <span className="text-xs font-mono font-black text-[var(--primary)] shrink-0 mt-0.5">
+                        0{idx + 1}
+                      </span>
+                      <h3 className="text-xs md:text-sm font-bold text-[var(--text)] leading-snug m-0">
+                        {item.question}
+                      </h3>
+                    </div>
                     <ChevronDown className={`w-4 h-4 text-[var(--text-muted)] shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-[var(--primary)]' : ''}`} />
                   </button>
 
