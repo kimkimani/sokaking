@@ -472,8 +472,8 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
 
         <div className="bg-slate-50/70 dark:bg-slate-900/40 border-b border-[var(--border)] p-2.5 text-xs font-bold text-[var(--text)] hidden md:grid grid-cols-12 gap-2 uppercase tracking-wide">
           <div className="col-span-5 text-left">Match Details & Teams</div>
-          <div className="col-span-5 text-center">Recommended 1X2 Expert Tip Options</div>
-          <div className="col-span-2 text-right">Confidence & Action</div>
+          <div className="col-span-4 text-center">Recommended 1X2 Expert Tip Options</div>
+          <div className="col-span-3 text-right">Confidence & Action</div>
         </div>
 
         <div className="divide-y divide-[var(--border)]">
@@ -486,9 +486,13 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                 : 'No jackpot fixtures available for this selection.'}
             </div>
           ) : (
-            displayedFixtures.map((match) => {
-            // First 3 fixtures are unlocked for preview, or everything if paid
-            const isUnlocked = true;
+            displayedFixtures.map((match, idx) => {
+            // First 2/3 of games are disclosed for free preview. The rest have predictions & confidence locked for VIP.
+            // If the user has paid for the jackpot (hasPaid), all fixtures are unlocked.
+            const totalGames = processedFixtures.length || jackpot.gamesCount || 17;
+            const freeCutoff = Math.round((totalGames * 2) / 3);
+            const matchIndex = match.fixtureNumber ? match.fixtureNumber - 1 : idx;
+            const isUnlocked = hasPaid || matchIndex < freeCutoff;
             const isExpanded = expandedFixture === match.id;
             const isDoubleChance = match.isDoubleChance;
             const displayConf = match.displayConf;
@@ -509,7 +513,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                   {/* Left Column: Match metadata, Teams & Scores */}
                   <div className="col-span-12 md:col-span-5 flex items-center gap-2.5 min-w-0">
                     {/* Fixture Number Badge */}
-                    <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg ${isUnlocked ? 'bg-[var(--primary)] text-white font-black' : 'bg-slate-200 dark:bg-slate-850 text-slate-500 font-bold'} text-[10.5px] sm:text-[11px] font-mono flex items-center justify-center shrink-0 shadow-2xs`}>
+                    <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg ${isUnlocked ? 'bg-[var(--primary)] text-white font-black' : 'bg-amber-500/15 text-amber-900 dark:text-amber-200 border border-amber-500/30 font-bold'} text-[10.5px] sm:text-[11px] font-mono flex items-center justify-center shrink-0 shadow-2xs`}>
                       {match.fixtureNumber}
                     </div>
                     
@@ -589,7 +593,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                   </div>
 
                   {/* Middle Column: 1X2 Slip Grid Buttons (Modern sportsbook design - Compact) */}
-                  <div className="col-span-12 md:col-span-4 grid grid-cols-3 gap-1.5">
+                  <div className="col-span-12 md:col-span-4 grid grid-cols-3 gap-1.5 relative">
                     {(['1', 'X', '2'] as const).map((option) => {
                       const isPick = isOptionPicked(match.prediction, option);
                       const label = option === '1' ? 'Home' : option === 'X' ? 'Draw' : 'Away';
@@ -598,6 +602,7 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                       return (
                         <button
                           key={option}
+                          type="button"
                           onClick={() => isUnlocked ? toggleExpand(match.id) : onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
                           className={`relative py-2 px-1 rounded-xl border font-mono text-center transition-all duration-200 flex flex-col items-center justify-center min-h-[48px] overflow-hidden ${
                             !isUnlocked
@@ -618,13 +623,21 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                               ? 'text-slate-950' 
                               : option === '1' ? 'text-emerald-750 dark:text-emerald-400' : option === 'X' ? 'text-amber-750 dark:text-amber-400' : 'text-sky-750 dark:text-sky-400'
                           }`}>
-                            {prob}%
+                            {isUnlocked ? `${prob}%` : '••%'}
                           </span>
 
                           {/* Lock mask overlay for premium matches */}
                           {!isUnlocked && (
-                            <span className="absolute inset-0 bg-slate-200/50 dark:bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center text-amber-600 dark:text-amber-400 transition-all duration-300 hover:bg-slate-200/30 dark:hover:bg-slate-900/45">
-                              <Lock className="w-4 h-4" />
+                            <span 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot');
+                              }}
+                              className="absolute inset-0 bg-slate-100/90 dark:bg-slate-900/90 backdrop-blur-[2px] flex flex-col items-center justify-center text-amber-700 dark:text-amber-300 transition-all duration-300 hover:bg-slate-100/80 dark:hover:bg-slate-900/80 group cursor-pointer"
+                              title="Locked for VIP - Click to unlock"
+                            >
+                              <Lock className="w-3.5 h-3.5 mb-0.5 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform" />
+                              <span className="text-[8px] font-black uppercase tracking-wider font-mono text-slate-800 dark:text-slate-200">VIP</span>
                             </span>
                           )}
 
@@ -638,27 +651,33 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                   </div>
 
                   {/* Right Column: Confidence and expand triggers */}
-                  <div className="col-span-12 md:col-span-3 flex items-center justify-between md:justify-end gap-3.5">
+                  <div className="col-span-12 md:col-span-3 flex items-center justify-between md:justify-end gap-2.5">
                     {/* Confidence percentage badge */}
                     <div className="flex flex-col items-start md:items-end shrink-0 select-none">
                       <span className="text-[8.5px] text-slate-700 dark:text-slate-300 uppercase font-mono font-black tracking-wider leading-none mb-1">Confidence</span>
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-black font-mono leading-none border shadow-3xs ${
-                        !isUnlocked 
-                          ? 'bg-slate-100 dark:bg-slate-850 text-slate-600 dark:text-slate-400 border-slate-200/50 dark:border-slate-800/50' 
-                          : displayConf >= 80 
+                      {isUnlocked ? (
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-black font-mono leading-none border shadow-3xs ${
+                          displayConf >= 80 
                             ? 'bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border-emerald-500/30' 
                             : displayConf >= 70 
                               ? 'bg-blue-500/15 text-blue-950 dark:text-blue-200 border-blue-500/30' 
                               : 'bg-amber-500/15 text-amber-950 dark:text-amber-200 border-amber-500/30'
-                      }`}>
-                        {isUnlocked ? `${displayConf}%` : '—'}
-                      </span>
+                        }`}>
+                          {displayConf}%
+                        </span>
+                      ) : (
+                        <span className="px-2 py-1 rounded-full text-[10.5px] font-black font-mono leading-none border shadow-3xs bg-amber-500/15 text-amber-950 dark:text-amber-200 border-amber-500/30 flex items-center gap-1">
+                          <Lock className="w-2.5 h-2.5 text-amber-700 dark:text-amber-300" />
+                          <span>VIP</span>
+                        </span>
+                      )}
                     </div>
 
-                    {/* Compact stats drop indicator */}
-                    <div className="shrink-0">
+                    {/* Action buttons */}
+                    <div className="shrink-0 flex items-center gap-1.5">
                       {isUnlocked ? (
                         <button
+                          type="button"
                           onClick={() => toggleExpand(match.id)}
                           className="min-h-[44px] px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg transition-all font-mono text-[9.5px] font-black uppercase tracking-wider flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 cursor-pointer whitespace-nowrap"
                         >
@@ -666,59 +685,102 @@ export default function JackpotPage({ jackpot, hasPaid, onOpenPayment, onBackToL
                           {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-[var(--primary)]" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
                         </button>
                       ) : (
-                        <div 
-                          onClick={() => onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
-                          className="min-h-[44px] flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 px-3.5 py-2 rounded-lg text-[10px] font-mono font-black uppercase tracking-wider cursor-pointer shadow-sm transition-all whitespace-nowrap"
-                        >
-                          <Lock className="w-3.5 h-3.5 shrink-0 text-slate-950" />
-                          <span>Unlock</span>
-                        </div>
+                        <>
+                          <button 
+                            type="button"
+                            onClick={() => onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
+                            className="min-h-[44px] flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 active:scale-98 text-slate-950 px-3 py-2 rounded-lg text-[10px] font-mono font-black uppercase tracking-wider cursor-pointer shadow-sm transition-all whitespace-nowrap border-none"
+                            title="Unlock VIP prediction and confidence"
+                          >
+                            <Lock className="w-3.5 h-3.5 shrink-0 text-slate-950" />
+                            <span>Unlock VIP</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => toggleExpand(match.id)}
+                            className="min-h-[44px] px-2.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg transition-all font-mono text-[9.5px] font-black uppercase tracking-wider flex items-center gap-1 border border-slate-200 dark:border-slate-700 cursor-pointer whitespace-nowrap"
+                            title={isExpanded ? 'Hide voting' : 'Vote on this match'}
+                          >
+                            <Users className="w-3.5 h-3.5 text-indigo-500" />
+                            <span>{isExpanded ? 'Close' : 'Vote'}</span>
+                            {isExpanded ? <ChevronUp className="w-3 h-3 text-[var(--primary)]" /> : <ChevronDown className="w-3 h-3 text-slate-500" />}
+                          </button>
+                        </>
                       )}
                     </div>
 
                   </div>
                 </div>
 
-                {/* Analytical expansion */}
-                <div className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out ${isUnlocked && isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
+                {/* Analytical expansion & Voting */}
+                <div className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
                   <div className="overflow-hidden bg-slate-50/50 dark:bg-slate-900/20 border-t border-[var(--border)]">
                     <div className="p-4 text-xs space-y-3 leading-relaxed text-left">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold flex items-center gap-1 text-indigo-750 dark:text-indigo-400 font-mono uppercase tracking-wider text-[10px]">
-                          <Sparkles className="w-3.5 h-3.5 text-indigo-750 dark:text-indigo-400 animate-pulse" /> Mathematical Analyst Assessment
-                        </span>
-                        <span className="text-[10px] font-mono text-[var(--text-muted)] bg-[var(--background)] px-2 py-0.5 rounded border border-[var(--border)]">
-                          Confidence factor: <strong className="text-emerald-750 dark:text-emerald-400 font-extrabold">{displayConf}%</strong>
-                        </span>
-                      </div>
+                      {isUnlocked ? (
+                        <>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold flex items-center gap-1 text-indigo-750 dark:text-indigo-400 font-mono uppercase tracking-wider text-[10px]">
+                              <Sparkles className="w-3.5 h-3.5 text-indigo-750 dark:text-indigo-400 animate-pulse" /> Mathematical Analyst Assessment
+                            </span>
+                            <span className="text-[10px] font-mono text-[var(--text-muted)] bg-[var(--background)] px-2 py-0.5 rounded border border-[var(--border)]">
+                              Confidence factor: <strong className="text-emerald-750 dark:text-emerald-400 font-extrabold">{displayConf}%</strong>
+                            </span>
+                          </div>
 
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide">Expert Tip:</span>
-                        <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-850 dark:text-emerald-300 border border-emerald-500/30 text-[10px] font-black font-mono">
-                          {match.prediction}
-                        </span>
-                      </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wide">Expert Tip:</span>
+                            <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-850 dark:text-emerald-300 border border-emerald-500/30 text-[10px] font-black font-mono">
+                              {match.prediction}
+                            </span>
+                          </div>
 
-                      <p className="text-[var(--text-muted)] leading-relaxed font-sans">
-                        {match.aiAnalysis || "Advanced computer equations favor selected outcomes based on high offensive conversion metrics and defensive low-block performance factors. Current dynamic odds trend heavily towards recommendations."}
-                      </p>
+                          <p className="text-[var(--text-muted)] leading-relaxed font-sans">
+                            {match.aiAnalysis || "Advanced computer equations favor selected outcomes based on high offensive conversion metrics and defensive low-block performance factors. Current dynamic odds trend heavily towards recommendations."}
+                          </p>
 
-                      {/* Probability Split bar */}
-                      <div className="pt-1.5">
-                        <div className="flex justify-between text-[9px] font-mono font-extrabold mb-1 uppercase">
-                          <span className="text-emerald-750 dark:text-emerald-400">Home (1): {jackpotProbs.home}%</span>
-                          <span className="text-amber-850 dark:text-amber-400">Draw (X): {jackpotProbs.draw}%</span>
-                          <span className="text-sky-750 dark:text-sky-400">Away (2): {jackpotProbs.away}%</span>
+                          {/* Probability Split bar */}
+                          <div className="pt-1.5">
+                            <div className="flex justify-between text-[9px] font-mono font-extrabold mb-1 uppercase">
+                              <span className="text-emerald-750 dark:text-emerald-400">Home (1): {jackpotProbs.home}%</span>
+                              <span className="text-amber-850 dark:text-amber-400">Draw (X): {jackpotProbs.draw}%</span>
+                              <span className="text-sky-750 dark:text-sky-400">Away (2): {jackpotProbs.away}%</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-[var(--border)] rounded-full overflow-hidden flex">
+                              <div className="h-full bg-emerald-500" style={{ width: `${jackpotProbs.home}%` }} />
+                              <div className="h-full bg-amber-500" style={{ width: `${jackpotProbs.draw}%` }} />
+                              <div className="h-full bg-sky-500" style={{ width: `${jackpotProbs.away}%` }} />
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1.5 text-amber-900 dark:text-amber-200 font-bold text-xs uppercase font-mono">
+                              <Lock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                              <span>Match {match.fixtureNumber} Tip & Confidence Reserved for VIP</span>
+                            </div>
+                            <p className="text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed font-sans">
+                              Subscribe to unlock the algorithmic tip, banker probability ratings, deep tactical analysis, and double-chance selections for this match.
+                            </p>
+                          </div>
+                          <button 
+                            type="button"
+                            onClick={() => onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
+                            className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg text-xs font-black uppercase font-mono tracking-wider shrink-0 cursor-pointer shadow-sm border-none flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-98 transition-all"
+                          >
+                            <Lock className="w-3.5 h-3.5 text-slate-950" />
+                            <span>Unlock VIP • KES {jackpot.price}</span>
+                          </button>
                         </div>
-                        <div className="w-full h-1.5 bg-[var(--border)] rounded-full overflow-hidden flex">
-                          <div className="h-full bg-emerald-500" style={{ width: `${jackpotProbs.home}%` }} />
-                          <div className="h-full bg-amber-500" style={{ width: `${jackpotProbs.draw}%` }} />
-                          <div className="h-full bg-sky-500" style={{ width: `${jackpotProbs.away}%` }} />
-                        </div>
-                      </div>
+                      )}
 
-                      {/* Community Poll & Voting Section */}
-                      <div className="pt-1.5">
+                      {/* Community Poll & Voting Section - Always Available */}
+                      <div className="pt-2 border-t border-[var(--border)]">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-1.5">
+                            <Users className="w-3.5 h-3.5 text-indigo-500" /> Community Voting & Consensus
+                          </span>
+                        </div>
                         <VotePoll 
                           fixtureId={match.fixtureId || `jackpot_${jackpot.id}_${match.id}`} 
                           homeTeam={match.homeTeam}
@@ -824,6 +886,9 @@ function JackpotPicksSummary({
   hasPaid: boolean; 
   onOpenPayment: (pkgName: string, price: number, id: string | number, slug: string, type: 'vip' | 'jackpot' | 'odds') => void;
 }) {
+  const totalGames = (jackpot.fixtures || []).length || jackpot.gamesCount || 17;
+  const freeCutoff = Math.round((totalGames * 2) / 3);
+
   return (
     <div className="p-4 md:p-5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)] text-left space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[var(--border)] pb-3 gap-2">
@@ -844,9 +909,10 @@ function JackpotPicksSummary({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-        {jackpot.fixtures.map((match) => {
-          // First 3 are unlocked for free preview, otherwise requires payment
-          const isUnlocked = true;
+        {jackpot.fixtures.map((match, idx) => {
+          // First 2/3 of games are disclosed for free preview. The rest have predictions & confidence locked for VIP.
+          const matchIndex = match.fixtureNumber ? match.fixtureNumber - 1 : idx;
+          const isUnlocked = hasPaid || matchIndex < freeCutoff;
           
           let displayPick = '-';
           let badgeColor = 'bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700';
@@ -884,7 +950,11 @@ function JackpotPicksSummary({
             >
               <div className="flex items-center gap-2 min-w-0 flex-1">
                 {/* Number Badge */}
-                <span className="w-5 h-5 rounded bg-slate-200 dark:bg-slate-800 text-[9.5px] font-mono font-black text-slate-800 dark:text-slate-200 flex items-center justify-center shrink-0 border border-slate-300 dark:border-slate-700">
+                <span className={`w-5 h-5 rounded text-[9.5px] font-mono font-black flex items-center justify-center shrink-0 border ${
+                  isUnlocked 
+                    ? 'bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700' 
+                    : 'bg-amber-500/15 text-amber-900 dark:text-amber-200 border-amber-500/30'
+                }`}>
                   {match.fixtureNumber}
                 </span>
                 
@@ -904,12 +974,13 @@ function JackpotPicksSummary({
                   </span>
                 ) : (
                   <button 
+                    type="button"
                     onClick={() => onOpenPayment(jackpot.name, jackpot.price, jackpot.id, jackpot.slug, 'jackpot')}
-                    className="min-h-[44px] flex items-center gap-1 px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg text-[10px] uppercase font-black tracking-wide cursor-pointer transition-all duration-150 shadow-xs"
-                    title="Unlock predictions"
+                    className="min-h-[44px] flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg text-[10px] uppercase font-black tracking-wide cursor-pointer transition-all duration-150 shadow-xs border-none"
+                    title="Unlock VIP prediction"
                   >
                     <Lock className="w-3 h-3 text-slate-950" />
-                    <span>Lock</span>
+                    <span>VIP Lock</span>
                   </button>
                 )}
               </div>
