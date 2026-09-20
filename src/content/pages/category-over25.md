@@ -1,7 +1,7 @@
 ---
-title: "King of Over 2.5 predictions - Soka King"
-description: "High-conversion Over 2.5 Goals football predictions. Advanced goal expectancy models identifying high-tempo attacking fixtures."
-keywords: "Get King of Over 2.5 prediction tips, Over 2.5 predictions, and today's best high-scoring football matches. Find goal tips for matches likely to produce over 2.5 goals."
+title: "King of Over 2.5 prediction - Soka King"
+description: "Get King of Over 2.5 prediction tips, Over 2.5 predictions, and today's best high-scoring football matches. Find goal tips for matches likely to produce over 2.5 goals."
+keywords: "king of over 2.5 prediction, Over 2.5 predictions, Over 2.5 goals tips today, high scoring matches"
 link: "/football-predictions-over-2-5-goals"
 authorId: "john-mwangi"
 displayTitle: "King of Over 2.5 predictions - Soka King Today"
