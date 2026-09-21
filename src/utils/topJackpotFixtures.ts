@@ -1810,14 +1810,29 @@ export function expandTopFixturesParameters(
           isInline = true;
         } else if (typeof offset === 'number' && typeof fullStr === 'string') {
           const matchLen = (_full || '').length || 20;
-          const preceding = fullStr.slice(Math.max(0, offset - 50), offset).trim();
-          const following = fullStr.slice(offset + matchLen, offset + matchLen + 50).trim();
+          const preceding = fullStr.slice(Math.max(0, offset - 60), offset);
+          const following = fullStr.slice(offset + matchLen, offset + matchLen + 60);
 
-          const hasContinuationAfter = /^[a-z0-9]|^(?:and|for|to|where|in|with|while|expecting|as|,|;)/i.test(following);
-          const hasLeadInBefore = /(?:for|out|in|on|between|of|regarding|about|fixtures?|matches?|games?|including|like|such as|watch(?:\s+out)?|see)\s*$/i.test(preceding);
-          const notAtSentenceBoundary = preceding.length > 0 && !/[.!?\n]\s*$/.test(preceding);
+          const hasNewlineBefore = /\n\s*$/.test(preceding);
+          const hasNewlineAfter = /^\s*\n/.test(following);
+          const endsWithPunctuation = /[.!?]\s*$/.test(preceding);
 
-          isInline = hasContinuationAfter || hasLeadInBefore || notAtSentenceBoundary;
+          if (endsWithPunctuation && (hasNewlineAfter || /^\s*[A-Z]/.test(following))) {
+            isInline = false;
+          } else if (hasNewlineBefore && (hasNewlineAfter || following.trim().length === 0)) {
+            isInline = false;
+          } else {
+            const hasLeadInBefore = /(?:for|out|in|on|between|of|regarding|about|fixtures?|matches?|games?|including|like|such as|watch(?:\s+out)?|see)\s*$/i.test(preceding.trim());
+            const hasContinuationAfter = /^\s*(?:and|for|to|where|in|with|while|expecting|as|,|;)\b/i.test(following) || /^\s*[a-z]/.test(following);
+
+            if (hasLeadInBefore || hasContinuationAfter) {
+              isInline = true;
+            } else if (!endsWithPunctuation && !hasNewlineBefore && !hasNewlineAfter) {
+              isInline = true;
+            } else {
+              isInline = false;
+            }
+          }
         }
         return generateJackpotUpsetAlertText(fixturesToUse, mode, format, isInline ? 'inline' : 'standalone');
       }
