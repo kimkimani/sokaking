@@ -640,7 +640,9 @@ export default function VotePoll({
 
                 {/* Team / Choice Label */}
                 <div className="relative z-10 w-full flex items-center justify-center gap-1">
-                  <span className="font-bold text-[11px] truncate tracking-tight">
+                  <span className={`text-[11px] truncate tracking-tight ${
+                    isVoted ? 'font-black text-white' : 'font-bold text-slate-900 dark:text-slate-100'
+                  }`}>
                     {opt.label}
                   </span>
                   {isVoted && (
@@ -649,8 +651,8 @@ export default function VotePoll({
                 </div>
 
                 {/* Big Clean Percentage */}
-                <span className={`relative z-10 text-[11.5px] font-black font-mono mt-0.5 leading-none ${
-                  isVoted ? 'text-emerald-800 dark:text-emerald-300' : 'text-slate-800 dark:text-slate-200'
+                <span className={`relative z-10 text-[11.5px] font-mono mt-0.5 leading-none ${
+                  isVoted ? 'text-white font-black' : 'text-slate-900 dark:text-slate-100 font-bold'
                 }`}>
                   {stats.totalVotes === 0 ? '0%' : `${percentVal}%`}
                 </span>
@@ -701,7 +703,7 @@ export default function VotePoll({
                 isMatchFinished ? 'cursor-not-allowed opacity-90' : 'cursor-pointer hover:shadow-xs'
               } ${
                 selected
-                  ? 'bg-emerald-700 border-emerald-700 text-white shadow-xs'
+                  ? 'bg-emerald-700 border-emerald-700 text-white font-black shadow-xs'
                   : 'bg-white dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-750 text-[var(--text)] hover:border-amber-500/50'
               }`}
             >
@@ -723,7 +725,9 @@ export default function VotePoll({
 
               {/* Top Option Label */}
               <div className="relative z-10 flex items-center justify-center gap-1.5 w-full px-1">
-                <span className="font-extrabold text-xs sm:text-sm tracking-tight truncate">
+                <span className={`text-xs sm:text-sm tracking-tight truncate ${
+                  selected ? 'font-black text-white' : 'font-extrabold text-[var(--text)]'
+                }`}>
                   {opt.label}
                 </span>
                 {selected && (
@@ -733,16 +737,16 @@ export default function VotePoll({
 
               {/* Sub-label helper if present */}
               {opt.sublabel && (
-                <span className={`relative z-10 text-[9.5px] sm:text-[10.5px] font-medium truncate max-w-full px-0.5 leading-none my-0.5 ${
-                  selected ? 'text-white/80' : 'text-[var(--text-muted)]'
+                <span className={`relative z-10 text-[9.5px] sm:text-[10.5px] truncate max-w-full px-0.5 leading-none my-0.5 ${
+                  selected ? 'text-white font-bold' : 'text-[var(--text-muted)] font-medium'
                 }`}>
                   {opt.sublabel}
                 </span>
               )}
 
               {/* Big Clean Percentage */}
-              <span className={`relative z-10 text-sm sm:text-base font-black font-mono leading-none ${
-                selected ? 'text-white' : 'text-[var(--text)]'
+              <span className={`relative z-10 text-sm sm:text-base font-mono leading-none ${
+                selected ? 'text-white font-black' : 'text-[var(--text)] font-black'
               }`}>
                 {pct}%
               </span>

@@ -150,6 +150,14 @@ export default function FixtureRow({
             <span className="font-mono text-[9px] font-bold text-slate-750 dark:text-slate-200 uppercase tracking-wider truncate px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
               {fixture.leagueName || (fixture as any).league_name}
             </span>
+            {(fixture.countryName || fixture.leagueCountry || (fixture as any).country_name) && (
+              <>
+                <span className="text-slate-400 dark:text-slate-600 text-[9px] font-mono">•</span>
+                <span className="font-mono text-[9px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider truncate">
+                  {fixture.countryName || fixture.leagueCountry || (fixture as any).country_name}
+                </span>
+              </>
+            )}
             {fixture.isDoubleChance && (
               <span className="px-1.5 py-0.5 bg-amber-100 dark:bg-amber-950/40 text-slate-950 dark:text-slate-100 border border-amber-300 dark:border-amber-700 rounded text-[7.5px] tracking-normal lowercase shrink-0 font-sans leading-none font-bold">
                 double chance
