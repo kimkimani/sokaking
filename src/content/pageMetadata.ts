@@ -688,9 +688,9 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "unlockDescription": "SokaKing has all the Scometix midweek predictions ready for you. Unlock Pro level for SportPesa bonus wins week in week out",
     "listTitle": "Today's Free Football Predictions",
     "listSubtitle": "High-probability daily double-chance options and standard single tips verified by Soka King mathematical indexes.",
-    "dateModified": "2026-09-21T12:01:02+03:00",
+    "dateModified": "2026-09-21T12:30:47+03:00",
     "topConfidenceCount": 5,
-    "mtime": "2026-09-21T09:01:02.395Z"
+    "mtime": "2026-09-21T09:30:47.152Z"
   },
   "sokamastas-predictions-and-tips": {
     "pageKey": "sokamastas-predictions-and-tips",
