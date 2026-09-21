@@ -1290,17 +1290,19 @@ export function generateMegaJackpotSubCombosText(
  */
 export interface JackpotParsedDates {
   jackpotId: string;
-  startDate: string;        // e.g. "Saturday, September 12"
-  endDate: string;          // e.g. "Sunday, September 13"
-  startTime: string;        // e.g. "19:00"
-  endTime: string;          // e.g. "23:00"
+  startDate: string;        // e.g. "Saturday, 18 September"
+  endDate: string;          // e.g. "Sunday, 19 September"
+  startTime: string;        // e.g. "16:00"
+  endTime: string;          // e.g. "22:45"
+  startTimeEat: string;     // e.g. "16:00 EAT"
+  endTimeEat: string;       // e.g. "22:45 EAT"
   startDay: string;         // e.g. "Saturday"
   endDay: string;           // e.g. "Sunday"
-  startDateTime: string;    // e.g. "Saturday, September 12, from 19:00"
-  endDateTime: string;      // e.g. "Sunday, September 13 at 23:00"
-  shortStartDate: string;   // e.g. "Sep 12"
-  shortEndDate: string;     // e.g. "Sep 13"
-  scheduleText: string;     // e.g. "Saturday, September 12, from 19:00, with the remaining fixtures continuing throughout Sunday, September 13"
+  startDateTime: string;    // e.g. "Saturday, 18 September at 16:00 EAT"
+  endDateTime: string;      // e.g. "Sunday, 19 September at 22:45 EAT"
+  shortStartDate: string;   // e.g. "18 Sep"
+  shortEndDate: string;     // e.g. "19 Sep"
+  scheduleText: string;     // e.g. "Saturday, 18 September, from 16:00, and the last fixture to be played on Sunday, 19 September"
 }
 
 /**
@@ -1322,8 +1324,9 @@ export function getJackpotDates(
   if (mode !== 'curated' && fixtures.length > 0) {
     const validDates = fixtures
       .map(f => {
-        if (!f.kickoffTime) return null;
-        const d = new Date(f.kickoffTime.replace(' ', 'T'));
+        const rawTime = f.kickoffTime || f.date || (f as any).kickoff_time || (f as any).kickoffDate || '';
+        if (!rawTime) return null;
+        const d = new Date(rawTime.includes('T') ? rawTime : rawTime.replace(' ', 'T'));
         if (isNaN(d.getTime())) return null;
         return new Date(d.getTime() + timezoneOffsetHours * 60 * 60 * 1000);
       })
@@ -1340,6 +1343,7 @@ export function getJackpotDates(
       const startHour = String(first.getUTCHours()).padStart(2, '0');
       const startMinute = String(first.getUTCMinutes()).padStart(2, '0');
       const startTime = `${startHour}:${startMinute}`;
+      const startTimeEat = `${startTime} EAT`;
 
       const endDay = daysOfWeek[last.getUTCDay()];
       const endMonth = months[last.getUTCMonth()];
@@ -1347,19 +1351,21 @@ export function getJackpotDates(
       const endHour = String(last.getUTCHours()).padStart(2, '0');
       const endMinute = String(last.getUTCMinutes()).padStart(2, '0');
       const endTime = `${endHour}:${endMinute}`;
+      const endTimeEat = `${endTime} EAT`;
 
-      const startDate = `${startDay}, ${startMonth} ${startDateNum}`;
-      const endDate = `${endDay}, ${endMonth} ${endDateNum}`;
-      const shortStartDate = `${shortMonths[first.getUTCMonth()]} ${startDateNum}`;
-      const shortEndDate = `${shortMonths[last.getUTCMonth()]} ${endDateNum}`;
-      const startDateTime = `${startDate}, from ${startTime}`;
-      const endDateTime = `${endDate} at ${endTime}`;
+      // Day, Date Month format (e.g. Saturday, 18 September)
+      const startDate = `${startDay}, ${startDateNum} ${startMonth}`;
+      const endDate = `${endDay}, ${endDateNum} ${endMonth}`;
+      const shortStartDate = `${startDateNum} ${shortMonths[first.getUTCMonth()]}`;
+      const shortEndDate = `${endDateNum} ${shortMonths[last.getUTCMonth()]}`;
+      const startDateTime = `${startDate} at ${startTimeEat}`;
+      const endDateTime = `${endDate} at ${endTimeEat}`;
 
       let scheduleText = '';
       if (startDay !== endDay || first.getUTCMonth() !== last.getUTCMonth() || startDateNum !== endDateNum) {
-        scheduleText = `${startDay}, ${startMonth} ${startDateNum}, from ${startTime}, and the last fixture to be played on ${endDay}, ${endMonth} ${endDateNum}`;
+        scheduleText = `${startDay}, ${startDateNum} ${startMonth}, from ${startTime}, and the last fixture to be played on ${endDay}, ${endDateNum} ${endMonth}`;
       } else {
-        scheduleText = `${startDay}, ${startMonth} ${startDateNum}, from ${startTime}`;
+        scheduleText = `${startDay}, ${startDateNum} ${startMonth}, from ${startTime}`;
       }
 
       return {
@@ -1368,6 +1374,8 @@ export function getJackpotDates(
         endDate,
         startTime,
         endTime,
+        startTimeEat,
+        endTimeEat,
         startDay,
         endDay,
         startDateTime,
@@ -1380,19 +1388,31 @@ export function getJackpotDates(
   }
 
   // Fallback to static configuration
-  const startDate = cfg?.defaultStartDate || 'Saturday, September 12';
-  const endDate = cfg?.defaultEndDate || 'Sunday, September 13';
+  const rawStartDate = cfg?.defaultStartDate || 'Saturday, September 12';
+  const rawEndDate = cfg?.defaultEndDate || 'Sunday, September 13';
   const startTime = cfg?.defaultStartTime || '19:00';
   const endTime = cfg?.defaultEndTime || '23:00';
-  const startDay = startDate.split(',')[0].trim();
-  const endDay = endDate.split(',')[0].trim();
-  const startDateTime = `${startDate}, from ${startTime}`;
-  const endDateTime = `${endDate} at ${endTime}`;
+  const startTimeEat = `${startTime} EAT`;
+  const endTimeEat = `${endTime} EAT`;
 
-  const shortStartDateMatch = startDate.match(/([A-Za-z]+)\s+(\d+)/);
-  const shortStartDate = shortStartDateMatch ? `${shortStartDateMatch[1].slice(0, 3)} ${shortStartDateMatch[2]}` : startDate;
-  const shortEndDateMatch = endDate.match(/([A-Za-z]+)\s+(\d+)/);
-  const shortEndDate = shortEndDateMatch ? `${shortEndDateMatch[1].slice(0, 3)} ${shortEndDateMatch[2]}` : endDate;
+  // Parse "Saturday, September 12" -> "Saturday, 12 September"
+  const startMatch = rawStartDate.match(/^([A-Za-z]+),\s+([A-Za-z]+)\s+(\d+)$/);
+  const startDay = startMatch ? startMatch[1] : rawStartDate.split(',')[0].trim();
+  const startMonth = startMatch ? startMatch[2] : '';
+  const startDateNum = startMatch ? startMatch[3] : '';
+  const startDate = startMatch ? `${startDay}, ${startDateNum} ${startMonth}` : rawStartDate;
+
+  const endMatch = rawEndDate.match(/^([A-Za-z]+),\s+([A-Za-z]+)\s+(\d+)$/);
+  const endDay = endMatch ? endMatch[1] : rawEndDate.split(',')[0].trim();
+  const endMonth = endMatch ? endMatch[2] : '';
+  const endDateNum = endMatch ? endMatch[3] : '';
+  const endDate = endMatch ? `${endDay}, ${endDateNum} ${endMonth}` : rawEndDate;
+
+  const startDateTime = `${startDate} at ${startTimeEat}`;
+  const endDateTime = `${endDate} at ${endTimeEat}`;
+
+  const shortStartDate = startDateNum && startMonth ? `${startDateNum} ${startMonth.slice(0, 3)}` : startDate;
+  const shortEndDate = endDateNum && endMonth ? `${endDateNum} ${endMonth.slice(0, 3)}` : endDate;
 
   return {
     jackpotId,
@@ -1400,6 +1420,8 @@ export function getJackpotDates(
     endDate,
     startTime,
     endTime,
+    startTimeEat,
+    endTimeEat,
     startDay,
     endDay,
     startDateTime,
@@ -1424,7 +1446,7 @@ export function generateJackpotScheduleText(
 
 /**
  * Generates formatted start date text for any jackpot fixtures.
- * e.g., "Saturday, September 12" or "Saturday, September 12, from 19:00"
+ * e.g., "Saturday, 18 September" or "Saturday, 18 September at 16:00 EAT"
  */
 export function generateJackpotStartDateText(
   source?: string | Fixture[],
@@ -1438,13 +1460,14 @@ export function generateJackpotStartDateText(
 
   if (opts.day || fmt === 'day') return dates.startDay;
   if (opts.short || fmt === 'short') return dates.shortStartDate;
-  if (opts.withTime || fmt === 'time' || fmt === 'full' || fmt === 'datetime') return dates.startDateTime;
+  if (opts.withTime || fmt === 'time') return dates.startTimeEat;
+  if (fmt === 'full' || fmt === 'datetime') return dates.startDateTime;
   return dates.startDate;
 }
 
 /**
  * Generates formatted end date text for any jackpot fixtures.
- * e.g., "Sunday, September 13" or "Sunday, September 13 at 23:00"
+ * e.g., "Sunday, 19 September" or "Sunday, 19 September at 22:45 EAT"
  */
 export function generateJackpotEndDateText(
   source?: string | Fixture[],
@@ -1458,30 +1481,69 @@ export function generateJackpotEndDateText(
 
   if (opts.day || fmt === 'day') return dates.endDay;
   if (opts.short || fmt === 'short') return dates.shortEndDate;
-  if (opts.withTime || fmt === 'time' || fmt === 'full' || fmt === 'datetime') return dates.endDateTime;
+  if (opts.withTime || fmt === 'time') return dates.endTimeEat;
+  if (fmt === 'full' || fmt === 'datetime') return dates.endDateTime;
   return dates.endDate;
 }
 
 /**
- * Generates kickoff time of the earliest match in the jackpot slate (e.g., "19:00").
+ * Generates kickoff time of the earliest match in the jackpot slate (e.g., "16:00 EAT").
  */
 export function generateJackpotStartTimeText(
   source?: string | Fixture[],
   mode: 'curated' | 'fixtures' | 'auto' = 'auto',
-  timezoneOffsetHours: number = 3
+  timezoneOffsetHours: number = 3,
+  formatOrOptions?: string | { raw?: boolean }
 ): string {
-  return getJackpotDates(source, mode, timezoneOffsetHours).startTime;
+  const dates = getJackpotDates(source, mode, timezoneOffsetHours);
+  const fmt = typeof formatOrOptions === 'string' ? formatOrOptions.toLowerCase() : '';
+  const opts = typeof formatOrOptions === 'object' && formatOrOptions !== null ? formatOrOptions : {};
+  if (fmt === 'raw' || fmt === 'notz' || opts.raw) return dates.startTime;
+  return dates.startTimeEat;
 }
 
 /**
- * Generates kickoff time of the final match in the jackpot slate (e.g., "23:00").
+ * Generates kickoff time of the final match in the jackpot slate (e.g., "22:45 EAT").
  */
 export function generateJackpotEndTimeText(
   source?: string | Fixture[],
   mode: 'curated' | 'fixtures' | 'auto' = 'auto',
-  timezoneOffsetHours: number = 3
+  timezoneOffsetHours: number = 3,
+  formatOrOptions?: string | { raw?: boolean }
 ): string {
-  return getJackpotDates(source, mode, timezoneOffsetHours).endTime;
+  const dates = getJackpotDates(source, mode, timezoneOffsetHours);
+  const fmt = typeof formatOrOptions === 'string' ? formatOrOptions.toLowerCase() : '';
+  const opts = typeof formatOrOptions === 'object' && formatOrOptions !== null ? formatOrOptions : {};
+  if (fmt === 'raw' || fmt === 'notz' || opts.raw) return dates.endTime;
+  return dates.endTimeEat;
+}
+
+/**
+ * Generates full start date and time formatted text (e.g., "Saturday, 18 September at 16:00 EAT").
+ */
+export function generateJackpotStartDateTimeText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto',
+  timezoneOffsetHours: number = 3,
+  formatOrOptions?: string
+): string {
+  const dates = getJackpotDates(source, mode, timezoneOffsetHours);
+  const fmt = typeof formatOrOptions === 'string' ? formatOrOptions.toLowerCase() : '';
+  if (fmt === 'from') return `${dates.startDate}, from ${dates.startTime}`;
+  return dates.startDateTime;
+}
+
+/**
+ * Generates full closing date and time formatted text (e.g., "Sunday, 19 September at 22:45 EAT").
+ */
+export function generateJackpotEndDateTimeText(
+  source?: string | Fixture[],
+  mode: 'curated' | 'fixtures' | 'auto' = 'auto',
+  timezoneOffsetHours: number = 3,
+  formatOrOptions?: string
+): string {
+  const dates = getJackpotDates(source, mode, timezoneOffsetHours);
+  return dates.endDateTime;
 }
 
 /**
@@ -1741,12 +1803,13 @@ export function expandTopFixturesParameters(
       case 'START_TIME':
       case 'STARTTIME':
       case 'KICKOFF_TIME':
-        return generateJackpotStartTimeText(fixturesToUse, mode, 3);
+      case 'FIRST_TIME':
+        return generateJackpotStartTimeText(fixturesToUse, mode, 3, format);
 
       case 'START_DATETIME':
       case 'STARTDATETIME':
       case 'KICKOFF_DATETIME':
-        return generateJackpotStartDateText(fixturesToUse, mode, 3, 'full');
+        return generateJackpotStartDateTimeText(fixturesToUse, mode, 3, format);
 
       case 'START_DAY':
       case 'STARTDAY':
@@ -1766,13 +1829,15 @@ export function expandTopFixturesParameters(
       case 'END_TIME':
       case 'ENDTIME':
       case 'CLOSING_TIME':
+      case 'LAST_TIME':
       case 'FINISH_TIME':
-        return generateJackpotEndTimeText(fixturesToUse, mode, 3);
+        return generateJackpotEndTimeText(fixturesToUse, mode, 3, format);
 
       case 'END_DATETIME':
       case 'ENDDATETIME':
       case 'CLOSING_DATETIME':
-        return generateJackpotEndDateText(fixturesToUse, mode, 3, 'full');
+      case 'FINISH_DATETIME':
+        return generateJackpotEndDateTimeText(fixturesToUse, mode, 3, format);
 
       case 'END_DAY':
       case 'ENDDAY':

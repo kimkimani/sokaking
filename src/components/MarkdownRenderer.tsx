@@ -825,8 +825,8 @@ export default function MarkdownRenderer({
       setLiveDbFixtures(fixtures);
       return;
     }
-    // If not supplied and content contains jackpot fixtures shortcode, fetch directly from DB
-    if (/TOP_.*FIXTURES|SPORTPESA.*TOP|DOUBLE_CHANCE|LEAGUES|LEAGUE_NAMES|.*SCHEDULE|.*DATES|.*SELECTIONS|.*OUTCOMES|UPSET_ALERT|.*COMBOS|.*JACKPOT|UI_TIMER|TIMER|COUNTDOWN/i.test(content)) {
+    // If not supplied and content contains jackpot fixtures or date/time shortcodes, fetch directly from DB
+    if (/TOP_.*FIXTURES|SPORTPESA.*TOP|DOUBLE_CHANCE|LEAGUES|LEAGUE_NAMES|.*SCHEDULE|.*DATE|.*TIME|.*SELECTIONS|.*OUTCOMES|UPSET_ALERT|.*COMBOS|.*JACKPOT|UI_TIMER|TIMER|COUNTDOWN|KICKOFF|CLOSING/i.test(content)) {
       fetchLiveJackpotFixtures(jackpotId).then(fetched => {
         if (fetched && fetched.length > 0) {
           setLiveDbFixtures(fetched);

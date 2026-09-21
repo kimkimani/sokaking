@@ -1,6 +1,6 @@
 import { RAW_BLOG_MAP, BLOG_METADATA_LIST, BlogMetaItem } from './blogData';
 import { getAuthor, ParsedAuthor, normalizeAuthorKey } from './authorLoader';
-import { expandTopFixturesParameters } from '../utils/topJackpotFixtures';
+import { expandTopFixturesParameters, resolveJackpotId } from '../utils/topJackpotFixtures';
 
 export interface BlogPost {
   slug: string;
@@ -177,7 +177,7 @@ export function parseBlogPostMarkdown(raw: string, fallbackSlug: string = ''): B
     readTime,
     featured,
     coverImage: coverImage || undefined,
-    content: expandTopFixturesParameters(bodyContent),
+    content: expandTopFixturesParameters(bodyContent, resolveJackpotId(slug, 'sportpesa-mega')),
     raw
   };
 }
