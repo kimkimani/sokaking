@@ -156,11 +156,37 @@ const EUROPEAN_TEAMS = [
 ];
 
 // Helper functions for date comparison
+export function getFixtureDateKey(kickoffTime?: string): string {
+  if (!kickoffTime) return '';
+  const d = new Date(kickoffTime.includes('T') ? kickoffTime : kickoffTime.replace(' ', 'T'));
+  if (isNaN(d.getTime())) return kickoffTime.slice(0, 10);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export function isSameDay(dateStr: string, targetDate: Date): boolean {
   if (!dateStr || !targetDate) return false;
-  const d = new Date(dateStr);
+  const d = new Date(dateStr.includes('T') ? dateStr : dateStr.replace(' ', 'T'));
   if (isNaN(d.getTime())) return true;
   return d.toDateString() === targetDate.toDateString();
+}
+
+export function isWithinLast3Days(dateStr: string, refDate: Date = new Date()): boolean {
+  if (!dateStr) return false;
+  const d = new Date(dateStr.includes('T') ? dateStr : dateStr.replace(' ', 'T'));
+  if (isNaN(d.getTime())) return true;
+
+  const start = new Date(refDate);
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - 2); // 3 days: today (0), yesterday (-1), and 2 days ago (-2)
+
+  const end = new Date(refDate);
+  end.setHours(23, 59, 59, 999);
+  end.setDate(end.getDate() + 1); // Also covers tomorrow if any
+
+  return d >= start && d <= end;
 }
 
 export function isWithinLast7Days(dateStr: string, refDate: Date = new Date()): boolean {
@@ -421,18 +447,55 @@ export function getCategoryFixtures(
   } else if (categoryId === 'category-tomorrow') {
     filtered = masterPool.filter(f => isSameDay(f.kickoffTime, tomorrow));
   } 
-  // 2. Competitor / Tipster pages: ALWAYS show tips of TODAY
+  // 2. Competitor / Tipster pages: Show the last three days fixtures (latest first)
   else if (
     pageType === 'competitor' ||
     categoryId === '254-sure-tips' ||
     categoryId === 'sunpel-free-football-betting-tips' ||
     categoryId === 'sunpel-free-football-betting-tips-and-soccer-predictions' ||
+    categoryId === 'tabiri-soka-prediction-free-tips' ||
+    categoryId === 'cheza254-predictions-and-tips' ||
+    categoryId === 'sokamastas-predictions-and-tips' ||
+    categoryId === '4soka-tips-prediction' ||
+    categoryId === '254-football-prediction' ||
+    categoryId === 'sokamax-predictions' ||
+    categoryId === 'betnumbers-360-predictions' ||
+    categoryId === '254-golden-tips' ||
     categoryId.includes('sunpel') ||
     categoryId.includes('golden') ||
     categoryId.includes('masta') ||
     categoryId.includes('tips')
   ) {
-    filtered = masterPool.filter(f => isSameDay(f.kickoffTime, today));
+    filtered = masterPool.filter(f => isWithinLast3Days(f.kickoffTime, today));
+
+    // Fallback if no fixtures in strict range: pick the 3 most recent unique fixture dates
+    if (filtered.length === 0) {
+      const dates = Array.from(new Set(
+        masterPool.map(f => f.kickoffTime ? getFixtureDateKey(f.kickoffTime) : '').filter(Boolean)
+      )).sort().reverse();
+      const top3Dates = new Set(dates.slice(0, 3));
+      filtered = masterPool.filter(f => {
+        const dk = f.kickoffTime ? getFixtureDateKey(f.kickoffTime) : '';
+        return top3Dates.has(dk);
+      });
+    }
+
+    // Ensure past fixtures have completed status and realistic settled outcomes
+    const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    filtered = filtered.map(f => {
+      const fDate = f.kickoffTime ? new Date(f.kickoffTime.includes('T') ? f.kickoffTime : f.kickoffTime.replace(' ', 'T')) : null;
+      const isPast = fDate && fDate.getTime() < todayMidnight.getTime();
+      if (isPast && (f.status === 'NS' || !f.status)) {
+        return {
+          ...f,
+          status: 'FT',
+          result: (f.result === 'pending' || !f.result) ? 'won' : f.result,
+          homeScore: (f.homeScore === '-' || f.homeScore === undefined || f.homeScore === null) ? 2 : f.homeScore,
+          awayScore: (f.awayScore === '-' || f.awayScore === undefined || f.awayScore === null) ? 1 : f.awayScore,
+        };
+      }
+      return f;
+    });
   } 
   // 3. Market / Category pages: Filter last 7 days based on prediction matching
   else if (
@@ -450,11 +513,16 @@ export function getCategoryFixtures(
     filtered = [...masterPool];
   }
 
-  // 4. ORDER ALL FIXTURES BY KICKOFF DATE/TIME (earliest kickoff first up to latest)
+  // 4. ORDER FIXTURES FROM MOST LATEST BY DATES (latest date first, earliest kickoff within day)
   filtered.sort((a, b) => {
-    const tA = a.kickoffTime ? new Date(a.kickoffTime).getTime() : 0;
-    const tB = b.kickoffTime ? new Date(b.kickoffTime).getTime() : 0;
-    return tA - tB; // Earliest first
+    const dayA = a.kickoffTime ? getFixtureDateKey(a.kickoffTime) : '';
+    const dayB = b.kickoffTime ? getFixtureDateKey(b.kickoffTime) : '';
+    if (dayA !== dayB) {
+      return dayB.localeCompare(dayA); // Most latest date first
+    }
+    const tA = a.kickoffTime ? new Date(a.kickoffTime.includes('T') ? a.kickoffTime : a.kickoffTime.replace(' ', 'T')).getTime() : 0;
+    const tB = b.kickoffTime ? new Date(b.kickoffTime.includes('T') ? b.kickoffTime : b.kickoffTime.replace(' ', 'T')).getTime() : 0;
+    return tA - tB; // Earliest kickoff within the same day
   });
 
   return filtered;

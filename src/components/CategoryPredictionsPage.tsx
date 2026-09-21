@@ -509,6 +509,8 @@ export default function CategoryPredictionsPage({
         <PredictionsList 
           fixtures={[]}
           isLoading={true}
+          groupByDate={true}
+          pageType={pageMd.type}
           title={
             pageMd.listTitle || (
               category.id === 'category-yesterday'
@@ -524,6 +526,8 @@ export default function CategoryPredictionsPage({
         <PredictionsList 
           fixtures={filteredFixtures}
           isLoading={false}
+          groupByDate={true}
+          pageType={pageMd.type}
           title={
             pageMd.listTitle || (
               category.id === 'category-yesterday'
