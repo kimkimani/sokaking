@@ -1322,21 +1322,41 @@ export function getJackpotDates(
   const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   if (mode !== 'curated' && fixtures.length > 0) {
-    const validDates = fixtures
-      .map(f => {
-        const rawTime = f.kickoffTime || f.date || (f as any).kickoff_time || (f as any).kickoffDate || '';
-        if (!rawTime) return null;
-        const d = new Date(rawTime.includes('T') ? rawTime : rawTime.replace(' ', 'T'));
-        if (isNaN(d.getTime())) return null;
-        return new Date(d.getTime() + timezoneOffsetHours * 60 * 60 * 1000);
-      })
-      .filter((d): d is Date => d !== null)
-      .sort((a, b) => a.getTime() - b.getTime());
+    const parseFixtureDate = (f?: Fixture): Date | null => {
+      if (!f) return null;
+      const rawTime = f.kickoffTime || f.date || (f as any).kickoff_time || (f as any).kickoffDate || '';
+      if (!rawTime) return null;
+      const d = new Date(rawTime.includes('T') ? rawTime : rawTime.replace(' ', 'T'));
+      if (isNaN(d.getTime())) return null;
+      return new Date(d.getTime() + timezoneOffsetHours * 60 * 60 * 1000);
+    };
 
-    if (validDates.length > 0) {
-      const first = validDates[0];
-      const last = validDates[validDates.length - 1];
+    // First fixture of the jackpot (fixture #1 or first item in list)
+    const firstFixture = fixtures.find(f => f.fixtureNumber === 1) || fixtures[0];
+    // Last fixture of the jackpot (highest fixtureNumber or last item in list)
+    const lastFixture = [...fixtures].sort((a, b) => (b.fixtureNumber || 0) - (a.fixtureNumber || 0))[0] || fixtures[fixtures.length - 1];
 
+    let first = parseFixtureDate(firstFixture);
+    let last = parseFixtureDate(lastFixture);
+
+    // Fallbacks if fixture #1 or last fixture lacks date
+    if (!first) {
+      for (const f of fixtures) {
+        const d = parseFixtureDate(f);
+        if (d) { first = d; break; }
+      }
+    }
+    if (!last) {
+      for (let i = fixtures.length - 1; i >= 0; i--) {
+        const d = parseFixtureDate(fixtures[i]);
+        if (d) { last = d; break; }
+      }
+    }
+
+    if (first && !last) last = first;
+    if (last && !first) first = last;
+
+    if (first && last) {
       const startDay = daysOfWeek[first.getUTCDay()];
       const startMonth = months[first.getUTCMonth()];
       const startDateNum = first.getUTCDate();
