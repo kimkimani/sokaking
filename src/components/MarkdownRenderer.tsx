@@ -130,7 +130,7 @@ function parseInline(text: string, postSlug?: string): React.ReactNode[] {
     } else if (match[9]) {
       // Math formula $formula$
       nodes.push(
-        <span key={`math-${matchStart}`} className="inline-flex items-center px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-mono text-[12px] font-bold border border-emerald-500/25 mx-1 tracking-tight align-baseline shadow-3xs">
+        <span key={`math-${matchStart}`} className="inline-flex items-center px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-950 dark:text-slate-100 font-mono text-[12px] font-bold border border-slate-300 dark:border-slate-700 mx-1 tracking-tight align-baseline shadow-3xs">
           {formatMathLatex(match[9])}
         </span>
       );
@@ -234,15 +234,11 @@ function CompactJackpotTopConfidenceSection({ items, postSlug }: CompactJackpotT
                       {item.matchTeams}
                     </span>
                     <span className="text-[var(--text-muted)] text-[11px] font-semibold shrink-0">—</span>
-                    <span className={`inline-flex items-center px-1.5 py-0.2 rounded font-mono font-black text-[10px] sm:text-[10.5px] shrink-0 ${
-                      isDC
-                        ? 'bg-amber-500/20 text-amber-950 dark:text-amber-200 border border-amber-500/40'
-                        : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30'
-                    }`}>
+                    <span className="inline-flex items-center px-1.5 py-0.2 rounded font-mono font-black text-[10px] sm:text-[10.5px] shrink-0 bg-amber-100 dark:bg-amber-950/40 text-slate-950 dark:text-slate-100 border border-amber-300 dark:border-amber-700">
                       {item.matchTip}
                     </span>
                     {isDC && (
-                      <span className="text-[8.5px] font-mono font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 bg-amber-500/15 px-1 py-0.2 rounded border border-amber-500/25">
+                      <span className="text-[8.5px] font-mono font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100 bg-amber-100 dark:bg-amber-950/40 px-1 py-0.2 rounded border border-amber-300 dark:border-amber-700">
                         DC
                       </span>
                     )}
@@ -447,8 +443,8 @@ function CompactAllJackpotFixturesSection({
       {/* Top Header Bar */}
       <div className="px-3 py-2 sm:px-4 sm:py-2.5 bg-slate-50 dark:bg-slate-900/80 border-b border-[var(--border)]/70 flex items-center justify-between gap-2.5 flex-wrap">
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-md bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-            <Crown className="w-3 h-3" />
+          <div className="w-5 h-5 rounded-md bg-amber-100 dark:bg-amber-950/40 text-slate-950 dark:text-slate-100 border border-amber-300 dark:border-amber-700 flex items-center justify-center shrink-0">
+            <Crown className="w-3 h-3 text-amber-600 dark:text-amber-400" />
           </div>
           <div>
             <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
@@ -480,7 +476,7 @@ function CompactAllJackpotFixturesSection({
             className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded text-[10px] font-mono font-bold transition-all cursor-pointer ${
               filter === 'free'
                 ? 'bg-emerald-600 text-white dark:bg-emerald-500 dark:text-slate-950 font-black shadow-2xs'
-                : 'text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20'
+                : 'text-slate-900 dark:text-slate-100 bg-emerald-100 dark:bg-emerald-950/40 hover:bg-slate-900 hover:text-white border border-emerald-300 dark:border-emerald-700'
             }`}
           >
             Free ({freeItems.length})
@@ -491,7 +487,7 @@ function CompactAllJackpotFixturesSection({
             className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center gap-1 ${
               filter === 'vip'
                 ? 'bg-amber-500 text-slate-950 font-black shadow-2xs'
-                : 'text-amber-800 dark:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25'
+                : 'text-slate-900 dark:text-slate-100 bg-amber-100 dark:bg-amber-950/40 hover:bg-slate-900 hover:text-white border border-amber-300 dark:border-amber-700'
             }`}
           >
             <span>⭐ VIP ({vipItems.length})</span>
@@ -511,8 +507,8 @@ function CompactAllJackpotFixturesSection({
             onClick={toggleAllPolls}
             className={`px-2 py-0.5 sm:px-2 sm:py-1 rounded text-[9.5px] font-mono font-bold transition-all cursor-pointer flex items-center gap-1 border ${
               allPollsVisible
-                ? 'bg-sky-500/15 text-sky-900 dark:text-sky-300 border-sky-500/35 font-black shadow-2xs'
-                : 'text-slate-600 dark:text-slate-400 bg-slate-200/50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700'
+                ? 'bg-sky-100 dark:bg-sky-950/40 text-slate-950 dark:text-slate-100 border-sky-300 dark:border-sky-700 font-black shadow-2xs'
+                : 'text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700'
             }`}
             title={allPollsVisible ? "Collapse community voting polls" : "Show community voting polls for all jackpot matches"}
           >
@@ -533,10 +529,10 @@ function CompactAllJackpotFixturesSection({
             const confNum = parseInt(String(item.confidence), 10) || 75;
             const confClass =
               confNum >= 80
-                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                ? 'bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border-emerald-300 dark:border-emerald-700'
                 : confNum >= 75
-                ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30'
-                : 'bg-slate-500/15 text-slate-700 dark:text-slate-300 border-slate-500/25';
+                ? 'bg-amber-100 dark:bg-amber-950/40 text-slate-950 dark:text-slate-100 border-amber-300 dark:border-amber-700'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-950 dark:text-slate-100 border-slate-300 dark:border-slate-700';
 
             const matchLeagueRegex = /^(.+?\s+vs\s+.+?)(?:\s*\(([^)]+)\))?$/i;
             const matchLeagueResult = item.matchTeams.match(matchLeagueRegex);
@@ -606,13 +602,13 @@ function CompactAllJackpotFixturesSection({
                         onClick={() => togglePollGame(item.gameNumber)}
                         className={`inline-flex items-center gap-1 px-2 py-0.5 min-h-[24px] rounded font-mono border text-[10px] sm:text-[10.5px] cursor-pointer transition-all duration-150 select-none ${
                           isPollVisible
-                            ? 'bg-sky-500/15 text-sky-950 dark:text-sky-200 font-black border-sky-500/40 shadow-2xs'
-                            : 'bg-slate-100 dark:bg-slate-800 hover:bg-sky-500/10 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700'
+                            ? 'bg-sky-100 dark:bg-sky-950/40 text-slate-950 dark:text-slate-100 font-black border-sky-300 dark:border-sky-700 shadow-2xs'
+                            : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-900 hover:text-white text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700'
                         }`}
                         title={isPollVisible ? "Hide voting poll" : "Show voting poll"}
                       >
                         <Users className="w-2.5 h-2.5 text-sky-600 dark:text-sky-400 opacity-80 shrink-0" />
-                        <span className="text-[9px] uppercase tracking-wider font-semibold text-sky-700 dark:text-sky-400">
+                        <span className="text-[9px] uppercase tracking-wider font-semibold text-slate-800 dark:text-slate-200">
                           Community Votes:
                         </span>
                         <strong className="font-black">{item.mostVoted}</strong>
@@ -628,8 +624,8 @@ function CompactAllJackpotFixturesSection({
                         onClick={() => togglePollGame(item.gameNumber)}
                         className={`inline-flex items-center gap-1 px-2 py-0.5 min-h-[24px] rounded font-mono border text-[10px] sm:text-[10.5px] cursor-pointer transition-all duration-150 select-none ${
                           isPollVisible
-                            ? 'bg-sky-500/15 text-sky-950 dark:text-sky-200 font-black border-sky-500/40'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700'
+                            ? 'bg-sky-100 dark:bg-sky-950/40 text-slate-950 dark:text-slate-100 font-black border-sky-300 dark:border-sky-700'
+                            : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-900 hover:text-white text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700'
                         }`}
                         title={isPollVisible ? "Hide voting poll" : "Show voting poll"}
                       >
@@ -644,7 +640,7 @@ function CompactAllJackpotFixturesSection({
                       <button
                         type="button"
                         onClick={handleOpenMegaJackpotPayment}
-                        className="inline-flex items-center gap-1 px-2.5 py-0.5 min-h-[24px] rounded bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 font-black text-[10.5px] sm:text-[11px] shadow-2xs cursor-pointer transition-all transform hover:scale-[1.02] shrink-0 border-0"
+                        className="inline-flex items-center gap-1 px-2.5 py-0.5 min-h-[24px] rounded bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-black text-[10.5px] sm:text-[11px] shadow-2xs cursor-pointer transition-all transform hover:scale-[1.02] shrink-0 border-0"
                         title="Unlock SokaKing Tip with Mega Jackpot VIP Slip"
                       >
                         <span className="text-[9px] uppercase tracking-wider font-black opacity-90">SokaKing Tip:</span>
@@ -655,8 +651,8 @@ function CompactAllJackpotFixturesSection({
                       <div
                         className={`inline-flex items-center gap-1 px-2.5 py-0.5 min-h-[24px] rounded font-mono shrink-0 border ${
                           isDoubleChanceTip(item.prediction)
-                            ? 'bg-amber-500/20 text-amber-950 dark:text-amber-200 border-amber-500/40'
-                            : 'bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border border-emerald-500/30'
+                            ? 'bg-amber-100 dark:bg-amber-950/40 text-slate-950 dark:text-slate-100 border-amber-300 dark:border-amber-700'
+                            : 'bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border border-emerald-300 dark:border-emerald-700'
                         }`}
                         title="Official SokaKing Tip"
                       >
@@ -697,7 +693,7 @@ function CompactAllJackpotFixturesSection({
 
                 {/* The last part of a fixture: Highlighted Fixture Tips */}
                 {!item.isVipLocked ? (
-                  <div className="mt-2.5 pt-2 border-t border-dashed border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-gradient-to-r from-amber-500/15 via-amber-500/[0.08] to-emerald-500/[0.05] dark:from-amber-500/20 dark:via-amber-500/[0.1] dark:to-transparent rounded-lg p-2.5 border border-amber-500/40 shadow-xs">
+                  <div className="mt-2.5 pt-2 border-t border-dashed border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-amber-500/10 dark:bg-amber-950/20 rounded-lg p-2.5 border border-amber-500/40 shadow-xs">
                     <div className="flex items-center gap-2 min-w-0 flex-wrap">
                       <div className="flex items-center gap-1.5 shrink-0">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider bg-amber-500 text-slate-950 shadow-xs">
@@ -728,7 +724,7 @@ function CompactAllJackpotFixturesSection({
                     </div>
                   </div>
                 ) : (
-                  <div className="mt-2.5 pt-2 border-t border-dashed border-amber-500/30 flex items-center justify-between gap-2.5 bg-gradient-to-r from-amber-500/15 via-amber-500/[0.08] to-transparent rounded-lg p-2.5 border border-amber-500/40 flex-wrap sm:flex-nowrap shadow-xs">
+                  <div className="mt-2.5 pt-2 border-t border-dashed border-amber-500/30 flex items-center justify-between gap-2.5 bg-amber-500/10 dark:bg-amber-950/20 rounded-lg p-2.5 border border-amber-500/40 flex-wrap sm:flex-nowrap shadow-xs">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider bg-amber-500 text-slate-950 shadow-xs shrink-0">
                         <Crown className="w-2.5 h-2.5 shrink-0" />
@@ -756,7 +752,7 @@ function CompactAllJackpotFixturesSection({
       </div>
 
       {/* Bottom Conversion Banner */}
-      <div className="p-3 bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-white flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap border-t border-[var(--border)]">
+      <div className="p-3 bg-slate-950 text-white flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap border-t border-[var(--border)]">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0">
             <Crown className="w-4 h-4 text-amber-400" />

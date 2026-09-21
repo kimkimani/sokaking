@@ -6,7 +6,7 @@ keywords: "Betnumbers, betnumber 360, betnumber, Betnumbers 360, Betnumbers tips
 link: "/betnumbers-predictions"
 type: "competitor"
 icon: "🔢"
-badgeColor: "bg-blue-500/10 text-blue-500 border-blue-500/20"
+badgeColor: "bg-blue-100 dark:bg-blue-950/40 text-slate-950 dark:text-slate-100 border border-blue-300 dark:border-blue-700"
 authorId: "brian-kipchumba"
 listTitle: "Betnumbers 360 Football Tips"
 listSubtitle: "Daily Betnumbers 360 predictions, football tips and match analysis."

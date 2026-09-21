@@ -39,14 +39,14 @@ export default function PredictionsSidebar({
   return (
     <div className="w-full bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius)] shadow-[var(--shadow)] text-left overflow-hidden">
       {/* Sidebar Header */}
-      <div className="p-4 border-b border-[var(--border)] bg-slate-50 dark:bg-slate-900 flex items-center justify-between">
+      <div className="p-4 border-b border-[var(--border)] bg-slate-50 dark:bg-slate-900/40 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-emerald-700 dark:text-emerald-400 animate-pulse shrink-0" />
+          <Sparkles className="w-4 h-4 text-indigo-700 dark:text-indigo-400 animate-pulse shrink-0" />
           <div className="text-xs font-black uppercase text-[var(--text)] tracking-wider font-mono">
             Predictions Sidebar
           </div>
         </div>
-        <span className="text-[9px] font-mono font-black text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+        <span className="text-[9px] font-mono font-black text-slate-950 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-700">
           FREE and SURE
         </span>
       </div>
@@ -69,26 +69,26 @@ export default function PredictionsSidebar({
               }}
               className={`w-full flex items-center justify-between p-2.5 rounded-lg text-left transition-all duration-150 no-underline cursor-pointer group ${
                 isActive 
-                  ? 'bg-emerald-700 text-white shadow-xs font-black' 
-                  : 'bg-transparent text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'bg-[var(--primary)] text-white shadow-3xs font-black' 
+                  : 'bg-transparent text-slate-900 dark:text-slate-100 hover:bg-[var(--primary)] hover:text-white'
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 {/* Category Icon */}
                 <div className={`p-1.5 rounded-md transition-colors ${
-                  isActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                  isActive ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 group-hover:bg-white/20 group-hover:text-white'
                 }`}>
                   <span className="text-sm shrink-0 block line-height-1">{category.icon}</span>
                 </div>
                 
                 <div className="min-w-0">
                   <span className={`text-[11px] block truncate tracking-tight font-black leading-tight ${
-                    isActive ? 'text-white' : 'text-slate-850 dark:text-slate-200'
+                    isActive ? 'text-white' : 'text-slate-950 dark:text-slate-100 group-hover:text-white'
                   }`}>
                     {category.label}
                   </span>
                   <span className={`text-[9px] block font-mono font-bold mt-0.5 ${
-                    isActive ? 'text-emerald-100' : 'text-slate-500 dark:text-slate-400'
+                    isActive ? 'text-white/90' : 'text-slate-600 dark:text-slate-400 group-hover:text-white/90'
                   }`}>
                     {getCategoryCountText(category.id, fixtures)}
                   </span>
@@ -96,7 +96,7 @@ export default function PredictionsSidebar({
               </div>
 
               <ChevronRight className={`w-3.5 h-3.5 transition-transform duration-150 ${
-                isActive ? 'text-white translate-x-0.5' : 'text-slate-400 group-hover:translate-x-0.5'
+                isActive ? 'text-white translate-x-0.5' : 'text-slate-500 group-hover:text-white group-hover:translate-x-0.5'
               }`} />
             </a>
           );

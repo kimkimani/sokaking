@@ -40,13 +40,12 @@ export default function VipPackagesPage({
     <div className="space-y-8 text-left animate-fadeIn">
       {/* 1. HERO BANNER HEADER */}
       <div className="relative overflow-hidden p-6 md:p-8 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)]">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-amber-500 via-[var(--primary)] to-emerald-500" />
-        <div className="absolute -top-12 -right-12 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-amber-600" />
 
         <div className="max-w-3xl space-y-3 relative z-10">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center gap-1 animate-pulse">
-              <Crown className="w-3.5 h-3.5" /> Soka King Premium VIP Center
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-100 dark:bg-amber-950/40 text-slate-950 dark:text-slate-100 border border-amber-300 dark:border-amber-700 flex items-center gap-1 animate-pulse">
+              <Crown className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> Soka King Premium VIP Center
             </span>
             <span className="text-[10px] text-[var(--text-muted)] font-mono font-bold uppercase tracking-wider">
               Instant Digital Activation
@@ -65,21 +64,21 @@ export default function VipPackagesPage({
           <div className="flex flex-wrap gap-2.5 pt-2">
             <a 
               href="#vip-bundles-section" 
-              className="px-3.5 py-2 rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-xs font-black uppercase font-mono transition-all no-underline flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 hover:bg-slate-900 hover:text-white text-xs font-black uppercase font-mono transition-all no-underline flex items-center gap-1.5"
             >
-              <Crown className="w-3.5 h-3.5" /> VIP Packages
+              <Crown className="w-3.5 h-3.5 text-amber-500" /> VIP Packages
             </a>
             <a 
               href="#odds-packs-section" 
-              className="px-3.5 py-2 rounded-lg bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-700 hover:text-white text-xs font-black uppercase font-mono transition-all no-underline flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 hover:bg-slate-900 hover:text-white text-xs font-black uppercase font-mono transition-all no-underline flex items-center gap-1.5"
             >
-              <Zap className="w-3.5 h-3.5" /> Daily Odds Packs
+              <Zap className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Daily Odds Packs
             </a>
             <a 
               href="#jackpot-listing-section" 
-              className="px-3.5 py-2 rounded-lg bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 hover:bg-indigo-700 hover:text-white text-xs font-black uppercase font-mono transition-all no-underline flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 hover:bg-slate-900 hover:text-white text-xs font-black uppercase font-mono transition-all no-underline flex items-center gap-1.5"
             >
-              <Trophy className="w-3.5 h-3.5" /> Jackpot Listing
+              <Trophy className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" /> Jackpot Listing
             </a>
           </div>
         </div>

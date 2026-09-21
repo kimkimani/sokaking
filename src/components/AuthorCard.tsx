@@ -58,34 +58,34 @@ export const AuthorCard: React.FC<AuthorCardProps> = ({
     switch (type) {
       case 'modeler':
         return {
-          bg: 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700',
-          icon: <Sparkles className="w-3 h-3 text-emerald-700 dark:text-emerald-400" />
+          bg: 'bg-indigo-100 dark:bg-indigo-950/40 text-slate-950 dark:text-slate-100 border-indigo-300 dark:border-indigo-700',
+          icon: <Sparkles className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
         };
       case 'experience':
         return {
-          bg: 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700',
-          icon: <Award className="w-3 h-3 text-emerald-700 dark:text-emerald-400" />
+          bg: 'bg-blue-100 dark:bg-blue-950/40 text-slate-950 dark:text-slate-100 border-blue-300 dark:border-blue-700',
+          icon: <Award className="w-3 h-3 text-blue-600 dark:text-blue-400" />
         };
       case 'tactical':
         return {
-          bg: 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700',
-          icon: <Crosshair className="w-3 h-3 text-emerald-700 dark:text-emerald-400" />
+          bg: 'bg-amber-100 dark:bg-amber-950/40 text-slate-950 dark:text-slate-100 border-amber-300 dark:border-amber-700',
+          icon: <Crosshair className="w-3 h-3 text-amber-600 dark:text-amber-400" />
         };
       case 'security':
         return {
-          bg: 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700',
-          icon: <Lock className="w-3 h-3 text-emerald-700 dark:text-emerald-400" />
+          bg: 'bg-purple-100 dark:bg-purple-950/40 text-slate-950 dark:text-slate-100 border-purple-300 dark:border-purple-700',
+          icon: <Lock className="w-3 h-3 text-purple-600 dark:text-purple-400" />
         };
       case 'support':
         return {
-          bg: 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700',
-          icon: <HeartHandshake className="w-3 h-3 text-emerald-700 dark:text-emerald-400" />
+          bg: 'bg-rose-100 dark:bg-rose-950/40 text-slate-950 dark:text-slate-100 border-rose-300 dark:border-rose-700',
+          icon: <HeartHandshake className="w-3 h-3 text-rose-600 dark:text-rose-400" />
         };
       case 'verified':
       default:
         return {
-          bg: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800',
-          icon: <ShieldCheck className="w-3 h-3 text-emerald-700 dark:text-emerald-400" />
+          bg: 'bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border-emerald-300 dark:border-emerald-700',
+          icon: <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
         };
     }
   };
@@ -112,7 +112,7 @@ export const AuthorCard: React.FC<AuthorCardProps> = ({
             referrerPolicy="no-referrer"
           />
         ) : (
-          <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-emerald-700 text-white flex items-center justify-center font-black font-mono text-base md:text-lg border-2 border-emerald-600 shrink-0 shadow-sm">
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-emerald-700 text-white flex items-center justify-center font-black font-mono text-base md:text-lg border-2 border-emerald-600/30 shrink-0 shadow-sm">
             {getInitials(displayName)}
           </div>
         )}
@@ -146,14 +146,14 @@ export const AuthorCard: React.FC<AuthorCardProps> = ({
 
           {resolvedAuthor?.credentials && (
             <p className="text-[11px] text-[var(--text-muted)] font-medium flex items-center gap-1.5 m-0 pt-0.5">
-              <GraduationCap className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
+              <GraduationCap className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
               <span>{resolvedAuthor.credentials}</span>
             </p>
           )}
 
           {resolvedAuthor?.specialization && (
             <p className="text-[11px] text-[var(--text-muted)] font-mono flex items-center gap-1.5 m-0">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
               <span><strong className="text-[var(--text)] font-semibold">Specialization:</strong> {resolvedAuthor.specialization}</span>
             </p>
           )}

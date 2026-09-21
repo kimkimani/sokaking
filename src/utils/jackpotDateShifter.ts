@@ -53,7 +53,7 @@ export function getJackpotStatusDisplay(fixtures: any[]): {
       status: 'ended',
       label: 'Completed and closed',
       badgeText: 'Completed and Closed',
-      badgeClass: 'bg-rose-500/10 text-rose-500 border border-rose-500/20'
+      badgeClass: 'bg-slate-100 dark:bg-slate-800 text-slate-950 dark:text-slate-100 border border-slate-300 dark:border-slate-700 font-bold'
     };
   }
   if (status === 'started') {
@@ -61,14 +61,14 @@ export function getJackpotStatusDisplay(fixtures: any[]): {
       status: 'started',
       label: 'Live In Progress',
       badgeText: 'Live In Progress',
-      badgeClass: 'bg-amber-500/15 text-amber-500 border border-amber-500/30 animate-pulse'
+      badgeClass: 'bg-amber-400 text-slate-950 border border-amber-500 font-black animate-pulse'
     };
   }
   return {
     status: 'upcoming',
     label: 'Open / Not started',
     badgeText: 'Open • Not started',
-    badgeClass: 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+    badgeClass: 'bg-emerald-700 text-white border border-emerald-700 font-bold'
   };
 }
 

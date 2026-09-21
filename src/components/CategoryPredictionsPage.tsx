@@ -80,6 +80,23 @@ export default function CategoryPredictionsPage({
     return d.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   }, []);
 
+  const formattedTodayDate = useMemo(() => {
+    const d = new Date();
+    return d.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }, []);
+
+  const formattedTomorrowDate = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }, []);
+
+  const formattedDisplayDate = useMemo(() => {
+    if (category.id === 'category-yesterday') return formattedYesterdayDate;
+    if (category.id === 'category-tomorrow') return formattedTomorrowDate;
+    return formattedTodayDate;
+  }, [category.id, formattedYesterdayDate, formattedTomorrowDate, formattedTodayDate]);
+
   // Yesterday's Performance Statistics (computed over ALL unfiltered yesterday fixtures)
   const yesterdayStats = useMemo(() => {
     if (category.id !== 'category-yesterday') return null;
@@ -291,17 +308,14 @@ export default function CategoryPredictionsPage({
         <div className="space-y-6">
           {/* Main Performance Showcase */}
           <div className="p-6 md:p-8 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow)] relative overflow-hidden text-left">
-            {/* Top decorative gradient bar */}
-            <div className="absolute top-0 left-0 right-0 h-[4px] bg-gradient-to-r from-emerald-500 via-indigo-500 to-amber-500" />
-            {/* Soft decorative radial light */}
-            <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -left-24 w-64 h-64 rounded-full bg-indigo-500/5 blur-3xl pointer-events-none" />
+            {/* Top decorative accent bar */}
+            <div className="absolute top-0 left-0 right-0 h-[4px] bg-emerald-600" />
 
             <div className="relative z-10 space-y-6">
               {/* Top Row: Title, Date & Verified Badge */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border)] pb-5">
-                <div className="space-y-1.5">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-850 dark:text-emerald-300 border border-emerald-500/30 text-[10px] font-black uppercase tracking-wider font-mono">
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border border-emerald-300 dark:border-emerald-700 text-[10px] font-black uppercase tracking-wider font-mono">
                     <span className="flex h-2 w-2 relative">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -315,10 +329,12 @@ export default function CategoryPredictionsPage({
                   >
                     {pageMd.displayTitle || pageMd.title || "Yesterday's Football Predictions & Winning Results"}
                   </h1>
-                  <p className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wide">
-                    <Calendar className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-400 shrink-0" />
-                    {formattedYesterdayDate}
-                  </p>
+                  <div>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-black text-white font-mono text-xs font-bold border border-neutral-800 uppercase tracking-wide">
+                      <Calendar className="w-3.5 h-3.5 text-white shrink-0" />
+                      <span>{formattedYesterdayDate}</span>
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex flex-col items-start md:items-end gap-1 shrink-0">
@@ -396,7 +412,7 @@ export default function CategoryPredictionsPage({
                 {/* Segmented Dual Bar */}
                 <div className="w-full h-3 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden flex shadow-inner">
                   <div 
-                    className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.35)] transition-all duration-500" 
+                    className="h-full bg-emerald-600 transition-all duration-500" 
                     style={{ width: `${yesterdayStats.winRate}%` }} 
                   />
                   <div 
@@ -422,12 +438,12 @@ export default function CategoryPredictionsPage({
                 className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-black uppercase font-mono transition-all border cursor-pointer ${
                   yesterdayFilter === 'won'
                     ? 'bg-emerald-700 text-white border-emerald-700 shadow-3xs scale-[1.01]'
-                    : 'bg-[var(--background)] text-emerald-800 dark:text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/10'
+                    : 'bg-[var(--background)] text-slate-900 dark:text-slate-100 border-emerald-500/30 hover:bg-slate-900 hover:text-white'
                 }`}
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>Won Tips</span>
-                <span className={`text-[9.5px] px-1.5 py-0.5 rounded-md font-mono ${yesterdayFilter === 'won' ? 'bg-white/20 text-white' : 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300'}`}>
+                <span className={`text-[9.5px] px-1.5 py-0.5 rounded-md font-mono ${yesterdayFilter === 'won' ? 'bg-white/20 text-white' : 'bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border border-emerald-300 dark:border-emerald-700'}`}>
                   {yesterdayStats.wonCount}
                 </span>
               </button>
@@ -437,12 +453,12 @@ export default function CategoryPredictionsPage({
                 className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-black uppercase font-mono transition-all border cursor-pointer ${
                   yesterdayFilter === 'lost'
                     ? 'bg-rose-700 text-white border-rose-700 shadow-3xs scale-[1.01]'
-                    : 'bg-[var(--background)] text-rose-800 dark:text-rose-300 border-rose-500/30 hover:bg-rose-500/10'
+                    : 'bg-[var(--background)] text-slate-900 dark:text-slate-100 border-rose-500/30 hover:bg-slate-900 hover:text-white'
                 }`}
               >
                 <XCircle className="w-3.5 h-3.5" />
                 <span>Lost Tips</span>
-                <span className={`text-[9.5px] px-1.5 py-0.5 rounded-md font-mono ${yesterdayFilter === 'lost' ? 'bg-white/20 text-white' : 'bg-rose-500/15 text-rose-800 dark:text-rose-300'}`}>
+                <span className={`text-[9.5px] px-1.5 py-0.5 rounded-md font-mono ${yesterdayFilter === 'lost' ? 'bg-white/20 text-white' : 'bg-rose-100 dark:bg-rose-950/40 text-slate-950 dark:text-slate-100 border border-rose-300 dark:border-rose-700'}`}>
                   {yesterdayStats.lostCount}
                 </span>
               </button>
@@ -467,9 +483,6 @@ export default function CategoryPredictionsPage({
       ) : (
         /* Original Category Card Header */
         <div className="p-6 md:p-8 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow)] relative overflow-hidden">
-          {/* Decorative elements */}
-          <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-indigo-500 bg-opacity-[0.03] blur-3xl" />
-          
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2.5 max-w-xl">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/15 text-indigo-900 dark:text-indigo-200 border border-indigo-500/30 text-[10px] font-black uppercase tracking-wider">
@@ -483,6 +496,13 @@ export default function CategoryPredictionsPage({
               >
                 {pageMd.displayTitle || pageMd.title || category.name}
               </h1>
+
+              <div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-black text-white font-mono text-xs font-bold border border-neutral-800 uppercase tracking-wide">
+                  <Calendar className="w-3.5 h-3.5 text-white shrink-0" />
+                  <span>{formattedDisplayDate}</span>
+                </span>
+              </div>
               
               <div className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed">
                 {pageMd.intro ? (
@@ -616,7 +636,7 @@ export default function CategoryPredictionsPage({
                     if (onSelectPage) onSelectPage(jackpot.id);
                   }
                 }}
-                className="w-full py-2 bg-indigo-700 hover:bg-indigo-800 text-white text-[10px] font-black uppercase font-mono rounded-lg transition-colors no-underline cursor-pointer flex items-center justify-center gap-1 shadow-3xs"
+                className="w-full py-2 bg-indigo-700 hover:bg-slate-900 text-white text-[10px] font-black uppercase font-mono rounded-lg transition-colors no-underline cursor-pointer flex items-center justify-center gap-1 shadow-3xs"
               >
                 <span>Analyze Jackpot</span>
                 <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
@@ -678,7 +698,7 @@ export default function CategoryPredictionsPage({
                     </span>
                     <button 
                       onClick={() => onOpenPayment && onOpenPayment(pkg.name, pkg.price, pkg.id, pkg.slug, 'vip')}
-                      className="mt-1.5 px-3 py-1.5 bg-indigo-700 hover:bg-indigo-800 text-white text-[10px] font-black uppercase font-mono rounded-lg transition-colors border-none cursor-pointer shadow-3xs"
+                      className="mt-1.5 px-3 py-1.5 bg-indigo-700 hover:bg-slate-900 text-white text-[10px] font-black uppercase font-mono rounded-lg transition-colors border-none cursor-pointer shadow-3xs"
                     >
                       Buy Pack
                     </button>
@@ -704,7 +724,7 @@ export default function CategoryPredictionsPage({
                       <div className="text-xs font-black text-[var(--text)] truncate uppercase font-mono">
                         {pack.name}
                       </div>
-                      <span className="text-[9px] font-mono font-black px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800">
+                      <span className="text-[9px] font-mono font-black px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-slate-950 dark:text-slate-100 border border-emerald-300 dark:border-emerald-800">
                         {pack.tag}
                       </span>
                     </div>
@@ -723,7 +743,7 @@ export default function CategoryPredictionsPage({
                     </span>
                     <button 
                       onClick={() => onOpenPayment && onOpenPayment(pack.name, pack.price, pack.id, pack.slug, 'odds')}
-                      className="mt-1.5 px-3 py-1.5 bg-indigo-700 hover:bg-indigo-800 text-white text-[10px] font-black uppercase font-mono rounded-lg transition-colors border-none cursor-pointer shadow-3xs"
+                      className="mt-1.5 px-3 py-1.5 bg-indigo-700 hover:bg-slate-900 text-white text-[10px] font-black uppercase font-mono rounded-lg transition-colors border-none cursor-pointer shadow-3xs"
                     >
                       Unlock Odds
                     </button>

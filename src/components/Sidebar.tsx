@@ -121,15 +121,15 @@ export default function Sidebar({
                         handleNavClick(item.id);
                       }
                     }}
-                    className={`w-full text-left px-3.5 py-2.5 rounded-[var(--radius)] flex items-center justify-between text-xs font-extrabold transition-all duration-200 no-underline cursor-pointer ${
+                    className={`w-full text-left px-3.5 py-2.5 rounded-[var(--radius)] flex items-center justify-between text-xs font-extrabold transition-all duration-200 no-underline cursor-pointer group ${
                       isActive 
                         ? 'bg-[var(--primary)] text-white shadow-sm' 
-                        : 'text-[var(--text)] hover:bg-slate-100 dark:hover:bg-slate-800'
+                        : 'text-slate-900 dark:text-slate-100 hover:bg-[var(--primary)] hover:text-white'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <IconComponent className={`w-4 h-4 ${isActive ? 'text-white' : item.color}`} />
-                      <span className={isActive ? 'text-white font-black' : ''}>{item.label}</span>
+                      <IconComponent className={`w-4 h-4 ${isActive ? 'text-white' : `${item.color} group-hover:text-white`}`} />
+                      <span className={isActive ? 'text-white font-black' : 'group-hover:text-white'}>{item.label}</span>
                     </div>
                     {isActive && (
                       <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />

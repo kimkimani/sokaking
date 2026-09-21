@@ -134,7 +134,7 @@ export default function JackpotSidebar({ jackpotId, jackpotName, hasPaid }: Jack
                 <span className="text-[9px] text-[var(--text-muted)] font-mono">{w.date}</span>
               </div>
               <div className="text-right">
-                <span className="px-1.5 py-0.5 bg-emerald-500/20 text-emerald-850 dark:text-emerald-300 font-mono text-[10px] font-black rounded">
+                <span className="px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border border-emerald-300 dark:border-emerald-700 font-mono text-[10px] font-black rounded">
                   {w.score}
                 </span>
                 <span className="text-[9px] font-black text-indigo-700 dark:text-indigo-400 block mt-1 font-mono">

@@ -101,7 +101,7 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
       {/* Article Header Card */}
       <header className="p-6 md:p-8 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow)] space-y-4 relative overflow-hidden">
         <div className="flex flex-wrap items-center gap-2.5 text-xs font-mono">
-          <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800">
+          <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-500/20">
             {post.category}
           </span>
           <span className="text-[var(--text-muted)] flex items-center gap-1">
@@ -111,8 +111,8 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = ({
             <FileText className="w-3.5 h-3.5" /> {wordCount.toLocaleString()} words
           </span>
           {/poisson|expected-goals|xg|statistical|kelly|algorithm/i.test(post.slug + post.category) && (
-            <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold border border-slate-200 dark:border-slate-700 text-[11px] flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-emerald-700 dark:text-emerald-400" /> TechArticle Schema
+            <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 font-semibold border border-emerald-300 dark:border-emerald-700 text-[11px] flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> TechArticle Schema
             </span>
           )}
         </div>

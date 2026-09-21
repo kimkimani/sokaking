@@ -230,7 +230,7 @@ export const RelatedArticles: React.FC<RelatedArticlesProps> = ({
                       loading="lazy"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                    <div className="absolute inset-0 bg-black/20" />
                     
                     {/* Reason badge floating on thumbnail */}
                     <div className="absolute top-3 left-3">
@@ -260,12 +260,12 @@ export const RelatedArticles: React.FC<RelatedArticlesProps> = ({
                     {/* Category & Date (if no thumbnail) */}
                     {!post.coverImage && (
                       <div className="flex items-center justify-between gap-2 text-xs font-mono">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
                           reasonBadge.type === 'both' 
-                            ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' 
+                            ? 'bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border-emerald-300 dark:border-emerald-700' 
                             : reasonBadge.type === 'author' 
-                            ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300' 
-                            : 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300'
+                            ? 'bg-amber-100 dark:bg-amber-950/40 text-slate-950 dark:text-slate-100 border-amber-300 dark:border-amber-700' 
+                            : 'bg-indigo-100 dark:bg-indigo-950/40 text-slate-950 dark:text-slate-100 border-indigo-300 dark:border-indigo-700'
                         }`}>
                           {reasonBadge.label}
                         </span>
@@ -299,7 +299,7 @@ export const RelatedArticles: React.FC<RelatedArticlesProps> = ({
                   {/* Author Mini Byline & Reading CTA */}
                   <div className="pt-3 border-t border-[var(--border)] flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[var(--primary)] to-indigo-600 text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">
+                      <div className="w-6 h-6 rounded-full bg-emerald-700 text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">
                         {getInitials(post.author.name)}
                       </div>
                       <span className="text-xs font-medium text-[var(--text)] truncate max-w-[120px]">

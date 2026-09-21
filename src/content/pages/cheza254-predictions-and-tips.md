@@ -6,7 +6,7 @@ keywords: "cheza 254, cheza254 prediction, cheza254, cheza254 tips, www cheza254
 link: "/cheza-254-prediction"
 type: "competitor"
 icon: "⚽"
-badgeColor: "bg-green-500/10 text-green-500 border-green-500/20"
+badgeColor: "bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border border-emerald-300 dark:border-emerald-700"
 authorId: "brian-kipchumba"
 listTitle: "Cheza 254 Free Tips Today"
 listSubtitle: "Today's Cheza254 prediction, football tips, odds and jackpot selections."

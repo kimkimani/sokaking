@@ -618,7 +618,7 @@ export default function VotePoll({
                 }}
                 className={`relative overflow-hidden py-2 px-2 rounded-lg border text-center transition-all duration-200 cursor-pointer flex flex-col items-center justify-center min-h-[48px] ${
                   isVoted
-                    ? 'bg-emerald-500/15 border-emerald-500 text-emerald-950 dark:text-emerald-200 font-black ring-1 ring-emerald-500/40 shadow-xs'
+                    ? 'bg-emerald-700 border-emerald-700 text-white font-black shadow-xs'
                     : 'bg-white dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:border-amber-500/50 active:scale-[0.98]'
                 }`}
               >
@@ -644,7 +644,7 @@ export default function VotePoll({
                     {opt.label}
                   </span>
                   {isVoted && (
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0 font-black" />
+                    <CheckCircle2 className="w-3 h-3 text-white shrink-0 font-black" />
                   )}
                 </div>
 
@@ -701,7 +701,7 @@ export default function VotePoll({
                 isMatchFinished ? 'cursor-not-allowed opacity-90' : 'cursor-pointer hover:shadow-xs'
               } ${
                 selected
-                  ? 'bg-emerald-500/10 border-emerald-500 text-emerald-950 dark:text-emerald-100 ring-2 ring-emerald-500/30'
+                  ? 'bg-emerald-700 border-emerald-700 text-white shadow-xs'
                   : 'bg-white dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-750 text-[var(--text)] hover:border-amber-500/50'
               }`}
             >
@@ -727,20 +727,22 @@ export default function VotePoll({
                   {opt.label}
                 </span>
                 {selected && (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 font-bold" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-white shrink-0 font-bold" />
                 )}
               </div>
 
               {/* Sub-label helper if present */}
               {opt.sublabel && (
-                <span className="relative z-10 text-[9.5px] sm:text-[10.5px] font-medium text-[var(--text-muted)] truncate max-w-full px-0.5 leading-none my-0.5">
+                <span className={`relative z-10 text-[9.5px] sm:text-[10.5px] font-medium truncate max-w-full px-0.5 leading-none my-0.5 ${
+                  selected ? 'text-white/80' : 'text-[var(--text-muted)]'
+                }`}>
                   {opt.sublabel}
                 </span>
               )}
 
               {/* Big Clean Percentage */}
               <span className={`relative z-10 text-sm sm:text-base font-black font-mono leading-none ${
-                selected ? 'text-emerald-600 dark:text-emerald-400' : 'text-[var(--text)]'
+                selected ? 'text-white' : 'text-[var(--text)]'
               }`}>
                 {pct}%
               </span>

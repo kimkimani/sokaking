@@ -6,7 +6,7 @@ keywords: "254 football prediction, 254 prediction, 254prediction, 254 top tips,
 link: "/254-football-prediction"
 type: "competitor"
 icon: "⚽"
-badgeColor: "bg-green-500/10 text-green-500 border-green-500/20"
+badgeColor: "bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border border-emerald-300 dark:border-emerald-700"
 authorId: "brian-kipchumba"
 listTitle: "Today 254 football prediction"
 listSubtitle: "Accurate 254 football prediction and free tips for every match today."

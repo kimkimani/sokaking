@@ -36,7 +36,7 @@ export default function JackpotListPage({
       case 'sportpesa-midweek':
         return {
           brand: 'SportPesa',
-          bgClass: 'bg-blue-600/15 text-blue-950 dark:text-blue-200 border-blue-500/30',
+          bgClass: 'bg-blue-100 dark:bg-blue-950/40 text-slate-950 dark:text-slate-100 border-blue-300 dark:border-blue-700',
           badgeText: 'SP',
           logoColor: 'text-blue-600 dark:text-blue-400'
         };
@@ -44,7 +44,7 @@ export default function JackpotListPage({
       case 'betika-midweek':
         return {
           brand: 'Betika',
-          bgClass: 'bg-emerald-600/15 text-emerald-950 dark:text-emerald-200 border-emerald-500/30',
+          bgClass: 'bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border-emerald-300 dark:border-emerald-700',
           badgeText: 'BK',
           logoColor: 'text-emerald-600 dark:text-emerald-400'
         };
@@ -53,14 +53,14 @@ export default function JackpotListPage({
       case 'mozzart-super-daily':
         return {
           brand: 'Mozzart',
-          bgClass: 'bg-amber-600/15 text-amber-950 dark:text-amber-200 border-amber-500/30',
+          bgClass: 'bg-amber-100 dark:bg-amber-950/40 text-slate-950 dark:text-slate-100 border-amber-300 dark:border-amber-700',
           badgeText: 'MZ',
           logoColor: 'text-amber-600 dark:text-amber-400'
         };
       default:
         return {
           brand: 'Premium',
-          bgClass: 'bg-purple-600/15 text-purple-950 dark:text-purple-200 border-purple-500/30',
+          bgClass: 'bg-purple-100 dark:bg-purple-950/40 text-slate-950 dark:text-slate-100 border-purple-300 dark:border-purple-700',
           badgeText: 'PR',
           logoColor: 'text-purple-600 dark:text-purple-400'
         };
@@ -92,11 +92,11 @@ export default function JackpotListPage({
 
       {/* 1. HERO HEADER BANNER */}
       <div className="relative overflow-hidden p-6 md:p-8 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow)]">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-emerald-500 via-[var(--primary)] to-indigo-500" />
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-emerald-600" />
         
         <div className="max-w-3xl space-y-3">
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border border-emerald-500/30 flex items-center gap-1 animate-pulse">
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border border-emerald-300 dark:border-emerald-700 flex items-center gap-1 animate-pulse">
               <Trophy className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> All Major Jackpots
             </span>
             <span className="text-[10.5px] text-slate-700 dark:text-slate-300 font-mono font-black uppercase tracking-wider">
@@ -183,7 +183,7 @@ export default function JackpotListPage({
               );
             } else {
               statusBadge = (
-                <span className="px-2 py-0.5 rounded text-[8.5px] font-black uppercase tracking-wider font-mono bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border border-emerald-500/30">
+                <span className="px-2 py-0.5 rounded text-[8.5px] font-black uppercase tracking-wider font-mono bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border border-emerald-300 dark:border-emerald-700">
                   Open • Not started
                 </span>
               );
@@ -276,7 +276,7 @@ export default function JackpotListPage({
                 <div className="mt-5 pt-4 border-t border-[var(--border)] flex items-center justify-between min-h-[44px]">
                   <div className="flex items-center gap-2">
                     {isUnlocked ? (
-                      <span className="px-2 py-1 rounded text-[8.5px] font-black font-mono bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border border-emerald-500/30 uppercase tracking-wider animate-pulse">
+                      <span className="px-2 py-1 rounded text-[8.5px] font-black font-mono bg-emerald-700 text-white border border-emerald-700 uppercase tracking-wider animate-pulse">
                         Unlocked
                       </span>
                     ) : (

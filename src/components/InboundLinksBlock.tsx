@@ -69,36 +69,36 @@ export default function InboundLinksBlock({
         return {
           icon: <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />,
           badgeText: defaultBadge || 'Alternative Portals',
-          badgeClass: 'bg-purple-500/15 text-purple-950 dark:text-purple-200 border-purple-500/30',
-          accentColor: 'border-purple-500/30 hover:border-purple-500/60',
-          tagBg: 'bg-purple-500/15 text-purple-950 dark:text-purple-200 border-purple-500/30',
+          badgeClass: 'bg-purple-100 dark:bg-purple-950/40 text-slate-950 dark:text-slate-100 border-purple-300 dark:border-purple-700',
+          accentColor: 'border-purple-300 dark:border-purple-700 hover:border-purple-500',
+          tagBg: 'bg-slate-100 dark:bg-slate-800 text-slate-950 dark:text-slate-100 border-slate-300 dark:border-slate-700',
           arrowColor: 'text-purple-700 dark:text-purple-300'
         };
       case 'jackpot':
         return {
           icon: <Trophy className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />,
           badgeText: defaultBadge || 'Major Kenyan Pools',
-          badgeClass: 'bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border-emerald-500/30',
-          accentColor: 'border-emerald-500/30 hover:border-emerald-500/60',
-          tagBg: 'bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border-emerald-500/30',
+          badgeClass: 'bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border-emerald-300 dark:border-emerald-700',
+          accentColor: 'border-emerald-300 dark:border-emerald-700 hover:border-emerald-500',
+          tagBg: 'bg-slate-100 dark:bg-slate-800 text-slate-950 dark:text-slate-100 border-slate-300 dark:border-slate-700',
           arrowColor: 'text-emerald-700 dark:text-emerald-300'
         };
       case 'category':
         return {
           icon: <TrendingUp className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />,
           badgeText: defaultBadge || 'Market Angles',
-          badgeClass: 'bg-blue-500/15 text-blue-950 dark:text-blue-200 border-blue-500/30',
-          accentColor: 'border-blue-500/30 hover:border-blue-500/60',
-          tagBg: 'bg-blue-500/15 text-blue-950 dark:text-blue-200 border-blue-500/30',
+          badgeClass: 'bg-blue-100 dark:bg-blue-950/40 text-slate-950 dark:text-slate-100 border-blue-300 dark:border-blue-700',
+          accentColor: 'border-blue-300 dark:border-blue-700 hover:border-blue-500',
+          tagBg: 'bg-slate-100 dark:bg-slate-800 text-slate-950 dark:text-slate-100 border-slate-300 dark:border-slate-700',
           arrowColor: 'text-blue-700 dark:text-blue-300'
         };
       default:
         return {
           icon: <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />,
           badgeText: defaultBadge || 'Platform & Trust',
-          badgeClass: 'bg-indigo-500/15 text-indigo-950 dark:text-indigo-200 border-indigo-500/30',
-          accentColor: 'border-indigo-500/30 hover:border-indigo-500/60',
-          tagBg: 'bg-indigo-500/15 text-indigo-950 dark:text-indigo-200 border-indigo-500/30',
+          badgeClass: 'bg-indigo-100 dark:bg-indigo-950/40 text-slate-950 dark:text-slate-100 border-indigo-300 dark:border-indigo-700',
+          accentColor: 'border-indigo-300 dark:border-indigo-700 hover:border-indigo-500',
+          tagBg: 'bg-slate-100 dark:bg-slate-800 text-slate-950 dark:text-slate-100 border-slate-300 dark:border-slate-700',
           arrowColor: 'text-indigo-700 dark:text-indigo-300'
         };
     }
@@ -145,7 +145,7 @@ export default function InboundLinksBlock({
                 }
               }
             }}
-            className={`group relative flex flex-col justify-between p-4 rounded-xl border bg-[var(--background)] hover:bg-slate-100/60 dark:hover:bg-slate-900/60 transition-all duration-200 no-underline cursor-pointer shadow-3xs min-h-[44px] ${styling.accentColor}`}
+            className="group relative flex flex-col justify-between p-4 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)] hover:shadow-sm transition-all duration-200 no-underline cursor-pointer min-h-[44px]"
           >
             {/* Top row: Icon and Tag */}
             <div className="space-y-2">

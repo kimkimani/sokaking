@@ -6,7 +6,7 @@ keywords: "tabiri soka, tabiri soka prediction, tabiri soka free tips, tabiri so
 link: "/tabiri-soka-prediction"
 type: "competitor"
 icon: "⚽"
-badgeColor: "bg-cyan-500/10 text-cyan-500 border-cyan-500/20"
+badgeColor: "bg-cyan-100 dark:bg-cyan-950/40 text-slate-950 dark:text-slate-100 border border-cyan-300 dark:border-cyan-700"
 authorId: "brian-kipchumba"
 listTitle: "Tabiri Soka Free Tips Today"
 listSubtitle: "Today's Tabiri Soka predictions, football tips and jackpot selections."

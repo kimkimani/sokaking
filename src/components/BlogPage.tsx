@@ -114,10 +114,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({
       </nav>
 
       {/* Hero Header */}
-      <section className="p-6 md:p-8 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow)] backdrop-blur-[var(--backdrop)] relative overflow-hidden">
-        <div className="absolute -top-16 -left-16 w-52 h-52 rounded-full bg-[var(--primary)]/10 blur-3xl" />
-        <div className="absolute -bottom-16 -right-16 w-52 h-52 rounded-full bg-indigo-500/10 blur-3xl" />
-
+      <section className="p-6 md:p-8 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow)] relative overflow-hidden">
         <div className="relative z-10 max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--primary)] text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
             <BookOpen className="w-3.5 h-3.5 text-white" />
@@ -217,7 +214,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({
       {activeAuthor && (
         <div className="p-5 rounded-[var(--radius)] bg-indigo-500/5 border-2 border-indigo-500/20 text-left space-y-2">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--primary)] to-indigo-600 text-white flex items-center justify-center font-black font-mono text-base shrink-0 shadow-sm">
+            <div className="w-12 h-12 rounded-full bg-emerald-700 text-white flex items-center justify-center font-black font-mono text-base shrink-0 shadow-sm">
               {getInitials(activeAuthor.name)}
             </div>
             <div className="space-y-1 flex-1">
@@ -225,8 +222,8 @@ export const BlogPage: React.FC<BlogPageProps> = ({
                 <h2 className="text-base font-extrabold text-[var(--text)] m-0">
                   {activeAuthor.name}
                 </h2>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black font-mono uppercase bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30">
-                  <ShieldCheck className="w-3 h-3" /> Verified Contributor
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black font-mono uppercase bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border border-emerald-300 dark:border-emerald-700">
+                  <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> Verified Contributor
                 </span>
               </div>
               <p className="text-[11px] font-mono font-bold text-[var(--primary)]">

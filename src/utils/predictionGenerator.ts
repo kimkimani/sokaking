@@ -18,7 +18,7 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
     countText: "215 Tips",
     description: "Soka King mathematical results and settling indices of matches played yesterday.",
     icon: "⏪",
-    badgeColor: "bg-slate-500/10 text-slate-500 border-slate-500/20"
+    badgeColor: "bg-slate-100 dark:bg-slate-800 text-slate-950 dark:text-slate-100 border-slate-300 dark:border-slate-700"
   },
   {
     id: 'category-today',
@@ -27,7 +27,7 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
     countText: "248 Tips",
     description: "Superbly analyzed predictions, active metrics, and mathematical codes for today's matches.",
     icon: "🔥",
-    badgeColor: "bg-red-500/10 text-red-500 border-red-500/20"
+    badgeColor: "bg-rose-100 dark:bg-rose-950/40 text-slate-950 dark:text-slate-100 border-rose-300 dark:border-rose-700"
   },
   {
     id: 'category-tomorrow',
@@ -36,7 +36,7 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
     countText: "210 Tips",
     description: "Advanced algorithmic forecasts for tomorrow's upcoming fixtures calculated by Poisson distribution models.",
     icon: "⏩",
-    badgeColor: "bg-blue-500/10 text-blue-500 border-blue-500/20"
+    badgeColor: "bg-blue-100 dark:bg-blue-950/40 text-slate-950 dark:text-slate-100 border-blue-300 dark:border-blue-700"
   },
   {
     id: 'category-over15',
@@ -45,7 +45,7 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
     countText: "48 Tips",
     description: "Highly stable selections where 2 or more goals are highly predicted based on offensive/defensive coefficients.",
     icon: "⚽",
-    badgeColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+    badgeColor: "bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border-emerald-300 dark:border-emerald-700"
   },
   {
     id: 'category-btts',
@@ -54,7 +54,7 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
     countText: "36 Tips",
     description: "Clashing offensive attacks vs. weak defense structures. Both sides are mathematically expected to find the net.",
     icon: "🤝",
-    badgeColor: "bg-amber-500/10 text-amber-500 border-amber-500/20"
+    badgeColor: "bg-amber-100 dark:bg-amber-950/40 text-slate-950 dark:text-slate-100 border-amber-300 dark:border-amber-700"
   },
   {
     id: 'category-homewin',
@@ -63,7 +63,7 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
     countText: "52 Tips",
     description: "Algorithmic predictions for full-time outcomes including home wins (1), draws (X), and away wins (2).",
     icon: "⚖️",
-    badgeColor: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20"
+    badgeColor: "bg-indigo-100 dark:bg-indigo-950/40 text-slate-950 dark:text-slate-100 border-indigo-300 dark:border-indigo-700"
   },
   {
     id: 'category-over25',
@@ -72,7 +72,7 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
     countText: "30 Tips",
     description: "High-scoring matches featuring open play tactics, defensive injuries, and strong conversion indices.",
     icon: "🎯",
-    badgeColor: "bg-pink-500/10 text-pink-500 border-pink-500/20"
+    badgeColor: "bg-pink-100 dark:bg-pink-950/40 text-slate-950 dark:text-slate-100 border-pink-300 dark:border-pink-700"
   },
   {
     id: 'category-doublechance',
@@ -81,7 +81,7 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
     countText: "25 Tips",
     description: "High-security coverage covering multiple outcomes (1X, X2, or 12) for low-variance accumulator builders.",
     icon: "🛡️",
-    badgeColor: "bg-teal-500/10 text-teal-500 border-teal-500/20"
+    badgeColor: "bg-teal-100 dark:bg-teal-950/40 text-slate-950 dark:text-slate-100 border-teal-300 dark:border-teal-700"
   },
   {
     id: '254-sure-tips',
@@ -90,7 +90,7 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
     countText: "18 Banker Tips",
     description: "Daily 254 sure tips and banker predictions with high winning accuracy for Kenyan bettors.",
     icon: "🔥",
-    badgeColor: "bg-amber-500/10 text-amber-500 border-amber-500/20"
+    badgeColor: "bg-amber-100 dark:bg-amber-950/40 text-slate-950 dark:text-slate-100 border-amber-300 dark:border-amber-700"
   },
   {
     id: 'sunpel-free-football-betting-tips',
@@ -99,7 +99,7 @@ export const PREDICTION_CATEGORIES: PredictionCategory[] = [
     countText: "20 Value Tips",
     description: "Sunpelpredict and Sunpel free football betting tips, daily banker picks, and accumulator selections.",
     icon: "☀️",
-    badgeColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+    badgeColor: "bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border-emerald-300 dark:border-emerald-700"
   }
 ];
 

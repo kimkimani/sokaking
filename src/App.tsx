@@ -1035,7 +1035,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                       countText: getCategoryCountText(activePage),
                       description: pageMd.description,
                       icon: pageMd.icon || "⚽",
-                      badgeColor: pageMd.badgeColor || "bg-indigo-500/10 text-indigo-500 border-indigo-500/20"
+                      badgeColor: pageMd.badgeColor || "bg-indigo-100 dark:bg-indigo-950/40 text-slate-950 dark:text-slate-100 border-indigo-300 dark:border-indigo-700"
                     };
 
                     const categoryFixtures = getCategoryFixtures(
@@ -1064,10 +1064,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                 return (
                   <div className="space-y-8">
                     {/* HERO BANNER */}
-                    <section id="hero" className="p-6 md:p-8 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow)] backdrop-blur-[var(--backdrop)] relative overflow-hidden text-left">
-                      <div className="absolute -top-16 -left-16 w-48 h-48 rounded-full bg-[var(--primary)] bg-opacity-10 blur-3xl glow-glow" />
-                      <div className="absolute -bottom-16 -right-16 w-48 h-48 rounded-full bg-[var(--secondary)] bg-opacity-5 blur-3xl glow-glow" />
-
+                    <section id="hero" className="p-6 md:p-8 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow)] relative overflow-hidden text-left">
                       <div className="relative z-10 max-w-2xl space-y-4">
                         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--primary)] text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
                           <Sparkles className="w-3.5 h-3.5 text-white animate-pulse" /> Real-Time Analytics and Verified Predictions
@@ -1161,13 +1158,11 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     )}
 
                     {/* 2. DEDICATED PREMIUM JACKPOTS HOME PROMOTION BANNER */}
-                    <section id="jackpot-section" className="p-5 rounded-[var(--radius)] bg-gradient-to-br from-emerald-600/10 via-emerald-600/5 to-transparent border border-emerald-500/20 shadow-xs relative overflow-hidden text-left">
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
-                      
+                    <section id="jackpot-section" className="p-5 rounded-[var(--radius)] bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-500/20 shadow-xs relative overflow-hidden text-left">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div className="space-y-2 max-w-lg">
-                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 text-[10px] font-mono font-bold uppercase tracking-wider animate-pulse">
-                            <Trophy className="w-3 h-3" /> Premium Jackpots Available
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 border border-emerald-300 dark:border-emerald-700 text-[10px] font-mono font-bold uppercase tracking-wider animate-pulse">
+                            <Trophy className="w-3 h-3 text-emerald-700 dark:text-emerald-400" /> Premium Jackpots Available
                           </div>
                           <h3 className="text-md md:text-lg font-black text-[var(--text)] tracking-tight uppercase" style={{ fontFamily: 'var(--font-display)' }}>
                             Soka King Premium Jackpots
@@ -1350,7 +1345,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
               : 'bg-transparent text-slate-700 dark:text-slate-300 hover:text-[var(--text)]'
           }`}
         >
-          <Flame className={`w-4 h-4 mb-0.5 ${['today', 'category-today', 'category-tomorrow', '254-sure-tips'].includes(activePage) ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
+          <Flame className={`w-4 h-4 mb-0.5 ${['today', 'category-today', 'category-tomorrow', '254-sure-tips'].includes(activePage) ? 'text-white' : 'text-amber-500'}`} />
           <span>Today's Tips</span>
         </a>
 
@@ -1368,7 +1363,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
               : 'bg-transparent text-slate-700 dark:text-slate-300 hover:text-[var(--text)]'
           }`}
         >
-          <Trophy className={`w-4 h-4 mb-0.5 ${activePage === 'sportpesa-mega' ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
+          <Trophy className={`w-4 h-4 mb-0.5 ${activePage === 'sportpesa-mega' ? 'text-white' : 'text-amber-500'}`} />
           <span>Mega JP</span>
         </a>
 
@@ -1386,7 +1381,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
               : 'bg-transparent text-slate-700 dark:text-slate-300 hover:text-[var(--text)]'
           }`}
         >
-          <Crown className={`w-4 h-4 mb-0.5 ${activePage === 'vip-packages' ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
+          <Crown className={`w-4 h-4 mb-0.5 ${activePage === 'vip-packages' ? 'text-white' : 'text-amber-500'}`} />
           <span>VIP</span>
         </a>
 
@@ -1404,7 +1399,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
               : 'bg-transparent text-slate-700 dark:text-slate-300 hover:text-[var(--text)]'
           }`}
         >
-          <Layers className={`w-4 h-4 mb-0.5 ${['jackpot-list', 'betika-grand', 'betika-midweek', 'sportpesa-midweek', 'mozzart-super-grand', 'mozzart-super-daily'].includes(activePage) ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
+          <Layers className={`w-4 h-4 mb-0.5 ${['jackpot-list', 'betika-grand', 'betika-midweek', 'sportpesa-midweek', 'mozzart-super-grand', 'mozzart-super-daily'].includes(activePage) ? 'text-white' : ''}`} />
           <span>Jackpots</span>
         </a>
       </nav>
@@ -1432,10 +1427,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={`https://wa.me/${siteContacts.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello Soka King Support, I need today tips')}`} 
                   target="_blank" 
                   rel="nofollow noopener noreferrer" 
-                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:border-emerald-600 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-700 hover:bg-slate-900 text-white border border-emerald-700 font-mono text-[11px] font-bold transition-all no-underline" 
                   title="WhatsApp Hotline"
                 >
-                  <MessageSquare className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                  <MessageSquare className="w-4 h-4 text-white" />
                   <span>WhatsApp</span>
                 </a>
               )}
@@ -1444,10 +1439,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={siteContacts.telegram} 
                   target="_blank" 
                   rel="nofollow noopener noreferrer" 
-                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:border-emerald-600 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-sky-100 dark:bg-sky-950/40 text-slate-950 dark:text-slate-100 border border-sky-300 dark:border-sky-700 font-mono text-[11px] font-bold hover:bg-slate-900 hover:text-white transition-all no-underline" 
                   title="Telegram Channel"
                 >
-                  <Send className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                  <Send className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                   <span>Telegram</span>
                 </a>
               )}
@@ -1456,10 +1451,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={siteContacts.facebook} 
                   target="_blank" 
                   rel="nofollow noopener noreferrer" 
-                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:border-emerald-600 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-100 dark:bg-blue-950/40 text-slate-950 dark:text-slate-100 border border-blue-300 dark:border-blue-700 font-mono text-[11px] font-bold hover:bg-slate-900 hover:text-white transition-all no-underline" 
                   title="Facebook Page"
                 >
-                  <Facebook className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                  <Facebook className="w-4 h-4 text-blue-700 dark:text-blue-300" />
                   <span>Facebook</span>
                 </a>
               )}
@@ -1468,10 +1463,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={siteContacts.twitter} 
                   target="_blank" 
                   rel="nofollow noopener noreferrer" 
-                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:border-emerald-600 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-500/15 text-slate-950 dark:text-slate-100 border border-slate-500/30 font-mono text-[11px] font-bold hover:bg-slate-500/25 transition-all no-underline" 
                   title="Twitter / X"
                 >
-                  <Twitter className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                  <Twitter className="w-4 h-4 text-slate-800 dark:text-slate-200" />
                   <span>Twitter / X</span>
                 </a>
               )}
@@ -1480,10 +1475,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={siteContacts.instagram} 
                   target="_blank" 
                   rel="nofollow noopener noreferrer" 
-                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:border-emerald-600 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-pink-500/15 text-pink-950 dark:text-pink-200 border border-pink-500/30 font-mono text-[11px] font-bold hover:bg-pink-500/25 transition-all no-underline" 
                   title="Instagram Page"
                 >
-                  <Instagram className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                  <Instagram className="w-4 h-4 text-pink-700 dark:text-pink-300" />
                   <span>Instagram</span>
                 </a>
               )}
@@ -1492,10 +1487,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={siteContacts.youtube} 
                   target="_blank" 
                   rel="nofollow noopener noreferrer" 
-                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:border-emerald-600 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/15 text-red-950 dark:text-red-200 border border-red-500/30 font-mono text-[11px] font-bold hover:bg-red-500/25 transition-all no-underline" 
                   title="YouTube Channel"
                 >
-                  <Youtube className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                  <Youtube className="w-4 h-4 text-red-700 dark:text-red-300" />
                   <span>YouTube</span>
                 </a>
               )}
@@ -1507,10 +1502,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     handleSelectPage('contact');
                   }
                 }}
-                className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:border-emerald-600 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all no-underline cursor-pointer" 
+                className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition-all no-underline cursor-pointer" 
                 title="Contact Support"
               >
-                <Mail className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                <Mail className="w-4 h-4" />
                 <span>Contact</span>
               </a>
             </div>
@@ -1671,7 +1666,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     handleSelectPage('responsible-gambling');
                   }
                 }}
-                className="min-h-[44px] inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-950 dark:text-rose-200 text-[10.5px] font-mono font-black uppercase tracking-wider border border-rose-500/30 transition-all no-underline cursor-pointer"
+                className="min-h-[44px] inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-rose-100 dark:bg-rose-950/40 hover:bg-slate-900 hover:text-white text-slate-950 dark:text-slate-100 text-[10.5px] font-mono font-black uppercase tracking-wider border border-rose-300 dark:border-rose-700 transition-all no-underline cursor-pointer"
               >
                 <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping" />
                 <span>Responsible Gambling</span>

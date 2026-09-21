@@ -517,6 +517,22 @@ export function getDynamicUrlMaps(
       pageKey.includes('sure-') ||
       pageKey.startsWith('category-');
 
+function sanitizeBadgeColor(color?: string): string {
+  if (!color) {
+    return 'bg-amber-100 dark:bg-amber-950/40 text-slate-950 dark:text-slate-100 border border-amber-300 dark:border-amber-700 font-bold';
+  }
+  // Remove tone-on-tone text classes (e.g. text-amber-500, text-green-500, text-blue-500) and enforce high contrast text
+  let sanitized = color
+    .replace(/bg-([a-z]+)-500\/10/g, 'bg-$1-100 dark:bg-$1-950/40')
+    .replace(/border-([a-z]+)-500\/20/g, 'border border-$1-300 dark:border-$1-700')
+    .replace(/border-([a-z]+)-500\/30/g, 'border border-$1-300 dark:border-$1-700')
+    .replace(/text-[a-z]+-[0-9]+(?:\/[0-9]+)?/g, 'text-slate-950 dark:text-slate-100 font-bold');
+  if (!sanitized.includes('text-slate-950')) {
+    sanitized += ' text-slate-950 dark:text-slate-100 font-bold';
+  }
+  return sanitized;
+}
+
     if (isCompetitorOrCategory && meta.type !== 'jackpot' && meta.type !== 'static' && meta.type !== 'blog' && meta.type !== 'blog-post' && pageKey !== 'home') {
       dynamicCategoryPages[pageKey] = {
         id: pageKey,
@@ -525,7 +541,7 @@ export function getDynamicUrlMaps(
         countText: 'Tips',
         description: meta.description || '',
         icon: meta.icon || '⚡',
-        badgeColor: meta.badgeColor || 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+        badgeColor: sanitizeBadgeColor(meta.badgeColor),
         isDynamicCompetitor: true
       };
     }

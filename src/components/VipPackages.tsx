@@ -72,7 +72,7 @@ export default function VipPackages({
                 <ul className="space-y-3 mb-6">
                   {pkg.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start gap-2.5 text-xs text-[var(--text)]">
-                      <div className="p-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 mt-0.5 flex-shrink-0">
+                      <div className="p-0.5 rounded-full bg-emerald-700 text-white mt-0.5 flex-shrink-0">
                         <Check className="w-3 h-3 stroke-[3]" />
                       </div>
                       <span className="leading-tight">{feature}</span>
@@ -83,18 +83,18 @@ export default function VipPackages({
 
               {/* Action Button */}
               {userPurchasedItemIds.includes(String(pkg.id)) ? (
-                <div className="w-full py-3.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 rounded-[var(--radius)] font-mono font-black text-xs text-center flex items-center justify-center gap-1.5 uppercase">
-                  <ShieldCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                <div className="w-full py-3.5 bg-emerald-700 text-white border border-emerald-700 rounded-[var(--radius)] font-mono font-black text-xs text-center flex items-center justify-center gap-1.5 uppercase">
+                  <ShieldCheck className="w-4 h-4 text-white" />
                   <span>Active Subscription</span>
                 </div>
               ) : (
                 <button
                   onClick={() => onOpenPayment(pkg.name, pkg.price, pkg.id, pkg.slug, 'vip')}
                   className={`
-                    w-full py-3.5 text-xs rounded-[var(--radius)] shadow-xs flex items-center justify-center gap-2 transition-all duration-200 border-none cursor-pointer font-black uppercase tracking-wider
+                    w-full py-3.5 text-xs rounded-[var(--radius)] shadow-sm hover:opacity-95 flex items-center justify-center gap-2 transition-all duration-200 border-none cursor-pointer font-black uppercase tracking-wider
                     ${isFeatured 
-                      ? 'bg-emerald-700 hover:bg-emerald-800 text-white' 
-                      : 'bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white'
+                      ? 'bg-emerald-700 hover:bg-slate-900 text-white' 
+                      : 'bg-slate-900 hover:bg-emerald-700 text-white'
                     }
                   `}
                 >

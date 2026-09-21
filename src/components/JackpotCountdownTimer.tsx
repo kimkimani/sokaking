@@ -262,13 +262,6 @@ const JackpotCountdownTimer = memo(function JackpotCountdownTimer({
           ? 'border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.06)]' 
           : 'border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.06)]'
     } ${className}`}>
-      <div className={`absolute -top-16 -left-16 w-24 h-24 rounded-full blur-2xl pointer-events-none ${
-        hasEnded ? 'bg-rose-500/5' : hasStarted ? 'bg-amber-500/5' : 'bg-emerald-500/5'
-      }`} />
-      <div className={`absolute -bottom-16 -right-16 w-24 h-24 rounded-full blur-2xl pointer-events-none ${
-        hasEnded ? 'bg-rose-500/5' : hasStarted ? 'bg-amber-500/5' : 'bg-emerald-500/5'
-      }`} />
-
       {/* Left Column */}
       <div className="flex items-center gap-3 z-10 flex-1">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${

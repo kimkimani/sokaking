@@ -70,14 +70,14 @@ export default function PaymentModal({
         </button>
 
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 border-b border-[var(--border)] bg-slate-50 dark:bg-slate-900 text-left shrink-0">
+        <div className="p-4 sm:p-5 border-b border-[var(--border)] bg-slate-50 dark:bg-slate-900/50 text-left shrink-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 font-mono text-[9px] font-bold uppercase tracking-wider border border-emerald-300 dark:border-emerald-800">
+            <span className="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/40 text-slate-950 dark:text-slate-100 font-mono text-[9px] font-extrabold uppercase tracking-wider border border-emerald-300 dark:border-emerald-700">
               Lipa na M-Pesa • Pochi La Biashara
             </span>
           </div>
           <h2 className="text-base sm:text-lg font-black text-[var(--text)] flex items-center gap-2 tracking-tight">
-            <Coins className="w-5 h-5 text-emerald-700 dark:text-emerald-400 shrink-0" />
+            <Coins className="w-5 h-5 text-emerald-500 shrink-0" />
             Unlock: {packageName}
           </h2>
           <p className="text-[var(--text-muted)] text-[11px] mt-0.5">
@@ -103,7 +103,7 @@ export default function PaymentModal({
             </div>
 
             {/* POCHI LA BIASHARA PAYMENT CARD */}
-            <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/[0.08] to-emerald-500/[0.02] border-2 border-emerald-500/30 dark:border-emerald-500/40 space-y-3">
+            <div className="p-4 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/20 border-2 border-emerald-500/30 dark:border-emerald-500/40 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-mono font-extrabold uppercase text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
                   <Smartphone className="w-4 h-4 text-emerald-500" />
@@ -125,7 +125,7 @@ export default function PaymentModal({
                 <button
                   type="button"
                   onClick={handleCopyNumber}
-                  className="px-3 py-1.5 rounded-md bg-emerald-700 hover:bg-emerald-800 text-white font-mono text-[10px] font-black flex items-center gap-1.5 cursor-pointer border-none transition-all active:scale-95 shrink-0 shadow-3xs"
+                  className="px-3 py-1.5 rounded-md bg-emerald-700 hover:bg-slate-900 text-white font-mono text-[10px] font-black flex items-center gap-1.5 cursor-pointer border-none transition-all active:scale-95 shrink-0 shadow-3xs"
                 >
                   {isCopied ? (
                     <>
@@ -176,7 +176,7 @@ export default function PaymentModal({
                 href={`https://wa.me/254${POCHI_PHONE_NUMBER.replace(/^0/, '')}?text=${whatsappMessage}`}
                 target="_blank"
                 rel="nofollow noopener noreferrer"
-                className="w-full py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-98 text-white font-mono text-xs font-black flex items-center justify-center gap-2 shadow-md no-underline cursor-pointer transition-all uppercase tracking-wider border-none"
+                className="w-full py-3 px-4 rounded-xl bg-emerald-700 hover:bg-slate-900 active:scale-98 text-white font-mono text-xs font-black flex items-center justify-center gap-2 shadow-md no-underline cursor-pointer transition-all uppercase tracking-wider border-none"
               >
                 <PhoneCall className="w-4 h-4 text-white" />
                 <span>Paid? Chat on WhatsApp</span>
@@ -429,7 +429,7 @@ export function PreviousStkPaymentModal({
                 </div>
 
                 {errorMessage && (
-                  <div className="p-3 rounded-[var(--radius)] bg-rose-500 bg-opacity-10 border border-rose-500 border-opacity-30 text-rose-700 font-bold">
+                  <div className="p-3 rounded-[var(--radius)] bg-rose-100 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-700 text-slate-950 dark:text-slate-100 font-bold text-xs">
                     {errorMessage}
                   </div>
                 )}
@@ -519,7 +519,7 @@ export function PreviousStkPaymentModal({
                     <button 
                       type="button"
                       onClick={() => setStep('pin-prompt')}
-                      className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[var(--text)] rounded font-extrabold text-[10px] cursor-pointer border border-[var(--border)] transition-all font-mono"
+                      className="px-4 py-2 bg-slate-100 hover:bg-slate-900 hover:text-white dark:bg-slate-800 dark:hover:bg-slate-950 text-[var(--text)] rounded font-extrabold text-[10px] cursor-pointer border border-[var(--border)] transition-all font-mono"
                     >
                       ⚡ Speed Up: Open Simulated Keypad
                     </button>
@@ -592,14 +592,14 @@ export function PreviousStkPaymentModal({
                               setStep('input');
                               setErrorMessage('M-Pesa transaction cancelled by user.');
                             }}
-                            className="flex-1 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded cursor-pointer border-none text-[9px]"
+                            className="flex-1 py-1.5 bg-gray-200 hover:bg-slate-900 hover:text-white text-gray-800 font-bold rounded cursor-pointer border-none text-[9px] transition-colors"
                           >
                             Cancel
                           </button>
                           <button 
                             type="submit"
                             disabled={isSubmitting || pin.length !== 4}
-                            className="flex-1 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded cursor-pointer border-none text-[9px] flex items-center justify-center gap-1"
+                            className="flex-1 py-1.5 bg-emerald-600 hover:bg-slate-900 text-white font-bold rounded cursor-pointer border-none text-[9px] flex items-center justify-center gap-1 transition-colors"
                           >
                             {isSubmitting ? <Loader2 className="w-2.5 h-2.5 animate-spin text-white" /> : 'Send'}
                           </button>
@@ -626,11 +626,11 @@ export function PreviousStkPaymentModal({
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="py-6 text-center space-y-4"
               >
-                <div className="w-12 h-12 rounded-full bg-emerald-500 bg-opacity-10 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-500 border-opacity-30">
+                <div className="w-12 h-12 rounded-full bg-emerald-700 text-white flex items-center justify-center mx-auto border border-emerald-700">
                   <CheckCircle2 className="w-6 h-6 stroke-[2.5]" />
                 </div>
                 <div>
-                  <h3 className="font-extrabold text-base mb-1 text-emerald-600">Payment Confirmed!</h3>
+                  <h3 className="font-extrabold text-base mb-1 text-[var(--text)]">Payment Confirmed!</h3>
                   <p className="text-[var(--text-muted)] text-xs max-w-sm mx-auto leading-relaxed">
                     Thank you <strong className="text-[var(--text)]">{accountName}</strong>. Your payment of <strong className="text-[var(--primary)]">KES {price}</strong> has been successfully processed by Safaricom M-Pesa.
                   </p>
