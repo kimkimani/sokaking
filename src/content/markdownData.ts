@@ -1543,7 +1543,7 @@ This week our experts are targeting 12 out of 13 correct tips. Our main target i
 
 The SportPesa Midweek Jackpot competition features a list of 13 matches, all selected by SportPesa. For the current list, the Sokaiugn expert analyzes all 13 to come up with a confidence score and a most-favored prediction.
 
-Soka King provides free Scometix Midweek Jackpot predictions for all 13 fixtures; the match scheduled to start on {{START_DATE}} and the last fixture will be played on {{END_DATE}}.
+Soka King provides free Scometix Midweek Jackpot predictions for all 13 fixtures. It is scheduled to start on {{START_DATETIME}} and the last fixture will be played on {{END_DATETIME}}.
 
 The current Midweek jackpot has been selected from leagues that are popular: {{SPORTPESA_MIDWEEK_LEAGUES}}. But do not take leagues as a measure of outcome. A fixture is what matters to determine the outcome. This jackpot will feature {{JACKPOT_SELECTIONS}}.
 
