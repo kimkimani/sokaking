@@ -1162,8 +1162,8 @@ export const CURATED_UPSET_CANDIDATES: Array<{ homeTeam: string; awayTeam: strin
 ];
 
 /**
- * Generates upset alert text for any jackpot fixtures with randomized match arrangements
- * and variable phrasing to ensure high content uniqueness across multiple pages.
+ * Generates upset alert text for any jackpot fixtures, selecting exactly two consistent fixtures
+ * for a given jackpot until new updated fixtures are loaded.
  */
 export function generateJackpotUpsetAlertText(
   source?: string | Fixture[],
@@ -1176,67 +1176,73 @@ export function generateJackpotUpsetAlertText(
   let match1 = '';
   let match2 = '';
 
-  // Dynamic analysis from coupon fixtures
+  // Dynamic analysis from coupon fixtures: select strictly 2 fixtures consistently
   if (fixtures && fixtures.length >= 2 && mode !== 'curated') {
     const candidateFixtures = [...fixtures].sort((a, b) => {
+      const tipA = normalizeTipSymbol(a.prediction || (a as any).tip || '');
+      const tipB = normalizeTipSymbol(b.prediction || (b as any).tip || '');
+      const isDrawA = tipA === 'X' ? 1 : 0;
+      const isDrawB = tipB === 'X' ? 1 : 0;
+      if (isDrawA !== isDrawB) return isDrawB - isDrawA;
+
       const confA = typeof a.confidence === 'number' ? a.confidence : 75;
       const confB = typeof b.confidence === 'number' ? b.confidence : 75;
-      const isDrawA = normalizeTipSymbol(a.prediction || (a as any).tip || '') === 'X' ? 1 : 0;
-      const isDrawB = normalizeTipSymbol(b.prediction || (b as any).tip || '') === 'X' ? 1 : 0;
-      if (isDrawA !== isDrawB) return isDrawB - isDrawA;
-      return confA - confB;
+      if (confA !== confB) return confA - confB;
+
+      const numA = typeof a.fixtureNumber === 'number' ? a.fixtureNumber : 0;
+      const numB = typeof b.fixtureNumber === 'number' ? b.fixtureNumber : 0;
+      return numA - numB;
     });
 
-    // Pick 2 random fixtures from the top 5 upset candidates for variance
-    const pool = candidateFixtures.slice(0, Math.min(5, candidateFixtures.length));
-    const shuffledPool = shuffleArray(pool);
-    const f1 = shuffledPool[0];
-    const f2 = shuffledPool[1] || candidateFixtures[1];
+    // Consistently select the top 2 upset candidates for this jackpot
+    const selectedTwo = candidateFixtures.slice(0, 2);
+    // Sort by fixtureNumber ascending so the matches appear in natural order (e.g. Match 3 and Match 16)
+    selectedTwo.sort((a, b) => {
+      const numA = typeof a.fixtureNumber === 'number' ? a.fixtureNumber : 0;
+      const numB = typeof b.fixtureNumber === 'number' ? b.fixtureNumber : 0;
+      return numA - numB;
+    });
 
-    const l1 = formatLeagueName(f1.leagueName || (f1 as any).league || 'League');
-    const l2 = formatLeagueName(f2.leagueName || (f2 as any).league || 'League');
+    const f1 = selectedTwo[0];
+    const f2 = selectedTwo[1] || selectedTwo[0];
+
+    const l1 = formatLeagueName(f1.leagueName || (f1 as any).league || '');
+    const l2 = formatLeagueName(f2.leagueName || (f2 as any).league || '');
     const t1Home = cleanTeamName(f1.homeTeam);
     const t1Away = cleanTeamName(f1.awayTeam);
     const t2Home = cleanTeamName(f2.homeTeam);
     const t2Away = cleanTeamName(f2.awayTeam);
 
-    match1 = `${t1Home} vs ${t1Away} (${l1})`;
-    match2 = `${t2Home} vs ${t2Away} (${l2})`;
+    match1 = l1 ? `${t1Home} vs ${t1Away} (${l1})` : `${t1Home} vs ${t1Away}`;
+    match2 = l2 ? `${t2Home} vs ${t2Away} (${l2})` : `${t2Home} vs ${t2Away}`;
   } else {
-    // Curated fallback: pick 2 randomly from diverse pool
-    const shuffledCurated = shuffleArray(CURATED_UPSET_CANDIDATES);
-    const c1 = shuffledCurated[0];
-    const c2 = shuffledCurated[1];
+    // Deterministic curated fallback based on jackpotId (no random shuffling)
+    const jackpotHash = jackpotId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const idx1 = jackpotHash % CURATED_UPSET_CANDIDATES.length;
+    const idx2 = (idx1 + 1) % CURATED_UPSET_CANDIDATES.length;
+    const c1 = CURATED_UPSET_CANDIDATES[idx1];
+    const c2 = CURATED_UPSET_CANDIDATES[idx2];
     match1 = `${c1.homeTeam} vs ${c1.awayTeam} (${c1.leagueName})`;
     match2 = `${c2.homeTeam} vs ${c2.awayTeam} (${c2.leagueName})`;
   }
 
-  // Randomize ordering of match 1 and match 2
-  const [m1, m2] = Math.random() < 0.5 ? [match1, match2] : [match2, match1];
+  // Consistent ordering of the two fixtures
+  const m1 = match1;
+  const m2 = match2;
 
-  // If format is explicitly short, or context is inline (preceded by 'for ', 'in ', 'out ', etc.)
-  if (format === 'short' || context === 'inline') {
-    const inlineArrangements = [
-      `${m1} and ${m2}`,
-      `${m2} and ${m1}`,
-      `${m1} alongside ${m2}`,
-      `${m2} as well as ${m1}`,
-      `${m1} together with ${m2}`
-    ];
-    return inlineArrangements[Math.floor(Math.random() * inlineArrangements.length)];
+  // If format is explicitly short / inline / matches / fixtures, or context is inline
+  if (
+    format === 'short' ||
+    format === 'inline' ||
+    format === 'matches' ||
+    format === 'fixtures' ||
+    context === 'inline'
+  ) {
+    return `${m1} and ${m2}`;
   }
 
-  // Standalone full sentences with random phrasing and structure for high content uniqueness
-  const sentenceArrangements = [
-    `${m1} and ${m2} represent this round's primary upset alerts, where narrow head-to-head margins and unpredictable away form make double chance coverage (1X or X2) highly advisable.`,
-    `Key upset alerts for this coupon include ${m2} as well as ${m1}—both clashes present volatile head-to-head trends where backing double chances provides essential insurance.`,
-    `Watch out for potential surprise results in ${m1} alongside ${m2}, where tight defensive records and underdog counter-attacking threats suggest looking beyond standard 1X2 outcomes.`,
-    `This week's most precarious fixtures feature ${m2} and ${m1}, where community voting patterns strongly diverge from statistical probabilities and double-chance hedging is recommended.`,
-    `Bettors should be particularly cautious with ${m1} and ${m2}, as competitive parity and fluctuating home-advantage margins elevate the risk of unexpected scorelines.`,
-    `Notable upset candidates on this ticket center around ${m2} together with ${m1}—both matches exhibit classic trap-game dynamics where double-chance safety (1X or X2) is strongly favored.`
-  ];
-
-  return sentenceArrangements[Math.floor(Math.random() * sentenceArrangements.length)];
+  // Standalone full sentence: completely consistent and deterministic
+  return `${m1} and ${m2} represent this round's primary upset alerts, where narrow head-to-head margins and unpredictable away form make double chance coverage (1X or X2) highly advisable.`;
 }
 
 /**
@@ -1606,14 +1612,14 @@ interface ParsedTagParams {
   jackpotId: string;
   count?: number;
   mode: 'auto' | 'fixtures' | 'curated';
-  format: 'paragraph' | 'list' | 'short' | 'time' | 'full' | 'day';
+  format: 'paragraph' | 'list' | 'short' | 'time' | 'full' | 'day' | 'inline' | 'sentence';
 }
 
 function parseAllTagParams(rawAttrs: string, tagJackpotHint: string, defaultJackpotId: string): ParsedTagParams {
   let jackpotId = resolveJackpotId(tagJackpotHint || defaultJackpotId, defaultJackpotId);
   let count: number | undefined = undefined;
   let mode: 'auto' | 'fixtures' | 'curated' = 'auto';
-  let format: 'paragraph' | 'list' | 'short' | 'time' | 'full' | 'day' = 'paragraph';
+  let format: 'paragraph' | 'list' | 'short' | 'time' | 'full' | 'day' | 'inline' | 'sentence' = 'paragraph';
 
   if (!rawAttrs) return { jackpotId, count, mode, format };
 
@@ -1638,11 +1644,13 @@ function parseAllTagParams(rawAttrs: string, tagJackpotHint: string, defaultJack
     mode = 'curated';
   }
 
-  // Format: :list, :short, :paragraph, :time, :full, :datetime, :day
+  // Format: :list, :short, :paragraph, :time, :full, :datetime, :day, :inline, :sentence, :standalone
   if (/list/i.test(attrs)) {
     format = 'list';
-  } else if (/short/i.test(attrs)) {
+  } else if (/short|inline|matches|fixtures/i.test(attrs)) {
     format = 'short';
+  } else if (/sentence|standalone/i.test(attrs)) {
+    format = 'sentence';
   } else if (/(?:with-)?time|datetime|full/i.test(attrs)) {
     format = 'full';
   } else if (/day/i.test(attrs)) {
@@ -1796,9 +1804,20 @@ export function expandTopFixturesParameters(
       case 'UPSET_ALERTS':
       case 'UPSETS': {
         let isInline = false;
-        if (typeof offset === 'number' && typeof fullStr === 'string' && offset > 0) {
-          const preceding = fullStr.slice(Math.max(0, offset - 25), offset).trim();
-          isInline = /(?:for|out|in|on|between|of|regarding|about)\s*$/i.test(preceding);
+        if (format === 'sentence' || format === 'full') {
+          isInline = false;
+        } else if (format === 'short' || format === 'inline') {
+          isInline = true;
+        } else if (typeof offset === 'number' && typeof fullStr === 'string') {
+          const matchLen = (_full || '').length || 20;
+          const preceding = fullStr.slice(Math.max(0, offset - 50), offset).trim();
+          const following = fullStr.slice(offset + matchLen, offset + matchLen + 50).trim();
+
+          const hasContinuationAfter = /^[a-z0-9]|^(?:and|for|to|where|in|with|while|expecting|as|,|;)/i.test(following);
+          const hasLeadInBefore = /(?:for|out|in|on|between|of|regarding|about|fixtures?|matches?|games?|including|like|such as|watch(?:\s+out)?|see)\s*$/i.test(preceding);
+          const notAtSentenceBoundary = preceding.length > 0 && !/[.!?\n]\s*$/.test(preceding);
+
+          isInline = hasContinuationAfter || hasLeadInBefore || notAtSentenceBoundary;
         }
         return generateJackpotUpsetAlertText(fixturesToUse, mode, format, isInline ? 'inline' : 'standalone');
       }

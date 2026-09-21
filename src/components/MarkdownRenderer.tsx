@@ -4,7 +4,8 @@ import {
   fetchLiveJackpotFixtures, 
   fetchLiveMegaJackpotFixtures, 
   getCachedLiveJackpotFixtures, 
-  isDoubleChanceTip 
+  isDoubleChanceTip,
+  resolveJackpotId
 } from '../utils/topJackpotFixtures';
 import { 
   getCachedLiveTodayFixtures, 
@@ -811,10 +812,11 @@ export default function MarkdownRenderer({
   className = '',
   postSlug,
   fixtures,
-  jackpotId = 'sportpesa-mega'
+  jackpotId: explicitJackpotId
 }: MarkdownRendererProps) {
   if (!content) return null;
 
+  const jackpotId = resolveJackpotId(explicitJackpotId || postSlug, 'sportpesa-mega');
   const [liveDbFixtures, setLiveDbFixtures] = useState<Fixture[] | null>(() => fixtures || getCachedLiveJackpotFixtures(jackpotId));
   const [, setLiveTodayFixtures] = useState<Fixture[] | null>(() => getCachedLiveTodayFixtures());
 
