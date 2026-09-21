@@ -19,20 +19,15 @@ export default function OddsPacks({
   
   const getRiskColorClass = (risk: OddsPack['riskLevel']) => {
     switch (risk) {
-      case 'Conservative': return 'text-white bg-emerald-800 border-emerald-800 font-black';
-      case 'Balanced': return 'text-slate-950 bg-amber-400 border-amber-400 font-black';
-      case 'Aggressive': return 'text-white bg-rose-700 border-rose-700 font-black';
-      default: return 'text-white bg-slate-800 border-slate-800 font-black';
+      case 'Conservative': return 'text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800 font-bold';
+      case 'Balanced': return 'text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 border-amber-300 dark:border-amber-800 font-bold';
+      case 'Aggressive': return 'text-rose-800 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/50 border-rose-300 dark:border-rose-800 font-bold';
+      default: return 'text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 font-bold';
     }
   };
 
-  const getPackBgClass = (risk: OddsPack['riskLevel']) => {
-    switch (risk) {
-      case 'Conservative': return 'bg-gradient-to-br from-emerald-50/90 to-emerald-100/40 border-emerald-300/80 hover:border-emerald-500/80 shadow-[0_4px_20px_-4px_rgba(16,185,129,0.15)]';
-      case 'Balanced': return 'bg-gradient-to-br from-amber-50/90 to-amber-100/40 border-amber-300/80 hover:border-amber-500/80 shadow-[0_4px_20px_-4px_rgba(245,158,11,0.15)]';
-      case 'Aggressive': return 'bg-gradient-to-br from-rose-50/90 to-rose-100/40 border-rose-300/80 hover:border-rose-500/80 shadow-[0_4px_20px_-4px_rgba(244,63,94,0.15)]';
-      default: return 'bg-gradient-to-br from-slate-50/90 to-slate-100/40 border-slate-300/80';
-    }
+  const getPackBgClass = () => {
+    return 'bg-[var(--card)] border-[var(--border)] hover:border-emerald-600/50 dark:hover:border-emerald-500/50 shadow-xs';
   };
 
   return (
@@ -60,13 +55,13 @@ export default function OddsPacks({
           return (
             <div 
               key={pack.id}
-              className={`flex flex-col justify-between p-5 rounded-[var(--radius)] border transition-all duration-300 relative group shadow-sm ${getPackBgClass(pack.riskLevel)}`}
+              className={`flex flex-col justify-between p-5 rounded-[var(--radius)] border transition-all duration-300 relative group ${getPackBgClass()}`}
             >
               {/* Top Row: Title, Tag, and Odds Badge */}
               <div>
                 <div className="flex justify-between items-start gap-4 mb-3.5">
                   <div>
-                    <span className={`text-[9px] font-mono font-extrabold tracking-widest px-2.5 py-0.5 rounded uppercase border ${getRiskColorClass(pack.riskLevel)}`}>
+                    <span className={`text-[9px] font-mono font-bold tracking-wider px-2.5 py-0.5 rounded uppercase border ${getRiskColorClass(pack.riskLevel)}`}>
                       {pack.tag}
                     </span>
                     <div className="text-sm font-extrabold mt-2 text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>
@@ -75,9 +70,9 @@ export default function OddsPacks({
                   </div>
 
                   {/* Decimal Odds Indicator Badge */}
-                  <div className="px-3 py-1.5 bg-transparent text-black border border-black rounded-[var(--radius)] text-center min-w-[65px] font-mono shrink-0">
-                    <div className="text-sm font-black tracking-tight leading-none">{pack.oddsMinDecimal}</div>
-                    <div className="text-[8px] font-extrabold uppercase mt-0.5 tracking-wide">Odds+</div>
+                  <div className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 rounded-[var(--radius)] text-center min-w-[65px] font-mono shrink-0">
+                    <div className="text-sm font-black tracking-tight leading-none text-emerald-700 dark:text-emerald-400">{pack.oddsMinDecimal}</div>
+                    <div className="text-[8px] font-bold uppercase mt-0.5 tracking-wide text-slate-500 dark:text-slate-400">Odds+</div>
                   </div>
                 </div>
 
@@ -87,14 +82,14 @@ export default function OddsPacks({
                 </p>
 
                 {/* Mini analytics row */}
-                <div className="grid grid-cols-2 gap-2 p-2.5 rounded-[var(--radius)] bg-[var(--card)] border border-[var(--border)] text-[10px] mb-4">
+                <div className="grid grid-cols-2 gap-2 p-2.5 rounded-[var(--radius)] bg-slate-50 dark:bg-slate-900/60 border border-[var(--border)] text-[10px] mb-4">
                   <div>
-                    <span className="text-slate-700 dark:text-slate-300 block uppercase font-mono font-bold">Picks Ratio</span>
-                    <strong className="text-slate-950 dark:text-slate-100 font-extrabold">{pack.picksPerDay} Selections / Slip</strong>
+                    <span className="text-slate-500 dark:text-slate-400 block uppercase font-mono font-bold">Picks Ratio</span>
+                    <strong className="text-slate-900 dark:text-slate-100 font-extrabold">{pack.picksPerDay} Selections / Slip</strong>
                   </div>
                   <div>
-                    <span className="text-slate-700 dark:text-slate-300 block uppercase font-mono font-bold">Risk Profile</span>
-                    <strong className="text-slate-950 dark:text-slate-100 font-extrabold">{pack.riskLevel}</strong>
+                    <span className="text-slate-500 dark:text-slate-400 block uppercase font-mono font-bold">Risk Profile</span>
+                    <strong className="text-slate-900 dark:text-slate-100 font-extrabold">{pack.riskLevel}</strong>
                   </div>
                 </div>
               </div>
@@ -103,19 +98,19 @@ export default function OddsPacks({
               <div className="border-t border-[var(--border)] pt-4 mt-1">
                 <div className="flex items-baseline justify-between mb-4">
                   <div className="text-xs text-[var(--text-muted)] font-mono uppercase">Ticket Price</div>
-                  <div className="text-lg font-black font-mono text-[var(--primary)]">
+                  <div className="text-lg font-black font-mono text-emerald-700 dark:text-emerald-400">
                     KES {pack.price}
                   </div>
                 </div>
 
                 {isUnlocked ? (
-                  <div className="w-full py-2.5 bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 rounded-[var(--radius)] font-mono font-black text-xs text-center flex items-center justify-center gap-1.5 uppercase">
+                  <div className="w-full py-2.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 rounded-[var(--radius)] font-mono font-black text-xs text-center flex items-center justify-center gap-1.5 uppercase">
                     <span>✓ Active Pack</span>
                   </div>
                 ) : (
                   <button
                     onClick={() => onOpenPayment(pack.name, pack.price, pack.id, pack.slug, 'odds')}
-                    className="w-full py-3 px-4 bg-[var(--primary)] hover:bg-emerald-800 active:scale-98 text-white font-black text-xs rounded-[var(--radius)] shadow-sm flex items-center justify-center gap-2 transition-all duration-200 border-none cursor-pointer"
+                    className="w-full py-3 px-4 bg-emerald-700 hover:bg-emerald-800 active:scale-98 text-white font-black text-xs rounded-[var(--radius)] shadow-xs flex items-center justify-center gap-2 transition-all duration-200 border-none cursor-pointer"
                   >
                     <Zap className="w-4 h-4 text-white" />
                     <span>Buy KES {pack.price}</span>

@@ -1350,7 +1350,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
               : 'bg-transparent text-slate-700 dark:text-slate-300 hover:text-[var(--text)]'
           }`}
         >
-          <Flame className={`w-4 h-4 mb-0.5 ${['today', 'category-today', 'category-tomorrow', '254-sure-tips'].includes(activePage) ? 'text-white' : 'text-amber-500'}`} />
+          <Flame className={`w-4 h-4 mb-0.5 ${['today', 'category-today', 'category-tomorrow', '254-sure-tips'].includes(activePage) ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
           <span>Today's Tips</span>
         </a>
 
@@ -1368,7 +1368,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
               : 'bg-transparent text-slate-700 dark:text-slate-300 hover:text-[var(--text)]'
           }`}
         >
-          <Trophy className={`w-4 h-4 mb-0.5 ${activePage === 'sportpesa-mega' ? 'text-white' : 'text-amber-500'}`} />
+          <Trophy className={`w-4 h-4 mb-0.5 ${activePage === 'sportpesa-mega' ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
           <span>Mega JP</span>
         </a>
 
@@ -1386,7 +1386,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
               : 'bg-transparent text-slate-700 dark:text-slate-300 hover:text-[var(--text)]'
           }`}
         >
-          <Crown className={`w-4 h-4 mb-0.5 ${activePage === 'vip-packages' ? 'text-white' : 'text-amber-500'}`} />
+          <Crown className={`w-4 h-4 mb-0.5 ${activePage === 'vip-packages' ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
           <span>VIP</span>
         </a>
 
@@ -1404,7 +1404,7 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
               : 'bg-transparent text-slate-700 dark:text-slate-300 hover:text-[var(--text)]'
           }`}
         >
-          <Layers className={`w-4 h-4 mb-0.5 ${['jackpot-list', 'betika-grand', 'betika-midweek', 'sportpesa-midweek', 'mozzart-super-grand', 'mozzart-super-daily'].includes(activePage) ? 'text-white' : ''}`} />
+          <Layers className={`w-4 h-4 mb-0.5 ${['jackpot-list', 'betika-grand', 'betika-midweek', 'sportpesa-midweek', 'mozzart-super-grand', 'mozzart-super-daily'].includes(activePage) ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
           <span>Jackpots</span>
         </a>
       </nav>
@@ -1432,10 +1432,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={`https://wa.me/${siteContacts.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello Soka King Support, I need today tips')}`} 
                   target="_blank" 
                   rel="nofollow noopener noreferrer" 
-                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border border-emerald-500/30 font-mono text-[11px] font-bold hover:bg-emerald-500/25 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:border-emerald-600 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all no-underline" 
                   title="WhatsApp Hotline"
                 >
-                  <MessageSquare className="w-4 h-4 text-emerald-700 dark:text-emerald-300" />
+                  <MessageSquare className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                   <span>WhatsApp</span>
                 </a>
               )}
@@ -1444,10 +1444,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={siteContacts.telegram} 
                   target="_blank" 
                   rel="nofollow noopener noreferrer" 
-                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-sky-500/15 text-sky-950 dark:text-sky-200 border border-sky-500/30 font-mono text-[11px] font-bold hover:bg-sky-500/25 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:border-emerald-600 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all no-underline" 
                   title="Telegram Channel"
                 >
-                  <Send className="w-4 h-4 text-sky-700 dark:text-sky-300" />
+                  <Send className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                   <span>Telegram</span>
                 </a>
               )}
@@ -1456,10 +1456,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={siteContacts.facebook} 
                   target="_blank" 
                   rel="nofollow noopener noreferrer" 
-                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-500/15 text-blue-950 dark:text-blue-200 border border-blue-500/30 font-mono text-[11px] font-bold hover:bg-blue-500/25 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:border-emerald-600 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all no-underline" 
                   title="Facebook Page"
                 >
-                  <Facebook className="w-4 h-4 text-blue-700 dark:text-blue-300" />
+                  <Facebook className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                   <span>Facebook</span>
                 </a>
               )}
@@ -1468,10 +1468,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={siteContacts.twitter} 
                   target="_blank" 
                   rel="nofollow noopener noreferrer" 
-                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-500/15 text-slate-950 dark:text-slate-100 border border-slate-500/30 font-mono text-[11px] font-bold hover:bg-slate-500/25 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:border-emerald-600 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all no-underline" 
                   title="Twitter / X"
                 >
-                  <Twitter className="w-4 h-4 text-slate-800 dark:text-slate-200" />
+                  <Twitter className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                   <span>Twitter / X</span>
                 </a>
               )}
@@ -1480,10 +1480,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={siteContacts.instagram} 
                   target="_blank" 
                   rel="nofollow noopener noreferrer" 
-                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-pink-500/15 text-pink-950 dark:text-pink-200 border border-pink-500/30 font-mono text-[11px] font-bold hover:bg-pink-500/25 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:border-emerald-600 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all no-underline" 
                   title="Instagram Page"
                 >
-                  <Instagram className="w-4 h-4 text-pink-700 dark:text-pink-300" />
+                  <Instagram className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                   <span>Instagram</span>
                 </a>
               )}
@@ -1492,10 +1492,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                   href={siteContacts.youtube} 
                   target="_blank" 
                   rel="nofollow noopener noreferrer" 
-                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/15 text-red-950 dark:text-red-200 border border-red-500/30 font-mono text-[11px] font-bold hover:bg-red-500/25 transition-all no-underline" 
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:border-emerald-600 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all no-underline" 
                   title="YouTube Channel"
                 >
-                  <Youtube className="w-4 h-4 text-red-700 dark:text-red-300" />
+                  <Youtube className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                   <span>YouTube</span>
                 </a>
               )}
@@ -1507,10 +1507,10 @@ export default function App({ initialPage, initialJackpotId, initialPredictions,
                     handleSelectPage('contact');
                   }
                 }}
-                className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition-all no-underline cursor-pointer" 
+                className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-mono text-[11px] font-bold hover:border-emerald-600 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all no-underline cursor-pointer" 
                 title="Contact Support"
               >
-                <Mail className="w-4 h-4" />
+                <Mail className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                 <span>Contact</span>
               </a>
             </div>

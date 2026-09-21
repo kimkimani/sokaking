@@ -81,7 +81,7 @@ export default function FaqSection({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[var(--border)] pb-3.5">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-indigo-500/15 text-indigo-800 dark:text-indigo-300 border border-indigo-500/30">
+          <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
             <HelpCircle className="w-5 h-5" />
           </div>
           <div>
@@ -106,7 +106,7 @@ export default function FaqSection({
                 key={idx}
                 className={`rounded-xl border transition-all duration-200 overflow-hidden ${
                   isOpen 
-                    ? 'border-indigo-500/40 bg-[var(--background)] shadow-2xs' 
+                    ? 'border-emerald-500/50 bg-[var(--background)] shadow-2xs' 
                     : 'border-[var(--border)] bg-[var(--card)] hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
               >
@@ -118,14 +118,14 @@ export default function FaqSection({
                   className="w-full p-4 flex items-center justify-between gap-3 text-left bg-transparent border-none cursor-pointer transition-colors"
                 >
                   <div className="flex items-start gap-2.5 min-w-0">
-                    <span className="text-xs font-mono font-black text-indigo-750 dark:text-indigo-300 shrink-0 mt-0.5">
+                    <span className="text-xs font-mono font-black text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5">
                       Q{idx + 1}.
                     </span>
                     <h3 className="text-xs md:text-sm font-bold text-[var(--text)] leading-snug m-0">
                       {item.question}
                     </h3>
                   </div>
-                  <ChevronDown className={`w-4 h-4 text-[var(--text-muted)] shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-indigo-500' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 text-[var(--text-muted)] shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-emerald-700 dark:text-emerald-400' : ''}`} />
                 </button>
 
                 {isOpen && (
@@ -152,11 +152,11 @@ export default function FaqSection({
       {/* Contact Quick Link */}
       <div className="pt-2 flex items-center justify-between text-[11px] text-[var(--text-muted)] border-t border-[var(--border)]">
         <span className="flex items-center gap-1.5">
-          <MessageCircle className="w-3.5 h-3.5 text-indigo-500" /> Have another question?
+          <MessageCircle className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" /> Have another question?
         </span>
         <a 
           href="/contact-us"
-          className="text-indigo-500 hover:underline font-bold font-mono text-[10px] uppercase"
+          className="text-emerald-700 dark:text-emerald-400 hover:underline font-bold font-mono text-[10px] uppercase"
         >
           Contact Customer Support &rarr;
         </a>

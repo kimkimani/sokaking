@@ -57,19 +57,19 @@ export default function FixtureRow({
               {fixture.isDoubleChance && (
                 <>
                   <span>•</span>
-                  <span className="px-1.5 py-0.5 bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-500/30 rounded-[4px] text-[7.5px] tracking-normal lowercase shrink-0 font-sans leading-none font-bold">double chance</span>
+                  <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-[4px] text-[7.5px] font-mono tracking-wider uppercase shrink-0 leading-none font-bold">double chance</span>
                 </>
               )}
               {fixture.is3PlusGoals && (
                 <>
                   <span>•</span>
-                  <span className="px-1.5 py-0.5 bg-indigo-500/15 text-indigo-900 dark:text-indigo-300 border border-indigo-500/30 rounded-[4px] text-[7.5px] tracking-normal shrink-0 font-sans leading-none font-bold">3+ Goals</span>
+                  <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-[4px] text-[7.5px] font-mono tracking-wider uppercase shrink-0 leading-none font-bold">3+ Goals</span>
                 </>
               )}
               {fixture.is2PlusGoals && (
                 <>
                   <span>•</span>
-                  <span className="px-1.5 py-0.5 bg-emerald-500/15 text-emerald-900 dark:text-emerald-300 border border-emerald-500/30 rounded-[4px] text-[7.5px] tracking-normal shrink-0 font-sans leading-none font-bold">2+ Goals</span>
+                  <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-[4px] text-[7.5px] font-mono tracking-wider uppercase shrink-0 leading-none font-bold">2+ Goals</span>
                 </>
               )}
             </div>
@@ -87,13 +87,13 @@ export default function FixtureRow({
           <span className={`text-[11px] md:text-xs font-bold font-mono border px-2.5 py-1 rounded-md shadow-2xs flex items-center justify-center gap-1 transition-all ${
             isCompleted 
               ? isWon
-                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-350 border-emerald-500/40 font-bold shadow-emerald-500/10'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-750 line-through opacity-70'
-              : 'bg-sky-50 dark:bg-sky-950/30 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-800/60'
+                ? 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-950 dark:text-emerald-200 border-emerald-400 dark:border-emerald-700 font-black shadow-emerald-500/10'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700 line-through opacity-70'
+              : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 border-emerald-300 dark:border-emerald-800/80 font-bold'
           }`}>
             <span className="font-bold tracking-tight">{fixture.prediction}</span>
             {(isWon || (isCompleted && fixture.result === 'won')) && (
-              <span className="inline-flex items-center justify-center bg-emerald-500 text-white font-black rounded-full w-3.5 h-3.5 text-[9px] ml-0.5 shadow-2xs">✓</span>
+              <span className="inline-flex items-center justify-center bg-emerald-700 text-white font-black rounded-full w-3.5 h-3.5 text-[9px] ml-0.5 shadow-2xs">✓</span>
             )}
           </span>
         </div>
@@ -120,9 +120,9 @@ export default function FixtureRow({
                 ? 'bg-emerald-700 text-white border-emerald-700'
                 : isCompleted
                   ? isWon
-                    ? 'bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-500/35 text-emerald-850 dark:text-emerald-300 font-black'
-                    : 'bg-slate-100 dark:bg-slate-900 border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 font-black'
-                  : 'bg-white dark:bg-slate-850 border-[var(--border)] hover:border-indigo-500/40 hover:bg-indigo-500/[0.06] text-slate-900 dark:text-slate-100 hover:text-indigo-800 dark:hover:text-indigo-300 font-black'
+                    ? 'bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/60 border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200 font-black'
+                    : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold'
+                  : 'bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 font-bold'
             }`}
           >
             <BookOpen className="w-3.5 h-3.5 shrink-0" />
@@ -151,17 +151,17 @@ export default function FixtureRow({
               {fixture.leagueName || (fixture as any).league_name}
             </span>
             {fixture.isDoubleChance && (
-              <span className="px-1.5 py-0.5 bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-500/30 rounded text-[7.5px] tracking-normal lowercase shrink-0 font-sans leading-none font-bold">
+              <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded text-[7.5px] font-mono tracking-wider uppercase shrink-0 leading-none font-bold">
                 double chance
               </span>
             )}
             {fixture.is3PlusGoals && (
-              <span className="px-1.5 py-0.5 bg-indigo-500/15 text-indigo-900 dark:text-indigo-300 border border-indigo-500/30 rounded text-[7.5px] tracking-normal shrink-0 font-sans leading-none font-bold">
+              <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded text-[7.5px] font-mono tracking-wider uppercase shrink-0 leading-none font-bold">
                 3+ Goals
               </span>
             )}
             {fixture.is2PlusGoals && (
-              <span className="px-1.5 py-0.5 bg-emerald-500/15 text-emerald-900 dark:text-emerald-300 border border-emerald-500/30 rounded text-[7.5px] tracking-normal shrink-0 font-sans leading-none font-bold">
+              <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded text-[7.5px] font-mono tracking-wider uppercase shrink-0 leading-none font-bold">
                 2+ Goals
               </span>
             )}
@@ -261,18 +261,20 @@ export default function FixtureRow({
         <div className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 transition-all ${
           isCompleted
             ? 'bg-slate-100/70 dark:bg-slate-900/40 border-slate-200/60 dark:border-slate-800 text-slate-400'
-            : 'bg-indigo-500/[0.06] dark:bg-indigo-500/12 border-indigo-500/20 dark:border-indigo-500/25'
+            : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-800'
         }`}>
           <div className="min-w-0 flex-1 flex items-center gap-1.5 flex-wrap">
             <span className="text-[10px] uppercase font-mono font-black text-slate-800 dark:text-slate-200 shrink-0">TIP:</span>
             <span className={`text-[11px] sm:text-xs font-mono font-bold tracking-tight flex items-center gap-1 px-2 py-0.5 rounded-md border ${
               isCompleted
-                ? 'bg-slate-200/60 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 border-slate-300/60 dark:border-slate-700'
-                : 'bg-indigo-600/10 dark:bg-indigo-500/20 text-indigo-950 dark:text-indigo-100 border-indigo-500/30'
+                ? isWon
+                  ? 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-950 dark:text-emerald-200 border-emerald-400 dark:border-emerald-700 font-bold'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700 line-through opacity-70'
+                : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 border-emerald-300 dark:border-emerald-800/80 font-bold'
             }`}>
               <span className="font-bold tracking-tight">{fixture.prediction}</span>
               {(isWon || (isCompleted && fixture.result === 'won')) && (
-                <span className="inline-flex items-center justify-center bg-emerald-600 text-white font-black rounded-full w-3.5 h-3.5 text-[8px] ml-0.5 shrink-0">✓</span>
+                <span className="inline-flex items-center justify-center bg-emerald-700 text-white font-black rounded-full w-3.5 h-3.5 text-[8px] ml-0.5 shrink-0">✓</span>
               )}
             </span>
           </div>
@@ -285,7 +287,7 @@ export default function FixtureRow({
             className={`active:scale-95 text-white font-black text-[10px] uppercase px-3.5 py-2.5 rounded-lg flex items-center gap-1.5 transition-all border-none shrink-0 cursor-pointer shadow-xs ${
               isCompleted
                 ? 'bg-slate-700 hover:bg-slate-800'
-                : 'bg-indigo-700 hover:bg-indigo-800'
+                : 'bg-emerald-700 hover:bg-emerald-800'
             }`}
           >
             <BookOpen className="w-3.5 h-3.5 text-white" />
@@ -305,11 +307,11 @@ export default function FixtureRow({
           {isExpanded && (
             <div className="p-4 text-xs space-y-3 leading-relaxed text-left">
               <div className="flex items-center justify-between">
-                <span className="font-bold flex items-center gap-1 text-indigo-700 dark:text-indigo-400 font-mono uppercase tracking-wider text-[10px]">
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-400 animate-pulse" /> Live Expert Evaluation
+                <span className="font-bold flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-mono uppercase tracking-wider text-[10px]">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 animate-pulse" /> Live Expert Evaluation
                 </span>
                 <span className="text-[10px] font-mono text-[var(--text-muted)] bg-[var(--background)] px-2 py-0.5 rounded border border-[var(--border)]">
-                  Confidence factor: <strong className="text-sky-700 dark:text-sky-400 font-black">{displayConf}%</strong>
+                  Confidence factor: <strong className="text-emerald-700 dark:text-emerald-300 font-black">{displayConf}%</strong>
                 </span>
               </div>
               <p className="text-[var(--text-muted)] leading-relaxed font-sans">

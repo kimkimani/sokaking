@@ -70,14 +70,14 @@ export default function PaymentModal({
         </button>
 
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 border-b border-[var(--border)] bg-gradient-to-r from-emerald-500/10 via-indigo-500/5 to-transparent text-left shrink-0">
+        <div className="p-4 sm:p-5 border-b border-[var(--border)] bg-slate-50 dark:bg-slate-900 text-left shrink-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-mono text-[9px] font-extrabold uppercase tracking-wider border border-emerald-500/25">
+            <span className="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 font-mono text-[9px] font-bold uppercase tracking-wider border border-emerald-300 dark:border-emerald-800">
               Lipa na M-Pesa • Pochi La Biashara
             </span>
           </div>
           <h2 className="text-base sm:text-lg font-black text-[var(--text)] flex items-center gap-2 tracking-tight">
-            <Coins className="w-5 h-5 text-emerald-500 shrink-0" />
+            <Coins className="w-5 h-5 text-emerald-700 dark:text-emerald-400 shrink-0" />
             Unlock: {packageName}
           </h2>
           <p className="text-[var(--text-muted)] text-[11px] mt-0.5">

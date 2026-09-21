@@ -13,18 +13,18 @@
   --font-display: 'Unbounded', var(--font-unbounded), sans-serif;
   --font-mono: var(--font-mono), 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Enhanced High-Visibility Colors (WCAG AAA compliant contrast) */
-  --background: #f1f7f4;
-  --text: #041e15; /* Ultra-deep high contrast text */
-  --text-muted: #1e3a2e; /* Dark readable secondary text */
-  --primary: #047857; /* Emerald Green 700 - WCAG AAA contrast */
+  /* Enhanced High-Visibility Colors (WCAG AAA compliant contrast - Betwinner360 Inspired Clean Uniformity) */
+  --background: #f8fafc; /* Crisp, neutral Slate-50 canvas */
+  --text: #0f172a; /* Razor-sharp Slate-900 typography */
+  --text-muted: #475569; /* Slate-600 secondary text */
+  --primary: #047857; /* Authoritative Emerald Green 700 */
   --primary-rgb: 4, 120, 87;
   --secondary: #0284c7; /* Sky 600 */
-  --accent: #9a3412; /* Orange 800 */
-  --card: #ffffff;
-  --border: #bfe0d4; /* Clear defined card borders */
-  --shadow: 0 10px 30px rgba(4, 30, 21, 0.08);
-  --radius: 14px;
+  --accent: #d97706; /* Amber 600 */
+  --card: #ffffff; /* Crisp white card and table background */
+  --border: #e2e8f0; /* Crisp Slate-200 structural hairline borders */
+  --shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+  --radius: 12px;
   --backdrop: none;
 }
 
@@ -62,17 +62,17 @@
 
 /* 1. EMERALD PROFESSIONAL (Chosen Primary Light Mode) */
 .theme-emerald {
-  --background: #f0f7f4;
-  --text: #062c1e;
-  --text-muted: #2d4f42;
+  --background: #f8fafc;
+  --text: #0f172a;
+  --text-muted: #475569;
   --primary: #047857; /* Emerald Green 700 */
   --primary-rgb: 4, 120, 87;
   --secondary: #0284c7; /* Sky 600 */
-  --accent: #9a3412; /* Orange 800 */
+  --accent: #d97706; /* Amber 600 */
   --card: #ffffff;
-  --border: #cbd5e1;
-  --shadow: 0 10px 30px rgba(6, 44, 30, 0.05);
-  --radius: 14px;
+  --border: #e2e8f0;
+  --shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+  --radius: 12px;
   --backdrop: none;
 }
 
@@ -174,3 +174,31 @@ img {
     touch-action: manipulation;
   }
 }
+
+/* =========================================================================
+   UNIFORM DESIGN TOKENS (Betwinner360 Inspired Visual Harmony)
+   ========================================================================= */
+.btn-emerald {
+  background-color: #047857;
+  color: #ffffff;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+.btn-emerald:hover {
+  background-color: #065f46;
+}
+
+.badge-emerald-soft {
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  font-weight: 700;
+}
+
+.badge-slate-soft {
+  background-color: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  font-weight: 600;
+}
+
