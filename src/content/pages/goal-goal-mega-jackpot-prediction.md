@@ -49,11 +49,12 @@ Do not forget to leave a vote for your best predicted selections for any fixture
 
 ### Is the Goal Goal Mega Jackpot the same as the SportPesa Mega Jackpot?
 
-Yes, on this page, the predictions you will get are those of the latest current SportPesa Mega Jackpot fixtures.
+Yes, on this page, the predictions you will get are those of the latest current SportPesa [Mega Best Site](https://sokaking.com/best-sportpesa-mega-jackpot-prediction-site) Jackpot fixtures.
 
 ### Can I use double chance for difficult matches?
 
 Yes. 1X  covers a home win or draw,  X2 covers a draw or away win, and 12 covers any win, home or away.
+
 {{MEGA_JACKPOT_DOUBLE_CHANCE_FIXTURES}}
 
 ### Can I vote on the Mega Jackpot predictions?
