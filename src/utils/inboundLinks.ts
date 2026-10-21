@@ -50,7 +50,7 @@ const CURATED_LINKS: Record<string, Partial<InboundLinkItem>> = {
   },
   'sunpel-free-football-betting-tips': {
     title: 'Sunpelpredict Banker Tips',
-    url: '/sunpel-free-football-betting-tips-and-soccer-predictions',
+    url: '/sunpel-predict-football-prediction-today',
     description: 'Daily Sunpel football predictions, high-confidence banker picks, and soccer tips.',
     tag: 'Sunpel Banker',
     icon: '🌟',

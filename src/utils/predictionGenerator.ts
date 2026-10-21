@@ -452,7 +452,7 @@ export function getCategoryFixtures(
     pageType === 'competitor' ||
     categoryId === '254-sure-tips' ||
     categoryId === 'sunpel-free-football-betting-tips' ||
-    categoryId === 'sunpel-free-football-betting-tips-and-soccer-predictions' ||
+    categoryId === 'sunpel-predict-football-prediction-today' ||
     categoryId === 'tabiri-soka-prediction-free-tips' ||
     categoryId === 'cheza254-predictions-and-tips' ||
     categoryId === 'sokamastas-predictions-and-tips' ||

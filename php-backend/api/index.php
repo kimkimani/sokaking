@@ -1373,7 +1373,7 @@ if ($path === '/sitemap.xml' || $path === '/sitemap') {
         '/254-sure-tips',
         '/cheerplex-predictions-and-tips-today',
         '/liobet-predictions-and-tips',
-        '/sunpel-free-football-betting-tips-and-soccer-predictions',
+        '/sunpel-predict-football-prediction-today',
         '/jackpot-tips',
         '/sportpesa-mega-jackpot-prediction',
         '/free-betika-midweek-jackpot-predictions-and-analysis',

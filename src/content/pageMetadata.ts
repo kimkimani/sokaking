@@ -810,7 +810,7 @@ export const PAGE_METADATA_MAP: Record<string, PageMetadata> = {
     "displayTitle": "Sunpelpredict - Free Football Betting Tips and Soccer Predictions Today",
     "description": "Get free Sunpelpredict football betting tips and accurate Sunpel soccer predictions today. Access daily banker picks, 1X2 tips, over 2.5 goals, and jackpot predictions.",
     "keywords": "sunpelpredict, sunpel predict, sunpel predictions, sunpel football tips, sunpelpredict today, sunpel free betting tips, sunpel soccer, sunpel banker tips, sunpel tips today",
-    "link": "/sunpel-free-football-betting-tips-and-soccer-predictions",
+    "link": "/sunpel-predict-football-prediction-today",
     "type": "competitor",
     "authorId": "brian-kipchumba",
     "authorName": "John K. Mwangi",
