@@ -57,6 +57,8 @@ Do underlying data and our community support the prediction?
 └── NO  ──> Treat as casual prediction and not worthy to risk.
 ```
 
+If not get our sokaking [vip](https://sokaking.com/vip-packages) tips.
+
 <!-- FAQ -->
 ## Shuwa Shua Bet FAQ - Soka King
 
