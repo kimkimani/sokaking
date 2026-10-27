@@ -32,7 +32,7 @@ When looking at our tips, you need to be good at evaluations. A Shua tip compile
 
 A sokaking genuine Shua tip will have to be a real fixture with the following tip structure:
 
-```
+```txt
 League:        Premier Division
 Kickoff:       15:00 (local time)
 Fixture:       Riverside FC vs Hartford Town
@@ -51,7 +51,7 @@ If a tip on our page is missing any of the above, please let us know regardless 
 
 You have looked at our tips, so what's next? You need to pick no more than three tips from our site. That means you will evaluate all the posted Shua Bet predictions before acting. To do this, answer the following subconsciously:
 
-```
+```txt
 Do underlying data and our community support the prediction?
 ├── YES ──> Check tip confirmation and the market odds value.
 └── NO  ──> Treat as casual prediction and not worthy to risk.
@@ -64,7 +64,7 @@ If not get our sokaking [vip](https://sokaking.com/vip-packages) tips.
 
 ### Where can I find good shuwa bet tips today?
 
-Visit our **[Today's Predictions](https://sokaking.com/football-predictions-today)** and check our update fixtures, with kickoffs and shua bet prediction tip
+Visit our [Today's Predictions](https://sokaking.com/football-predictions-today) and check our update fixtures, with kickoffs and shua bet prediction tip
 
 ### What are shuwa bet predictions?
 
