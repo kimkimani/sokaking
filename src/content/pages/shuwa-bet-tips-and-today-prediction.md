@@ -32,18 +32,15 @@ When looking at our tips, you need to be good at evaluations. A Shua tip compile
 
 A sokaking genuine Shua tip will have to be a real fixture with the following tip structure:
 
-```txt
 League:        Premier Division
 Kickoff:       15:00 (local time)
 Fixture:       Riverside FC vs Hartford Town
 Market:        Double Chance (1X)
 Model Prob:    58% Riverside win or draw
 Odds:          Varies by bookmaker — check before staking
-Reasoning:     Riverside unbeaten in 4 home games; Hartford
-               missing first-choice striker through injury.
+Reasoning:     Riverside unbeaten in 4 home games; Hartford missing first-choice striker through injury.
 Confidence:    Based on current squad news
 Community votes: All the votes that our users add in favour of a given tip
-```
 
 If a tip on our page is missing any of the above, please let us know regardless of how confident that fixture is.
 
@@ -51,11 +48,9 @@ If a tip on our page is missing any of the above, please let us know regardless 
 
 You have looked at our tips, so what's next? You need to pick no more than three tips from our site. That means you will evaluate all the posted Shua Bet predictions before acting. To do this, answer the following subconsciously:
 
-```txt
 Do underlying data and our community support the prediction?
 ├── YES ──> Check tip confirmation and the market odds value.
 └── NO  ──> Treat as casual prediction and not worthy to risk.
-```
 
 If not get our sokaking [vip](https://sokaking.com/vip-packages) tips.
 
